@@ -25,8 +25,8 @@ function isSupabaseConfigured() {
  * day than the server/database when the offset is +/- hours.
  */
 function localDateString(): string {
-  // "en-CA" locale always formats as YYYY-MM-DD — safe for any timezone
-  return new Date().toLocaleDateString("en-CA");
+  // Force Istanbul timezone so Vercel (UTC) doesn't lag 3 hours behind Turkey
+  return new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Istanbul" });
 }
 
 /** Fetch today's published menu with all 4 recipes joined */

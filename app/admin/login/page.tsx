@@ -9,11 +9,11 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const from         = searchParams.get("from") ?? "/admin";
 
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error,    setError]    = useState("");
   const [loading,  setLoading]  = useState(false);
 
-  // If already logged in, redirect immediately
   useEffect(() => {
     fetch("/api/admin/me")
       .then((r) => { if (r.ok) router.replace(from); })
@@ -29,7 +29,7 @@ function LoginForm() {
       const res = await fetch("/api/admin/login", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ password }),
+        body:    JSON.stringify({ username, password }),
       });
 
       if (res.ok) {
@@ -58,11 +58,27 @@ function LoginForm() {
         {/* Card */}
         <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Kullanıcı adı */}
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-warm-700 mb-1.5"
-              >
+              <label htmlFor="username" className="block text-sm font-medium text-warm-700 mb-1.5">
+                Kullanıcı Adı
+              </label>
+              <input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Kullanıcı adınızı girin"
+                required
+                autoFocus
+                autoComplete="username"
+                className="w-full px-4 py-2.5 rounded-xl border border-warm-200 bg-warm-50 text-warm-900 placeholder-warm-300 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent transition-shadow text-sm"
+              />
+            </div>
+
+            {/* Şifre */}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-warm-700 mb-1.5">
                 Şifre
               </label>
               <input
@@ -70,9 +86,9 @@ function LoginForm() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Admin şifrenizi girin"
+                placeholder="Şifrenizi girin"
                 required
-                autoFocus
+                autoComplete="current-password"
                 className="w-full px-4 py-2.5 rounded-xl border border-warm-200 bg-warm-50 text-warm-900 placeholder-warm-300 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent transition-shadow text-sm"
               />
             </div>
@@ -85,7 +101,7 @@ function LoginForm() {
 
             <button
               type="submit"
-              disabled={loading || !password}
+              disabled={loading || !username || !password}
               className="w-full py-2.5 bg-brand-600 text-white rounded-xl font-medium text-sm hover:bg-brand-700 active:bg-brand-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? "Giriş yapılıyor…" : "Giriş Yap"}

@@ -1,22 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const { password } = await request.json();
+  const { username, password } = await request.json();
 
+  const adminUsername = process.env.ADMIN_USERNAME ?? "";
   const adminPassword = process.env.ADMIN_PASSWORD ?? "";
   const adminSecret   = process.env.ADMIN_SECRET   ?? "";
 
-  if (!adminPassword || !adminSecret) {
+  if (!adminUsername || !adminPassword || !adminSecret) {
     return NextResponse.json(
       { error: "Admin kimlik bilgileri sunucuda yapılandırılmamış." },
       { status: 500 }
     );
   }
 
-  if (password !== adminPassword) {
-    // Uniform delay to prevent timing attacks
-    await new Promise((r) => setTimeout(r, 400));
-    return NextResponse.json({ error: "Hatalı şifre." }, { status: 401 });
+  // Uniform delay — timing attack koruması
+  await new Promise((r) => setTimeout(r, 400));
+
+  if (username !== adminUsername || password !== adminPassword) {
+    return NextResponse.json({ error: "Kullanıcı adı veya şifre hatalı." }, { status: 401 });
   }
 
   const response = NextResponse.json({ ok: true });
@@ -25,7 +27,7 @@ export async function POST(request: NextRequest) {
     httpOnly: true,
     secure:   process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge:   60 * 60 * 24 * 7, // 7 days
+    maxAge:   60 * 60 * 24 * 7, // 7 gün
     path:     "/",
   });
 

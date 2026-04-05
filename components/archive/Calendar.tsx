@@ -1,0 +1,320 @@
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import Badge, { type Category } from "@/components/ui/Badge";
+import type { MenuWithRecipes } from "@/lib/types";
+
+/* ─── Constants ────────────────────────────────────────────── */
+
+const WEEKDAYS = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
+
+const MONTHS = [
+  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
+];
+
+const COURSE_FIELDS: { field: "soup" | "main" | "side" | "dessert"; category: Category }[] = [
+  { field: "soup",    category: "soup" },
+  { field: "main",    category: "main" },
+  { field: "side",    category: "side" },
+  { field: "dessert", category: "dessert" },
+];
+
+/* ─── Helpers ───────────────────────────────────────────────── */
+
+function localToday(): string {
+  return new Date().toLocaleDateString("en-CA");
+}
+
+function buildCells(year: number, month: number): (number | null)[] {
+  const firstDow = new Date(year, month - 1, 1).getDay();
+  const offset   = (firstDow + 6) % 7; // Mon = 0
+  const days     = new Date(year, month, 0).getDate();
+  const cells: (number | null)[] = [
+    ...Array(offset).fill(null),
+    ...Array.from({ length: days }, (_, i) => i + 1),
+  ];
+  while (cells.length % 7 !== 0) cells.push(null);
+  return cells;
+}
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr + "T12:00:00").toLocaleDateString("tr-TR", {
+    weekday: "long", day: "numeric", month: "long", year: "numeric",
+  });
+}
+
+/* ─── Calendar ──────────────────────────────────────────────── */
+
+export default function Calendar() {
+  const now   = new Date();
+  const today = localToday();
+
+  const [year,  setYear]  = useState(now.getFullYear());
+  const [month, setMonth] = useState(now.getMonth() + 1);
+
+  const [availableDates, setAvailableDates] = useState<string[]>([]);
+  const [datesLoading,   setDatesLoading]   = useState(true);
+
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedMenu, setSelectedMenu] = useState<MenuWithRecipes | null>(null);
+  const [menuLoading,  setMenuLoading]  = useState(false);
+
+  useEffect(() => {
+    setDatesLoading(true);
+    setAvailableDates([]);
+    setSelectedDate(null);
+    setSelectedMenu(null);
+
+    fetch(`/api/menu/dates?year=${year}&month=${month}`)
+      .then((r) => r.json())
+      .then((d) => setAvailableDates(d.dates ?? []))
+      .catch(() => {})
+      .finally(() => setDatesLoading(false));
+  }, [year, month]);
+
+  const handleDayClick = useCallback(async (dateStr: string) => {
+    setSelectedDate(dateStr);
+    setMenuLoading(true);
+    setSelectedMenu(null);
+    try {
+      const res  = await fetch(`/api/menu/by-date?date=${dateStr}`);
+      const data = await res.json();
+      setSelectedMenu(data.menu ?? null);
+    } catch {
+      setSelectedMenu(null);
+    } finally {
+      setMenuLoading(false);
+    }
+  }, []);
+
+  const isCurrentMonth =
+    year === now.getFullYear() && month === now.getMonth() + 1;
+
+  function prevMonth() {
+    if (month === 1) { setYear((y) => y - 1); setMonth(12); }
+    else setMonth((m) => m - 1);
+  }
+
+  function nextMonth() {
+    if (isCurrentMonth) return;
+    if (month === 12) { setYear((y) => y + 1); setMonth(1); }
+    else setMonth((m) => m + 1);
+  }
+
+  const cells = buildCells(year, month);
+
+  /* ── Render ────────────────────────────────────────────────── */
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8 items-stretch">
+
+      {/* ── Left: calendar ──────────────────────────────────── */}
+      <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-5 flex flex-col h-full">
+
+        {/* Month header */}
+        <div className="flex items-center justify-between mb-5">
+          <button
+            onClick={prevMonth}
+            aria-label="Önceki ay"
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-warm-100 text-warm-500 hover:text-warm-800 transition-colors text-xl leading-none"
+          >
+            ‹
+          </button>
+          <h2 className="text-base font-bold text-warm-900 tracking-tight">
+            {MONTHS[month - 1]} {year}
+          </h2>
+          <button
+            onClick={nextMonth}
+            disabled={isCurrentMonth}
+            aria-label="Sonraki ay"
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-warm-100 text-warm-500 hover:text-warm-800 transition-colors text-xl leading-none disabled:opacity-25 disabled:cursor-not-allowed"
+          >
+            ›
+          </button>
+        </div>
+
+        {/* Day-of-week headers */}
+        <div className="grid grid-cols-7 mb-1">
+          {WEEKDAYS.map((d) => (
+            <div key={d} className="text-center text-[11px] font-semibold text-warm-400 py-1 tracking-wide">
+              {d}
+            </div>
+          ))}
+        </div>
+
+        {/* Day cells */}
+        {datesLoading ? (
+          <div className="grid grid-cols-7 gap-1">
+            {Array(35).fill(null).map((_, i) => (
+              <div key={i} className="aspect-square rounded-lg bg-warm-100 animate-pulse" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-7 gap-0.5">
+            {cells.map((day, i) => {
+              if (!day) return <div key={`pad-${i}`} />;
+
+              const dateStr    = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+              const hasMenu    = availableDates.includes(dateStr);
+              const isToday    = dateStr === today;
+              const isFuture   = dateStr > today;
+              const isSelected = dateStr === selectedDate;
+
+              return (
+                <button
+                  key={day}
+                  onClick={() => hasMenu && !isFuture && handleDayClick(dateStr)}
+                  disabled={!hasMenu || isFuture}
+                  aria-pressed={isSelected}
+                  aria-label={`${day} ${MONTHS[month - 1]}${hasMenu ? " — menü var" : ""}`}
+                  className={[
+                    "relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm font-medium transition-all duration-150 select-none",
+                    isSelected
+                      ? "bg-brand-600 text-white shadow-md scale-110 z-10"
+                      : hasMenu && !isFuture
+                      ? "bg-brand-50 text-brand-700 hover:bg-brand-200 hover:scale-105 cursor-pointer"
+                      : isToday
+                      ? "text-warm-500 font-semibold"
+                      : "text-warm-300 cursor-default",
+                    isToday && !isSelected
+                      ? "ring-2 ring-brand-300 ring-offset-1"
+                      : "",
+                  ].join(" ")}
+                >
+                  {day}
+                  {hasMenu && !isSelected && !isFuture && (
+                    <span className="absolute bottom-1 w-1 h-1 rounded-full bg-brand-400" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── Desktop-only menu summary ─────────────────────── */}
+        <div className="hidden lg:block mt-5 pt-5 border-t border-warm-100">
+          {!selectedDate ? (
+            !datesLoading && availableDates.length > 0 ? (
+              <p className="text-xs text-warm-400 py-1">
+                Menüsünü görmek istediğiniz güne tıklayın.
+              </p>
+            ) : null
+          ) : menuLoading ? (
+            <div className="space-y-3 pt-1">
+              <div className="h-4 bg-warm-100 rounded w-3/4 animate-pulse" />
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-3 bg-warm-100 rounded w-2/3 animate-pulse" />
+              ))}
+            </div>
+          ) : selectedMenu ? (
+            <>
+              <p className="text-sm font-bold text-warm-800 mb-4 leading-snug">
+                {new Date(selectedDate + "T12:00:00").toLocaleDateString("tr-TR", {
+                  day: "numeric", month: "long", weekday: "long",
+                })}{" "}Günün Menüsü
+              </p>
+              <ul className="space-y-2.5">
+                {COURSE_FIELDS.map(({ field }) => {
+                  const recipe = selectedMenu[field];
+                  return (
+                    <li key={field} className="flex items-start gap-2">
+                      <span className="text-brand-400 leading-5 text-base select-none">•</span>
+                      <Link
+                        href={`/recipes/${recipe.slug}`}
+                        className="text-sm text-warm-600 leading-5 hover:text-brand-600 transition-colors"
+                      >
+                        {recipe.title}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          ) : (
+            <p className="text-xs text-warm-400 py-1">
+              Bu gün için menü yok
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* ── Right: menu panel ───────────────────────────────── */}
+      <div className="flex flex-col min-h-[440px]">
+        {selectedDate ? (
+          <>
+            <h3 className="text-lg font-bold text-warm-900 mb-4 capitalize">
+              {formatDate(selectedDate)} Menüsü
+            </h3>
+
+            {menuLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
+                    <div className="h-40 bg-warm-100 animate-pulse" />
+                    <div className="p-4 space-y-2">
+                      <div className="h-3 w-16 bg-warm-100 rounded animate-pulse" />
+                      <div className="h-4 w-2/3 bg-warm-200 rounded animate-pulse" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : selectedMenu ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {COURSE_FIELDS.map(({ field, category }) => {
+                  const recipe = selectedMenu[field];
+                  return (
+                    <Link
+                      key={field}
+                      href={`/recipes/${recipe.slug}`}
+                      className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
+                    >
+                      <div className="relative h-40 bg-warm-100 shrink-0">
+                        {recipe.image_url ? (
+                          <Image
+                            src={recipe.image_url}
+                            alt={recipe.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-full text-4xl text-warm-300">
+                            🍳
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4 flex flex-col flex-1">
+                        <Badge category={category} />
+                        <h4 className="font-semibold text-warm-800 mt-1.5 group-hover:text-brand-700 transition-colors line-clamp-2">
+                          {recipe.title}
+                        </h4>
+                        <p className="text-xs text-brand-500 mt-auto pt-2">Tarifi gör →</p>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl border border-warm-100 shadow-sm p-10 text-center text-warm-400">
+                <p className="text-3xl mb-3">🔍</p>
+                <p>Bu gün için menü bulunamadı.</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl border border-warm-100 shadow-sm p-10 text-center text-warm-400">
+            <p className="text-4xl mb-3">📅</p>
+            <p className="text-warm-500 font-medium">
+              {datesLoading
+                ? "Yükleniyor…"
+                : availableDates.length > 0
+                ? "Menüsünü görmek istediğiniz güne tıklayın."
+                : "Bu ay için yayınlanmış menü bulunamadı."}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

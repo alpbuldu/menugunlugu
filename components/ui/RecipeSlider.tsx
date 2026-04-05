@@ -1,0 +1,193 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import Badge from "@/components/ui/Badge";
+import type { Recipe, Category } from "@/lib/types";
+
+/* ── Helpers ──────────────────────────────────────────────────── */
+
+function fill(arr: Recipe[], min: number): Recipe[] {
+  if (!arr.length) return [];
+  const out = [...arr];
+  while (out.length < min) out.push(...arr);
+  return out;
+}
+
+function at(arr: Recipe[], i: number): Recipe {
+  return arr[((i % arr.length) + arr.length) % arr.length];
+}
+
+/* ── Arrow button ─────────────────────────────────────────────── */
+
+function Arrow({
+  dir,
+  onClick,
+  mobile,
+}: {
+  dir: "prev" | "next";
+  onClick: () => void;
+  mobile: boolean;
+}) {
+  const label = dir === "prev" ? "Önceki" : "Sonraki";
+  const glyph = dir === "prev" ? "‹" : "›";
+
+  if (mobile) {
+    /* Overlay on top of the image, vertically centred */
+    const side = dir === "prev" ? "left-3" : "right-3";
+    return (
+      <button
+        onClick={onClick}
+        aria-label={label}
+        className={
+          `absolute ${side} top-[96px] -translate-y-1/2 z-20 ` +
+          "w-9 h-9 flex items-center justify-center rounded-full " +
+          "bg-white/70 backdrop-blur-sm text-warm-700 text-2xl leading-none " +
+          "hover:bg-white/90 transition-all duration-150 shadow-md"
+        }
+      >
+        {glyph}
+      </button>
+    );
+  }
+
+  /* Desktop: sits outside the slider track */
+  const side = dir === "prev" ? "-left-6" : "-right-6";
+  return (
+    <button
+      onClick={onClick}
+      aria-label={label}
+      className={
+        `absolute ${side} top-1/2 -translate-y-1/2 z-10 ` +
+        "w-11 h-11 flex items-center justify-center rounded-full " +
+        "bg-white/90 border border-warm-200 shadow-md text-2xl text-warm-500 " +
+        "hover:scale-110 hover:shadow-lg hover:text-brand-600 hover:border-brand-300 " +
+        "transition-all duration-150"
+      }
+    >
+      {glyph}
+    </button>
+  );
+}
+
+/* ── Slider ───────────────────────────────────────────────────── */
+
+export default function RecipeSlider({ recipes }: { recipes: Recipe[] }) {
+  const [perPage, setPerPage] = useState(3);
+  const [pageIdx, setPageIdx] = useState(0);
+  const [shift, setShift] = useState(-100);
+  const [anim, setAnim] = useState(false);
+  const busy = useRef(false);
+  const touchX = useRef<number | null>(null);
+
+  useEffect(() => {
+    const update = () => {
+      const next = window.innerWidth < 640 ? 1 : 3;
+      setPerPage((prev) => {
+        if (prev !== next) setPageIdx(0);
+        return next;
+      });
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  const items = fill(recipes, perPage * 2);
+  const totalPages = Math.ceil(items.length / perPage);
+
+  function getPage(idx: number): Recipe[] {
+    const n = items.length;
+    return Array.from({ length: perPage }, (_, i) => at(items, idx * perPage + i));
+  }
+
+  const prevIdx = (pageIdx - 1 + totalPages) % totalPages;
+  const nextIdx = (pageIdx + 1) % totalPages;
+
+  function go(dir: "next" | "prev") {
+    if (busy.current) return;
+    busy.current = true;
+    setAnim(true);
+    setShift(dir === "next" ? -200 : 0);
+    setTimeout(() => {
+      setAnim(false);
+      setPageIdx(dir === "next" ? nextIdx : prevIdx);
+      setShift(-100);
+      busy.current = false;
+    }, 320);
+  }
+
+  function onTouchStart(e: React.TouchEvent) {
+    touchX.current = e.touches[0].clientX;
+  }
+  function onTouchEnd(e: React.TouchEvent) {
+    if (touchX.current === null) return;
+    const dx = touchX.current - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 50) go(dx > 0 ? "next" : "prev");
+    touchX.current = null;
+  }
+
+  if (!items.length) return null;
+
+  const panels = [getPage(prevIdx), getPage(pageIdx), getPage(nextIdx)];
+  const isMobile = perPage === 1;
+  const panelGrid = isMobile ? "grid-cols-1" : "grid-cols-3";
+
+  return (
+    /*
+     * Desktop: mx-8 leaves room for the external arrows (-left-6 / -right-6).
+     * Mobile:  no horizontal margin — card is edge-to-edge; arrows are overlaid.
+     */
+    <div className={`relative ${isMobile ? "mx-0" : "mx-8"}`}>
+      <div className="overflow-hidden rounded-2xl sm:rounded-none">
+        <div
+          className="flex"
+          style={{
+            transform: `translateX(${shift}%)`,
+            transition: anim ? "transform 0.3s ease-in-out" : "none",
+          }}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
+        >
+          {panels.map((panel, pi) => (
+            <div key={pi} className={`shrink-0 w-full grid ${panelGrid} gap-6`}>
+              {panel.map((recipe, ri) => (
+                <Link
+                  key={`${pi}-${ri}-${recipe.id}`}
+                  href={`/recipes/${recipe.slug}`}
+                  className="flex flex-col bg-white rounded-2xl shadow-sm border border-warm-100 overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
+                >
+                  <div className="relative h-48 bg-warm-200 shrink-0">
+                    {recipe.image_url ? (
+                      <Image
+                        src={recipe.image_url}
+                        alt={recipe.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-5xl text-warm-300">
+                        🍳
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-5 flex flex-col flex-1">
+                    <Badge category={recipe.category as Category} />
+                    <h3 className="font-semibold text-warm-800 mt-2 group-hover:text-brand-700 transition-colors line-clamp-2">
+                      {recipe.title}
+                    </h3>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Arrows — position & style differ by breakpoint */}
+      <Arrow dir="prev" onClick={() => go("prev")} mobile={isMobile} />
+      <Arrow dir="next" onClick={() => go("next")} mobile={isMobile} />
+    </div>
+  );
+}

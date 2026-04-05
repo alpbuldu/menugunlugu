@@ -1,0 +1,79 @@
+import Link from "next/link";
+import { getRandomRecipes } from "@/lib/supabase/queries";
+import RecipeSlider from "@/components/ui/RecipeSlider";
+
+export const dynamic = "force-dynamic";
+
+const CONTAINER = "max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8";
+
+export default async function HomePage() {
+  const featured = await getRandomRecipes(9);
+
+  return (
+    <div>
+      {/* ── Hero ──────────────────────────────────────────────── */}
+      <section className="bg-gradient-to-b from-brand-600 to-warm-700 text-white">
+        <div className={`${CONTAINER} py-10 sm:py-16 text-center`}>
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 leading-tight">
+            Her Gün Yeni Bir Menü,
+            <br />
+            <span className="text-brand-200">Her Gün Yeni Lezzetler</span>
+          </h1>
+          <p className="text-sm sm:text-lg text-brand-100 mb-5 sm:mb-7 max-w-xl mx-auto leading-relaxed">
+            Günlük menüler, lezzetli tarifler ve sonsuz ilham.
+            <br />
+            Bugünün menüsünü keşfet!
+          </p>
+          {/* Mobile: row 1 — primary button centered */}
+          <div className="flex sm:hidden justify-center mb-2.5">
+            <Link href="/menu" className="inline-flex items-center justify-center w-[160px] py-2 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+              Bugünün Menüsü →
+            </Link>
+          </div>
+          {/* Mobile: row 2 — two buttons side by side */}
+          <div className="flex sm:hidden flex-row gap-2.5 justify-center">
+            <Link href="/archive" className="inline-flex items-center justify-center w-[160px] py-2 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+              Dünün Menüsü
+            </Link>
+            <Link href="/recipes" className="inline-flex items-center justify-center w-[160px] py-2 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+              Tariflere Göz At
+            </Link>
+          </div>
+          {/* Desktop: all 3 in a single row */}
+          <div className="hidden sm:flex flex-row gap-3 justify-center">
+            <Link href="/menu" className="inline-flex items-center justify-center w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+              Bugünün Menüsü →
+            </Link>
+            <Link href="/archive" className="inline-flex items-center justify-center w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+              Dünün Menüsü
+            </Link>
+            <Link href="/recipes" className="inline-flex items-center justify-center w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+              Tariflere Göz At
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Featured Recipes ──────────────────────────────────── */}
+      <section className="bg-warm-100 py-8 sm:py-16">
+        <div className={CONTAINER}>
+          <div className="flex items-center justify-between mb-5 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-warm-900">Öne Çıkan Tarifler</h2>
+            <Link href="/recipes" className="text-brand-600 hover:text-brand-700 font-medium text-sm">
+              Tümünü gör →
+            </Link>
+          </div>
+
+          {featured.length === 0 ? (
+            <div className="text-center py-10 text-warm-400">
+              <p className="text-4xl mb-3">🍳</p>
+              <p>Henüz tarif eklenmemiş.</p>
+            </div>
+          ) : (
+            <RecipeSlider recipes={featured} />
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}

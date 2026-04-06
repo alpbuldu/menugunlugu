@@ -42,16 +42,31 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createAdminClient();
+
+    // Mevcut slug'ları çek — duplicate'leri atla
+    const slugs = rows.map((r) => r.slug);
+    const { data: existing } = await supabase
+      .from("recipes")
+      .select("slug")
+      .in("slug", slugs);
+
+    const existingSlugs = new Set((existing ?? []).map((r: { slug: string }) => r.slug));
+    const newRows = rows.filter((r) => !existingSlugs.has(r.slug));
+
+    if (newRows.length === 0) {
+      return NextResponse.json({ imported: 0 });
+    }
+
     const { data, error } = await supabase
       .from("recipes")
-      .upsert(rows, { onConflict: "slug", ignoreDuplicates: true })
+      .insert(newRows)
       .select("id, title");
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ imported: data?.length ?? rows.length });
+    return NextResponse.json({ imported: data?.length ?? newRows.length });
   } catch {
     return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 });
   }

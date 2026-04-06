@@ -13,6 +13,7 @@ function toSlug(text: string): string {
 
 const VALID_CATEGORIES: Category[] = ["soup", "main", "side", "dessert"];
 
+// POST — toplu ekle
 export async function POST(request: NextRequest) {
   try {
     const { recipes } = await request.json();
@@ -43,18 +44,23 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient();
 
-    // Mevcut slug'ları çek — duplicate'leri atla
-    const slugs = rows.map((r) => r.slug);
+    // Mevcut başlık ve slug'ları çek — duplicate'leri atla
+    const slugs  = rows.map((r) => r.slug);
+    const titles = rows.map((r) => r.title.toLowerCase());
+
     const { data: existing } = await supabase
       .from("recipes")
-      .select("slug")
-      .in("slug", slugs);
+      .select("slug, title")
+      .or(`slug.in.(${slugs.map(s => `"${s}"`).join(",")}),title.in.(${titles.map(t => `"${t}"`).join(",")})`);
 
-    const existingSlugs = new Set((existing ?? []).map((r: { slug: string }) => r.slug));
-    const newRows = rows.filter((r) => !existingSlugs.has(r.slug));
+    const existingSlugs  = new Set((existing ?? []).map((r: { slug: string }) => r.slug));
+    const existingTitles = new Set((existing ?? []).map((r: { title: string }) => r.title.toLowerCase()));
+
+    const newRows  = rows.filter((r) => !existingSlugs.has(r.slug) && !existingTitles.has(r.title.toLowerCase()));
+    const skipped  = rows.length - newRows.length;
 
     if (newRows.length === 0) {
-      return NextResponse.json({ imported: 0 });
+      return NextResponse.json({ imported: 0, skipped });
     }
 
     const { data, error } = await supabase
@@ -66,7 +72,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ imported: data?.length ?? newRows.length });
+    return NextResponse.json({ imported: data?.length ?? newRows.length, skipped });
+  } catch {
+    return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 });
+  }
+}
+
+// DELETE — toplu sil
+export async function DELETE(request: NextRequest) {
+  try {
+    const { ids } = await request.json();
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json({ error: "ID listesi boş" }, { status: 400 });
+    }
+
+    const supabase = createAdminClient();
+    const { error } = await supabase
+      .from("recipes")
+      .delete()
+      .in("id", ids);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ deleted: ids.length });
   } catch {
     return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 });
   }

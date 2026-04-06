@@ -35,6 +35,12 @@ const quickActions = [
     desc: "Excel'den yapıştırarak toplu ekle",
   },
   {
+    href: "/admin/recipes/delete",
+    label: "Toplu Tarif Sil",
+    icon: "🗑️",
+    desc: "Birden fazla tarifi aynı anda sil",
+  },
+  {
     href: "/admin/blog",
     label: "Blog Yönetimi",
     icon: "✍️",

@@ -44,6 +44,7 @@ interface ParsedRecipe {
   ingredients:  string;
   instructions: string;
   category:     Category | null;
+  servings:     number | null;
   valid:        boolean;
   error:        string;
 }
@@ -122,7 +123,9 @@ function parseInput(raw: string): ParsedRecipe[] {
     const ingredients  = cols[1]?.trim() ?? "";
     const instructions = cols[2]?.trim() ?? "";
     const categoryRaw  = cols[3]?.trim() ?? "";
+    const servingsRaw  = cols[4]?.trim() ?? "";
     const category     = parseCategory(categoryRaw);
+    const servings     = servingsRaw ? parseInt(servingsRaw) : null;
 
     const errors: string[] = [];
     if (!title)         errors.push("tarif adı eksik");
@@ -130,12 +133,14 @@ function parseInput(raw: string): ParsedRecipe[] {
     if (!instructions)  errors.push("yapılış eksik");
     if (!categoryRaw)   errors.push("kategori eksik");
     else if (!category) errors.push(`"${categoryRaw}" tanımsız kategori`);
+    if (servingsRaw && (isNaN(servings!) || servings! < 1)) errors.push("kişi sayısı geçersiz");
 
     return {
       title,
       ingredients,
       instructions,
       category,
+      servings: servings && !isNaN(servings) ? servings : null,
       valid: errors.length === 0,
       error: errors.join(", "),
     };
@@ -203,7 +208,7 @@ export default function BulkImportForm() {
       <div className="bg-brand-50 border border-brand-100 rounded-2xl p-5 text-sm text-warm-700 space-y-3">
         <p className="font-semibold text-warm-800">Nasıl kullanılır?</p>
         <ol className="list-decimal list-inside space-y-1 text-warm-600">
-          <li>Excel'de <strong>4 kolon</strong> hazırla (başlık satırı olmadan):</li>
+          <li>Excel'de <strong>5 kolon</strong> hazırla (başlık satırı olmadan):</li>
         </ol>
         <div className="overflow-x-auto">
           <table className="text-xs border border-brand-200 rounded-xl overflow-hidden w-full">
@@ -213,6 +218,7 @@ export default function BulkImportForm() {
                 <th className="px-3 py-2 text-left font-semibold text-warm-700">B — Malzemeler</th>
                 <th className="px-3 py-2 text-left font-semibold text-warm-700">C — Yapılış</th>
                 <th className="px-3 py-2 text-left font-semibold text-warm-700">D — Kategori</th>
+                <th className="px-3 py-2 text-left font-semibold text-warm-700">E — Kişi Sayısı</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-brand-100">
@@ -221,12 +227,14 @@ export default function BulkImportForm() {
                 <td className="px-3 py-2 text-warm-600">Mercimek, soğan…</td>
                 <td className="px-3 py-2 text-warm-600">Mercimeği yıkayın…</td>
                 <td className="px-3 py-2 font-medium text-warm-700">Çorba</td>
+                <td className="px-3 py-2 font-medium text-warm-700">4</td>
               </tr>
               <tr>
                 <td className="px-3 py-2 text-warm-600">Izgara Köfte</td>
                 <td className="px-3 py-2 text-warm-600">Kıyma, soğan…</td>
                 <td className="px-3 py-2 text-warm-600">Kıymayı yoğurun…</td>
                 <td className="px-3 py-2 font-medium text-warm-700">Ana Yemek</td>
+                <td className="px-3 py-2 font-medium text-warm-700">6</td>
               </tr>
             </tbody>
           </table>
@@ -311,6 +319,7 @@ export default function BulkImportForm() {
                     <th className="text-left px-4 py-3 font-medium text-warm-600 min-w-[180px]">Malzemeler</th>
                     <th className="text-left px-4 py-3 font-medium text-warm-600 min-w-[180px]">Yapılış</th>
                     <th className="text-left px-4 py-3 font-medium text-warm-600 w-28">Kategori</th>
+                    <th className="text-left px-4 py-3 font-medium text-warm-600 w-20">Kişi</th>
                     <th className="text-left px-4 py-3 font-medium text-warm-600 w-24">Durum</th>
                   </tr>
                 </thead>
@@ -339,6 +348,9 @@ export default function BulkImportForm() {
                         ) : (
                           <span className="text-red-400 text-xs italic">?</span>
                         )}
+                      </td>
+                      <td className="px-4 py-3 text-warm-500 text-xs">
+                        {row.servings ? `${row.servings} kişi` : <span className="text-warm-300">—</span>}
                       </td>
                       <td className="px-4 py-3">
                         {row.valid ? (

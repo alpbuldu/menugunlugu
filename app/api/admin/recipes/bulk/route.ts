@@ -29,13 +29,14 @@ export async function POST(request: NextRequest) {
         r.instructions?.trim() &&
         r.category && VALID_CATEGORIES.includes(r.category)
       )
-      .map((r: { title: string; ingredients: string; instructions: string; category: Category }) => ({
+      .map((r: { title: string; ingredients: string; instructions: string; category: Category; servings?: number | null }) => ({
         title:        r.title.trim(),
         slug:         toSlug(r.title.trim()),
         category:     r.category,
         ingredients:  r.ingredients.trim(),
         instructions: r.instructions.trim(),
         image_url:    null,
+        servings:     r.servings ?? null,
       }));
 
     if (rows.length === 0) {

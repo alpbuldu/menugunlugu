@@ -23,6 +23,7 @@ export default function RecipeForm({ recipe }: Props) {
 
   const [title,        setTitle]        = useState(recipe?.title        ?? "");
   const [category,     setCategory]     = useState<Category>(recipe?.category ?? "soup");
+  const [servings,     setServings]     = useState<string>(recipe?.servings?.toString() ?? "");
   const [ingredients,  setIngredients]  = useState(recipe?.ingredients  ?? "");
   const [instructions, setInstructions] = useState(recipe?.instructions ?? "");
   const [imageUrl,     setImageUrl]     = useState(recipe?.image_url    ?? "");
@@ -71,7 +72,7 @@ export default function RecipeForm({ recipe }: Props) {
       {
         method:  isEdit ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ title, category, ingredients, instructions, image_url: imageUrl }),
+        body:    JSON.stringify({ title, category, ingredients, instructions, image_url: imageUrl, servings: servings ? parseInt(servings) : null }),
       }
     );
 
@@ -122,6 +123,22 @@ export default function RecipeForm({ recipe }: Props) {
             <option key={c.value} value={c.value}>{c.label}</option>
           ))}
         </select>
+      </div>
+
+      {/* Servings */}
+      <div>
+        <label className="block text-sm font-medium text-warm-700 mb-1.5">
+          Kaç Kişilik
+        </label>
+        <input
+          type="number"
+          min="1"
+          max="100"
+          value={servings}
+          onChange={(e) => setServings(e.target.value)}
+          placeholder="Örn: 4"
+          className={`${inputCls} w-32`}
+        />
       </div>
 
       {/* Image upload */}

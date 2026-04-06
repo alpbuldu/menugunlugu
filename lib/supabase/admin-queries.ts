@@ -2,7 +2,7 @@ import { createAdminClient } from "./server";
 import type { Recipe, Category, BlogCategory, BlogPost } from "@/lib/types";
 
 const RECIPE_FIELDS =
-  "id, title, slug, category, ingredients, instructions, image_url, created_at";
+  "id, title, slug, category, ingredients, instructions, image_url, servings, created_at";
 
 // Menu join without slug — avoids PostgREST schema-cache issues during development
 const MENU_ADMIN_SELECT = `

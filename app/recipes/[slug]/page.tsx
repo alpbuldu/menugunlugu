@@ -75,7 +75,14 @@ export default async function RecipeDetailPage({ params }: Props) {
         <div className="p-8">
           {/* Header */}
           <div className="mb-8">
-            <Badge category={recipe.category as Category} />
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge category={recipe.category as Category} />
+              {recipe.servings && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-warm-100 text-warm-600">
+                  👤 {recipe.servings} kişilik
+                </span>
+              )}
+            </div>
             <h1 className="text-3xl font-bold text-warm-900 mt-3 leading-snug">
               {recipe.title}
             </h1>

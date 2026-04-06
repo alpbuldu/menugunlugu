@@ -9,6 +9,7 @@ export interface Recipe {
   ingredients: string;
   instructions: string;
   image_url: string | null;
+  servings: number | null;
   created_at: string;
 }
 

@@ -50,10 +50,71 @@ function parseCategory(raw: string): Category | null {
   return CATEGORY_MAP[key] ?? null;
 }
 
+/**
+ * Excel'den kopyalanan TSV verisini parse eder.
+ * Hücre içi satır sonlarını (Alt+Enter) ve tırnaklı hücreleri doğru işler.
+ */
+function parseTSV(raw: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let cell = "";
+  let inQuotes = false;
+  let i = 0;
+
+  while (i < raw.length) {
+    const ch   = raw[i];
+    const next = raw[i + 1];
+
+    if (inQuotes) {
+      if (ch === '"' && next === '"') {
+        // Escaped quote ""
+        cell += '"';
+        i += 2;
+      } else if (ch === '"') {
+        // End of quoted cell
+        inQuotes = false;
+        i++;
+      } else {
+        cell += ch;
+        i++;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+        i++;
+      } else if (ch === "\t") {
+        row.push(cell);
+        cell = "";
+        i++;
+      } else if (ch === "\r" && next === "\n") {
+        row.push(cell);
+        cell = "";
+        rows.push(row);
+        row = [];
+        i += 2;
+      } else if (ch === "\n" || ch === "\r") {
+        row.push(cell);
+        cell = "";
+        rows.push(row);
+        row = [];
+        i++;
+      } else {
+        cell += ch;
+        i++;
+      }
+    }
+  }
+
+  // Son hücre ve satır
+  row.push(cell);
+  if (row.some((c) => c.trim())) rows.push(row);
+
+  return rows;
+}
+
 function parseInput(raw: string): ParsedRecipe[] {
-  const lines = raw.split("\n").filter((l) => l.trim());
-  return lines.map((line) => {
-    const cols         = line.split("\t");
+  const rows = parseTSV(raw).filter((r) => r.some((c) => c.trim()));
+  return rows.map((cols) => {
     const title        = cols[0]?.trim() ?? "";
     const ingredients  = cols[1]?.trim() ?? "";
     const instructions = cols[2]?.trim() ?? "";
@@ -61,10 +122,10 @@ function parseInput(raw: string): ParsedRecipe[] {
     const category     = parseCategory(categoryRaw);
 
     const errors: string[] = [];
-    if (!title)        errors.push("tarif adı eksik");
-    if (!ingredients)  errors.push("malzemeler eksik");
-    if (!instructions) errors.push("yapılış eksik");
-    if (!categoryRaw)  errors.push("kategori eksik");
+    if (!title)         errors.push("tarif adı eksik");
+    if (!ingredients)   errors.push("malzemeler eksik");
+    if (!instructions)  errors.push("yapılış eksik");
+    if (!categoryRaw)   errors.push("kategori eksik");
     else if (!category) errors.push(`"${categoryRaw}" tanımsız kategori`);
 
     return {

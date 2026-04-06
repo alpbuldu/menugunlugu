@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 const categoryOrder: { key: keyof Pick<typeof import("@/lib/types"), never>; label: string; field: "soup" | "main" | "side" | "dessert"; category: Category }[] = [
   { key: "soup",    label: "Çorba",      field: "soup",    category: "soup" },
   { key: "main",    label: "Ana Yemek",  field: "main",    category: "main" },
-  { key: "side",    label: "Eşlikçi",  field: "side",    category: "side" },
+  { key: "side",    label: "Yardımcı Lezzet",  field: "side",    category: "side" },
   { key: "dessert", label: "Tatlı",      field: "dessert", category: "dessert" },
 ];
 

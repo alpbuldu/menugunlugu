@@ -13,7 +13,7 @@ interface Props {
 const COURSE_FIELDS = [
   { field: "soup_id",    label: "Çorba",     category: "soup"    },
   { field: "main_id",    label: "Ana Yemek", category: "main"    },
-  { field: "side_id",    label: "Eşlikçi Lezzetler", category: "side"    },
+  { field: "side_id",    label: "Yardımcı Lezzetler", category: "side"    },
   { field: "dessert_id", label: "Tatlı",     category: "dessert" },
 ] as const;
 

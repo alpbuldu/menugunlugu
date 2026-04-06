@@ -12,11 +12,14 @@ const CATEGORY_MAP: Record<string, Category> = {
   "soup":            "soup",
   "ana yemek":       "main",
   "main":            "main",
-  "eşlikçi":         "side",
-  "eslikci":         "side",
-  "eşlikçi lezzetler": "side",
-  "yan yemek":       "side",
-  "side":            "side",
+  "yardımcı lezzet":    "side",
+  "yardimci lezzet":    "side",
+  "yardımcı lezzetler": "side",
+  "yardimci lezzetler": "side",
+  "eşlikçi":            "side",
+  "eslikci":            "side",
+  "yan yemek":          "side",
+  "side":               "side",
   "tatlı":           "dessert",
   "tatli":           "dessert",
   "dessert":         "dessert",
@@ -25,7 +28,7 @@ const CATEGORY_MAP: Record<string, Category> = {
 const CATEGORY_LABELS: Record<Category, string> = {
   soup:    "Çorba",
   main:    "Ana Yemek",
-  side:    "Eşlikçi",
+  side:    "Yardımcı Lezzet",
   dessert: "Tatlı",
 };
 
@@ -230,7 +233,7 @@ export default function BulkImportForm() {
         </div>
         <p className="text-warm-500">
           Geçerli kategori değerleri:{" "}
-          {(["Çorba", "Ana Yemek", "Eşlikçi", "Tatlı"] as const).map((c, i) => (
+          {(["Çorba", "Ana Yemek", "Yardımcı Lezzet", "Tatlı"] as const).map((c, i) => (
             <span key={c}>
               <code className="bg-white px-1.5 py-0.5 rounded border border-brand-200 text-xs">{c}</code>
               {i < 3 ? " · " : ""}

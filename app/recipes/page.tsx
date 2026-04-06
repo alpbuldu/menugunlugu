@@ -20,7 +20,7 @@ const categories: { key: CategoryFilter; label: string }[] = [
   { key: "all",     label: "Tümü" },
   { key: "soup",    label: "Çorbalar" },
   { key: "main",    label: "Ana Yemekler" },
-  { key: "side",    label: "Eşlikçi Lezzetler" },
+  { key: "side",    label: "Yardımcı Lezzetler" },
   { key: "dessert", label: "Tatlılar" },
 ];
 

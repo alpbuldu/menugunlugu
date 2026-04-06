@@ -17,7 +17,7 @@ const links = [
 const CATEGORY_LABELS: Record<Category, string> = {
   soup:    "Çorba",
   main:    "Ana Yemek",
-  side:    "Eşlikçi",
+  side:    "Yardımcı Lezzet",
   dessert: "Tatlı",
 };
 

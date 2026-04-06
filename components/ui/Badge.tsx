@@ -5,7 +5,7 @@ export type Category = "soup" | "main" | "side" | "dessert";
 export const categoryLabels: Record<Category, string> = {
   soup:    "Çorba",
   main:    "Ana Yemek",
-  side:    "Eşlikçi",
+  side:    "Yardımcı Lezzet",
   dessert: "Tatlı",
 };
 

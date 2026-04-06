@@ -109,7 +109,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/recipes?category=side" className="hover:text-white transition-colors">
-                  Eşlikçi Lezzetler
+                  Yardımcı Lezzetler
                 </Link>
               </li>
               <li>

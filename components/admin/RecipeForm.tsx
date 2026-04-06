@@ -8,7 +8,7 @@ import type { Recipe, Category } from "@/lib/types";
 const CATEGORIES: { value: Category; label: string }[] = [
   { value: "soup",    label: "Çorba" },
   { value: "main",    label: "Ana Yemek" },
-  { value: "side",    label: "Eşlikçi Lezzetler" },
+  { value: "side",    label: "Yardımcı Lezzetler" },
   { value: "dessert", label: "Tatlı" },
 ];
 

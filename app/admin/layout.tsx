@@ -13,8 +13,9 @@ const adminLinks = [
   { href: "/admin",             label: "📊  Genel Bakış" },
   { href: "/admin/menus",       label: "📅  Menüler" },
   { href: "/admin/menus/new",   label: "➕  Yeni Menü" },
-  { href: "/admin/recipes",     label: "📋  Tarifler" },
-  { href: "/admin/recipes/new", label: "✏️  Yeni Tarif" },
+  { href: "/admin/recipes",        label: "📋  Tarifler" },
+  { href: "/admin/recipes/new",    label: "✏️  Yeni Tarif" },
+  { href: "/admin/recipes/import", label: "📥  Toplu İçe Aktar" },
   { href: "/admin/blog",        label: "📝  Blog" },
   { href: "/admin/blog/posts/new", label: "🖊️  Yeni Yazı" },
 ];

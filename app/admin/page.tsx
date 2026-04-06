@@ -29,6 +29,12 @@ const quickActions = [
     desc: "Tüm tarif listesi",
   },
   {
+    href: "/admin/recipes/import",
+    label: "Toplu Tarif İçe Aktar",
+    icon: "📥",
+    desc: "Excel'den yapıştırarak toplu ekle",
+  },
+  {
     href: "/admin/blog",
     label: "Blog Yönetimi",
     icon: "✍️",

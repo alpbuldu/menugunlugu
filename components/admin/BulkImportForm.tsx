@@ -5,33 +5,75 @@ import { useRouter } from "next/navigation";
 
 type Category = "soup" | "main" | "side" | "dessert";
 
-const CATEGORY_OPTIONS: { value: Category; label: string }[] = [
-  { value: "soup",    label: "Çorba" },
-  { value: "main",    label: "Ana Yemek" },
-  { value: "side",    label: "Eşlikçi Lezzetler" },
-  { value: "dessert", label: "Tatlı" },
-];
+// Türkçe → DB değeri eşlemesi (büyük/küçük harf fark etmez)
+const CATEGORY_MAP: Record<string, Category> = {
+  "çorba":           "soup",
+  "corba":           "soup",
+  "soup":            "soup",
+  "ana yemek":       "main",
+  "main":            "main",
+  "eşlikçi":         "side",
+  "eslikci":         "side",
+  "eşlikçi lezzetler": "side",
+  "yan yemek":       "side",
+  "side":            "side",
+  "tatlı":           "dessert",
+  "tatli":           "dessert",
+  "dessert":         "dessert",
+};
+
+const CATEGORY_LABELS: Record<Category, string> = {
+  soup:    "Çorba",
+  main:    "Ana Yemek",
+  side:    "Eşlikçi",
+  dessert: "Tatlı",
+};
+
+const CATEGORY_COLORS: Record<Category, string> = {
+  soup:    "bg-blue-100 text-blue-700",
+  main:    "bg-brand-100 text-brand-700",
+  side:    "bg-green-100 text-green-700",
+  dessert: "bg-pink-100 text-pink-700",
+};
 
 interface ParsedRecipe {
   title:        string;
   ingredients:  string;
   instructions: string;
+  category:     Category | null;
   valid:        boolean;
+  error:        string;
+}
+
+function parseCategory(raw: string): Category | null {
+  const key = raw.trim().toLowerCase();
+  return CATEGORY_MAP[key] ?? null;
 }
 
 function parseInput(raw: string): ParsedRecipe[] {
   const lines = raw.split("\n").filter((l) => l.trim());
   return lines.map((line) => {
-    // Excel'den kopyalanınca tab ile ayrılır
-    const cols = line.split("\t");
+    const cols         = line.split("\t");
     const title        = cols[0]?.trim() ?? "";
     const ingredients  = cols[1]?.trim() ?? "";
     const instructions = cols[2]?.trim() ?? "";
+    const categoryRaw  = cols[3]?.trim() ?? "";
+    const category     = parseCategory(categoryRaw);
+
+    const errors: string[] = [];
+    if (!title)        errors.push("tarif adı eksik");
+    if (!ingredients)  errors.push("malzemeler eksik");
+    if (!instructions) errors.push("yapılış eksik");
+    if (!categoryRaw)  errors.push("kategori eksik");
+    else if (!category) errors.push(`"${categoryRaw}" tanımsız kategori`);
+
     return {
       title,
       ingredients,
       instructions,
-      valid: !!(title && ingredients && instructions),
+      category,
+      valid: errors.length === 0,
+      error: errors.join(", "),
     };
   });
 }
@@ -40,16 +82,14 @@ export default function BulkImportForm() {
   const router = useRouter();
 
   const [raw,       setRaw]       = useState("");
-  const [category,  setCategory]  = useState<Category>("main");
   const [parsed,    setParsed]    = useState<ParsedRecipe[]>([]);
   const [previewed, setPreviewed] = useState(false);
   const [importing, setImporting] = useState(false);
-  const [result,    setResult]    = useState<{ imported: number; total: number } | null>(null);
+  const [result,    setResult]    = useState<{ imported: number } | null>(null);
   const [error,     setError]     = useState("");
 
   function handlePreview() {
-    const rows = parseInput(raw);
-    setParsed(rows);
+    setParsed(parseInput(raw));
     setPreviewed(true);
     setResult(null);
     setError("");
@@ -73,13 +113,10 @@ export default function BulkImportForm() {
       const res = await fetch("/api/admin/recipes/bulk", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ recipes: validRows, category }),
+        body:    JSON.stringify({ recipes: validRows }),
       });
       const json = await res.json();
-      if (!res.ok) {
-        setError(json.error ?? "Hata oluştu");
-        return;
-      }
+      if (!res.ok) { setError(json.error ?? "Hata oluştu"); return; }
       setResult(json);
       setRaw("");
       setParsed([]);
@@ -99,38 +136,58 @@ export default function BulkImportForm() {
     <div className="space-y-8 max-w-4xl">
 
       {/* Talimatlar */}
-      <div className="bg-brand-50 border border-brand-100 rounded-2xl p-5 text-sm text-warm-700 space-y-2">
+      <div className="bg-brand-50 border border-brand-100 rounded-2xl p-5 text-sm text-warm-700 space-y-3">
         <p className="font-semibold text-warm-800">Nasıl kullanılır?</p>
         <ol className="list-decimal list-inside space-y-1 text-warm-600">
-          <li>Excel veya Google Sheets'te <strong>3 kolon</strong> hazırla: <code className="bg-white px-1 rounded">Tarif Adı</code> | <code className="bg-white px-1 rounded">Malzemeler</code> | <code className="bg-white px-1 rounded">Yapılış</code></li>
-          <li>Başlık satırı hariç tüm hücreleri seç → <strong>Ctrl+C</strong></li>
-          <li>Aşağıdaki alana <strong>Ctrl+V</strong> ile yapıştır</li>
-          <li>Kategori seç → Önizle → İçe Aktar</li>
+          <li>Excel'de <strong>4 kolon</strong> hazırla (başlık satırı olmadan):</li>
+        </ol>
+        <div className="overflow-x-auto">
+          <table className="text-xs border border-brand-200 rounded-xl overflow-hidden w-full">
+            <thead className="bg-brand-100">
+              <tr>
+                <th className="px-3 py-2 text-left font-semibold text-warm-700">A — Tarif Adı</th>
+                <th className="px-3 py-2 text-left font-semibold text-warm-700">B — Malzemeler</th>
+                <th className="px-3 py-2 text-left font-semibold text-warm-700">C — Yapılış</th>
+                <th className="px-3 py-2 text-left font-semibold text-warm-700">D — Kategori</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-brand-100">
+              <tr>
+                <td className="px-3 py-2 text-warm-600">Mercimek Çorbası</td>
+                <td className="px-3 py-2 text-warm-600">Mercimek, soğan…</td>
+                <td className="px-3 py-2 text-warm-600">Mercimeği yıkayın…</td>
+                <td className="px-3 py-2 font-medium text-warm-700">Çorba</td>
+              </tr>
+              <tr>
+                <td className="px-3 py-2 text-warm-600">Izgara Köfte</td>
+                <td className="px-3 py-2 text-warm-600">Kıyma, soğan…</td>
+                <td className="px-3 py-2 text-warm-600">Kıymayı yoğurun…</td>
+                <td className="px-3 py-2 font-medium text-warm-700">Ana Yemek</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="text-warm-500">
+          Geçerli kategori değerleri:{" "}
+          {(["Çorba", "Ana Yemek", "Eşlikçi", "Tatlı"] as const).map((c, i) => (
+            <span key={c}>
+              <code className="bg-white px-1.5 py-0.5 rounded border border-brand-200 text-xs">{c}</code>
+              {i < 3 ? " · " : ""}
+            </span>
+          ))}
+        </p>
+        <ol className="list-decimal list-inside space-y-1 text-warm-600" start={2}>
+          <li>Hücreleri seç (başlık hariç) → <strong>Ctrl+C</strong></li>
+          <li>Aşağıya <strong>Ctrl+V</strong> ile yapıştır → <strong>Önizle</strong> → <strong>İçe Aktar</strong></li>
         </ol>
       </div>
 
-      {/* Başarı mesajı */}
+      {/* Başarı */}
       {result && (
-        <div className="bg-green-50 border border-green-200 rounded-2xl p-5 text-sm text-green-800">
-          ✅ <strong>{result.imported}</strong> tarif başarıyla içe aktarıldı.
+        <div className="bg-green-50 border border-green-200 rounded-2xl p-5 text-sm text-green-800 font-medium">
+          ✅ {result.imported} tarif başarıyla içe aktarıldı.
         </div>
       )}
-
-      {/* Kategori */}
-      <div>
-        <label className="block text-sm font-medium text-warm-700 mb-1.5">
-          Tüm tarifler için kategori
-        </label>
-        <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value as Category)}
-          className="px-4 py-2.5 border border-warm-200 rounded-xl text-sm bg-white focus:outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-200"
-        >
-          {CATEGORY_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
-      </div>
 
       {/* Yapıştırma alanı */}
       <div>
@@ -141,15 +198,15 @@ export default function BulkImportForm() {
           value={raw}
           onChange={(e) => { setRaw(e.target.value); setPreviewed(false); }}
           rows={10}
-          placeholder={"Mercimek Çorbası\tMercimek, soğan, havuç...\tMercimeği yıkayın...\nDomates Çorbası\tDomates, soğan...\tDomatesle soğanı kavurun..."}
+          placeholder={"Mercimek Çorbası\tMercimek, soğan, havuç\tMercimeği yıkayın…\tÇorba\nIzgara Köfte\tKıyma, soğan\tKıymayı yoğurun…\tAna Yemek"}
           className="w-full px-4 py-3 border border-warm-200 rounded-xl text-sm font-mono leading-relaxed resize-y focus:outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-200"
         />
         <p className="text-xs text-warm-400 mt-1">
-          Her satır bir tarif. Kolonlar arasında <strong>Tab</strong> olmalı (Excel'den direkt yapıştırınca otomatik olur).
+          Excel'den yapıştırınca kolonlar arası Tab otomatik gelir.
         </p>
       </div>
 
-      {/* Butonlar */}
+      {/* Aksiyon butonları */}
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -176,7 +233,7 @@ export default function BulkImportForm() {
           <div className="flex items-center gap-4 text-sm">
             <span className="text-green-700 font-medium">✓ {validCount} geçerli</span>
             {invalidCount > 0 && (
-              <span className="text-red-500">✗ {invalidCount} eksik/hatalı (içe aktarılmayacak)</span>
+              <span className="text-red-500">✗ {invalidCount} hatalı (içe aktarılmayacak)</span>
             )}
           </div>
 
@@ -186,34 +243,45 @@ export default function BulkImportForm() {
                 <thead className="bg-warm-50 border-b border-warm-200">
                   <tr>
                     <th className="text-left px-4 py-3 font-medium text-warm-600 w-8">#</th>
-                    <th className="text-left px-4 py-3 font-medium text-warm-600 min-w-[160px]">Tarif Adı</th>
-                    <th className="text-left px-4 py-3 font-medium text-warm-600 min-w-[200px]">Malzemeler</th>
-                    <th className="text-left px-4 py-3 font-medium text-warm-600 min-w-[200px]">Yapılış</th>
-                    <th className="text-left px-4 py-3 font-medium text-warm-600 w-20">Durum</th>
+                    <th className="text-left px-4 py-3 font-medium text-warm-600 min-w-[150px]">Tarif Adı</th>
+                    <th className="text-left px-4 py-3 font-medium text-warm-600 min-w-[180px]">Malzemeler</th>
+                    <th className="text-left px-4 py-3 font-medium text-warm-600 min-w-[180px]">Yapılış</th>
+                    <th className="text-left px-4 py-3 font-medium text-warm-600 w-28">Kategori</th>
+                    <th className="text-left px-4 py-3 font-medium text-warm-600 w-24">Durum</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-warm-100 bg-white">
                   {parsed.map((row, i) => (
                     <tr key={i} className={row.valid ? "" : "bg-red-50"}>
-                      <td className="px-4 py-3 text-warm-400">{i + 1}</td>
+                      <td className="px-4 py-3 text-warm-400 text-xs">{i + 1}</td>
                       <td className="px-4 py-3 font-medium text-warm-800">
-                        {row.title || <span className="text-red-400 italic">boş</span>}
+                        {row.title || <span className="text-red-400 italic text-xs">boş</span>}
                       </td>
-                      <td className="px-4 py-3 text-warm-600 max-w-[200px]">
-                        <span className="line-clamp-2">
+                      <td className="px-4 py-3 text-warm-500 max-w-[180px]">
+                        <span className="line-clamp-2 text-xs">
                           {row.ingredients || <span className="text-red-400 italic">boş</span>}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-warm-600 max-w-[200px]">
-                        <span className="line-clamp-2">
+                      <td className="px-4 py-3 text-warm-500 max-w-[180px]">
+                        <span className="line-clamp-2 text-xs">
                           {row.instructions || <span className="text-red-400 italic">boş</span>}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        {row.valid
-                          ? <span className="text-green-600">✓</span>
-                          : <span className="text-red-400">✗</span>
-                        }
+                        {row.category ? (
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${CATEGORY_COLORS[row.category]}`}>
+                            {CATEGORY_LABELS[row.category]}
+                          </span>
+                        ) : (
+                          <span className="text-red-400 text-xs italic">?</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        {row.valid ? (
+                          <span className="text-green-600 text-xs font-medium">✓ Tamam</span>
+                        ) : (
+                          <span className="text-red-400 text-xs">{row.error}</span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -242,7 +310,7 @@ export default function BulkImportForm() {
       )}
 
       {previewed && parsed.length === 0 && (
-        <p className="text-sm text-warm-400">Hiç satır bulunamadı. Yapıştırdığın veriyi kontrol et.</p>
+        <p className="text-sm text-warm-400">Satır bulunamadı. Yapıştırdığın veriyi kontrol et.</p>
       )}
     </div>
   );

@@ -15,23 +15,23 @@ const VALID_CATEGORIES: Category[] = ["soup", "main", "side", "dessert"];
 
 export async function POST(request: NextRequest) {
   try {
-    const { recipes, category } = await request.json();
+    const { recipes } = await request.json();
 
     if (!Array.isArray(recipes) || recipes.length === 0) {
       return NextResponse.json({ error: "Tarif listesi boş" }, { status: 400 });
     }
-    if (!VALID_CATEGORIES.includes(category)) {
-      return NextResponse.json({ error: "Geçersiz kategori" }, { status: 400 });
-    }
 
     const rows = recipes
-      .filter((r: { title?: string; ingredients?: string; instructions?: string }) =>
-        r.title?.trim() && r.ingredients?.trim() && r.instructions?.trim()
+      .filter((r: { title?: string; ingredients?: string; instructions?: string; category?: Category }) =>
+        r.title?.trim() &&
+        r.ingredients?.trim() &&
+        r.instructions?.trim() &&
+        r.category && VALID_CATEGORIES.includes(r.category)
       )
-      .map((r: { title: string; ingredients: string; instructions: string }) => ({
+      .map((r: { title: string; ingredients: string; instructions: string; category: Category }) => ({
         title:        r.title.trim(),
         slug:         toSlug(r.title.trim()),
-        category,
+        category:     r.category,
         ingredients:  r.ingredients.trim(),
         instructions: r.instructions.trim(),
         image_url:    null,
@@ -51,10 +51,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({
-      imported: data?.length ?? rows.length,
-      total:    rows.length,
-    });
+    return NextResponse.json({ imported: data?.length ?? rows.length });
   } catch {
     return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 });
   }

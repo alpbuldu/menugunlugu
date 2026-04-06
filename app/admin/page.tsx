@@ -29,6 +29,12 @@ const quickActions = [
     desc: "Tüm tarif listesi",
   },
   {
+    href: "/admin/menus/import",
+    label: "Toplu Menü Aktar",
+    icon: "📆",
+    desc: "Excel'den birden fazla günün menüsünü ekle",
+  },
+  {
     href: "/admin/recipes/import",
     label: "Toplu Tarif İçe Aktar",
     icon: "📥",

@@ -5,6 +5,9 @@ import { notFound } from "next/navigation";
 import { getRecipeBySlug } from "@/lib/supabase/queries";
 import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
+import ShareButton from "@/components/ui/ShareButton";
+
+const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 
 export const dynamic = "force-dynamic";
 
@@ -26,13 +29,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title:       metaTitle,
       description,
       type:        "article",
-      images:      recipe.image_url ? [{ url: recipe.image_url, width: 1200, height: 630, alt: recipe.title }] : [],
+      images:      [{ url: recipe.image_url ?? DEFAULT_OG, width: 1200, height: 630, alt: recipe.title }],
     },
     twitter: {
       card:        "summary_large_image",
       title:       metaTitle,
       description,
-      images:      recipe.image_url ? [recipe.image_url] : [],
+      images:      [recipe.image_url ?? DEFAULT_OG],
     },
   };
 }
@@ -141,13 +144,14 @@ export default async function RecipeDetailPage({ params }: Props) {
       </div>
 
       {/* Bottom nav */}
-      <div className="mt-8 text-center">
+      <div className="mt-8 flex items-center justify-between flex-wrap gap-3">
         <Link
           href="/recipes"
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-warm-200 text-warm-700 rounded-xl text-sm font-medium hover:bg-warm-50 transition-colors"
         >
           ← Tüm tariflere dön
         </Link>
+        <ShareButton title={recipe.title} />
       </div>
     </div>
   );

@@ -1,0 +1,61 @@
+"use client";
+
+import { useState } from "react";
+
+interface Props {
+  title: string;
+  url?: string;
+}
+
+export default function ShareButton({ title, url }: Props) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleShare() {
+    const shareUrl = url ?? window.location.href;
+
+    // Web Share API — mobilde native paylaşım menüsünü açar
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({ title, url: shareUrl });
+        return;
+      } catch {
+        // kullanıcı iptal etti
+        return;
+      }
+    }
+
+    // Masaüstü fallback — URL'yi kopyala
+    await navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleShare}
+      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-warm-200 bg-white text-warm-500 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors"
+    >
+      {/* Paylaş ikonu */}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="18" cy="5" r="3" />
+        <circle cx="6" cy="12" r="3" />
+        <circle cx="18" cy="19" r="3" />
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+      </svg>
+      {copied ? "Kopyalandı ✓" : "Paylaş"}
+    </button>
+  );
+}

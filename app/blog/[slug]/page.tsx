@@ -3,6 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBlogPostBySlug } from "@/lib/supabase/queries";
+import ShareButton from "@/components/ui/ShareButton";
+
+const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -19,17 +22,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     keywords: post.seo_keywords ?? undefined,
     openGraph: {
-      title:       metaTitle,
+      title:         metaTitle,
       description,
-      type:        "article",
+      type:          "article",
       publishedTime: post.created_at,
-      images:      post.image_url ? [{ url: post.image_url, width: 1200, height: 630, alt: post.title }] : [],
+      images:        [{ url: post.image_url ?? DEFAULT_OG, width: 1200, height: 630, alt: post.title }],
     },
     twitter: {
       card:        "summary_large_image",
       title:       metaTitle,
       description,
-      images:      post.image_url ? [post.image_url] : [],
+      images:      [post.image_url ?? DEFAULT_OG],
     },
   };
 }
@@ -112,13 +115,14 @@ export default async function BlogPostPage({ params }: Props) {
       </div>
 
       {/* Bottom nav */}
-      <div className="mt-8 text-center">
+      <div className="mt-8 flex items-center justify-between flex-wrap gap-3">
         <Link
           href="/blog"
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-warm-200 text-warm-700 rounded-xl text-sm font-medium hover:bg-warm-50 transition-colors"
         >
           ← Tüm yazılara dön
         </Link>
+        <ShareButton title={post.title} />
       </div>
     </div>
   );

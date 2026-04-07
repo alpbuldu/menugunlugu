@@ -62,8 +62,8 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Pages */}
-          <div>
+          {/* Pages — desktop only */}
+          <div className="hidden md:block">
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
               Sayfalar
             </h3>
@@ -91,8 +91,8 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Categories */}
-          <div>
+          {/* Categories — desktop only */}
+          <div className="hidden md:block">
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
               Kategoriler
             </h3>

@@ -15,6 +15,7 @@ const adminLinks = [
   { href: "/admin/menus/new",      label: "➕  Yeni Menü" },
   { href: "/admin/menus/import",   label: "📥  Toplu Menü Aktar" },
   { href: "/admin/recipes",        label: "📋  Tarifler" },
+  { href: "/admin/recipes/list",   label: "📄  Tarif Listesi" },
   { href: "/admin/recipes/new",    label: "✏️  Yeni Tarif" },
   { href: "/admin/recipes/import", label: "📥  Toplu İçe Aktar" },
   { href: "/admin/recipes/delete", label: "🗑️  Toplu Sil" },

@@ -263,10 +263,20 @@ export default function BlogPostForm({ categories, post }: Props) {
                 type="text"
                 value={seoKeywords}
                 onChange={(e) => setSeoKeywords(e.target.value)}
-                placeholder="tarif, yemek, menü…"
+                placeholder={
+                  title
+                    ? [title, categories.find(c => c.id === categoryId)?.name, "yemek blogu", "Menü Günlüğü"].filter(Boolean).join(", ")
+                    : "tarif, yemek, menü…"
+                }
                 className={inputCls}
               />
-              <p className="text-xs text-warm-400 mt-1">Örn: mercimek çorbası, çorba tarifi, kolay tarif</p>
+              {title && !seoKeywords && (
+                <p className="text-xs text-warm-400 mt-1">
+                  Boş bırakılırsa otomatik: <span className="text-warm-500 italic">
+                    {[title, categories.find(c => c.id === categoryId)?.name, "yemek blogu", "Menü Günlüğü"].filter(Boolean).join(", ")}
+                  </span>
+                </p>
+              )}
             </div>
 
             {/* Önizleme */}

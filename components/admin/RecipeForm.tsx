@@ -281,9 +281,18 @@ export default function RecipeForm({ recipe }: Props) {
                 type="text"
                 value={seoKeywords}
                 onChange={(e) => setSeoKeywords(e.target.value)}
-                placeholder="mercimek çorbası, çorba tarifi, kolay tarif…"
+                placeholder={
+                  title
+                    ? `${title}, ${title} tarifi, ${(CATEGORIES.find(c => c.value === category)?.label ?? "").toLowerCase()} tarifi, Menü Günlüğü`
+                    : "mercimek çorbası, çorba tarifi, kolay tarif…"
+                }
                 className={inputCls}
               />
+              {title && !seoKeywords && (
+                <p className="text-xs text-warm-400 mt-1">
+                  Boş bırakılırsa otomatik: <span className="text-warm-500 italic">{title}, {title} tarifi, {(CATEGORIES.find(c => c.value === category)?.label ?? "").toLowerCase()} tarifi…</span>
+                </p>
+              )}
             </div>
 
             {/* Google Önizlemesi */}

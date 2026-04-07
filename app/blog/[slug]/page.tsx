@@ -17,10 +17,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return { title: "Yazı Bulunamadı" };
   const metaTitle   = post.seo_title ?? post.title;
   const description = post.excerpt ?? post.content.replace(/<[^>]+>/g, "").slice(0, 155);
+  const catName     = post.category?.name;
+  const keywords    = post.seo_keywords ??
+    [post.title, catName, "yemek blogu", "mutfak", "Menü Günlüğü"]
+      .filter(Boolean)
+      .join(", ");
   return {
     title:    metaTitle,
     description,
-    keywords: post.seo_keywords ?? undefined,
+    keywords,
     openGraph: {
       title:         metaTitle,
       description,

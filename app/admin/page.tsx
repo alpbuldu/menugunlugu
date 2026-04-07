@@ -35,6 +35,12 @@ const quickActions = [
     desc: "Excel'den birden fazla günün menüsünü ekle",
   },
   {
+    href: "/admin/menus/delete",
+    label: "Toplu Menü Sil",
+    icon: "🗑️",
+    desc: "Birden fazla menüyü aynı anda sil",
+  },
+  {
     href: "/admin/recipes/import",
     label: "Toplu Tarif İçe Aktar",
     icon: "📥",

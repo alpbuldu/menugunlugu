@@ -66,3 +66,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 });
   }
 }
+
+// DELETE — toplu menü sil
+export async function DELETE(request: NextRequest) {
+  try {
+    const { ids } = await request.json();
+
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return NextResponse.json({ error: "ID listesi boş" }, { status: 400 });
+    }
+
+    const supabase = createAdminClient();
+    const { error } = await supabase.from("menus").delete().in("id", ids);
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ deleted: ids.length });
+  } catch {
+    return NextResponse.json({ error: "Sunucu hatası" }, { status: 500 });
+  }
+}

@@ -2,7 +2,7 @@ import { createClient } from "./server";
 import type { MenuWithRecipes, Recipe, Category, BlogCategory, BlogPost } from "@/lib/types";
 
 // All recipe columns including slug (used for standalone recipe queries)
-const RECIPE_FIELDS = "id, title, slug, category, description, ingredients, instructions, image_url, servings, created_at";
+const RECIPE_FIELDS = "id, title, slug, category, description, seo_title, seo_keywords, ingredients, instructions, image_url, servings, created_at";
 
 // For menu joins we include slug so recipe cards can link to the detail page
 const MENU_WITH_RECIPES = `
@@ -233,7 +233,7 @@ export async function getBlogCategories(): Promise<BlogCategory[]> {
   } catch { return []; }
 }
 
-const BLOG_POST_SELECT = "id, title, slug, excerpt, content, image_url, category_id, published, created_at, updated_at, category:category_id(id, name, slug, created_at)";
+const BLOG_POST_SELECT = "id, title, slug, excerpt, content, image_url, category_id, published, seo_title, seo_keywords, created_at, updated_at, category:category_id(id, name, slug, created_at)";
 
 export async function getBlogPosts(categorySlug?: string): Promise<BlogPost[]> {
   if (!isSupabaseConfigured()) return [];

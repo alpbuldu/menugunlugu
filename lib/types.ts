@@ -7,6 +7,8 @@ export interface Recipe {
   slug: string;
   category: Category;
   description: string | null;
+  seo_title: string | null;
+  seo_keywords: string | null;
   ingredients: string;
   instructions: string;
   image_url: string | null;
@@ -53,6 +55,8 @@ export interface BlogPost {
   image_url: string | null;
   category_id: string | null;
   published: boolean;
+  seo_title: string | null;
+  seo_keywords: string | null;
   created_at: string;
   updated_at: string;
   // joined

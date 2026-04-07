@@ -25,6 +25,9 @@ export default function RecipeForm({ recipe }: Props) {
   const [category,     setCategory]     = useState<Category>(recipe?.category ?? "soup");
   const [servings,     setServings]     = useState<string>(recipe?.servings?.toString() ?? "");
   const [description,  setDescription]  = useState(recipe?.description  ?? "");
+  const [seoTitle,     setSeoTitle]     = useState(recipe?.seo_title     ?? "");
+  const [seoKeywords,  setSeoKeywords]  = useState(recipe?.seo_keywords  ?? "");
+  const [seoOpen,      setSeoOpen]      = useState(false);
   const [ingredients,  setIngredients]  = useState(recipe?.ingredients  ?? "");
   const [instructions, setInstructions] = useState(recipe?.instructions ?? "");
   const [imageUrl,     setImageUrl]     = useState(recipe?.image_url    ?? "");
@@ -73,7 +76,7 @@ export default function RecipeForm({ recipe }: Props) {
       {
         method:  isEdit ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ title, category, description: description || null, ingredients, instructions, image_url: imageUrl, servings: servings ? parseInt(servings) : null }),
+        body:    JSON.stringify({ title, category, description: description || null, seo_title: seoTitle || null, seo_keywords: seoKeywords || null, ingredients, instructions, image_url: imageUrl, servings: servings ? parseInt(servings) : null }),
       }
     );
 
@@ -140,27 +143,6 @@ export default function RecipeForm({ recipe }: Props) {
           placeholder="Örn: 4"
           className={`${inputCls} w-32`}
         />
-      </div>
-
-      {/* SEO Description */}
-      <div>
-        <label className="block text-sm font-medium text-warm-700 mb-1">
-          SEO Açıklaması
-        </label>
-        <p className="text-xs text-warm-400 mb-1.5">
-          Google arama sonuçlarında ve sosyal medyada görünen kısa açıklama. Boş bırakılırsa otomatik oluşturulur.
-        </p>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={2}
-          maxLength={160}
-          placeholder="Bu tarif hakkında kısa ve çekici bir açıklama girin…"
-          className={`${inputCls} resize-none`}
-        />
-        <p className="text-xs text-warm-400 mt-1 text-right">
-          {description.length}/160
-        </p>
       </div>
 
       {/* Image upload */}
@@ -236,6 +218,91 @@ export default function RecipeForm({ recipe }: Props) {
           placeholder={"1. Mercimeği yıkayın.\n2. Soğanı kavurun.\n3. Malzemeleri ekleyip pişirin."}
           className={`${inputCls} resize-y`}
         />
+      </div>
+
+      {/* ── SEO Ayarları ── */}
+      <div className="border border-warm-200 rounded-2xl overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setSeoOpen(v => !v)}
+          className="w-full flex items-center justify-between px-5 py-4 bg-warm-50 hover:bg-warm-100 transition-colors text-left"
+        >
+          <span className="text-sm font-semibold text-warm-800">🔍 SEO Ayarları</span>
+          <span className="text-xs text-warm-400">{seoOpen ? "▲ Kapat" : "▼ Aç"}</span>
+        </button>
+
+        {seoOpen && (
+          <div className="px-5 py-5 space-y-5 bg-white">
+            <p className="text-xs text-warm-400 -mt-1">
+              Boş bırakılan alanlarda tarif adı ve açıklama otomatik olarak kullanılır.
+            </p>
+
+            {/* Meta başlık */}
+            <div>
+              <label className="block text-sm font-medium text-warm-700 mb-1.5">
+                Meta Başlık
+                <span className="ml-2 text-xs font-normal text-warm-400">— tarayıcı sekmesi ve Google</span>
+              </label>
+              <input
+                type="text"
+                value={seoTitle}
+                onChange={(e) => setSeoTitle(e.target.value)}
+                maxLength={70}
+                placeholder={title || "Tarif adı"}
+                className={inputCls}
+              />
+              <p className="text-xs text-warm-400 mt-1 text-right">{seoTitle.length}/70</p>
+            </div>
+
+            {/* Meta açıklama */}
+            <div>
+              <label className="block text-sm font-medium text-warm-700 mb-1">
+                Meta Açıklama
+                <span className="ml-2 text-xs font-normal text-warm-400">— Google arama sonucu özeti</span>
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={2}
+                maxLength={160}
+                placeholder="Bu tarif hakkında kısa ve çekici bir açıklama…"
+                className={`${inputCls} resize-none`}
+              />
+              <p className="text-xs text-warm-400 mt-1 text-right">{description.length}/160</p>
+            </div>
+
+            {/* Anahtar kelimeler */}
+            <div>
+              <label className="block text-sm font-medium text-warm-700 mb-1.5">
+                Anahtar Kelimeler
+                <span className="ml-2 text-xs font-normal text-warm-400">— virgülle ayır</span>
+              </label>
+              <input
+                type="text"
+                value={seoKeywords}
+                onChange={(e) => setSeoKeywords(e.target.value)}
+                placeholder="mercimek çorbası, çorba tarifi, kolay tarif…"
+                className={inputCls}
+              />
+            </div>
+
+            {/* Google Önizlemesi */}
+            {title && (
+              <div>
+                <p className="text-xs font-medium text-warm-600 mb-2">Google Önizlemesi</p>
+                <div className="bg-white border border-warm-100 rounded-xl p-4 space-y-0.5">
+                  <p className="text-[#1a0dab] text-base font-medium leading-snug hover:underline cursor-pointer truncate">
+                    {seoTitle || title} | Menü Günlüğü
+                  </p>
+                  <p className="text-xs text-green-700">menugunlugu.com/recipes/{recipe?.slug ?? "tarif-slug"}</p>
+                  <p className="text-sm text-warm-600 leading-snug line-clamp-2">
+                    {description || `${title} tarifi — malzemeler ve yapılışı.`}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Error */}

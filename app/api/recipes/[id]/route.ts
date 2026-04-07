@@ -20,7 +20,7 @@ function toSlug(title: string): string {
 export async function PUT(request: NextRequest, { params }: { params: Params }) {
   const { id } = await params;
   const body   = await request.json();
-  const { title, category, description, ingredients, instructions, image_url, servings } = body;
+  const { title, category, description, seo_title, seo_keywords, ingredients, instructions, image_url, servings } = body;
 
   if (!title || !category || !ingredients || !instructions) {
     return NextResponse.json(
@@ -41,7 +41,9 @@ export async function PUT(request: NextRequest, { params }: { params: Params }) 
       title,
       slug: toSlug(title),
       category,
-      description: description ?? null,
+      description:  description ?? null,
+      seo_title:    seo_title ?? null,
+      seo_keywords: seo_keywords ?? null,
       ingredients,
       instructions,
       image_url: image_url || null,

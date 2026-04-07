@@ -27,7 +27,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, slug: rawSlug, excerpt, content, image_url, category_id, published } = body;
+    const { title, slug: rawSlug, excerpt, content, image_url, category_id, published, seo_title, seo_keywords } = body;
 
     if (!title?.trim() || !content?.trim()) {
       return NextResponse.json({ error: "Başlık ve içerik zorunlu" }, { status: 400 });
@@ -39,13 +39,15 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabase
       .from("blog_posts")
       .insert({
-        title:       title.trim(),
+        title:        title.trim(),
         slug,
-        excerpt:     excerpt?.trim() || null,
-        content:     content.trim(),
-        image_url:   image_url ?? null,
-        category_id: category_id || null,
-        published:   published ?? true,
+        excerpt:      excerpt?.trim() || null,
+        content:      content.trim(),
+        image_url:    image_url ?? null,
+        category_id:  category_id || null,
+        published:    published ?? true,
+        seo_title:    seo_title?.trim() || null,
+        seo_keywords: seo_keywords?.trim() || null,
       })
       .select()
       .single();

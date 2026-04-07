@@ -12,12 +12,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getBlogPostBySlug(slug);
   if (!post) return { title: "Yazı Bulunamadı" };
-  const description = post.excerpt ?? post.content.slice(0, 155);
+  const metaTitle   = post.seo_title ?? post.title;
+  const description = post.excerpt ?? post.content.replace(/<[^>]+>/g, "").slice(0, 155);
   return {
-    title: post.title,
+    title:    metaTitle,
     description,
+    keywords: post.seo_keywords ?? undefined,
     openGraph: {
-      title: post.title,
+      title: metaTitle,
       description,
       images: post.image_url ? [post.image_url] : [],
     },
@@ -88,9 +90,16 @@ export default async function BlogPostPage({ params }: Props) {
           )}
 
           {/* Content */}
-          <div className="text-warm-700 text-[15px] leading-relaxed whitespace-pre-wrap">
-            {post.content}
-          </div>
+          {post.content.trimStart().startsWith("<") ? (
+            <div
+              className="prose-content text-warm-700 text-[15px] leading-relaxed"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+          ) : (
+            <div className="text-warm-700 text-[15px] leading-relaxed whitespace-pre-wrap">
+              {post.content}
+            </div>
+          )}
         </div>
       </div>
 

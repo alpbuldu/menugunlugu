@@ -54,11 +54,11 @@ export async function POST(request: NextRequest) {
   const slug = toSlug(title);
   const supabase = createAdminClient();
 
-  const { servings, description } = body;
+  const { servings, description, seo_title, seo_keywords } = body;
 
   const { data, error } = await supabase
     .from("recipes")
-    .insert({ title, slug, category, description: description ?? null, ingredients, instructions, image_url: image_url ?? null, servings: servings ?? null })
+    .insert({ title, slug, category, description: description ?? null, seo_title: seo_title ?? null, seo_keywords: seo_keywords ?? null, ingredients, instructions, image_url: image_url ?? null, servings: servings ?? null })
     .select()
     .single();
 

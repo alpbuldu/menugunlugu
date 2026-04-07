@@ -87,7 +87,7 @@ export default async function RecipeDetailPage({ params }: Props) {
                 </span>
               )}
             </div>
-            <h1 className="text-3xl font-bold text-warm-900 mt-3 leading-snug">
+            <h1 className="text-2xl sm:text-3xl font-bold text-warm-900 mt-3 leading-snug">
               {recipe.title}
             </h1>
           </div>

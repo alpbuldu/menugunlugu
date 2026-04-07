@@ -74,7 +74,7 @@ export default function OGImage() {
             display: "flex",
           }}
         >
-          Günlük menüler · Tarifler · Lezzetler
+          Günlük Menüler · Tarifler · Blog
         </div>
 
         {/* Domain */}

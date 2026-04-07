@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
+import { deleteStorageFile } from "@/lib/supabase/storage";
 
 function toSlug(text: string): string {
   return text
@@ -41,6 +42,13 @@ export async function PUT(request: NextRequest, { params }: Ctx) {
     const slug = rawSlug?.trim() ? toSlug(rawSlug.trim()) : toSlug(title.trim());
     const supabase = createAdminClient();
 
+    // Görsel değiştiyse eskisini storage'dan sil
+    const { data: existing } = await supabase
+      .from("blog_posts").select("image_url").eq("id", id).single();
+    if (existing?.image_url && existing.image_url !== (image_url ?? null)) {
+      await deleteStorageFile(existing.image_url);
+    }
+
     const { data, error } = await supabase
       .from("blog_posts")
       .update({
@@ -70,6 +78,12 @@ export async function DELETE(_req: NextRequest, { params }: Ctx) {
   try {
     const { id } = await params;
     const supabase = createAdminClient();
+
+    // Görseli storage'dan sil
+    const { data: toDelete } = await supabase
+      .from("blog_posts").select("image_url").eq("id", id).single();
+    await deleteStorageFile(toDelete?.image_url);
+
     const { error } = await supabase.from("blog_posts").delete().eq("id", id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ ok: true });

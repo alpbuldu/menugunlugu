@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
+import { deleteStorageFile } from "@/lib/supabase/storage";
 import type { Category } from "@/lib/types";
 
 function toSlug(text: string): string {
@@ -89,10 +90,13 @@ export async function DELETE(request: NextRequest) {
     }
 
     const supabase = createAdminClient();
-    const { error } = await supabase
-      .from("recipes")
-      .delete()
-      .in("id", ids);
+
+    // Silinecek görselleri önce çek
+    const { data: toDelete } = await supabase
+      .from("recipes").select("image_url").in("id", ids);
+    await Promise.all((toDelete ?? []).map((r: { image_url: string | null }) => deleteStorageFile(r.image_url)));
+
+    const { error } = await supabase.from("recipes").delete().in("id", ids);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

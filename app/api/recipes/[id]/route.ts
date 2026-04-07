@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
+import { deleteStorageFile } from "@/lib/supabase/storage";
 import type { Category } from "@/lib/types";
 
 type Params = Promise<{ id: string }>;
@@ -34,6 +35,13 @@ export async function PUT(request: NextRequest, { params }: { params: Params }) 
   }
 
   const supabase = createAdminClient();
+
+  // Görsel değiştiyse eskisini storage'dan sil
+  const { data: existing } = await supabase
+    .from("recipes").select("image_url").eq("id", id).single();
+  if (existing?.image_url && existing.image_url !== (image_url || null)) {
+    await deleteStorageFile(existing.image_url);
+  }
 
   const { data, error } = await supabase
     .from("recipes")
@@ -78,6 +86,11 @@ export async function DELETE(_request: NextRequest, { params }: { params: Params
       { status: 409 }
     );
   }
+
+  // Görseli storage'dan sil
+  const { data: toDelete } = await supabase
+    .from("recipes").select("image_url").eq("id", id).single();
+  await deleteStorageFile(toDelete?.image_url);
 
   const { error } = await supabase.from("recipes").delete().eq("id", id);
 

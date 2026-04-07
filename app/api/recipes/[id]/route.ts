@@ -54,8 +54,9 @@ export async function PUT(request: NextRequest, { params }: { params: Params }) 
       seo_keywords: seo_keywords ?? null,
       ingredients,
       instructions,
-      image_url: image_url || null,
-      servings: servings ?? null,
+      image_url:  image_url || null,
+      servings:   servings ?? null,
+      updated_at: new Date().toISOString(),
     })
     .eq("id", id)
     .select()

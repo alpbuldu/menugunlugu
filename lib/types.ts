@@ -14,6 +14,7 @@ export interface Recipe {
   image_url: string | null;
   servings: number | null;
   created_at: string;
+  updated_at: string | null;
 }
 
 export interface Menu {

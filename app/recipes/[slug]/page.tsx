@@ -23,9 +23,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     keywords: recipe.seo_keywords ?? undefined,
     openGraph: {
-      title: metaTitle,
+      title:       metaTitle,
       description,
-      images: recipe.image_url ? [recipe.image_url] : [],
+      type:        "article",
+      images:      recipe.image_url ? [{ url: recipe.image_url, width: 1200, height: 630, alt: recipe.title }] : [],
+    },
+    twitter: {
+      card:        "summary_large_image",
+      title:       metaTitle,
+      description,
+      images:      recipe.image_url ? [recipe.image_url] : [],
     },
   };
 }

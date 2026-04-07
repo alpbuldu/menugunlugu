@@ -5,11 +5,17 @@ import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.menugunlugu.com"),
   title: {
     default: "Menü Günlüğü",
     template: "%s | Menü Günlüğü",
   },
   description: "Günlük menüler, tarifler ve daha fazlası.",
+  openGraph: {
+    siteName: "Menü Günlüğü",
+    locale: "tr_TR",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

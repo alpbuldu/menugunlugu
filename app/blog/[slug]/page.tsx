@@ -12,11 +12,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = await getBlogPostBySlug(slug);
   if (!post) return { title: "Yazı Bulunamadı" };
+  const description = post.excerpt ?? post.content.slice(0, 155);
   return {
     title: post.title,
-    description: post.excerpt ?? post.content.slice(0, 150),
+    description,
     openGraph: {
       title: post.title,
+      description,
       images: post.image_url ? [post.image_url] : [],
     },
   };

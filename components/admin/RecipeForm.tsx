@@ -24,6 +24,7 @@ export default function RecipeForm({ recipe }: Props) {
   const [title,        setTitle]        = useState(recipe?.title        ?? "");
   const [category,     setCategory]     = useState<Category>(recipe?.category ?? "soup");
   const [servings,     setServings]     = useState<string>(recipe?.servings?.toString() ?? "");
+  const [description,  setDescription]  = useState(recipe?.description  ?? "");
   const [ingredients,  setIngredients]  = useState(recipe?.ingredients  ?? "");
   const [instructions, setInstructions] = useState(recipe?.instructions ?? "");
   const [imageUrl,     setImageUrl]     = useState(recipe?.image_url    ?? "");
@@ -72,7 +73,7 @@ export default function RecipeForm({ recipe }: Props) {
       {
         method:  isEdit ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ title, category, ingredients, instructions, image_url: imageUrl, servings: servings ? parseInt(servings) : null }),
+        body:    JSON.stringify({ title, category, description: description || null, ingredients, instructions, image_url: imageUrl, servings: servings ? parseInt(servings) : null }),
       }
     );
 
@@ -139,6 +140,27 @@ export default function RecipeForm({ recipe }: Props) {
           placeholder="Örn: 4"
           className={`${inputCls} w-32`}
         />
+      </div>
+
+      {/* SEO Description */}
+      <div>
+        <label className="block text-sm font-medium text-warm-700 mb-1">
+          SEO Açıklaması
+        </label>
+        <p className="text-xs text-warm-400 mb-1.5">
+          Google arama sonuçlarında ve sosyal medyada görünen kısa açıklama. Boş bırakılırsa otomatik oluşturulur.
+        </p>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          rows={2}
+          maxLength={160}
+          placeholder="Bu tarif hakkında kısa ve çekici bir açıklama girin…"
+          className={`${inputCls} resize-none`}
+        />
+        <p className="text-xs text-warm-400 mt-1 text-right">
+          {description.length}/160
+        </p>
       </div>
 
       {/* Image upload */}

@@ -6,6 +6,7 @@ export interface Recipe {
   title: string;
   slug: string;
   category: Category;
+  description: string | null;
   ingredients: string;
   instructions: string;
   image_url: string | null;

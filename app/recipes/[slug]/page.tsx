@@ -16,11 +16,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const recipe = await getRecipeBySlug(slug);
   if (!recipe) return { title: "Tarif bulunamadı" };
+  const description =
+    recipe.description ?? `${recipe.title} tarifi — malzemeler ve yapılışı.`;
   return {
     title: recipe.title,
-    description: `${recipe.title} tarifi — malzemeler ve yapılışı.`,
+    description,
     openGraph: {
       title: recipe.title,
+      description,
       images: recipe.image_url ? [recipe.image_url] : [],
     },
   };

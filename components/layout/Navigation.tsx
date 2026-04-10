@@ -118,7 +118,7 @@ function DesktopSearch() {
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-warm-400 pointer-events-none" />
         <input type="text" value={query} onChange={(e) => setQuery(e.target.value)}
           onFocus={ensureRecipes} placeholder="Tarif ara…" autoComplete="off"
-          className="w-[170px] pl-8 pr-3 py-1 rounded-full text-sm bg-warm-100 border border-warm-200 text-warm-700 placeholder:text-warm-400 focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-200/60 transition-colors" />
+          className="w-[130px] pl-8 pr-3 py-1 rounded-full text-sm bg-warm-100 border border-warm-200 text-warm-700 placeholder:text-warm-400 focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-200/60 transition-colors" />
       </div>
       {showDropdown && (
         <div className="absolute top-full mt-2 left-0 w-full min-w-[240px] bg-white border border-warm-200 rounded-2xl shadow-lg overflow-hidden z-50">
@@ -173,7 +173,7 @@ function DesktopUserMenu() {
   if (!user) {
     return (
       <Link href="/giris"
-        className="px-4 py-1.5 rounded-full text-sm font-medium border border-brand-300 text-brand-700 hover:bg-brand-50 transition-colors">
+        className="px-3 py-1 rounded-full text-xs font-medium border border-brand-300 text-brand-700 hover:bg-brand-50 transition-colors">
         Giriş Yap
       </Link>
     );
@@ -307,11 +307,11 @@ export default function Navigation() {
   return (
     <>
       {/* ── Desktop ──────────────────────────────────────────── */}
-      <div className="hidden md:flex items-center gap-4">
+      <div className="hidden md:flex items-center gap-2">
         <nav className="flex items-center gap-1">
           {links.map((link) => (
             <Link key={link.href} href={link.href}
-              className={clsx("px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+              className={clsx("px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
                 pathname === link.href
                   ? "bg-brand-100 text-brand-800"
                   : "text-warm-700 hover:bg-warm-100 hover:text-warm-900")}>
@@ -320,7 +320,7 @@ export default function Navigation() {
           ))}
         </nav>
         <Link href="/tarif-ekle"
-          className="px-3.5 py-1.5 rounded-full text-sm font-medium bg-brand-500 hover:bg-brand-600 text-white transition-colors flex-shrink-0">
+          className="px-3 py-1 rounded-full text-xs font-medium bg-brand-500 hover:bg-brand-600 text-white transition-colors flex-shrink-0">
           + Tarif Ekle
         </Link>
         <DesktopSearch />

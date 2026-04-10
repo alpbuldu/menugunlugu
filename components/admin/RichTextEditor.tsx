@@ -1,10 +1,26 @@
 "use client";
 
 import { useEditor, EditorContent } from "@tiptap/react";
+import { Extension } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
 import { useEffect } from "react";
+
+const HeadingBreak = Extension.create({
+  name: "headingBreak",
+  addKeyboardShortcuts() {
+    return {
+      Enter: () => {
+        const { $from } = this.editor.state.selection;
+        if ($from.parent.type.name === "heading") {
+          return this.editor.chain().splitBlock().setNode("paragraph").run();
+        }
+        return false;
+      },
+    };
+  },
+});
 
 interface Props {
   value: string;
@@ -62,6 +78,7 @@ export default function RichTextEditor({
       }),
       Underline,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
+      HeadingBreak,
     ],
     content: value || "",
     editorProps: {

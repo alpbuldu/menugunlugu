@@ -1,8 +1,26 @@
 "use client";
 
 import { useEditor, EditorContent } from "@tiptap/react";
+import { Extension } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import { useEffect } from "react";
+
+/** Enter tuşuna basınca başlıktan çıkıp paragraf'a geç */
+const HeadingBreak = Extension.create({
+  name: "headingBreak",
+  addKeyboardShortcuts() {
+    return {
+      Enter: () => {
+        const { state } = this.editor;
+        const { $from } = state.selection;
+        if ($from.parent.type.name === "heading") {
+          return this.editor.chain().splitBlock().setNode("paragraph").run();
+        }
+        return false;
+      },
+    };
+  },
+});
 
 interface Props {
   value: string;
@@ -50,6 +68,7 @@ export default function RecipeEditor({
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [3, 4] } }),
+      HeadingBreak,
     ],
     content: value || "",
     editorProps: {

@@ -94,6 +94,44 @@ export default function RecipeEditor({
 
   if (!editor) return null;
 
+  /** Seçili metin kısmen seçiliyse önce kendi bloğuna ayır, sonra başlık yap */
+  function applyHeading() {
+    if (editor!.isActive("heading", { level: 3 })) {
+      editor!.chain().focus().setParagraph().run();
+      return;
+    }
+
+    const { state } = editor!;
+    const { from, to, empty } = state.selection;
+    const $from = state.doc.resolve(from);
+    const blockStart = $from.start();
+    const blockEnd   = $from.end();
+
+    // Seçim yok ya da tüm blok seçili → direkt çevir
+    if (empty || (from <= blockStart && to >= blockEnd)) {
+      editor!.chain().focus().setHeading({ level: 3 }).run();
+      return;
+    }
+
+    // Kısmi seçim: seçili metni kendi bloğuna ayır, sonra başlık yap
+    editor!.chain().focus().command(({ tr, state, dispatch }) => {
+      if (!dispatch) return true;
+      const headingType = state.schema.nodes.heading;
+      if (!headingType) return false;
+
+      // Önce sonda böl (başlangıç pozisyonu değişmez)
+      if (to < blockEnd) tr.split(to);
+      // Sonra başta böl
+      if (from > blockStart) tr.split(tr.mapping.map(from));
+
+      // Ortadaki bloğu başlık yap
+      const pos = tr.mapping.map(from);
+      tr.setBlockType(pos, pos, headingType, { level: 3 });
+      dispatch(tr);
+      return true;
+    }).run();
+  }
+
   return (
     <div className="border border-warm-200 rounded-xl overflow-hidden focus-within:border-brand-400 focus-within:ring-1 focus-within:ring-brand-200 transition-shadow">
       {/* ── Toolbar ── */}
@@ -113,9 +151,9 @@ export default function RecipeEditor({
 
         {/* Başlıklar — bölüm ayırıcı olarak */}
         <ToolBtn
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          onClick={applyHeading}
           active={editor.isActive("heading", { level: 3 })}
-          title="Bölüm başlığı (örn: Sos için)"
+          title="Bölüm başlığı (örn: Sos için) — metni seçip tıkla"
         >
           Başlık
         </ToolBtn>

@@ -214,14 +214,15 @@ export default function RecipeForm({ recipe }: Props) {
           Yapılışı <span className="text-red-400">*</span>
         </label>
         <p className="text-xs text-warm-400 mb-1.5">
-          Numaralı liste kullanın. Farklı aşamalar için <strong>Başlık</strong> ekleyebilirsiniz
+          Her adımı ayrı satıra yazın. Sayfa üzerinde otomatik olarak 1, 2, 3… şeklinde numaralanır.
         </p>
-        <RecipeEditor
+        <textarea
           value={instructions}
-          onChange={setInstructions}
-          placeholder="Unu eleyin ve yumurtayla karıştırın…"
-          minHeight="220px"
-          mode="instructions"
+          onChange={(e) => setInstructions(e.target.value)}
+          required
+          rows={8}
+          placeholder={"Unu eleyin ve yumurtayla karıştırın.\nSuyu ekleyip yoğurun.\nYağı gezdirin ve pişirin."}
+          className={`${inputCls} resize-y`}
         />
       </div>
 

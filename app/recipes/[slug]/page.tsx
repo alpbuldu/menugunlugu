@@ -60,16 +60,16 @@ export default async function RecipeDetailPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
 
-  // HTML editörden mi yoksa eski düz metinden mi?
+  // Malzemeler: HTML editörden mi (başlık desteği için) yoksa eski düz metin mi?
   const ingredientsIsHtml = recipe.ingredients.trim().startsWith("<");
-  const instructionsIsHtml = recipe.instructions.trim().startsWith("<");
 
   const ingredients = ingredientsIsHtml
     ? null
     : recipe.ingredients.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
 
-  const steps = instructionsIsHtml
-    ? null
+  // Yapılış: her zaman düz metin olarak göster (turuncu numaralı daire)
+  const steps = recipe.instructions.trim().startsWith("<")
+    ? [] // eski HTML formatı varsa boş bırak (güvenlik)
     : recipe.instructions.split("\n").map((s) => s.trim()).filter(Boolean);
 
   const hasImage = recipe.image_url && recipe.image_url.trim() !== "";
@@ -147,25 +147,18 @@ export default async function RecipeDetailPage({ params }: Props) {
               <span className="w-6 h-6 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-sm">👨‍🍳</span>
               Yapılışı
             </h2>
-            {instructionsIsHtml ? (
-              <div
-                className="recipe-content recipe-steps"
-                dangerouslySetInnerHTML={{ __html: recipe.instructions }}
-              />
-            ) : (
-              <ol className="space-y-4">
-                {steps!.map((step, i) => (
-                  <li key={i} className="flex gap-4 text-sm text-warm-700">
-                    <span className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center mt-0.5">
-                      {i + 1}
-                    </span>
-                    <span className="pt-0.5 leading-relaxed">
-                      {step.replace(/^\d+\.\s*/, "")}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            )}
+            <ol className="space-y-4">
+              {steps.map((step, i) => (
+                <li key={i} className="flex gap-4 text-sm text-warm-700">
+                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center mt-0.5">
+                    {i + 1}
+                  </span>
+                  <span className="pt-0.5 leading-relaxed">
+                    {step.replace(/^\d+\.\s*/, "")}
+                  </span>
+                </li>
+              ))}
+            </ol>
           </section>
         </div>
       </div>

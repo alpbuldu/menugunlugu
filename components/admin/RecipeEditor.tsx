@@ -165,19 +165,6 @@ export default function RecipeEditor({
           Metin
         </ToolBtn>
 
-        <Divider />
-
-        {/* Listeler */}
-        <ToolBtn
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          active={editor.isActive("bulletList")}
-          title="Madde listesi (malzemeler için)"
-        >• —</ToolBtn>
-        <ToolBtn
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          active={editor.isActive("orderedList")}
-          title="Numaralı liste (adımlar için)"
-        >1.</ToolBtn>
       </div>
 
       {/* ── Editor ── */}

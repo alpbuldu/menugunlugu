@@ -3,9 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getRecipeBySlug } from "@/lib/supabase/queries";
+import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 import ShareButton from "@/components/ui/ShareButton";
+import RatingStars from "@/components/recipe/RatingStars";
+import FavoriteButton from "@/components/recipe/FavoriteButton";
+import CommentSection from "@/components/recipe/CommentSection";
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 
@@ -50,6 +54,11 @@ export default async function RecipeDetailPage({ params }: Props) {
   const recipe = await getRecipeBySlug(slug);
 
   if (!recipe) notFound();
+
+  // Current user (for comments + favorites)
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const currentUserId = user?.id ?? null;
 
   // HTML editörden mi yoksa eski düz metinden mi?
   const ingredientsIsHtml = recipe.ingredients.trim().startsWith("<");
@@ -161,8 +170,19 @@ export default async function RecipeDetailPage({ params }: Props) {
         </div>
       </div>
 
+      {/* Rating + Favorite */}
+      <div className="mt-6 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <RatingStars recipeId={recipe.id} />
+        <FavoriteButton recipeId={recipe.id} />
+      </div>
+
+      {/* Comments */}
+      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
+        <CommentSection recipeId={recipe.id} currentUserId={currentUserId} />
+      </div>
+
       {/* Bottom nav */}
-      <div className="mt-8 flex items-center justify-between flex-wrap gap-3">
+      <div className="mt-6 flex items-center justify-between flex-wrap gap-3">
         <Link
           href="/recipes"
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-warm-200 text-warm-700 rounded-xl text-sm font-medium hover:bg-warm-50 transition-colors"

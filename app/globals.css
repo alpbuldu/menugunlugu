@@ -92,3 +92,22 @@ body {
   font-weight: 700; font-size: 0.75rem;
   flex-shrink: 0; margin-top: 0.1rem;
 }
+
+/* Yapılış — madde listesi de numaralı daire olarak göster */
+.recipe-steps ul {
+  list-style: none; padding-left: 0; margin: 0.5rem 0;
+  counter-reset: step-counter;
+}
+.recipe-steps ul > li {
+  display: flex; align-items: flex-start; gap: 1rem;
+  margin-bottom: 1rem; counter-increment: step-counter;
+  font-size: 0.875rem; color: #5a4f48;
+}
+.recipe-steps ul > li::before {
+  content: counter(step-counter);
+  display: flex; align-items: center; justify-content: center;
+  width: 1.75rem; height: 1.75rem; border-radius: 9999px;
+  background-color: #b86515; color: white;
+  font-weight: 700; font-size: 0.75rem;
+  flex-shrink: 0; margin-top: 0.1rem;
+}

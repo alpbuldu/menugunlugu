@@ -193,7 +193,7 @@ export default function RecipeEditor({
         .recipe-editor h3 {
           font-size: 0.95rem;
           font-weight: 700;
-          margin: 0.9rem 0 0.3rem;
+          margin: 0.2rem 0 0.1rem;
           color: #2d2926;
           border-bottom: 1px solid #ede8e3;
           padding-bottom: 0.2rem;

@@ -149,7 +149,7 @@ export default async function RecipeDetailPage({ params }: Props) {
             </h2>
             {instructionsIsHtml ? (
               <div
-                className="recipe-content"
+                className="recipe-content recipe-steps"
                 dangerouslySetInnerHTML={{ __html: recipe.instructions }}
               />
             ) : (

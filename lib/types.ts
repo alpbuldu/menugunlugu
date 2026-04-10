@@ -1,4 +1,21 @@
 export type Category = "soup" | "main" | "side" | "dessert";
+
+export interface Profile {
+  id: string;
+  username: string;
+  avatar_url: string | null;
+  bio: string | null;
+  created_at: string;
+}
+
+export interface AdminProfile {
+  id: number;
+  username: string;
+  avatar_url: string | null;
+  updated_at: string;
+}
+
+export type ApprovalStatus = "pending" | "approved" | "rejected";
 export type MenuStatus = "draft" | "published";
 
 export interface Recipe {

@@ -51,15 +51,17 @@ export default async function RecipeDetailPage({ params }: Props) {
 
   if (!recipe) notFound();
 
-  const ingredients = recipe.ingredients
-    .split(/[\n,]+/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+  // HTML editörden mi yoksa eski düz metinden mi?
+  const ingredientsIsHtml = recipe.ingredients.trim().startsWith("<");
+  const instructionsIsHtml = recipe.instructions.trim().startsWith("<");
 
-  const steps = recipe.instructions
-    .split("\n")
-    .map((s) => s.trim())
-    .filter(Boolean);
+  const ingredients = ingredientsIsHtml
+    ? null
+    : recipe.ingredients.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
+
+  const steps = instructionsIsHtml
+    ? null
+    : recipe.instructions.split("\n").map((s) => s.trim()).filter(Boolean);
 
   const hasImage = recipe.image_url && recipe.image_url.trim() !== "";
 
@@ -113,17 +115,21 @@ export default async function RecipeDetailPage({ params }: Props) {
               <span className="w-6 h-6 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-sm">🧂</span>
               Malzemeler
             </h2>
-            <ul className="bg-warm-50 rounded-xl p-5 space-y-2.5">
-              {ingredients.map((item, i) => (
-                <li
-                  key={i}
-                  className="flex items-start gap-2.5 text-warm-700 text-sm"
-                >
-                  <span className="text-brand-400 mt-0.5 shrink-0">•</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
+            {ingredientsIsHtml ? (
+              <div
+                className="recipe-content bg-warm-50 rounded-xl p-5"
+                dangerouslySetInnerHTML={{ __html: recipe.ingredients }}
+              />
+            ) : (
+              <ul className="bg-warm-50 rounded-xl p-5 space-y-2.5">
+                {ingredients!.map((item, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-warm-700 text-sm">
+                    <span className="text-brand-400 mt-0.5 shrink-0">•</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
 
           {/* Instructions */}
@@ -132,18 +138,25 @@ export default async function RecipeDetailPage({ params }: Props) {
               <span className="w-6 h-6 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-sm">👨‍🍳</span>
               Yapılışı
             </h2>
-            <ol className="space-y-4">
-              {steps.map((step, i) => (
-                <li key={i} className="flex gap-4 text-sm text-warm-700">
-                  <span className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center mt-0.5">
-                    {i + 1}
-                  </span>
-                  <span className="pt-0.5 leading-relaxed">
-                    {step.replace(/^\d+\.\s*/, "")}
-                  </span>
-                </li>
-              ))}
-            </ol>
+            {instructionsIsHtml ? (
+              <div
+                className="recipe-content"
+                dangerouslySetInnerHTML={{ __html: recipe.instructions }}
+              />
+            ) : (
+              <ol className="space-y-4">
+                {steps!.map((step, i) => (
+                  <li key={i} className="flex gap-4 text-sm text-warm-700">
+                    <span className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center mt-0.5">
+                      {i + 1}
+                    </span>
+                    <span className="pt-0.5 leading-relaxed">
+                      {step.replace(/^\d+\.\s*/, "")}
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            )}
           </section>
         </div>
       </div>

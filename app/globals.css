@@ -52,3 +52,17 @@ body {
 .prose-content s      { text-decoration: line-through; }
 .prose-content [style*="text-align: center"] { text-align: center; }
 .prose-content [style*="text-align: right"]  { text-align: right; }
+
+/* ── Tarif içerik (malzemeler & yapılış) ── */
+.recipe-content { font-size: 0.9rem; color: #4a3f38; line-height: 1.7; }
+.recipe-content h3 {
+  font-size: 0.95rem; font-weight: 700;
+  margin: 1rem 0 0.4rem; color: #2d2926;
+  border-bottom: 1px solid #ede8e3; padding-bottom: 0.25rem;
+}
+.recipe-content h4 { font-size: 0.875rem; font-weight: 700; margin: 0.75rem 0 0.3rem; color: #4a3f38; }
+.recipe-content p  { margin: 0.35rem 0; }
+.recipe-content ul { list-style: disc;    padding-left: 1.4rem; margin: 0.4rem 0; }
+.recipe-content ol { list-style: decimal; padding-left: 1.4rem; margin: 0.4rem 0; }
+.recipe-content li { margin: 0.25rem 0; }
+.recipe-content strong { font-weight: 700; color: #2d2926; }

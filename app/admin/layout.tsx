@@ -20,8 +20,10 @@ const adminLinks = [
   { href: "/admin/recipes/new",    label: "✏️  Yeni Tarif" },
   { href: "/admin/recipes/import", label: "📥  Toplu İçe Aktar" },
   { href: "/admin/recipes/delete", label: "🗑️  Toplu Sil" },
-  { href: "/admin/blog",        label: "📝  Blog" },
+  { href: "/admin/blog",           label: "📝  Blog" },
   { href: "/admin/blog/posts/new", label: "🖊️  Yeni Yazı" },
+  { href: "/admin/onay",           label: "✅  Tarif Onayı" },
+  { href: "/admin/profil",         label: "👤  Admin Profili" },
 ];
 
 export default async function AdminLayout({

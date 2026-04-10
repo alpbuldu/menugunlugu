@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useRef } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import type { Recipe, Category } from "@/lib/types";
+
+const RecipeEditor = dynamic(() => import("./RecipeEditor"), { ssr: false });
 
 const CATEGORIES: { value: Category; label: string }[] = [
   { value: "soup",    label: "Çorba" },
@@ -193,14 +196,15 @@ export default function RecipeForm({ recipe }: Props) {
         <label className="block text-sm font-medium text-warm-700 mb-1">
           Malzemeler <span className="text-red-400">*</span>
         </label>
-        <p className="text-xs text-warm-400 mb-1.5">Her malzemeyi ayrı satıra yazın</p>
-        <textarea
+        <p className="text-xs text-warm-400 mb-1.5">
+          Madde listesi kullanın. Bölümler için <strong>Başlık</strong> seçin (örn: <em>Sos için</em>, <em>Hamur için</em>)
+        </p>
+        <RecipeEditor
           value={ingredients}
-          onChange={(e) => setIngredients(e.target.value)}
-          required
-          rows={7}
-          placeholder={"2 su bardağı kırmızı mercimek\n1 adet soğan\n2 diş sarımsak"}
-          className={`${inputCls} resize-y`}
+          onChange={setIngredients}
+          placeholder="2 su bardağı un&#10;1 adet yumurta&#10;…"
+          minHeight="160px"
+          mode="ingredients"
         />
       </div>
 
@@ -209,14 +213,15 @@ export default function RecipeForm({ recipe }: Props) {
         <label className="block text-sm font-medium text-warm-700 mb-1">
           Yapılışı <span className="text-red-400">*</span>
         </label>
-        <p className="text-xs text-warm-400 mb-1.5">Her adımı ayrı satıra yazın</p>
-        <textarea
+        <p className="text-xs text-warm-400 mb-1.5">
+          Numaralı liste kullanın. Farklı aşamalar için <strong>Başlık</strong> ekleyebilirsiniz
+        </p>
+        <RecipeEditor
           value={instructions}
-          onChange={(e) => setInstructions(e.target.value)}
-          required
-          rows={9}
-          placeholder={"1. Mercimeği yıkayın.\n2. Soğanı kavurun.\n3. Malzemeleri ekleyip pişirin."}
-          className={`${inputCls} resize-y`}
+          onChange={setInstructions}
+          placeholder="Unu eleyin ve yumurtayla karıştırın…"
+          minHeight="220px"
+          mode="instructions"
         />
       </div>
 

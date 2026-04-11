@@ -75,7 +75,7 @@ export default async function RecipeDetailPage({ params }: Props) {
       .replace(/<br\s*\/?>/gi, "\n")
       .replace(/<[^>]+>/g, "");
     for (const raw of flat.split("\n")) {
-      const line = raw.trim();
+      const line = raw.replace(/&nbsp;/g, "").trim();
       if (!line) continue;
       if (line.startsWith("__H__")) {
         const heading = line.slice(5).trim();
@@ -152,7 +152,7 @@ export default async function RecipeDetailPage({ params }: Props) {
               <div className="bg-warm-50 rounded-xl p-5 space-y-1">
                 {parseIngredients(recipe.ingredients).map((item, i) =>
                   item.type === "heading" ? (
-                    <h3 key={i} className="text-sm font-bold text-warm-800 border-b border-warm-200 pb-1 mt-4 mb-1 first:mt-0">
+                    <h3 key={i} className="text-sm font-bold text-warm-800 border-b border-warm-200 pb-1 mt-4 mb-0 first:mt-0">
                       {item.text}
                     </h3>
                   ) : (

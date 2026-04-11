@@ -60,8 +60,24 @@ export default async function RecipeDetailPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
 
-  // Malzemeler: HTML editörden mi (başlık desteği için) yoksa eski düz metin mi?
+  // Malzemeler: HTML editörden mi yoksa eski düz metin mi?
   const ingredientsIsHtml = recipe.ingredients.trim().startsWith("<");
+
+  // HTML malzeme içeriğini parse et: başlık veya malzeme satırı
+  type IngredientItem = { type: "heading"; text: string } | { type: "item"; text: string };
+  function parseIngredients(html: string): IngredientItem[] {
+    const result: IngredientItem[] = [];
+    const re = /<(h[1-6]|p|li)[^>]*>([\s\S]*?)<\/\1>/gi;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(html)) !== null) {
+      const tag  = m[1].toLowerCase();
+      const text = m[2].replace(/<[^>]+>/g, "").trim();
+      if (!text) continue;
+      if (tag.startsWith("h")) result.push({ type: "heading", text });
+      else                     result.push({ type: "item",    text });
+    }
+    return result;
+  }
 
   const ingredients = ingredientsIsHtml
     ? null
@@ -125,10 +141,20 @@ export default async function RecipeDetailPage({ params }: Props) {
               Malzemeler
             </h2>
             {ingredientsIsHtml ? (
-              <div
-                className="recipe-content bg-warm-50 rounded-xl p-5"
-                dangerouslySetInnerHTML={{ __html: recipe.ingredients }}
-              />
+              <div className="bg-warm-50 rounded-xl p-5 space-y-1">
+                {parseIngredients(recipe.ingredients).map((item, i) =>
+                  item.type === "heading" ? (
+                    <h3 key={i} className="text-sm font-bold text-warm-800 border-b border-warm-200 pb-1 mt-4 mb-1 first:mt-0">
+                      {item.text}
+                    </h3>
+                  ) : (
+                    <div key={i} className="flex items-start gap-2.5 text-warm-700 text-sm py-0.5">
+                      <span className="text-brand-400 mt-0.5 shrink-0">•</span>
+                      <span>{item.text}</span>
+                    </div>
+                  )
+                )}
+              </div>
             ) : (
               <ul className="bg-warm-50 rounded-xl p-5 space-y-2.5">
                 {ingredients!.map((item, i) => (

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getRandomRecipes } from "@/lib/supabase/queries";
+import { createClient } from "@/lib/supabase/server";
 import RecipeSlider from "@/components/ui/RecipeSlider";
 
 export const dynamic = "force-dynamic";
@@ -7,7 +8,20 @@ export const dynamic = "force-dynamic";
 const CONTAINER = "max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8";
 
 export default async function HomePage() {
+  const supabase = await createClient();
   const featured = await getRandomRecipes(9);
+
+  // Admin profili
+  const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();
+  const adminAuthor = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "" };
+
+  // Üye profilleri (submitted_by olan tarifler için)
+  const memberIds = [...new Set(featured.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
+  const profileMap: Record<string, { name: string; avatar: string }> = {};
+  if (memberIds.length) {
+    const { data: profiles } = await supabase.from("profiles").select("id, username, avatar_url").in("id", memberIds);
+    profiles?.forEach((p) => { profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "" }; });
+  }
 
   return (
     <div>
@@ -70,7 +84,7 @@ export default async function HomePage() {
               <p>Henüz tarif eklenmemiş.</p>
             </div>
           ) : (
-            <RecipeSlider recipes={featured} />
+            <RecipeSlider recipes={featured} adminAuthor={adminAuthor} profileMap={profileMap} />
           )}
         </div>
       </section>

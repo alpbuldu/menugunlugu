@@ -73,7 +73,17 @@ function Arrow({
 
 /* ── Slider ───────────────────────────────────────────────────── */
 
-export default function RecipeSlider({ recipes }: { recipes: Recipe[] }) {
+interface AuthorInfo { name: string; avatar: string; }
+
+export default function RecipeSlider({
+  recipes,
+  adminAuthor,
+  profileMap = {},
+}: {
+  recipes: Recipe[];
+  adminAuthor: AuthorInfo;
+  profileMap?: Record<string, AuthorInfo>;
+}) {
   const [perPage, setPerPage] = useState(3);
   const [pageIdx, setPageIdx] = useState(0);
   const [shift, setShift] = useState(-100);
@@ -177,6 +187,24 @@ export default function RecipeSlider({ recipes }: { recipes: Recipe[] }) {
                     <h3 className="font-semibold text-warm-800 mt-2 group-hover:text-brand-700 transition-colors line-clamp-2">
                       {recipe.title}
                     </h3>
+                    {/* Yazar */}
+                    {(() => {
+                      const a = recipe.submitted_by
+                        ? (profileMap[recipe.submitted_by] ?? adminAuthor)
+                        : adminAuthor;
+                      return (
+                        <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-warm-100">
+                          {a.avatar ? (
+                            <img src={a.avatar} alt={a.name} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                          ) : (
+                            <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                              {a.name.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                          <span className="text-xs text-warm-400 truncate">{a.name}</span>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </Link>
               ))}

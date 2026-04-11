@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { getRecipes } from "@/lib/supabase/queries";
+import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
   description: "Tüm tarifleri kategorilere göre keşfedin.",
 };
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 const PER_PAGE = 12;
 
@@ -39,12 +40,26 @@ export default async function RecipesPage({ searchParams }: Props) {
 
   const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
 
+  const supabase = await createClient();
   const allRecipes = await getRecipes(activeCategory);
   const totalPages = Math.ceil(allRecipes.length / PER_PAGE);
   const recipes = allRecipes.slice(
     (currentPage - 1) * PER_PAGE,
     currentPage * PER_PAGE
   );
+
+  // Yazar verileri
+  const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();
+  const adminAuthor = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "" };
+  const memberIds = [...new Set(recipes.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
+  const profileMap: Record<string, { name: string; avatar: string }> = {};
+  if (memberIds.length) {
+    const { data: profiles } = await supabase.from("profiles").select("id, username, avatar_url").in("id", memberIds);
+    profiles?.forEach((p) => { profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "" }; });
+  }
+  function getAuthor(submittedBy: string | null) {
+    return submittedBy ? (profileMap[submittedBy] ?? adminAuthor) : adminAuthor;
+  }
 
   /** Build ?category=X&page=Y preserving current filters */
   function href(overrides: { category?: string; page?: number }) {
@@ -115,6 +130,22 @@ export default async function RecipesPage({ searchParams }: Props) {
                 <h2 className="text-base font-semibold text-warm-800 mt-2 group-hover:text-brand-700 transition-colors line-clamp-2">
                   {recipe.title}
                 </h2>
+                {/* Yazar */}
+                {(() => {
+                  const a = getAuthor(recipe.submitted_by ?? null);
+                  return (
+                    <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-warm-100">
+                      {a.avatar ? (
+                        <img src={a.avatar} alt={a.name} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                      ) : (
+                        <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                          {a.name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                      <span className="text-xs text-warm-400 truncate">{a.name}</span>
+                    </div>
+                  );
+                })()}
               </div>
             </Link>
           ))}

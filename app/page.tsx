@@ -13,14 +13,14 @@ export default async function HomePage() {
 
   // Admin profili
   const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();
-  const adminAuthor = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "" };
+  const adminAuthor = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "", username: ap?.username ?? "menugunlugu" };
 
   // Üye profilleri (submitted_by olan tarifler için)
   const memberIds = [...new Set(featured.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
-  const profileMap: Record<string, { name: string; avatar: string }> = {};
+  const profileMap: Record<string, { name: string; avatar: string; username: string }> = {};
   if (memberIds.length) {
     const { data: profiles } = await supabase.from("profiles").select("id, username, avatar_url").in("id", memberIds);
-    profiles?.forEach((p) => { profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "" }; });
+    profiles?.forEach((p) => { profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "", username: p.username }; });
   }
 
   return (

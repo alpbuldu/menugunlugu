@@ -73,7 +73,7 @@ function Arrow({
 
 /* ── Slider ───────────────────────────────────────────────────── */
 
-interface AuthorInfo { name: string; avatar: string; }
+interface AuthorInfo { name: string; avatar: string; username: string; }
 
 export default function RecipeSlider({
   recipes,
@@ -162,52 +162,61 @@ export default function RecipeSlider({
         >
           {panels.map((panel, pi) => (
             <div key={pi} className={`shrink-0 w-full grid ${panelGrid} gap-6`}>
-              {panel.map((recipe, ri) => (
-                <Link
-                  key={`${pi}-${ri}-${recipe.id}`}
-                  href={`/recipes/${recipe.slug}`}
-                  className="flex flex-col bg-white rounded-2xl shadow-sm border border-warm-100 overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
-                >
-                  <div className="relative h-48 bg-warm-200 shrink-0">
-                    {recipe.image_url ? (
-                      <Image
-                        src={recipe.image_url}
-                        alt={recipe.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-5xl text-warm-300">
-                        🍳
+              {panel.map((recipe, ri) => {
+                const a = recipe.submitted_by
+                  ? (profileMap[recipe.submitted_by] ?? adminAuthor)
+                  : adminAuthor;
+                return (
+                  <div
+                    key={`${pi}-${ri}-${recipe.id}`}
+                    className="flex flex-col bg-white rounded-2xl shadow-sm border border-warm-100 overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
+                  >
+                    {/* Tarif linki — görsel + başlık */}
+                    <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
+                      <div className="relative h-48 bg-warm-200 shrink-0">
+                        {recipe.image_url ? (
+                          <Image
+                            src={recipe.image_url}
+                            alt={recipe.title}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="flex items-center justify-center h-full text-5xl text-warm-300">
+                            🍳
+                          </div>
+                        )}
                       </div>
-                    )}
+                      <div className="px-5 pt-5 pb-3">
+                        <Badge category={recipe.category as Category} />
+                        <h3 className="font-semibold text-warm-800 mt-2 group-hover:text-brand-700 transition-colors line-clamp-2">
+                          {recipe.title}
+                        </h3>
+                      </div>
+                    </Link>
+
+                    {/* Yazar linki — ayrı tıklanabilir alan */}
+                    <Link
+                      href={`/uye/${a.username}`}
+                      className="flex items-center gap-2 px-5 pb-4 pt-2 border-t border-warm-100 hover:bg-warm-50 transition-colors group/author"
+                    >
+                      {a.avatar ? (
+                        <img src={a.avatar} alt={a.name} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                      ) : (
+                        <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                          {a.name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazan</span>
+                        <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
+                          {a.name}
+                        </span>
+                      </div>
+                    </Link>
                   </div>
-                  <div className="p-5 flex flex-col flex-1">
-                    <Badge category={recipe.category as Category} />
-                    <h3 className="font-semibold text-warm-800 mt-2 group-hover:text-brand-700 transition-colors line-clamp-2">
-                      {recipe.title}
-                    </h3>
-                    {/* Yazar */}
-                    {(() => {
-                      const a = recipe.submitted_by
-                        ? (profileMap[recipe.submitted_by] ?? adminAuthor)
-                        : adminAuthor;
-                      return (
-                        <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-warm-100">
-                          {a.avatar ? (
-                            <img src={a.avatar} alt={a.name} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
-                          ) : (
-                            <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                              {a.name.charAt(0).toUpperCase()}
-                            </span>
-                          )}
-                          <span className="text-xs text-warm-400 truncate">{a.name}</span>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
           ))}
         </div>

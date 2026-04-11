@@ -67,14 +67,22 @@ export default async function RecipeDetailPage({ params }: Props) {
   type IngredientItem = { type: "heading"; text: string } | { type: "item"; text: string };
   function parseIngredients(html: string): IngredientItem[] {
     const result: IngredientItem[] = [];
-    const re = /<(h[1-6]|p|li)[^>]*>([\s\S]*?)<\/\1>/gi;
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(html)) !== null) {
-      const tag  = m[1].toLowerCase();
-      const text = m[2].replace(/<[^>]+>/g, "").trim();
-      if (!text) continue;
-      if (tag.startsWith("h")) result.push({ type: "heading", text });
-      else                     result.push({ type: "item",    text });
+    const flat = html
+      .replace(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/gi, "\n__H__$1\n")
+      .replace(/<\/?(ul|ol|div)[^>]*>/gi, "")
+      .replace(/<(p|li)[^>]*>/gi, "\n")
+      .replace(/<\/(p|li)>/gi, "")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]+>/g, "");
+    for (const raw of flat.split("\n")) {
+      const line = raw.trim();
+      if (!line) continue;
+      if (line.startsWith("__H__")) {
+        const heading = line.slice(5).trim();
+        if (heading) result.push({ type: "heading", text: heading });
+      } else {
+        result.push({ type: "item", text: line });
+      }
     }
     return result;
   }

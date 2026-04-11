@@ -4,6 +4,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 import type { Recipe } from "@/lib/types";
+import UsernameForm from "./UsernameForm";
 
 export const metadata: Metadata = { title: "Üye Paneli" };
 
@@ -94,6 +95,9 @@ export default async function UyePanelPage() {
           </div>
         ))}
       </div>
+
+      {/* ── Username change ── */}
+      <UsernameForm currentUsername={profile?.username ?? ""} />
 
       {/* ── My recipes ── */}
       <section>

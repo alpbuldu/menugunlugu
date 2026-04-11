@@ -74,10 +74,8 @@ export default function RatingStars({ recipeId }: Props) {
 
         {/* Score + count */}
         <div className="text-sm text-warm-500">
-          {count > 0 ? (
+          {count > 0 && (
             <span><strong className="text-warm-800">{avg.toFixed(1)}</strong> ({count} değerlendirme)</span>
-          ) : (
-            <span>Henüz değerlendirilmedi</span>
           )}
         </div>
       </div>

@@ -37,7 +37,7 @@ export default function FavoriteButton({ recipeId }: Props) {
     <button
       onClick={toggle}
       disabled={saving}
-      title={favorited ? "Favorilerden çıkar" : "Favorilere ekle"}
+      title={favorited ? "Tarif Defterinden çıkar" : "Tarif Defterine ekle"}
       className={[
         "flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm font-medium transition-all",
         favorited
@@ -47,7 +47,7 @@ export default function FavoriteButton({ recipeId }: Props) {
       ].join(" ")}
     >
       <span className="text-base leading-none">{favorited ? "❤️" : "🤍"}</span>
-      <span>{favorited ? "Favoride" : "Favorile"}</span>
+      <span>{favorited ? "Tarif Defterinde" : "Tarif Defterine Ekle"}</span>
     </button>
   );
 }

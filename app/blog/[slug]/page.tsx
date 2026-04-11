@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBlogPostBySlug } from "@/lib/supabase/queries";
+import { createClient } from "@/lib/supabase/server";
 import ShareButton from "@/components/ui/ShareButton";
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
@@ -50,6 +51,16 @@ export default async function BlogPostPage({ params }: Props) {
   if (!post) notFound();
 
   const hasImage = !!post.image_url;
+
+  // Admin profil bilgisi
+  const supabase = await createClient();
+  const { data: adminProfile } = await supabase
+    .from("admin_profile")
+    .select("username, avatar_url")
+    .eq("id", 1)
+    .single();
+  const authorName   = adminProfile?.username   ?? "Menü Günlüğü";
+  const authorAvatar = adminProfile?.avatar_url ?? "";
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -91,11 +102,22 @@ export default async function BlogPostPage({ params }: Props) {
             <h1 className="text-2xl sm:text-3xl font-bold text-warm-900 leading-snug">
               {post.title}
             </h1>
-            <p className="text-sm text-warm-400 mt-2">
-              {new Date(post.created_at).toLocaleDateString("tr-TR", {
-                day: "numeric", month: "long", year: "numeric",
-              })}
-            </p>
+            <div className="flex items-center gap-2 mt-3">
+              {authorAvatar ? (
+                <img src={authorAvatar} alt={authorName} className="w-6 h-6 rounded-full object-cover" />
+              ) : (
+                <span className="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-xs text-brand-600 font-bold">
+                  {authorName.charAt(0).toUpperCase()}
+                </span>
+              )}
+              <span className="text-sm text-warm-400">{authorName}</span>
+              <span className="text-warm-200">·</span>
+              <span className="text-sm text-warm-400">
+                {new Date(post.created_at).toLocaleDateString("tr-TR", {
+                  day: "numeric", month: "long", year: "numeric",
+                })}
+              </span>
+            </div>
           </div>
 
           {/* Excerpt */}

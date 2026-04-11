@@ -60,6 +60,25 @@ export default async function RecipeDetailPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
 
+  // Yazar bilgisi: üye tarafından eklendiyse profil, yoksa admin profili
+  let authorName = "Menü Günlüğü";
+  let authorAvatar = "";
+  if ((recipe as any).submitted_by) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("username, avatar_url")
+      .eq("id", (recipe as any).submitted_by)
+      .single();
+    if (profile) { authorName = profile.username; authorAvatar = profile.avatar_url ?? ""; }
+  } else {
+    const { data: adminProfile } = await supabase
+      .from("admin_profile")
+      .select("username, avatar_url")
+      .eq("id", 1)
+      .single();
+    if (adminProfile) { authorName = adminProfile.username; authorAvatar = adminProfile.avatar_url ?? ""; }
+  }
+
   // Malzemeler: HTML editörden mi yoksa eski düz metin mi?
   const ingredientsIsHtml = recipe.ingredients.trim().startsWith("<");
 
@@ -140,6 +159,16 @@ export default async function RecipeDetailPage({ params }: Props) {
             <h1 className="text-2xl sm:text-3xl font-bold text-warm-900 mt-3 leading-snug">
               {recipe.title}
             </h1>
+            <div className="flex items-center gap-2 mt-3">
+              {authorAvatar ? (
+                <img src={authorAvatar} alt={authorName} className="w-6 h-6 rounded-full object-cover" />
+              ) : (
+                <span className="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-xs text-brand-600 font-bold">
+                  {authorName.charAt(0).toUpperCase()}
+                </span>
+              )}
+              <span className="text-sm text-warm-400">{authorName}</span>
+            </div>
           </div>
 
           {/* Ingredients */}

@@ -207,13 +207,6 @@ export default function RichTextEditor({
           title="Sağa hizala"
         >➡</ToolBtn>
 
-        <Divider />
-
-        {/* Yatay çizgi */}
-        <ToolBtn
-          onClick={() => editor.chain().focus().setHorizontalRule().run()}
-          title="Yatay çizgi"
-        >—</ToolBtn>
       </div>
 
       {/* ── Editor alanı ── */}
@@ -234,7 +227,7 @@ export default function RichTextEditor({
         .tiptap-editor ol { list-style: decimal; padding-left: 1.4rem; margin: 0.5rem 0; }
         .tiptap-editor li { margin: 0.2rem 0; }
         .tiptap-editor blockquote { border-left: 3px solid #d4c9be; padding-left: 1rem; color: #7a6f68; margin: 0.75rem 0; font-style: italic; }
-        .tiptap-editor hr { border: none; border-top: 1px solid #ede8e3; margin: 1rem 0; }
+        .tiptap-editor hr { display: none; }
         .tiptap-editor strong { font-weight: 700; }
         .tiptap-editor em { font-style: italic; }
         .tiptap-editor s  { text-decoration: line-through; }

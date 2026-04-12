@@ -107,9 +107,8 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
 
   const baseUrl = `/uye/${username}`;
   // Admin kendi profil sayfasını zaten düzenlemiyor, follow butonu her giriş yapmış kullanıcıya göster
-  const showFollowButton = isAdmin
-    ? !!currentUser  // admin için giriş yapan herkes takip edebilir
-    : !!(currentUser && currentUser.id !== profileId);
+  // Kendi profilinde gösterme, diğer herkese göster (giriş yapmamışsa login'e yönlendir)
+  const showFollowButton = isAdmin ? true : currentUser?.id !== profileId;
 
   // Recipes
   let recipesQuery = supabase

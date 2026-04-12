@@ -54,8 +54,15 @@ export default function UsernameForm({ currentUsername, changeCount }: Props) {
       </div>
 
       {limitReached ? (
-        <div className="px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm">
-          Kullanıcı adınızı en fazla {MAX_CHANGES} kez değiştirebilirsiniz. Limitinize ulaştınız.
+        <div className="space-y-2">
+          <input
+            value={currentUsername}
+            readOnly
+            className="w-full px-4 py-2.5 rounded-xl border border-warm-100 bg-warm-50 text-warm-500 text-sm cursor-not-allowed"
+          />
+          <p className="text-xs text-red-500">
+            Kullanıcı adınızı en fazla {MAX_CHANGES} kez değiştirebilirsiniz. Limitinize ulaştınız.
+          </p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">

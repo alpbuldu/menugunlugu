@@ -7,6 +7,7 @@ import type { Recipe } from "@/lib/types";
 import UsernameForm from "./UsernameForm";
 import ProfileForm from "./ProfileForm";
 import DeleteRecipeButton from "./DeleteRecipeButton";
+import DeletePostButton from "./DeletePostButton";
 import UnfollowButton from "./UnfollowButton";
 
 export const metadata: Metadata = { title: "Üye Paneli" };
@@ -291,6 +292,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
                     <Link href={`/yazi/${p.slug}`}
                       className="text-xs text-brand-600 hover:underline flex-shrink-0">Görüntüle</Link>
                   )}
+                  <DeletePostButton postId={p.id} />
                 </div>
               );
             })

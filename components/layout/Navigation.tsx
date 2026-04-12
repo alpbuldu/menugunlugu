@@ -196,14 +196,26 @@ function DesktopUserMenu() {
         </svg>
       </button>
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-44 bg-white border border-warm-200 rounded-2xl shadow-lg overflow-hidden z-50">
-          <Link href="/uye/panel" onClick={() => setOpen(false)}
+        <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-warm-200 rounded-2xl shadow-lg overflow-hidden z-50">
+          <Link href="/uye/panel?tab=tariflerim" onClick={() => setOpen(false)}
             className="flex items-center gap-2 px-4 py-3 text-sm text-warm-700 hover:bg-warm-50 border-b border-warm-100 transition-colors">
-            <span>📚</span> Panelim
+            <span>📝</span> Tariflerim
+          </Link>
+          <Link href="/uye/panel?tab=tarif-defterim" onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-4 py-3 text-sm text-warm-700 hover:bg-warm-50 border-b border-warm-100 transition-colors">
+            <span>📚</span> Tarif Defterim
+          </Link>
+          <Link href="/uye/panel?tab=yorumlarim" onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-4 py-3 text-sm text-warm-700 hover:bg-warm-50 border-b border-warm-100 transition-colors">
+            <span>💬</span> Yorumlarım
           </Link>
           <Link href="/tarif-ekle" onClick={() => setOpen(false)}
             className="flex items-center gap-2 px-4 py-3 text-sm text-warm-700 hover:bg-warm-50 border-b border-warm-100 transition-colors">
             <span>✏️</span> Tarif Ekle
+          </Link>
+          <Link href="/uye/panel?tab=panelim" onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-4 py-3 text-sm text-warm-700 hover:bg-warm-50 border-b border-warm-100 transition-colors">
+            <span>⚙️</span> Panelim
           </Link>
           <button onClick={handleLogout}
             className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors">

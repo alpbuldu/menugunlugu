@@ -63,26 +63,47 @@ export default async function RecipeDetailPage({ params }: Props) {
   // Yazar bilgisi: üye tarafından eklendiyse profil, yoksa admin profili
   let authorName     = "Menü Günlüğü";
   let authorAvatar   = "";
-  let authorUsername = "menugunlugu";
+  let authorUsername = "__admin__";
+  let authorBio      = "";
+  let authorFullName = "";
+  let authorRecipeCount = 0;
+
   if ((recipe as any).submitted_by) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("username, avatar_url")
+      .select("username, avatar_url, full_name, bio")
       .eq("id", (recipe as any).submitted_by)
       .single();
-    if (profile) { authorName = profile.username; authorAvatar = profile.avatar_url ?? ""; authorUsername = profile.username; }
+    if (profile) {
+      authorName      = profile.username;
+      authorAvatar    = profile.avatar_url ?? "";
+      authorUsername  = profile.username;
+      authorBio       = profile.bio ?? "";
+      authorFullName  = profile.full_name ?? "";
+    }
+    const { count } = await supabase
+      .from("recipes")
+      .select("id", { count: "exact", head: true })
+      .eq("submitted_by", (recipe as any).submitted_by)
+      .eq("approval_status", "approved");
+    authorRecipeCount = count ?? 0;
   } else {
     const { data: adminProfile } = await supabase
       .from("admin_profile")
-      .select("username, avatar_url")
+      .select("username, avatar_url, full_name, bio")
       .eq("id", 1)
       .single();
     if (adminProfile) {
-      authorName     = adminProfile.username;
-      authorAvatar   = adminProfile.avatar_url ?? "";
-      // URL-safe: küçük harf + boşluk → tire
-      authorUsername = "__admin__";
+      authorName      = adminProfile.username;
+      authorAvatar    = adminProfile.avatar_url ?? "";
+      authorBio       = (adminProfile as any).bio ?? "";
+      authorFullName  = (adminProfile as any).full_name ?? "";
     }
+    const { count } = await supabase
+      .from("recipes")
+      .select("id", { count: "exact", head: true })
+      .is("submitted_by", null);
+    authorRecipeCount = count ?? 0;
   }
 
   // Malzemeler: HTML editörden mi yoksa eski düz metin mi?
@@ -246,6 +267,42 @@ export default async function RecipeDetailPage({ params }: Props) {
       <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
         <CommentSection recipeId={recipe.id} currentUserId={currentUserId} />
       </div>
+
+      {/* Yazar kartı */}
+      <Link
+        href={`/uye/${authorUsername}`}
+        className="mt-4 flex items-center gap-5 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 hover:border-brand-200 hover:shadow-md transition-all group"
+      >
+        {/* Avatar */}
+        {authorAvatar ? (
+          <img src={authorAvatar} alt={authorFullName || authorName}
+            className="w-16 h-16 rounded-full object-cover flex-shrink-0 ring-4 ring-warm-100" />
+        ) : (
+          <div className="w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center text-2xl font-bold text-brand-600 flex-shrink-0 ring-4 ring-warm-100">
+            {(authorFullName || authorName).charAt(0).toUpperCase()}
+          </div>
+        )}
+
+        {/* Bilgi */}
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-warm-400 mb-0.5">Bu tarifi hazırlayan</p>
+          <p className="font-bold text-warm-900 text-base group-hover:text-brand-700 transition-colors">
+            {authorFullName || authorName}
+          </p>
+          {authorFullName && (
+            <p className="text-xs text-warm-400">@{authorName}</p>
+          )}
+          {authorBio && (
+            <p className="text-sm text-warm-500 mt-1 line-clamp-2 leading-relaxed">{authorBio}</p>
+          )}
+          <p className="text-xs text-warm-400 mt-1.5">{authorRecipeCount} tarif paylaşıldı</p>
+        </div>
+
+        {/* Ok */}
+        <div className="flex-shrink-0 w-9 h-9 rounded-full bg-warm-100 group-hover:bg-brand-100 flex items-center justify-center transition-colors">
+          <span className="text-warm-400 group-hover:text-brand-600 transition-colors text-lg">→</span>
+        </div>
+      </Link>
 
       {/* Bottom nav */}
       <div className="mt-6 flex items-center justify-between flex-wrap gap-3">

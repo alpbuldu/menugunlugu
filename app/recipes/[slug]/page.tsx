@@ -136,9 +136,22 @@ export default async function RecipeDetailPage({ params }: Props) {
     ? null
     : recipe.ingredients.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
 
-  // Yapılış: her zaman düz metin olarak göster (turuncu numaralı daire)
-  const steps = recipe.instructions.trim().startsWith("<")
-    ? [] // eski HTML formatı varsa boş bırak (güvenlik)
+  // Yapılış: düz metin veya TipTap HTML olabilir
+  const instructionsIsHtml = recipe.instructions.trim().startsWith("<");
+  function parseInstructions(html: string): string[] {
+    const flat = html
+      .replace(/<\/?(ul|ol|div)[^>]*>/gi, "")
+      .replace(/<(p|li)[^>]*>/gi, "\n")
+      .replace(/<\/(p|li)>/gi, "")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<[^>]+>/g, "");
+    return flat
+      .split("\n")
+      .map((s) => s.replace(/&nbsp;/g, "").trim())
+      .filter(Boolean);
+  }
+  const steps = instructionsIsHtml
+    ? parseInstructions(recipe.instructions)
     : recipe.instructions.split("\n").map((s) => s.trim()).filter(Boolean);
 
   const hasImage = recipe.image_url && recipe.image_url.trim() !== "";

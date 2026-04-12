@@ -15,51 +15,55 @@ export default async function UserProfilePage({ params }: Props) {
   const { username } = await params;
   const supabase = await createClient();
 
-  // Önce profiles tablosunda ara
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, username, avatar_url, bio, created_at")
-    .eq("username", username)
-    .maybeSingle();
-
-  // Bulunamazsa admin_profile'a bak
+  // __admin__ özel slug'ı → admin profili direkt göster
   let isAdmin = false;
   let adminProfile: { username: string; avatar_url: string | null } | null = null;
-  if (!profile) {
+
+  if (username === "__admin__") {
     const { data: ap } = await supabase
       .from("admin_profile")
       .select("username, avatar_url")
-      .eq("username", username)
+      .eq("id", 1)
       .maybeSingle();
     if (!ap) notFound();
     adminProfile = ap;
     isAdmin = true;
   }
 
+  // Normal üye profili ara
+  const { data: profile } = isAdmin ? { data: null } : await supabase
+    .from("profiles")
+    .select("id, username, avatar_url, bio, created_at")
+    .eq("username", username)
+    .maybeSingle();
+
+  // Üye de bulunamazsa admin_profile'da username ile ara (fallback)
+  if (!isAdmin && !profile) {
+    const { data: ap } = await supabase
+      .from("admin_profile")
+      .select("username, avatar_url")
+      .eq("id", 1)
+      .maybeSingle();
+    if (ap && ap.username.toLowerCase() === decodeURIComponent(username).toLowerCase()) {
+      adminProfile = ap;
+      isAdmin = true;
+    } else {
+      notFound();
+    }
+  }
+
   const displayName = profile?.username ?? adminProfile?.username ?? username;
   const avatarUrl   = profile?.avatar_url ?? adminProfile?.avatar_url ?? "";
   const bio         = profile?.bio ?? null;
 
-  // Admin profil adıyla eşleşiyor mu? (üye hesabı açmış admin)
-  const { data: ap } = await supabase.from("admin_profile").select("username").eq("id", 1).single();
-  const isAdminUsername = ap?.username === username;
-
   // Tarifleri çek
   let recipes: any[] = [];
   if (isAdmin) {
-    // admin_profile üzerinden → submitted_by null tarifler
+    // Admin profili → submitted_by null olan (admin tarafından eklenen) tüm tarifler
     const { data } = await supabase
       .from("recipes")
       .select("id, title, slug, category, image_url, created_at")
       .is("submitted_by", null)
-      .order("created_at", { ascending: false });
-    recipes = data ?? [];
-  } else if (isAdminUsername) {
-    // Üye hesabı açmış admin → kendi tarifleri + submitted_by null tarifler
-    const { data } = await supabase
-      .from("recipes")
-      .select("id, title, slug, category, image_url, created_at, submitted_by")
-      .or(`submitted_by.eq.${profile!.id},submitted_by.is.null`)
       .order("created_at", { ascending: false });
     recipes = data ?? [];
   } else {

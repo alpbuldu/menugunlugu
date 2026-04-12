@@ -77,7 +77,12 @@ export default async function RecipeDetailPage({ params }: Props) {
       .select("username, avatar_url")
       .eq("id", 1)
       .single();
-    if (adminProfile) { authorName = adminProfile.username; authorAvatar = adminProfile.avatar_url ?? ""; authorUsername = adminProfile.username; }
+    if (adminProfile) {
+      authorName     = adminProfile.username;
+      authorAvatar   = adminProfile.avatar_url ?? "";
+      // URL-safe: küçük harf + boşluk → tire
+      authorUsername = "__admin__";
+    }
   }
 
   // Malzemeler: HTML editörden mi yoksa eski düz metin mi?

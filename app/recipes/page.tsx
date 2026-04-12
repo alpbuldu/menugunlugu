@@ -50,7 +50,7 @@ export default async function RecipesPage({ searchParams }: Props) {
 
   // Yazar verileri
   const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();
-  const adminAuthor = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "", username: ap?.username ?? "menugunlugu" };
+  const adminAuthor = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "", username: "__admin__" };
   const memberIds = [...new Set(recipes.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
   const profileMap: Record<string, { name: string; avatar: string; username: string }> = {};
   if (memberIds.length) {

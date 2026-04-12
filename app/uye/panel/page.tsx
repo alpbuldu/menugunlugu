@@ -52,18 +52,40 @@ export default async function UyePanelPage({ searchParams }: Props) {
     .eq("submitted_by", user.id)
     .order("created_at", { ascending: false });
 
-  // Takip edilenler (following)
+  // Takip edilenler (following) — normal üyeler
   const { data: following } = await supabase
     .from("follows")
     .select("following_id, created_at, profiles!follows_following_id_fkey(id, username, full_name, avatar_url)")
     .eq("follower_id", user.id)
     .order("created_at", { ascending: false });
 
+  // Admin takip mi?
+  const { data: adminFollowRow } = await supabase
+    .from("admin_follows")
+    .select("follower_id")
+    .eq("follower_id", user.id)
+    .maybeSingle();
+  const followsAdmin = !!adminFollowRow;
+
+  // Admin profil bilgisi (takip ediyorsa göstermek için)
+  const { data: adminProfile } = followsAdmin
+    ? await supabase.from("admin_profile").select("username, avatar_url, full_name").eq("id", 1).maybeSingle()
+    : { data: null };
+
+  // Takipçiler (followers)
+  const { data: followers } = await supabase
+    .from("follows")
+    .select("follower_id, created_at, profiles!follows_follower_id_fkey(id, username, full_name, avatar_url)")
+    .eq("following_id", user.id)
+    .order("created_at", { ascending: false });
+
+  const followingCount = (following?.length ?? 0) + (followsAdmin ? 1 : 0);
+
   const tabs = [
     { key: "tariflerim",     label: "Tariflerim",      count: recipes?.length ?? 0 },
     { key: "tarif-defterim", label: "Tarif Defterim",  count: favorites?.length ?? 0 },
     { key: "yazilarim",      label: "Yazılarım",       count: posts?.length ?? 0 },
-    { key: "takip",          label: "Takip",           count: following?.length ?? 0 },
+    { key: "takip",          label: "Takip",           count: followingCount + (followers?.length ?? 0) },
     { key: "panelim",        label: "Panelim",         count: null },
   ];
 
@@ -230,39 +252,109 @@ export default async function UyePanelPage({ searchParams }: Props) {
 
       {/* ── Tab: Takip ── */}
       {tab === "takip" && (
-        <section className="space-y-3">
-          <p className="text-sm text-warm-500 mb-2">{following?.length ?? 0} kişi takip ediliyor</p>
-          {!following || following.length === 0 ? (
-            <Empty icon="👥" text="Henüz kimseyi takip etmiyorsunuz." />
-          ) : (
-            following.map((f) => {
-              const p = f.profiles as unknown as { id: string; username: string; full_name: string | null; avatar_url: string | null } | null;
-              if (!p) return null;
-              return (
-                <Link key={f.following_id} href={`/uye/${p.username}`}
-                  className="flex items-center gap-3 bg-white rounded-xl border border-warm-200 px-4 py-3 hover:border-brand-200 hover:shadow-sm transition-all group">
-                  {p.avatar_url ? (
-                    <img src={p.avatar_url} alt={p.full_name || p.username}
-                      className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-base font-bold text-brand-600 flex-shrink-0">
-                      {(p.full_name || p.username).charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-warm-800 text-sm group-hover:text-brand-700 transition-colors">
-                      {p.full_name || p.username}
-                    </p>
-                    {p.full_name && (
-                      <p className="text-xs text-warm-400">@{p.username}</p>
+        <div className="space-y-8">
+
+          {/* Takip Ettiklerim */}
+          <section>
+            <h2 className="text-sm font-semibold text-warm-700 mb-3">
+              Takip Ettiklerim
+              <span className="ml-1.5 text-xs font-normal text-warm-400">({followingCount})</span>
+            </h2>
+            {followingCount === 0 ? (
+              <Empty icon="👥" text="Henüz kimseyi takip etmiyorsunuz." />
+            ) : (
+              <div className="space-y-2">
+                {/* Admin takibi */}
+                {followsAdmin && adminProfile && (
+                  <Link href="/uye/__admin__"
+                    className="flex items-center gap-3 bg-white rounded-xl border border-warm-200 px-4 py-3 hover:border-brand-200 hover:shadow-sm transition-all group">
+                    {adminProfile.avatar_url ? (
+                      <img src={adminProfile.avatar_url} alt={(adminProfile as any).full_name || adminProfile.username}
+                        className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-base font-bold text-brand-600 flex-shrink-0">
+                        {((adminProfile as any).full_name || adminProfile.username || "H").charAt(0).toUpperCase()}
+                      </div>
                     )}
-                  </div>
-                  <span className="text-warm-300 group-hover:text-brand-400 transition-colors">→</span>
-                </Link>
-              );
-            })
-          )}
-        </section>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-warm-800 text-sm group-hover:text-brand-700 transition-colors">
+                        {(adminProfile as any).full_name || adminProfile.username}
+                      </p>
+                      {(adminProfile as any).full_name && (
+                        <p className="text-xs text-warm-400">@{adminProfile.username}</p>
+                      )}
+                    </div>
+                    <span className="text-warm-300 group-hover:text-brand-400 transition-colors">→</span>
+                  </Link>
+                )}
+                {/* Normal üye takipleri */}
+                {following?.map((f) => {
+                  const p = f.profiles as unknown as { id: string; username: string; full_name: string | null; avatar_url: string | null } | null;
+                  if (!p) return null;
+                  return (
+                    <Link key={f.following_id} href={`/uye/${p.username}`}
+                      className="flex items-center gap-3 bg-white rounded-xl border border-warm-200 px-4 py-3 hover:border-brand-200 hover:shadow-sm transition-all group">
+                      {p.avatar_url ? (
+                        <img src={p.avatar_url} alt={p.full_name || p.username}
+                          className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-base font-bold text-brand-600 flex-shrink-0">
+                          {(p.full_name || p.username).charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-warm-800 text-sm group-hover:text-brand-700 transition-colors">
+                          {p.full_name || p.username}
+                        </p>
+                        {p.full_name && <p className="text-xs text-warm-400">@{p.username}</p>}
+                      </div>
+                      <span className="text-warm-300 group-hover:text-brand-400 transition-colors">→</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          {/* Takipçilerim */}
+          <section>
+            <h2 className="text-sm font-semibold text-warm-700 mb-3">
+              Takipçilerim
+              <span className="ml-1.5 text-xs font-normal text-warm-400">({followers?.length ?? 0})</span>
+            </h2>
+            {!followers || followers.length === 0 ? (
+              <Empty icon="🙋" text="Henüz takipçiniz yok." />
+            ) : (
+              <div className="space-y-2">
+                {followers.map((f) => {
+                  const p = f.profiles as unknown as { id: string; username: string; full_name: string | null; avatar_url: string | null } | null;
+                  if (!p) return null;
+                  return (
+                    <Link key={f.follower_id} href={`/uye/${p.username}`}
+                      className="flex items-center gap-3 bg-white rounded-xl border border-warm-200 px-4 py-3 hover:border-brand-200 hover:shadow-sm transition-all group">
+                      {p.avatar_url ? (
+                        <img src={p.avatar_url} alt={p.full_name || p.username}
+                          className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-base font-bold text-brand-600 flex-shrink-0">
+                          {(p.full_name || p.username).charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-warm-800 text-sm group-hover:text-brand-700 transition-colors">
+                          {p.full_name || p.username}
+                        </p>
+                        {p.full_name && <p className="text-xs text-warm-400">@{p.username}</p>}
+                      </div>
+                      <span className="text-warm-300 group-hover:text-brand-400 transition-colors">→</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+        </div>
       )}
 
       {/* ── Tab: Panelim (Profil ayarları) ── */}

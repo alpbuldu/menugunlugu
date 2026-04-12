@@ -203,15 +203,6 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
                 <span className="text-sm font-bold text-warm-900">{followerCount}</span>
                 <span className="text-xs text-warm-400">takipçi</span>
               </div>
-              {!isAdmin && (
-                <>
-                  <span className="w-px h-3 bg-warm-200" />
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-sm font-bold text-warm-900">{followingCount}</span>
-                    <span className="text-xs text-warm-400">takip</span>
-                  </div>
-                </>
-              )}
             </div>
 
             {/* Socials */}

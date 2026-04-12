@@ -137,7 +137,7 @@ export default function RecipeSlider({
       setPageIdx(dir === "next" ? nextIdx : prevIdx);
       setShift(-100);
       busy.current = false;
-    }, 320);
+    }, 550);
   }
 
   function manualGo(dir: "next" | "prev") {
@@ -179,7 +179,7 @@ export default function RecipeSlider({
           className="flex"
           style={{
             transform: `translateX(${shift}%)`,
-            transition: anim ? "transform 0.3s ease-in-out" : "none",
+            transition: anim ? "transform 0.55s ease-in-out" : "none",
           }}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}

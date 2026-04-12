@@ -197,7 +197,7 @@ export default function RecipeForm({ recipe }: Props) {
           Malzemeler <span className="text-red-400">*</span>
         </label>
         <p className="text-xs text-warm-400 mb-1.5">
-          Madde listesi kullanın. Bölümler için <strong>Başlık</strong> seçin (örn: <em>Sos için</em>, <em>Hamur için</em>)
+          Her malzemeyi ayrı satırda girin. Bölümler için <strong>Başlık</strong> seçin (örn: Sos için, Hamur için)
         </p>
         <RecipeEditor
           value={ingredients}

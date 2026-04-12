@@ -174,7 +174,7 @@ export default function RecipeSubmitForm() {
       <div>
         <label className={labelCls}>Malzemeler <span className="text-red-400">*</span></label>
         <p className="text-xs text-warm-400 mb-1.5">
-          Madde listesi kullanın. <strong>Başlık</strong> ile "Sos için", "Hamur için" gibi bölümler açabilirsiniz.
+          Her malzemeyi ayrı satırda girin. Bölümler için <strong>Başlık</strong> seçin (örn: Sos için, Hamur için)
         </p>
         <RecipeEditor
           value={ingredients}
@@ -189,7 +189,7 @@ export default function RecipeSubmitForm() {
       <div>
         <label className={labelCls}>Yapılışı <span className="text-red-400">*</span></label>
         <p className="text-xs text-warm-400 mb-1.5">
-          Adımları numaralı liste ile yazın. Farklı aşamalar için <strong>Başlık</strong> ekleyebilirsiniz.
+          Her adımı ayrı satıra yazın. Sayfa üzerinde otomatik olarak 1, 2, 3… şeklinde numaralanır.
         </p>
         <RecipeEditor
           value={instructions}

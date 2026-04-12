@@ -163,6 +163,10 @@ export default async function AdminBlogPage() {
                       <div className="flex items-center justify-end gap-3">
                         <Link href={`/yazi/${post.slug}`} target="_blank"
                           className="text-xs text-brand-600 hover:underline">Görüntüle</Link>
+                        <DeleteButton
+                          endpoint={`/api/admin/member-posts/${post.id}`}
+                          label={`"${post.title}" silinecek. Emin misiniz?`}
+                        />
                       </div>
                     </td>
                   </tr>

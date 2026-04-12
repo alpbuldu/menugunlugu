@@ -28,7 +28,7 @@ export default async function BlogPage({ searchParams }: Props) {
     .select("username, avatar_url, full_name")
     .eq("id", 1)
     .maybeSingle();
-  const authorName   = adminProfile?.full_name || adminProfile?.username || "Menü Günlüğü";
+  const authorName   = adminProfile?.username || "Menü Günlüğü";
   const authorAvatar = adminProfile?.avatar_url ?? "";
 
   const [categories, allPosts] = await Promise.all([

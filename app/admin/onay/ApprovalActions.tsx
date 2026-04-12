@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function ApprovalActions({ recipeId }: { recipeId: string }) {
+interface Props {
+  itemId: string;
+  type?: "recipe" | "post";
+}
+
+export default function ApprovalActions({ itemId, type = "recipe" }: Props) {
   const [loading, setLoading] = useState<"approve" | "reject" | null>(null);
   const router = useRouter();
 
@@ -12,7 +17,7 @@ export default function ApprovalActions({ recipeId }: { recipeId: string }) {
     await fetch("/api/admin/onay", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: recipeId, action }),
+      body: JSON.stringify({ id: itemId, action, type }),
     });
     setLoading(null);
     router.refresh();

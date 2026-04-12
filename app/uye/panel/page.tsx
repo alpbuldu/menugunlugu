@@ -7,6 +7,7 @@ import type { Recipe } from "@/lib/types";
 import UsernameForm from "./UsernameForm";
 import ProfileForm from "./ProfileForm";
 import DeleteRecipeButton from "./DeleteRecipeButton";
+import UnfollowButton from "./UnfollowButton";
 
 export const metadata: Metadata = { title: "Üye Paneli" };
 export const dynamic = "force-dynamic";
@@ -20,6 +21,10 @@ const statusLabel: Record<string, { label: string; cls: string }> = {
   approved: { label: "Yayında",    cls: "bg-green-100 text-green-700"  },
   rejected: { label: "Reddedildi", cls: "bg-red-100 text-red-700"      },
 };
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+}
 
 interface Props { searchParams: Promise<{ tab?: string }> }
 
@@ -43,7 +48,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
 
   const { data: favorites } = await supabase
     .from("favorites")
-    .select("recipe_id, created_at, recipes(id, title, slug, category, image_url)")
+    .select("recipe_id, created_at, recipes(id, title, slug, category, image_url, submitted_by)")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -68,10 +73,12 @@ export default async function UyePanelPage({ searchParams }: Props) {
     .maybeSingle();
   const followsAdmin = !!adminFollowRow;
 
-  // Admin profil bilgisi (takip ediyorsa göstermek için)
-  const { data: adminProfile } = followsAdmin
-    ? await supabase.from("admin_profile").select("username, avatar_url, full_name").eq("id", 1).maybeSingle()
-    : { data: null };
+  // Admin profil bilgisi
+  const { data: adminProfile } = await supabase
+    .from("admin_profile")
+    .select("username, avatar_url, full_name")
+    .eq("id", 1)
+    .maybeSingle();
 
   // Takipçiler (followers)
   const { data: followers } = await supabase
@@ -80,13 +87,28 @@ export default async function UyePanelPage({ searchParams }: Props) {
     .eq("following_id", user.id)
     .order("created_at", { ascending: false });
 
+  // Favori tariflerdeki yazarların profilleri
+  const favMemberIds = [...new Set(
+    (favorites ?? []).flatMap((f) => {
+      const r = f.recipes as unknown as { submitted_by?: string } | null;
+      return r?.submitted_by ? [r.submitted_by] : [];
+    })
+  )];
+  const favProfileMap: Record<string, string> = {};
+  if (favMemberIds.length) {
+    const { data: favProfiles } = await supabase
+      .from("profiles").select("id, username").in("id", favMemberIds);
+    favProfiles?.forEach((p) => { favProfileMap[p.id] = p.username; });
+  }
+  const adminUsername = adminProfile?.username ?? "Menü Günlüğü";
+
   const followingCount = (following?.length ?? 0) + (followsAdmin ? 1 : 0);
 
   const tabs = [
-    { key: "tariflerim",     label: "Tariflerim",      count: recipes?.length ?? 0 },
-    { key: "tarif-defterim", label: "Tarif Defterim",  count: favorites?.length ?? 0 },
-    { key: "yazilarim",      label: "Yazılarım",       count: posts?.length ?? 0 },
-    { key: "takip",          label: "Takip Paneli",    count: followingCount + (followers?.length ?? 0) },
+    { key: "tariflerim",     label: "Tariflerim",       count: recipes?.length ?? 0 },
+    { key: "tarif-defterim", label: "Tarif Defterim",   count: favorites?.length ?? 0 },
+    { key: "yazilarim",      label: "Yazılarım",        count: posts?.length ?? 0 },
+    { key: "takip",          label: "Takip Paneli",     count: followingCount + (followers?.length ?? 0) },
     { key: "panelim",        label: "Hesap Bilgilerim", count: null },
   ];
 
@@ -112,10 +134,14 @@ export default async function UyePanelPage({ searchParams }: Props) {
             <p className="text-xs text-warm-400">@{profile.username}</p>
           )}
         </div>
-        <div className="flex gap-2 flex-shrink-0">
+        <div className="flex gap-2 flex-shrink-0 flex-wrap justify-end">
           <Link href="/tarif-ekle"
             className="px-3 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors">
             + Tarif Ekle
+          </Link>
+          <Link href="/yazi-ekle"
+            className="px-3 py-2 rounded-xl bg-warm-700 hover:bg-warm-800 text-white text-sm font-medium transition-colors">
+            + Yazı Ekle
           </Link>
           <form action="/api/auth/member-logout" method="POST">
             <button type="submit"
@@ -156,7 +182,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
           {!recipes || recipes.length === 0 ? (
             <Empty icon="📝" text="Henüz tarif eklemediniz." />
           ) : (
-            (recipes as (Recipe & { approval_status: string })[]).map((r) => {
+            (recipes as (Recipe & { approval_status: string; created_at: string })[]).map((r) => {
               const s = statusLabel[r.approval_status] ?? statusLabel["pending"];
               return (
                 <div key={r.id}
@@ -169,7 +195,9 @@ export default async function UyePanelPage({ searchParams }: Props) {
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-warm-800 text-sm truncate">{r.title}</p>
-                    <p className="text-xs text-warm-400">{CATEGORY_LABELS[r.category]}</p>
+                    <p className="text-xs text-warm-400">
+                      {CATEGORY_LABELS[r.category]} · {formatDate(r.created_at)}
+                    </p>
                   </div>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${s.cls}`}>{s.label}</span>
                   <Link href={`/tarif-duzenle/${r.id}`}
@@ -195,8 +223,11 @@ export default async function UyePanelPage({ searchParams }: Props) {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {favorites.map((fav) => {
-                const r = fav.recipes as unknown as Recipe | null;
+                const r = fav.recipes as unknown as (Recipe & { submitted_by?: string | null }) | null;
                 if (!r) return null;
+                const authorUsername = r.submitted_by
+                  ? (favProfileMap[r.submitted_by] ?? null)
+                  : adminUsername;
                 return (
                   <Link key={fav.recipe_id} href={`/recipes/${r.slug}`}
                     className="group bg-white rounded-xl border border-warm-200 overflow-hidden hover:shadow-md transition-all">
@@ -209,6 +240,9 @@ export default async function UyePanelPage({ searchParams }: Props) {
                     <div className="p-3">
                       <p className="text-sm font-medium text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{r.title}</p>
                       <p className="text-xs text-warm-400 mt-1">{CATEGORY_LABELS[r.category]}</p>
+                      {authorUsername && (
+                        <p className="text-xs text-warm-300 mt-0.5">@{authorUsername}</p>
+                      )}
                     </div>
                   </Link>
                 );
@@ -236,11 +270,11 @@ export default async function UyePanelPage({ searchParams }: Props) {
                   <div className="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center flex-shrink-0 text-lg">✍️</div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-warm-800 text-sm truncate">{p.title}</p>
-                    <p className="text-xs text-warm-400">
-                      {new Date(p.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
-                    </p>
+                    <p className="text-xs text-warm-400">{formatDate(p.created_at)}</p>
                   </div>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${s.cls}`}>{s.label}</span>
+                  <Link href={`/yazi-duzenle/${p.id}`}
+                    className="text-xs text-warm-400 hover:text-brand-600 hover:underline flex-shrink-0">Düzenle</Link>
                   {p.approval_status === "approved" && (
                     <Link href={`/yazi/${p.slug}`}
                       className="text-xs text-brand-600 hover:underline flex-shrink-0">Görüntüle</Link>
@@ -252,7 +286,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
         </section>
       )}
 
-      {/* ── Tab: Takip ── */}
+      {/* ── Tab: Takip Paneli ── */}
       {tab === "takip" && (
         <div className="space-y-8">
 
@@ -268,50 +302,52 @@ export default async function UyePanelPage({ searchParams }: Props) {
               <div className="space-y-2">
                 {/* Admin takibi */}
                 {followsAdmin && adminProfile && (
-                  <Link href="/uye/__admin__"
-                    className="flex items-center gap-3 bg-white rounded-xl border border-warm-200 px-4 py-3 hover:border-brand-200 hover:shadow-sm transition-all group">
-                    {adminProfile.avatar_url ? (
-                      <img src={adminProfile.avatar_url} alt={(adminProfile as any).full_name || adminProfile.username}
-                        className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-base font-bold text-brand-600 flex-shrink-0">
-                        {((adminProfile as any).full_name || adminProfile.username || "H").charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-warm-800 text-sm group-hover:text-brand-700 transition-colors">
-                        {(adminProfile as any).full_name || adminProfile.username}
-                      </p>
-                      {(adminProfile as any).full_name && (
-                        <p className="text-xs text-warm-400">@{adminProfile.username}</p>
+                  <div className="flex items-center gap-3 bg-white rounded-xl border border-warm-200 px-4 py-3">
+                    <Link href="/uye/__admin__" className="flex items-center gap-3 flex-1 min-w-0 group">
+                      {adminProfile.avatar_url ? (
+                        <img src={adminProfile.avatar_url} alt={(adminProfile as any).full_name || adminProfile.username}
+                          className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-base font-bold text-brand-600 flex-shrink-0">
+                          {((adminProfile as any).full_name || adminProfile.username || "H").charAt(0).toUpperCase()}
+                        </div>
                       )}
-                    </div>
-                    <span className="text-warm-300 group-hover:text-brand-400 transition-colors">→</span>
-                  </Link>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-warm-800 text-sm group-hover:text-brand-700 transition-colors">
+                          {(adminProfile as any).full_name || adminProfile.username}
+                        </p>
+                        {(adminProfile as any).full_name && (
+                          <p className="text-xs text-warm-400">@{adminProfile.username}</p>
+                        )}
+                      </div>
+                    </Link>
+                    <UnfollowButton isAdmin={true} />
+                  </div>
                 )}
                 {/* Normal üye takipleri */}
                 {following?.map((f) => {
                   const p = f.profiles as unknown as { id: string; username: string; full_name: string | null; avatar_url: string | null } | null;
                   if (!p) return null;
                   return (
-                    <Link key={f.following_id} href={`/uye/${p.username}`}
-                      className="flex items-center gap-3 bg-white rounded-xl border border-warm-200 px-4 py-3 hover:border-brand-200 hover:shadow-sm transition-all group">
-                      {p.avatar_url ? (
-                        <img src={p.avatar_url} alt={p.full_name || p.username}
-                          className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-base font-bold text-brand-600 flex-shrink-0">
-                          {(p.full_name || p.username).charAt(0).toUpperCase()}
+                    <div key={f.following_id} className="flex items-center gap-3 bg-white rounded-xl border border-warm-200 px-4 py-3">
+                      <Link href={`/uye/${p.username}`} className="flex items-center gap-3 flex-1 min-w-0 group">
+                        {p.avatar_url ? (
+                          <img src={p.avatar_url} alt={p.full_name || p.username}
+                            className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-base font-bold text-brand-600 flex-shrink-0">
+                            {(p.full_name || p.username).charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-warm-800 text-sm group-hover:text-brand-700 transition-colors">
+                            {p.full_name || p.username}
+                          </p>
+                          {p.full_name && <p className="text-xs text-warm-400">@{p.username}</p>}
                         </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-warm-800 text-sm group-hover:text-brand-700 transition-colors">
-                          {p.full_name || p.username}
-                        </p>
-                        {p.full_name && <p className="text-xs text-warm-400">@{p.username}</p>}
-                      </div>
-                      <span className="text-warm-300 group-hover:text-brand-400 transition-colors">→</span>
-                    </Link>
+                      </Link>
+                      <UnfollowButton targetUserId={p.id} />
+                    </div>
                   );
                 })}
               </div>
@@ -359,7 +395,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
         </div>
       )}
 
-      {/* ── Tab: Panelim (Profil ayarları) ── */}
+      {/* ── Tab: Hesap Bilgilerim ── */}
       {tab === "panelim" && (
         <div className="space-y-6">
           <UsernameForm currentUsername={profile?.username ?? ""} />

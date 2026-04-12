@@ -73,7 +73,7 @@ export default function ProfileForm({ profile }: Props) {
               { label: "📸 Instagram", value: instagram, set: setInstagram, placeholder: "https://instagram.com/kullanici" },
               { label: "🐦 X / Twitter", value: twitter, set: setTwitter, placeholder: "https://x.com/kullanici" },
               { label: "▶️ YouTube", value: youtube, set: setYoutube, placeholder: "https://youtube.com/@kanal" },
-              { label: "🌐 Web Site", value: website, set: setWebsite, placeholder: "https://siteniz.com" },
+              { label: "🎵 TikTok", value: website, set: setWebsite, placeholder: "https://tiktok.com/@hesap" },
             ].map((f) => (
               <div key={f.label}>
                 <label className={labelCls}>{f.label}</label>

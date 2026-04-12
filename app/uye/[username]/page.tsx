@@ -65,7 +65,7 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
     { key: "instagram", url: src.instagram, icon: "📸", label: "Instagram" },
     { key: "twitter",   url: src.twitter,   icon: "🐦", label: "X / Twitter" },
     { key: "youtube",   url: src.youtube,   icon: "▶️", label: "YouTube" },
-    { key: "website",   url: src.website,   icon: "🌐", label: "Web Site" },
+    { key: "website",   url: src.website,   icon: "🎵", label: "TikTok" },
   ].filter((s) => s.url);
 
   // Tarifleri çek

@@ -117,7 +117,7 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
             { label: "📸 Instagram", value: instagram, set: setInstagram, ph: "https://instagram.com/hesap" },
             { label: "🐦 X / Twitter", value: twitter, set: setTwitter,   ph: "https://x.com/hesap" },
             { label: "▶️ YouTube",   value: youtube,  set: setYoutube,   ph: "https://youtube.com/@kanal" },
-            { label: "🌐 Web Site",  value: website,  set: setWebsite,   ph: "https://siteniz.com" },
+            { label: "🎵 TikTok",    value: website,  set: setWebsite,   ph: "https://tiktok.com/@hesap" },
           ].map((f) => (
             <div key={f.label}>
               <label className={labelCls}>{f.label}</label>

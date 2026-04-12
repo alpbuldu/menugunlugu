@@ -121,6 +121,7 @@ export default async function AdminRecipesPage({ searchParams }: Props) {
               <tr>
                 <th className="text-left px-5 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider">Tarif</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden sm:table-cell">Kategori</th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden lg:table-cell">Yazan</th>
                 <th className="text-left px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden lg:table-cell">Son Güncelleme</th>
                 <th className="px-4 py-3 text-right text-xs font-semibold text-warm-500 uppercase tracking-wider">İşlemler</th>
               </tr>
@@ -144,6 +145,11 @@ export default async function AdminRecipesPage({ searchParams }: Props) {
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell">
                       <Badge category={recipe.category as Category} />
+                    </td>
+                    <td className="px-4 py-3 hidden lg:table-cell text-xs text-warm-500 whitespace-nowrap">
+                      {(recipe as any).profiles?.username
+                        ? <span className="px-2 py-0.5 rounded-full bg-brand-50 text-brand-600 font-medium">@{(recipe as any).profiles.username}</span>
+                        : <span className="text-warm-300">admin</span>}
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell text-xs text-warm-400 whitespace-nowrap">
                       {new Date(recipe.updated_at ?? recipe.created_at).toLocaleDateString("tr-TR", {

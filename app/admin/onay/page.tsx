@@ -13,7 +13,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 function isRevision(created_at: string, updated_at: string | null): boolean {
   if (!updated_at) return false;
   const diff = new Date(updated_at).getTime() - new Date(created_at).getTime();
-  return diff > 300_000; // 5 dakikadan fazla fark varsa düzenleme
+  return diff > 30_000; // 30 saniyeden fazla fark varsa düzenleme
 }
 
 function RevisionBadge() {

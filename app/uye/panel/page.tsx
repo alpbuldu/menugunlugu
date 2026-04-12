@@ -94,13 +94,15 @@ export default async function UyePanelPage({ searchParams }: Props) {
       return r?.submitted_by ? [r.submitted_by] : [];
     })
   )];
-  const favProfileMap: Record<string, string> = {};
+  type FavProfile = { username: string; avatar_url: string | null };
+  const favProfileMap: Record<string, FavProfile> = {};
   if (favMemberIds.length) {
     const { data: favProfiles } = await supabase
-      .from("profiles").select("id, username").in("id", favMemberIds);
-    favProfiles?.forEach((p) => { favProfileMap[p.id] = p.username; });
+      .from("profiles").select("id, username, avatar_url").in("id", favMemberIds);
+    favProfiles?.forEach((p) => { favProfileMap[p.id] = { username: p.username, avatar_url: p.avatar_url ?? null }; });
   }
-  const adminUsername = adminProfile?.username ?? "Menü Günlüğü";
+  const adminUsername  = adminProfile?.username ?? "Menü Günlüğü";
+  const adminAvatarUrl = adminProfile?.avatar_url ?? null;
 
   const followingCount = (following?.length ?? 0) + (followsAdmin ? 1 : 0);
 
@@ -225,23 +227,33 @@ export default async function UyePanelPage({ searchParams }: Props) {
               {favorites.map((fav) => {
                 const r = fav.recipes as unknown as (Recipe & { submitted_by?: string | null }) | null;
                 if (!r) return null;
-                const authorUsername = r.submitted_by
+                const favAuthor: { username: string; avatar_url: string | null } | null = r.submitted_by
                   ? (favProfileMap[r.submitted_by] ?? null)
-                  : adminUsername;
+                  : { username: adminUsername, avatar_url: adminAvatarUrl };
                 return (
                   <Link key={fav.recipe_id} href={`/recipes/${r.slug}`}
-                    className="group bg-white rounded-xl border border-warm-200 overflow-hidden hover:shadow-md transition-all">
+                    className="group bg-white rounded-xl border border-warm-200 overflow-hidden hover:shadow-md transition-all flex flex-col">
                     {r.image_url ? (
                       <Image src={r.image_url} alt={r.title} width={200} height={120}
                         className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
                       <div className="w-full h-28 bg-warm-100 flex items-center justify-center text-2xl">🍽️</div>
                     )}
-                    <div className="p-3">
+                    <div className="p-3 flex flex-col flex-1">
                       <p className="text-sm font-medium text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{r.title}</p>
-                      <p className="text-xs text-warm-400 mt-1">{CATEGORY_LABELS[r.category]}</p>
-                      {authorUsername && (
-                        <p className="text-xs text-warm-300 mt-0.5">@{authorUsername}</p>
+                      <p className="text-xs text-warm-400 mt-1 mb-auto">{CATEGORY_LABELS[r.category]}</p>
+                      {favAuthor && (
+                        <div className="flex items-center gap-1.5 pt-2 mt-2 border-t border-warm-100">
+                          {favAuthor.avatar_url ? (
+                            <img src={favAuthor.avatar_url} alt={favAuthor.username}
+                              className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                          ) : (
+                            <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                              {favAuthor.username.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                          <span className="text-[10px] text-warm-400 truncate">{favAuthor.username}</span>
+                        </div>
                       )}
                     </div>
                   </Link>

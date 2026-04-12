@@ -3,6 +3,9 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+
+const RichTextEditor = dynamic(() => import("@/components/admin/RichTextEditor"), { ssr: false });
 
 const inputCls = "w-full px-4 py-2.5 rounded-xl border border-warm-200 bg-white text-warm-900 placeholder-warm-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm transition-shadow";
 const labelCls = "block text-sm font-medium text-warm-700 mb-1.5";
@@ -130,13 +133,11 @@ export default function PostEditForm({ post }: Props) {
       {/* İçerik */}
       <div>
         <label className={labelCls}>İçerik <span className="text-red-400">*</span></label>
-        <textarea
+        <RichTextEditor
           value={content}
-          onChange={(e) => setContent(e.target.value)}
-          rows={14}
-          required
+          onChange={setContent}
           placeholder="Yazınızı buraya yazın…"
-          className={`${inputCls} resize-y leading-relaxed`}
+          minHeight="340px"
         />
       </div>
 

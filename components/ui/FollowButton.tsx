@@ -3,12 +3,13 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 interface Props {
-  targetUserId: string;
+  targetUserId?: string;   // normal üye için
+  isAdminProfile?: boolean; // admin profili için
   initialFollowing: boolean;
   isLoggedIn: boolean;
 }
 
-export default function FollowButton({ targetUserId, initialFollowing, isLoggedIn }: Props) {
+export default function FollowButton({ targetUserId, isAdminProfile, initialFollowing, isLoggedIn }: Props) {
   const [following, setFollowing] = useState(initialFollowing);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -19,10 +20,14 @@ export default function FollowButton({ targetUserId, initialFollowing, isLoggedI
       return;
     }
     startTransition(async () => {
+      const body = isAdminProfile
+        ? { is_admin: true }
+        : { following_id: targetUserId };
+
       const res = await fetch("/api/member/follow", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ following_id: targetUserId }),
+        body: JSON.stringify(body),
       });
       if (res.ok) {
         const data = await res.json();

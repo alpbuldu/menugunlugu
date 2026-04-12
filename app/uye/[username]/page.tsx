@@ -29,7 +29,6 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
   const supabase = await createClient();
   const { data: { user: currentUser } } = await supabase.auth.getUser();
 
-  // __admin__ special slug
   let isAdmin = false;
   let adminProfile: any = null;
 
@@ -44,7 +43,6 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
     isAdmin = true;
   }
 
-  // Normal member profile
   const { data: profile } = isAdmin
     ? { data: null }
     : await supabase
@@ -62,7 +60,6 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
   const bio         = profile?.bio || ap?.bio || null;
   const profileId   = profile?.id ?? null;
 
-  // Social links
   const src = profile ?? ap ?? {};
   const socials = [
     { key: "instagram", url: src.instagram, icon: "📸", label: "Instagram" },
@@ -78,7 +75,20 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
   let postCount      = 0;
   let isFollowing    = false;
 
-  if (!isAdmin && profileId) {
+  if (isAdmin) {
+    const [recipeRes, postRes, followerRes, followCheckRes] = await Promise.all([
+      supabase.from("recipes").select("*", { count: "exact", head: true }).is("submitted_by", null),
+      supabase.from("blog_posts").select("*", { count: "exact", head: true }).eq("published", true),
+      supabase.from("admin_follows").select("*", { count: "exact", head: true }),
+      currentUser
+        ? supabase.from("admin_follows").select("follower_id").eq("follower_id", currentUser.id).maybeSingle()
+        : Promise.resolve({ data: null }),
+    ]);
+    recipeCount   = recipeRes.count   ?? 0;
+    postCount     = postRes.count     ?? 0;
+    followerCount = followerRes.count ?? 0;
+    isFollowing   = !!(followCheckRes as any).data;
+  } else if (profileId) {
     const [followerRes, followingRes, recipeRes, postRes, followCheckRes] = await Promise.all([
       supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", profileId),
       supabase.from("follows").select("*", { count: "exact", head: true }).eq("follower_id", profileId),
@@ -93,23 +103,18 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
     recipeCount    = recipeRes.count    ?? 0;
     postCount      = postRes.count      ?? 0;
     isFollowing    = !!(followCheckRes as any).data;
-  } else if (isAdmin) {
-    const [recipeRes, postRes] = await Promise.all([
-      supabase.from("recipes").select("*", { count: "exact", head: true }).is("submitted_by", null),
-      supabase.from("blog_posts").select("*", { count: "exact", head: true }).eq("published", true),
-    ]);
-    recipeCount = recipeRes.count ?? 0;
-    postCount   = postRes.count  ?? 0;
   }
 
   const baseUrl = `/uye/${username}`;
-  const showFollowButton = !isAdmin && currentUser?.id !== profileId;
+  // Admin kendi profil sayfasını zaten düzenlemiyor, follow butonu her giriş yapmış kullanıcıya göster
+  const showFollowButton = isAdmin
+    ? !!currentUser  // admin için giriş yapan herkes takip edebilir
+    : !!(currentUser && currentUser.id !== profileId);
 
   // Recipes
   let recipesQuery = supabase
     .from("recipes")
     .select("id, title, slug, category, image_url, created_at");
-
   if (isAdmin) {
     recipesQuery = recipesQuery.is("submitted_by", null);
   } else {
@@ -123,20 +128,20 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
   let allPosts: any[] = [];
   if (tab === "yazilar") {
     if (isAdmin) {
-      const { data: blogPosts } = await supabase
+      const { data: bp } = await supabase
         .from("blog_posts")
         .select("id, title, slug, excerpt, image_url, created_at")
         .eq("published", true)
         .order("created_at", { ascending: false });
-      allPosts = blogPosts ?? [];
+      allPosts = bp ?? [];
     } else if (profileId) {
-      const { data: memberPosts } = await supabase
+      const { data: mp } = await supabase
         .from("member_posts")
         .select("id, title, slug, excerpt, image_url, created_at")
         .eq("submitted_by", profileId)
         .eq("approval_status", "approved")
         .order("created_at", { ascending: false });
-      allPosts = memberPosts ?? [];
+      allPosts = mp ?? [];
     }
   }
 
@@ -145,7 +150,7 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
   return (
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-      {/* ── Profil Header ── kompakt, estetik ── */}
+      {/* ── Profil Header ── */}
       <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-6 mb-6">
         <div className="flex items-start gap-5">
           {/* Avatar */}
@@ -160,7 +165,7 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
             )}
           </div>
 
-          {/* Bilgiler */}
+          {/* Info */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-3 flex-wrap">
               <div>
@@ -171,7 +176,8 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
               </div>
               {showFollowButton && (
                 <FollowButton
-                  targetUserId={profileId!}
+                  targetUserId={isAdmin ? undefined : profileId!}
+                  isAdminProfile={isAdmin}
                   initialFollowing={isFollowing}
                   isLoggedIn={!!currentUser}
                 />
@@ -184,27 +190,22 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
 
             {/* Stats */}
             <div className="flex flex-wrap items-center gap-4 mt-3">
-              <Link href={isAdmin ? baseUrl : `${baseUrl}?tab=tarifler`}
-                className="flex items-baseline gap-1 group">
+              <Link href={`${baseUrl}?tab=tarifler`} className="flex items-baseline gap-1 group">
                 <span className="text-sm font-bold text-warm-900 group-hover:text-brand-600 transition-colors">{recipeCount}</span>
                 <span className="text-xs text-warm-400 group-hover:text-brand-500 transition-colors">tarif</span>
               </Link>
-
               <span className="w-px h-3 bg-warm-200" />
-
-              <Link href={isAdmin ? `${baseUrl}?tab=yazilar` : `${baseUrl}?tab=yazilar`}
-                className="flex items-baseline gap-1 group">
+              <Link href={`${baseUrl}?tab=yazilar`} className="flex items-baseline gap-1 group">
                 <span className="text-sm font-bold text-warm-900 group-hover:text-brand-600 transition-colors">{postCount}</span>
                 <span className="text-xs text-warm-400 group-hover:text-brand-500 transition-colors">yazı</span>
               </Link>
-
+              <span className="w-px h-3 bg-warm-200" />
+              <div className="flex items-baseline gap-1">
+                <span className="text-sm font-bold text-warm-900">{followerCount}</span>
+                <span className="text-xs text-warm-400">takipçi</span>
+              </div>
               {!isAdmin && (
                 <>
-                  <span className="w-px h-3 bg-warm-200" />
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-sm font-bold text-warm-900">{followerCount}</span>
-                    <span className="text-xs text-warm-400">takipçi</span>
-                  </div>
                   <span className="w-px h-3 bg-warm-200" />
                   <div className="flex items-baseline gap-1">
                     <span className="text-sm font-bold text-warm-900">{followingCount}</span>
@@ -214,14 +215,13 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
               )}
             </div>
 
-            {/* Social */}
+            {/* Socials */}
             {socials.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-3">
                 {socials.map((s) => (
                   <a key={s.key} href={s.url!} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-warm-50 border border-warm-200 text-warm-600 text-xs font-medium hover:border-brand-300 hover:text-brand-600 transition-colors">
-                    <span>{s.icon}</span>
-                    <span>{s.label}</span>
+                    <span>{s.icon}</span><span>{s.label}</span>
                   </a>
                 ))}
               </div>
@@ -239,9 +239,7 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
           <Link key={t.key} href={`${baseUrl}?tab=${t.key}`}
             className={[
               "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all",
-              tab === t.key
-                ? "bg-white text-warm-900 shadow-sm"
-                : "text-warm-500 hover:text-warm-700",
+              tab === t.key ? "bg-white text-warm-900 shadow-sm" : "text-warm-500 hover:text-warm-700",
             ].join(" ")}>
             {t.label}
             <span className={`text-xs px-1.5 py-0.5 rounded-full ${
@@ -272,7 +270,6 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
               );
             })}
           </div>
-
           {allRecipes.length === 0 ? (
             <EmptyState icon="📭" text={activeCategory ? "Bu kategoride tarif yok." : "Henüz paylaşılan tarif yok."} />
           ) : (

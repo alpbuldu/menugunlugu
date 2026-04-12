@@ -91,6 +91,20 @@ export default async function BlogPostPage({ params }: Props) {
               ✍️
             </div>
           )}
+          {/* Yazar overlay — tarif sayfasındakiyle aynı */}
+          <Link
+            href={`/uye/${authorUsername}`}
+            className="absolute bottom-3 left-3 flex items-center gap-2 bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors rounded-full px-3 py-1.5"
+          >
+            {authorAvatar ? (
+              <img src={authorAvatar} alt={authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+            ) : (
+              <span className="w-5 h-5 rounded-full bg-brand-400 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                {authorName.charAt(0).toUpperCase()}
+              </span>
+            )}
+            <span className="text-xs font-medium text-white">{authorName}</span>
+          </Link>
         </div>
 
         <div className="p-8">
@@ -104,22 +118,11 @@ export default async function BlogPostPage({ params }: Props) {
             <h1 className="text-2xl sm:text-3xl font-bold text-warm-900 leading-snug">
               {post.title}
             </h1>
-            <div className="flex items-center gap-2 mt-3">
-              {authorAvatar ? (
-                <img src={authorAvatar} alt={authorName} className="w-6 h-6 rounded-full object-cover" />
-              ) : (
-                <span className="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-xs text-brand-600 font-bold">
-                  {authorName.charAt(0).toUpperCase()}
-                </span>
-              )}
-              <span className="text-sm text-warm-400">{authorName}</span>
-              <span className="text-warm-200">·</span>
-              <span className="text-sm text-warm-400">
-                {new Date(post.created_at).toLocaleDateString("tr-TR", {
-                  day: "numeric", month: "long", year: "numeric",
-                })}
-              </span>
-            </div>
+            <p className="text-sm text-warm-400 mt-2">
+              {new Date(post.created_at).toLocaleDateString("tr-TR", {
+                day: "numeric", month: "long", year: "numeric",
+              })}
+            </p>
           </div>
 
           {/* Excerpt */}

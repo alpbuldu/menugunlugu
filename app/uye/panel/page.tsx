@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
 import type { Recipe } from "@/lib/types";
 import UsernameForm from "./UsernameForm";
+import ProfileForm from "./ProfileForm";
 
 export const metadata: Metadata = { title: "Üye Paneli" };
 
@@ -16,7 +17,7 @@ export default async function UyePanelPage() {
   // Fetch profile
   const { data: profile } = await supabase
     .from("profiles")
-    .select("*")
+    .select("id, username, avatar_url, bio, full_name, instagram, twitter, youtube, website")
     .eq("id", user.id)
     .single();
 
@@ -98,6 +99,16 @@ export default async function UyePanelPage() {
 
       {/* ── Username change ── */}
       <UsernameForm currentUsername={profile?.username ?? ""} />
+
+      {/* ── Profile info ── */}
+      <ProfileForm profile={{
+        full_name: profile?.full_name ?? null,
+        bio:       profile?.bio       ?? null,
+        instagram: profile?.instagram ?? null,
+        twitter:   profile?.twitter   ?? null,
+        youtube:   profile?.youtube   ?? null,
+        website:   profile?.website   ?? null,
+      }} />
 
       {/* ── My recipes ── */}
       <section>

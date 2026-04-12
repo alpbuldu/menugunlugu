@@ -205,9 +205,13 @@ function DesktopUserMenu() {
             className="flex items-center gap-2 px-4 py-3 text-sm text-warm-700 hover:bg-warm-50 border-b border-warm-100 transition-colors">
             <span>📚</span> Tarif Defterim
           </Link>
-          <Link href="/uye/panel?tab=yorumlarim" onClick={() => setOpen(false)}
+          <Link href="/uye/panel?tab=yazilarim" onClick={() => setOpen(false)}
             className="flex items-center gap-2 px-4 py-3 text-sm text-warm-700 hover:bg-warm-50 border-b border-warm-100 transition-colors">
-            <span>💬</span> Yorumlarım
+            <span>✍️</span> Yazılarım
+          </Link>
+          <Link href="/uye/panel?tab=takip" onClick={() => setOpen(false)}
+            className="flex items-center gap-2 px-4 py-3 text-sm text-warm-700 hover:bg-warm-50 border-b border-warm-100 transition-colors">
+            <span>👥</span> Takip Paneli
           </Link>
           <Link href="/tarif-ekle" onClick={() => setOpen(false)}
             className="flex items-center gap-2 px-4 py-3 text-sm text-warm-700 hover:bg-warm-50 border-b border-warm-100 transition-colors">
@@ -215,7 +219,7 @@ function DesktopUserMenu() {
           </Link>
           <Link href="/uye/panel?tab=panelim" onClick={() => setOpen(false)}
             className="flex items-center gap-2 px-4 py-3 text-sm text-warm-700 hover:bg-warm-50 border-b border-warm-100 transition-colors">
-            <span>⚙️</span> Panelim
+            <span>⚙️</span> Hesap Bilgilerim
           </Link>
           <button onClick={handleLogout}
             className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors">

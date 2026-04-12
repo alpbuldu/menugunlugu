@@ -85,8 +85,8 @@ export default async function UyePanelPage({ searchParams }: Props) {
     { key: "tariflerim",     label: "Tariflerim",      count: recipes?.length ?? 0 },
     { key: "tarif-defterim", label: "Tarif Defterim",  count: favorites?.length ?? 0 },
     { key: "yazilarim",      label: "Yazılarım",       count: posts?.length ?? 0 },
-    { key: "takip",          label: "Takip",           count: followingCount + (followers?.length ?? 0) },
-    { key: "panelim",        label: "Panelim",         count: null },
+    { key: "takip",          label: "Takip Paneli",    count: followingCount + (followers?.length ?? 0) },
+    { key: "panelim",        label: "Hesap Bilgilerim", count: null },
   ];
 
   return (

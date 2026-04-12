@@ -8,9 +8,11 @@ import type { Category } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
+const PER_PAGE = 12;
+
 interface Props {
   params: Promise<{ username: string }>;
-  searchParams: Promise<{ tab?: string; category?: string }>;
+  searchParams: Promise<{ tab?: string; category?: string; page?: string }>;
 }
 
 const CATEGORIES: { key: string; label: string }[] = [
@@ -23,8 +25,9 @@ const CATEGORIES: { key: string; label: string }[] = [
 
 export default async function UserProfilePage({ params, searchParams }: Props) {
   const { username }           = await params;
-  const { tab = "tarifler", category: catParam } = await searchParams;
+  const { tab = "tarifler", category: catParam, page: pageParam } = await searchParams;
   const activeCategory = catParam && catParam !== "all" ? catParam : null;
+  const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
 
   const supabase = await createClient();
   const { data: { user: currentUser } } = await supabase.auth.getUser();
@@ -120,11 +123,14 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
     recipesQuery = recipesQuery.eq("submitted_by", profileId!).eq("approval_status", "approved");
   }
   if (activeCategory) recipesQuery = (recipesQuery as any).eq("category", activeCategory);
-  const { data: recipes } = await recipesQuery.order("created_at", { ascending: false });
-  const allRecipes = recipes ?? [];
+  const { data: recipesAll } = await recipesQuery.order("created_at", { ascending: false });
+  const allRecipesTotal = recipesAll ?? [];
+  const recipesTotalPages = Math.ceil(allRecipesTotal.length / PER_PAGE);
+  const allRecipes = allRecipesTotal.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
 
   // Posts
   let allPosts: any[] = [];
+  let postsTotalPages = 1;
   if (tab === "yazilar") {
     if (isAdmin) {
       const { data: bp } = await supabase
@@ -132,7 +138,9 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
         .select("id, title, slug, excerpt, image_url, created_at")
         .eq("published", true)
         .order("created_at", { ascending: false });
-      allPosts = bp ?? [];
+      const all = bp ?? [];
+      postsTotalPages = Math.ceil(all.length / PER_PAGE);
+      allPosts = all.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
     } else if (profileId) {
       const { data: mp } = await supabase
         .from("member_posts")
@@ -140,11 +148,25 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
         .eq("submitted_by", profileId)
         .eq("approval_status", "approved")
         .order("created_at", { ascending: false });
-      allPosts = mp ?? [];
+      const all = mp ?? [];
+      postsTotalPages = Math.ceil(all.length / PER_PAGE);
+      allPosts = all.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
     }
   }
 
   const postLinkBase = isAdmin ? "/blog" : "/yazi";
+
+  function pageHref(overrides: { tab?: string; category?: string; page?: number }) {
+    const p = new URLSearchParams();
+    const t = overrides.tab ?? tab;
+    if (t !== "tarifler") p.set("tab", t);
+    const cat = "category" in overrides ? overrides.category : activeCategory;
+    if (cat) p.set("category", cat);
+    const pg = overrides.page ?? currentPage;
+    if (pg > 1) p.set("page", String(pg));
+    const qs = p.toString();
+    return `${baseUrl}${qs ? `?${qs}` : ""}`;
+  }
 
   return (
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -245,11 +267,9 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
           <div className="flex flex-wrap gap-2 mb-6">
             {CATEGORIES.map((cat) => {
               const isActive = cat.key === "all" ? !activeCategory : activeCategory === cat.key;
-              const href = cat.key === "all"
-                ? `${baseUrl}?tab=tarifler`
-                : `${baseUrl}?tab=tarifler&category=${cat.key}`;
               return (
-                <Link key={cat.key} href={href}
+                <Link key={cat.key}
+                  href={pageHref({ tab: "tarifler", category: cat.key === "all" ? undefined : cat.key, page: 1 })}
                   className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
                     isActive
                       ? "bg-brand-600 border-brand-600 text-white"
@@ -263,27 +283,30 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
           {allRecipes.length === 0 ? (
             <EmptyState icon="📭" text={activeCategory ? "Bu kategoride tarif yok." : "Henüz paylaşılan tarif yok."} />
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {allRecipes.map((recipe) => (
-                <Link key={recipe.id} href={`/recipes/${recipe.slug}`}
-                  className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
-                  <div className="relative h-44 bg-warm-100 shrink-0">
-                    {recipe.image_url ? (
-                      <Image src={recipe.image_url} alt={recipe.title} fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍳</div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <Badge category={recipe.category as Category} />
-                    <h3 className="text-sm font-semibold text-warm-800 mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
-                      {recipe.title}
-                    </h3>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {allRecipes.map((recipe) => (
+                  <Link key={recipe.id} href={`/recipes/${recipe.slug}`}
+                    className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                    <div className="relative h-44 bg-warm-100 shrink-0">
+                      {recipe.image_url ? (
+                        <Image src={recipe.image_url} alt={recipe.title} fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍳</div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <Badge category={recipe.category as Category} />
+                      <h3 className="text-sm font-semibold text-warm-800 mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
+                        {recipe.title}
+                      </h3>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <Pagination current={currentPage} total={recipesTotalPages} hrefFn={(p) => pageHref({ tab: "tarifler", page: p })} />
+            </>
           )}
         </>
       )}
@@ -294,32 +317,35 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
           {allPosts.length === 0 ? (
             <EmptyState icon="✍️" text="Henüz paylaşılan yazı yok." />
           ) : (
-            <div className="space-y-4">
-              {allPosts.map((post) => (
-                <Link key={post.id} href={`${postLinkBase}/${post.slug}`}
-                  className="flex gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-4 hover:shadow-md hover:border-brand-200 transition-all group">
-                  {post.image_url ? (
-                    <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-warm-100">
-                      <Image src={post.image_url} alt={post.title} fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                    </div>
-                  ) : (
-                    <div className="w-24 h-24 flex-shrink-0 rounded-xl bg-brand-50 flex items-center justify-center text-3xl">✍️</div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-warm-900 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
-                      {post.title}
-                    </h3>
-                    {post.excerpt && (
-                      <p className="text-sm text-warm-500 mt-1 line-clamp-2 leading-relaxed">{post.excerpt}</p>
+            <>
+              <div className="space-y-4">
+                {allPosts.map((post) => (
+                  <Link key={post.id} href={`${postLinkBase}/${post.slug}`}
+                    className="flex gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-4 hover:shadow-md hover:border-brand-200 transition-all group">
+                    {post.image_url ? (
+                      <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-warm-100">
+                        <Image src={post.image_url} alt={post.title} fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                      </div>
+                    ) : (
+                      <div className="w-24 h-24 flex-shrink-0 rounded-xl bg-brand-50 flex items-center justify-center text-3xl">✍️</div>
                     )}
-                    <p className="text-xs text-warm-400 mt-2">
-                      {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-warm-900 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
+                        {post.title}
+                      </h3>
+                      {post.excerpt && (
+                        <p className="text-sm text-warm-500 mt-1 line-clamp-2 leading-relaxed">{post.excerpt}</p>
+                      )}
+                      <p className="text-xs text-warm-400 mt-2">
+                        {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <Pagination current={currentPage} total={postsTotalPages} hrefFn={(p) => pageHref({ tab: "yazilar", page: p })} />
+            </>
           )}
         </>
       )}
@@ -332,6 +358,41 @@ function EmptyState({ icon, text }: { icon: string; text: string }) {
     <div className="bg-white rounded-2xl border border-warm-100 p-16 text-center text-warm-400">
       <p className="text-4xl mb-3">{icon}</p>
       <p className="text-sm">{text}</p>
+    </div>
+  );
+}
+
+function Pagination({ current, total, hrefFn }: { current: number; total: number; hrefFn: (p: number) => string }) {
+  if (total <= 1) return null;
+  const btnBase = "inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium border transition-colors";
+  return (
+    <div className="flex items-center justify-center gap-1.5 mt-8 flex-wrap">
+      {current > 1 ? (
+        <Link href={hrefFn(current - 1)} className={`${btnBase} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>‹</Link>
+      ) : (
+        <span className={`${btnBase} border-warm-100 text-warm-300 cursor-default`}>‹</span>
+      )}
+      {Array.from({ length: total }, (_, i) => i + 1).map((p) => {
+        const show = p === 1 || p === total || Math.abs(p - current) <= 1;
+        const ellipsisBefore = p === current - 2 && current - 2 > 1;
+        const ellipsisAfter  = p === current + 2 && current + 2 < total;
+        if (!show) return null;
+        return (
+          <span key={p} className="flex items-center gap-1.5">
+            {ellipsisBefore && <span className="text-warm-400 text-sm px-1">…</span>}
+            <Link href={hrefFn(p)}
+              className={`${btnBase} ${p === current ? "bg-brand-600 border-brand-600 text-white" : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"}`}>
+              {p}
+            </Link>
+            {ellipsisAfter && <span className="text-warm-400 text-sm px-1">…</span>}
+          </span>
+        );
+      })}
+      {current < total ? (
+        <Link href={hrefFn(current + 1)} className={`${btnBase} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>›</Link>
+      ) : (
+        <span className={`${btnBase} border-warm-100 text-warm-300 cursor-default`}>›</span>
+      )}
     </div>
   );
 }

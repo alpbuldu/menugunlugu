@@ -199,7 +199,7 @@ export async function getMenuDatesForMonth(
  * Returns `limit` recipes in a random order.
  * Fetches all recipes then shuffles in JS (PostgREST doesn't expose RANDOM() ordering).
  */
-export async function getRandomRecipes(limit: number = 3): Promise<Recipe[]> {
+export async function getRandomRecipes(): Promise<Recipe[]> {
   if (!isSupabaseConfigured()) return [];
   try {
     const supabase = await createClient();
@@ -208,13 +208,13 @@ export async function getRandomRecipes(limit: number = 3): Promise<Recipe[]> {
       .select(RECIPE_FIELDS)
       .or("approval_status.eq.approved,approval_status.is.null");
     if (error || !data) return [];
-    // Fisher-Yates shuffle
+    // Fisher-Yates shuffle — tüm listesi döndür, slider kendi döngüsünde yönetir
     const arr = [...data] as Recipe[];
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-    return arr.slice(0, limit);
+    return arr;
   } catch {
     return [];
   }

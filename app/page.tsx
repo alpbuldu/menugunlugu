@@ -9,7 +9,7 @@ const CONTAINER = "max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8";
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const featured = await getRandomRecipes(9);
+  const featured = await getRandomRecipes();
 
   // Admin profili
   const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();

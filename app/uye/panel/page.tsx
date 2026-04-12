@@ -36,7 +36,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, username, avatar_url, bio, full_name, instagram, twitter, youtube, website")
+    .select("id, username, avatar_url, bio, full_name, instagram, twitter, youtube, website, username_change_count")
     .eq("id", user.id)
     .single();
 
@@ -410,7 +410,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
       {/* ── Tab: Hesap Bilgilerim ── */}
       {tab === "panelim" && (
         <div className="space-y-6">
-          <UsernameForm currentUsername={profile?.username ?? ""} />
+          <UsernameForm currentUsername={profile?.username ?? ""} changeCount={profile?.username_change_count ?? 0} />
           <ProfileForm profile={{
             full_name: profile?.full_name ?? null,
             bio:       profile?.bio       ?? null,

@@ -22,7 +22,8 @@ const adminLinks = [
   { href: "/admin/recipes/delete", label: "🗑️  Toplu Sil" },
   { href: "/admin/blog",           label: "📝  Blog" },
   { href: "/admin/blog/posts/new", label: "🖊️  Yeni Yazı" },
-  { href: "/admin/onay",           label: "✅  Tarif Onayı" },
+  { href: "/admin/onay",           label: "✅  İçerik Onayı" },
+  { href: "/admin/yazarlar",       label: "👥  Yazarlar" },
   { href: "/admin/profil",         label: "👤  Admin Profili" },
 ];
 

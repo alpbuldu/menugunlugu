@@ -88,8 +88,10 @@ export default function RecipeSlider({
   const [pageIdx, setPageIdx] = useState(0);
   const [shift, setShift] = useState(-100);
   const [anim, setAnim] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const busy = useRef(false);
   const touchX = useRef<number | null>(null);
+  const autoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const update = () => {
@@ -103,6 +105,16 @@ export default function RecipeSlider({
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);
   }, []);
+
+  // Otomatik döndürme — 10 saniyede bir, hover'da durur
+  useEffect(() => {
+    if (hovered) return;
+    const id = setInterval(() => {
+      if (!busy.current) go("next");
+    }, 10000);
+    return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hovered, pageIdx]);
 
   const items = fill(recipes, perPage * 2);
   const totalPages = Math.ceil(items.length / perPage);
@@ -128,6 +140,14 @@ export default function RecipeSlider({
     }, 320);
   }
 
+  function manualGo(dir: "next" | "prev") {
+    // Timer'ı sıfırla — manuel geçişten sonra yeniden 10 sn say
+    setHovered(true);
+    go(dir);
+    if (autoTimer.current) clearTimeout(autoTimer.current);
+    autoTimer.current = setTimeout(() => setHovered(false), 10000);
+  }
+
   function onTouchStart(e: React.TouchEvent) {
     touchX.current = e.touches[0].clientX;
   }
@@ -149,7 +169,11 @@ export default function RecipeSlider({
      * Desktop: mx-8 leaves room for the external arrows (-left-6 / -right-6).
      * Mobile:  no horizontal margin — card is edge-to-edge; arrows are overlaid.
      */
-    <div className={`relative ${isMobile ? "mx-0" : "mx-8"}`}>
+    <div
+      className={`relative ${isMobile ? "mx-0" : "mx-8"}`}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       <div className="overflow-hidden rounded-2xl sm:rounded-none">
         <div
           className="flex"
@@ -222,9 +246,9 @@ export default function RecipeSlider({
         </div>
       </div>
 
-      {/* Arrows — position & style differ by breakpoint */}
-      <Arrow dir="prev" onClick={() => go("prev")} mobile={isMobile} />
-      <Arrow dir="next" onClick={() => go("next")} mobile={isMobile} />
+      {/* Arrows */}
+      <Arrow dir="prev" onClick={() => manualGo("prev")} mobile={isMobile} />
+      <Arrow dir="next" onClick={() => manualGo("next")} mobile={isMobile} />
     </div>
   );
 }

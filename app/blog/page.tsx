@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { getBlogCategories, getBlogPosts } from "@/lib/supabase/queries";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Blog",
   description: "Yemek kültürü, tarifler ve mutfak hikayeleri.",
 };
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 const PER_PAGE = 12;
 
@@ -20,6 +21,15 @@ export default async function BlogPage({ searchParams }: Props) {
   const { kategori, page: pageParam } = await searchParams;
 
   const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+
+  const supabase = await createClient();
+  const { data: adminProfile } = await supabase
+    .from("admin_profile")
+    .select("username, avatar_url, full_name")
+    .eq("id", 1)
+    .maybeSingle();
+  const authorName   = adminProfile?.full_name || adminProfile?.username || "Menü Günlüğü";
+  const authorAvatar = adminProfile?.avatar_url ?? "";
 
   const [categories, allPosts] = await Promise.all([
     getBlogCategories(),
@@ -124,11 +134,22 @@ export default async function BlogPage({ searchParams }: Props) {
                     {post.excerpt}
                   </p>
                 )}
-                <p className="text-xs text-warm-300 mt-auto pt-3">
-                  {new Date(post.created_at).toLocaleDateString("tr-TR", {
-                    day: "numeric", month: "long", year: "numeric",
-                  })}
-                </p>
+                <div className="flex items-center gap-2 mt-auto pt-3">
+                  {authorAvatar ? (
+                    <img src={authorAvatar} alt={authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                  ) : (
+                    <span className="w-5 h-5 rounded-full bg-brand-100 flex items-center justify-center text-[9px] font-bold text-brand-600 flex-shrink-0">
+                      {authorName.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                  <span className="text-xs text-warm-500 font-medium truncate">{authorName}</span>
+                  <span className="text-warm-200 text-xs">·</span>
+                  <span className="text-xs text-warm-300 flex-shrink-0">
+                    {new Date(post.created_at).toLocaleDateString("tr-TR", {
+                      day: "numeric", month: "short", year: "numeric",
+                    })}
+                  </span>
+                </div>
               </div>
             </Link>
           ))}

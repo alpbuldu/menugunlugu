@@ -59,8 +59,10 @@ export default async function BlogPostPage({ params }: Props) {
     .select("username, avatar_url")
     .eq("id", 1)
     .single();
-  const authorName   = adminProfile?.username   ?? "Menü Günlüğü";
-  const authorAvatar = adminProfile?.avatar_url ?? "";
+  const authorName     = (adminProfile as any)?.full_name || adminProfile?.username || "Menü Günlüğü";
+  const authorAvatar   = adminProfile?.avatar_url ?? "";
+  const authorBio      = (adminProfile as any)?.bio ?? "";
+  const authorUsername = "__admin__";
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -141,8 +143,33 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
       </div>
 
+      {/* Yazar kartı */}
+      <Link
+        href={`/uye/${authorUsername}`}
+        className="mt-4 flex items-center gap-5 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 hover:border-brand-200 hover:shadow-md transition-all group"
+      >
+        {authorAvatar ? (
+          <img src={authorAvatar} alt={authorName}
+            className="w-14 h-14 rounded-full object-cover flex-shrink-0 ring-4 ring-warm-100" />
+        ) : (
+          <div className="w-14 h-14 rounded-full bg-brand-100 flex items-center justify-center text-2xl font-bold text-brand-600 flex-shrink-0 ring-4 ring-warm-100">
+            {authorName.charAt(0).toUpperCase()}
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-warm-400 mb-0.5">Bu yazının sahibi</p>
+          <p className="font-bold text-warm-900 text-base group-hover:text-brand-700 transition-colors">{authorName}</p>
+          {authorBio && (
+            <p className="text-sm text-warm-500 mt-1 line-clamp-2 leading-relaxed">{authorBio}</p>
+          )}
+        </div>
+        <div className="flex-shrink-0 w-9 h-9 rounded-full bg-warm-100 group-hover:bg-brand-100 flex items-center justify-center transition-colors">
+          <span className="text-warm-400 group-hover:text-brand-600 transition-colors text-lg">→</span>
+        </div>
+      </Link>
+
       {/* Bottom nav */}
-      <div className="mt-8 flex items-center justify-between flex-wrap gap-3">
+      <div className="mt-4 flex items-center justify-between flex-wrap gap-3">
         <Link
           href="/blog"
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-warm-200 text-warm-700 rounded-xl text-sm font-medium hover:bg-warm-50 transition-colors"

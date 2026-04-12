@@ -94,14 +94,16 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
     postCount      = postRes.count      ?? 0;
     isFollowing    = !!(followCheckRes as any).data;
   } else if (isAdmin) {
-    const { count } = await supabase
-      .from("recipes")
-      .select("*", { count: "exact", head: true })
-      .is("submitted_by", null);
-    recipeCount = count ?? 0;
+    const [recipeRes, postRes] = await Promise.all([
+      supabase.from("recipes").select("*", { count: "exact", head: true }).is("submitted_by", null),
+      supabase.from("blog_posts").select("*", { count: "exact", head: true }).eq("published", true),
+    ]);
+    recipeCount = recipeRes.count ?? 0;
+    postCount   = postRes.count  ?? 0;
   }
 
   const baseUrl = `/uye/${username}`;
+  const showFollowButton = !isAdmin && currentUser?.id !== profileId;
 
   // Recipes
   let recipesQuery = supabase
@@ -117,144 +119,147 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
   const { data: recipes } = await recipesQuery.order("created_at", { ascending: false });
   const allRecipes = recipes ?? [];
 
-  // Posts (only for members)
+  // Posts
   let allPosts: any[] = [];
-  if (!isAdmin && tab === "yazilar") {
-    const { data: posts } = await supabase
-      .from("member_posts")
-      .select("id, title, slug, excerpt, image_url, created_at")
-      .eq("submitted_by", profileId!)
-      .eq("approval_status", "approved")
-      .order("created_at", { ascending: false });
-    allPosts = posts ?? [];
+  if (tab === "yazilar") {
+    if (isAdmin) {
+      const { data: blogPosts } = await supabase
+        .from("blog_posts")
+        .select("id, title, slug, excerpt, image_url, created_at")
+        .eq("published", true)
+        .order("created_at", { ascending: false });
+      allPosts = blogPosts ?? [];
+    } else if (profileId) {
+      const { data: memberPosts } = await supabase
+        .from("member_posts")
+        .select("id, title, slug, excerpt, image_url, created_at")
+        .eq("submitted_by", profileId)
+        .eq("approval_status", "approved")
+        .order("created_at", { ascending: false });
+      allPosts = memberPosts ?? [];
+    }
   }
 
-  // Follow button: admin profilinde gösterme (admin profiles tablosunda değil)
-  const showFollowButton = !isAdmin && currentUser?.id !== profileId;
+  const postLinkBase = isAdmin ? "/blog" : "/yazi";
 
   return (
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-      {/* ── Profil Header ── */}
-      <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden mb-6">
-        {/* Cover */}
-        <div className="h-24 bg-gradient-to-r from-brand-100 via-warm-100 to-brand-50" />
+      {/* ── Profil Header ── kompakt, estetik ── */}
+      <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-6 mb-6">
+        <div className="flex items-start gap-5">
+          {/* Avatar */}
+          <div className="flex-shrink-0">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={displayName}
+                className="w-16 h-16 rounded-2xl object-cover ring-2 ring-warm-100" />
+            ) : (
+              <div className="w-16 h-16 rounded-2xl bg-brand-100 flex items-center justify-center text-2xl font-bold text-brand-600 ring-2 ring-warm-100">
+                {displayName.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
 
-        <div className="px-6 pb-6">
-          {/* Avatar + follow */}
-          <div className="flex items-end justify-between -mt-10 mb-4 flex-wrap gap-3">
-            <div className="flex-shrink-0">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt={displayName}
-                  className="w-20 h-20 rounded-full object-cover ring-4 ring-white shadow-sm" />
-              ) : (
-                <div className="w-20 h-20 rounded-full bg-brand-100 flex items-center justify-center text-3xl font-bold text-brand-600 ring-4 ring-white shadow-sm">
-                  {displayName.charAt(0).toUpperCase()}
-                </div>
-              )}
-            </div>
-
-            {showFollowButton && (
-              <div className="mt-2">
+          {/* Bilgiler */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div>
+                <h1 className="text-lg font-bold text-warm-900 leading-tight">{displayName}</h1>
+                {handle && handle !== displayName && (
+                  <p className="text-xs text-warm-400 mt-0.5">@{handle}</p>
+                )}
+              </div>
+              {showFollowButton && (
                 <FollowButton
                   targetUserId={profileId!}
                   initialFollowing={isFollowing}
                   isLoggedIn={!!currentUser}
                 />
+              )}
+            </div>
+
+            {bio && (
+              <p className="text-sm text-warm-500 leading-relaxed mt-2 max-w-lg">{bio}</p>
+            )}
+
+            {/* Stats */}
+            <div className="flex flex-wrap items-center gap-4 mt-3">
+              <Link href={isAdmin ? baseUrl : `${baseUrl}?tab=tarifler`}
+                className="flex items-baseline gap-1 group">
+                <span className="text-sm font-bold text-warm-900 group-hover:text-brand-600 transition-colors">{recipeCount}</span>
+                <span className="text-xs text-warm-400 group-hover:text-brand-500 transition-colors">tarif</span>
+              </Link>
+
+              <span className="w-px h-3 bg-warm-200" />
+
+              <Link href={isAdmin ? `${baseUrl}?tab=yazilar` : `${baseUrl}?tab=yazilar`}
+                className="flex items-baseline gap-1 group">
+                <span className="text-sm font-bold text-warm-900 group-hover:text-brand-600 transition-colors">{postCount}</span>
+                <span className="text-xs text-warm-400 group-hover:text-brand-500 transition-colors">yazı</span>
+              </Link>
+
+              {!isAdmin && (
+                <>
+                  <span className="w-px h-3 bg-warm-200" />
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-sm font-bold text-warm-900">{followerCount}</span>
+                    <span className="text-xs text-warm-400">takipçi</span>
+                  </div>
+                  <span className="w-px h-3 bg-warm-200" />
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-sm font-bold text-warm-900">{followingCount}</span>
+                    <span className="text-xs text-warm-400">takip</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Social */}
+            {socials.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {socials.map((s) => (
+                  <a key={s.key} href={s.url!} target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-warm-50 border border-warm-200 text-warm-600 text-xs font-medium hover:border-brand-300 hover:text-brand-600 transition-colors">
+                    <span>{s.icon}</span>
+                    <span>{s.label}</span>
+                  </a>
+                ))}
               </div>
             )}
           </div>
-
-          {/* Name */}
-          <div className="mb-3">
-            <h1 className="text-xl font-bold text-warm-900 leading-tight">{displayName}</h1>
-            {handle && handle !== displayName && (
-              <p className="text-sm text-warm-400">@{handle}</p>
-            )}
-          </div>
-
-          {bio && (
-            <p className="text-sm text-warm-600 leading-relaxed mb-4 max-w-lg">{bio}</p>
-          )}
-
-          {/* Stats — tıklanabilir */}
-          <div className="flex flex-wrap gap-5 mb-4">
-            <Link
-              href={isAdmin ? baseUrl : `${baseUrl}?tab=tarifler`}
-              className="text-center group cursor-pointer"
-            >
-              <p className="text-lg font-bold text-warm-900 group-hover:text-brand-600 transition-colors">{recipeCount}</p>
-              <p className="text-xs text-warm-400 group-hover:text-brand-500 transition-colors">Tarif</p>
-            </Link>
-
-            {!isAdmin && (
-              <>
-                <div className="w-px bg-warm-100" />
-                <Link href={`${baseUrl}?tab=yazilar`} className="text-center group cursor-pointer">
-                  <p className="text-lg font-bold text-warm-900 group-hover:text-brand-600 transition-colors">{postCount}</p>
-                  <p className="text-xs text-warm-400 group-hover:text-brand-500 transition-colors">Yazı</p>
-                </Link>
-                <div className="w-px bg-warm-100" />
-                <div className="text-center">
-                  <p className="text-lg font-bold text-warm-900">{followerCount}</p>
-                  <p className="text-xs text-warm-400">Takipçi</p>
-                </div>
-                <div className="w-px bg-warm-100" />
-                <div className="text-center">
-                  <p className="text-lg font-bold text-warm-900">{followingCount}</p>
-                  <p className="text-xs text-warm-400">Takip</p>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Social */}
-          {socials.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {socials.map((s) => (
-                <a key={s.key} href={s.url!} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-warm-50 border border-warm-200 text-warm-600 text-xs font-medium hover:border-brand-300 hover:text-brand-600 transition-colors">
-                  <span>{s.icon}</span>
-                  <span>{s.label}</span>
-                </a>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
-      {/* ── Tabs (sadece üyeler için) ── */}
-      {!isAdmin && (
-        <div className="flex gap-1 mb-6 bg-warm-100 p-1 rounded-2xl">
-          {[
-            { key: "tarifler", label: "Tarifleri", count: recipeCount },
-            { key: "yazilar",  label: "Yazıları",  count: postCount },
-          ].map((t) => (
-            <Link key={t.key} href={`${baseUrl}?tab=${t.key}`}
-              className={[
-                "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all",
-                tab === t.key
-                  ? "bg-white text-warm-900 shadow-sm"
-                  : "text-warm-500 hover:text-warm-700",
-              ].join(" ")}>
-              {t.label}
-              <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                tab === t.key ? "bg-brand-100 text-brand-600" : "bg-warm-200 text-warm-500"
-              }`}>{t.count}</span>
-            </Link>
-          ))}
-        </div>
-      )}
+      {/* ── Tabs ── */}
+      <div className="flex gap-1 mb-6 bg-warm-100 p-1 rounded-2xl">
+        {[
+          { key: "tarifler", label: "Tarifleri", count: recipeCount },
+          { key: "yazilar",  label: "Yazıları",  count: postCount },
+        ].map((t) => (
+          <Link key={t.key} href={`${baseUrl}?tab=${t.key}`}
+            className={[
+              "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all",
+              tab === t.key
+                ? "bg-white text-warm-900 shadow-sm"
+                : "text-warm-500 hover:text-warm-700",
+            ].join(" ")}>
+            {t.label}
+            <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+              tab === t.key ? "bg-brand-100 text-brand-600" : "bg-warm-200 text-warm-500"
+            }`}>{t.count}</span>
+          </Link>
+        ))}
+      </div>
 
       {/* ── Recipes Tab ── */}
-      {(isAdmin || tab === "tarifler") && (
+      {tab === "tarifler" && (
         <>
           <div className="flex flex-wrap gap-2 mb-6">
             {CATEGORIES.map((cat) => {
               const isActive = cat.key === "all" ? !activeCategory : activeCategory === cat.key;
               const href = cat.key === "all"
-                ? (isAdmin ? baseUrl : `${baseUrl}?tab=tarifler`)
-                : (isAdmin ? `${baseUrl}?category=${cat.key}` : `${baseUrl}?tab=tarifler&category=${cat.key}`);
+                ? `${baseUrl}?tab=tarifler`
+                : `${baseUrl}?tab=tarifler&category=${cat.key}`;
               return (
                 <Link key={cat.key} href={href}
                   className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
@@ -297,18 +302,19 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
       )}
 
       {/* ── Posts Tab ── */}
-      {!isAdmin && tab === "yazilar" && (
+      {tab === "yazilar" && (
         <>
           {allPosts.length === 0 ? (
             <EmptyState icon="✍️" text="Henüz paylaşılan yazı yok." />
           ) : (
             <div className="space-y-4">
               {allPosts.map((post) => (
-                <Link key={post.id} href={`/yazi/${post.slug}`}
+                <Link key={post.id} href={`${postLinkBase}/${post.slug}`}
                   className="flex gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-4 hover:shadow-md hover:border-brand-200 transition-all group">
                   {post.image_url ? (
                     <div className="relative w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden bg-warm-100">
-                      <Image src={post.image_url} alt={post.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <Image src={post.image_url} alt={post.title} fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300" />
                     </div>
                   ) : (
                     <div className="w-24 h-24 flex-shrink-0 rounded-xl bg-brand-50 flex items-center justify-center text-3xl">✍️</div>

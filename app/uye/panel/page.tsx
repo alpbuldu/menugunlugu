@@ -46,17 +46,25 @@ export default async function UyePanelPage({ searchParams }: Props) {
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  const { data: comments } = await supabase
-    .from("comments")
-    .select("id, content, created_at, recipes(id, title, slug, image_url)")
-    .eq("user_id", user.id)
+  const { data: posts } = await supabase
+    .from("member_posts")
+    .select("id, title, slug, approval_status, created_at")
+    .eq("submitted_by", user.id)
+    .order("created_at", { ascending: false });
+
+  // Takip edilenler (following)
+  const { data: following } = await supabase
+    .from("follows")
+    .select("following_id, created_at, profiles!follows_following_id_fkey(id, username, full_name, avatar_url)")
+    .eq("follower_id", user.id)
     .order("created_at", { ascending: false });
 
   const tabs = [
-    { key: "tariflerim",   label: "Tariflerim",    count: recipes?.length ?? 0 },
-    { key: "tarif-defterim", label: "Tarif Defterim", count: favorites?.length ?? 0 },
-    { key: "yorumlarim",   label: "Yorumlarım",    count: comments?.length ?? 0 },
-    { key: "panelim",      label: "Panelim",       count: null },
+    { key: "tariflerim",     label: "Tariflerim",      count: recipes?.length ?? 0 },
+    { key: "tarif-defterim", label: "Tarif Defterim",  count: favorites?.length ?? 0 },
+    { key: "yazilarim",      label: "Yazılarım",       count: posts?.length ?? 0 },
+    { key: "takip",          label: "Takip",           count: following?.length ?? 0 },
+    { key: "panelim",        label: "Panelim",         count: null },
   ];
 
   return (
@@ -96,11 +104,11 @@ export default async function UyePanelPage({ searchParams }: Props) {
       </div>
 
       {/* ── Tab navigation ── */}
-      <div className="flex gap-1 mb-8 bg-warm-100 p-1 rounded-2xl">
+      <div className="flex gap-1 mb-8 bg-warm-100 p-1 rounded-2xl overflow-x-auto">
         {tabs.map((t) => (
           <Link key={t.key} href={`/uye/panel?tab=${t.key}`}
             className={[
-              "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium transition-all",
+              "flex-shrink-0 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
               tab === t.key
                 ? "bg-white text-warm-900 shadow-sm"
                 : "text-warm-500 hover:text-warm-700",
@@ -186,33 +194,71 @@ export default async function UyePanelPage({ searchParams }: Props) {
         </section>
       )}
 
-      {/* ── Tab: Yorumlarım ── */}
-      {tab === "yorumlarim" && (
+      {/* ── Tab: Yazılarım ── */}
+      {tab === "yazilarim" && (
         <section className="space-y-3">
-          <p className="text-sm text-warm-500 mb-2">{comments?.length ?? 0} yorum</p>
-          {!comments || comments.length === 0 ? (
-            <Empty icon="💬" text="Henüz yorum yapmadınız." />
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-warm-500">{posts?.length ?? 0} yazı</p>
+            <Link href="/yazi-ekle" className="text-sm text-brand-600 hover:underline">+ Yeni yazı ekle</Link>
+          </div>
+          {!posts || posts.length === 0 ? (
+            <Empty icon="✍️" text="Henüz yazı paylaşmadınız." />
           ) : (
-            comments.map((c) => {
-              const r = c.recipes as unknown as { id: string; title: string; slug: string; image_url: string | null } | null;
+            posts.map((p) => {
+              const s = statusLabel[p.approval_status] ?? statusLabel["pending"];
               return (
-                <div key={c.id} className="bg-white rounded-xl border border-warm-200 p-4">
-                  {r && (
-                    <Link href={`/recipes/${r.slug}`}
-                      className="flex items-center gap-2 mb-2 group">
-                      {r.image_url ? (
-                        <img src={r.image_url} alt={r.title} className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
-                      ) : (
-                        <div className="w-8 h-8 rounded-lg bg-warm-100 flex items-center justify-center text-sm flex-shrink-0">🍽️</div>
-                      )}
-                      <span className="text-xs font-semibold text-brand-600 group-hover:underline truncate">{r.title}</span>
-                    </Link>
+                <div key={p.id}
+                  className="flex items-center gap-3 bg-white rounded-xl border border-warm-200 px-4 py-3">
+                  <div className="w-10 h-10 rounded-lg bg-brand-50 flex items-center justify-center flex-shrink-0 text-lg">✍️</div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-warm-800 text-sm truncate">{p.title}</p>
+                    <p className="text-xs text-warm-400">
+                      {new Date(p.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
+                    </p>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${s.cls}`}>{s.label}</span>
+                  {p.approval_status === "approved" && (
+                    <Link href={`/yazi/${p.slug}`}
+                      className="text-xs text-brand-600 hover:underline flex-shrink-0">Görüntüle</Link>
                   )}
-                  <p className="text-sm text-warm-700 leading-relaxed">{c.content}</p>
-                  <p className="text-xs text-warm-400 mt-2">
-                    {new Date(c.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
-                  </p>
                 </div>
+              );
+            })
+          )}
+        </section>
+      )}
+
+      {/* ── Tab: Takip ── */}
+      {tab === "takip" && (
+        <section className="space-y-3">
+          <p className="text-sm text-warm-500 mb-2">{following?.length ?? 0} kişi takip ediliyor</p>
+          {!following || following.length === 0 ? (
+            <Empty icon="👥" text="Henüz kimseyi takip etmiyorsunuz." />
+          ) : (
+            following.map((f) => {
+              const p = f.profiles as unknown as { id: string; username: string; full_name: string | null; avatar_url: string | null } | null;
+              if (!p) return null;
+              return (
+                <Link key={f.following_id} href={`/uye/${p.username}`}
+                  className="flex items-center gap-3 bg-white rounded-xl border border-warm-200 px-4 py-3 hover:border-brand-200 hover:shadow-sm transition-all group">
+                  {p.avatar_url ? (
+                    <img src={p.avatar_url} alt={p.full_name || p.username}
+                      className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center text-base font-bold text-brand-600 flex-shrink-0">
+                      {(p.full_name || p.username).charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-warm-800 text-sm group-hover:text-brand-700 transition-colors">
+                      {p.full_name || p.username}
+                    </p>
+                    {p.full_name && (
+                      <p className="text-xs text-warm-400">@{p.username}</p>
+                    )}
+                  </div>
+                  <span className="text-warm-300 group-hover:text-brand-400 transition-colors">→</span>
+                </Link>
               );
             })
           )}

@@ -9,7 +9,6 @@ import Badge from "@/components/ui/Badge";
 import ShareButton from "@/components/ui/ShareButton";
 import RatingStars from "@/components/recipe/RatingStars";
 import FavoriteButton from "@/components/recipe/FavoriteButton";
-import CommentSection from "@/components/recipe/CommentSection";
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 
@@ -257,21 +256,10 @@ export default async function RecipeDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Rating + Favorite */}
-      <div className="mt-6 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <RatingStars recipeId={recipe.id} />
-        <FavoriteButton recipeId={recipe.id} />
-      </div>
-
-      {/* Comments */}
-      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
-        <CommentSection recipeId={recipe.id} currentUserId={currentUserId} />
-      </div>
-
       {/* Yazar kartı */}
       <Link
         href={`/uye/${authorUsername}`}
-        className="mt-4 flex items-center gap-5 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 hover:border-brand-200 hover:shadow-md transition-all group"
+        className="mt-6 flex items-center gap-5 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 hover:border-brand-200 hover:shadow-md transition-all group"
       >
         {/* Avatar */}
         {authorAvatar ? (
@@ -295,7 +283,7 @@ export default async function RecipeDetailPage({ params }: Props) {
           {authorBio && (
             <p className="text-sm text-warm-500 mt-1 line-clamp-2 leading-relaxed">{authorBio}</p>
           )}
-          <p className="text-xs text-warm-400 mt-1.5">{authorRecipeCount} tarif paylaşıldı</p>
+          <p className="text-xs text-warm-400 mt-1.5">{authorRecipeCount} tarif · Tüm tarifleri gör →</p>
         </div>
 
         {/* Ok */}
@@ -303,6 +291,12 @@ export default async function RecipeDetailPage({ params }: Props) {
           <span className="text-warm-400 group-hover:text-brand-600 transition-colors text-lg">→</span>
         </div>
       </Link>
+
+      {/* Rating + Favorite */}
+      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <RatingStars recipeId={recipe.id} />
+        <FavoriteButton recipeId={recipe.id} />
+      </div>
 
       {/* Bottom nav */}
       <div className="mt-6 flex items-center justify-between flex-wrap gap-3">

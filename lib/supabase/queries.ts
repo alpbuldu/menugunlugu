@@ -86,6 +86,7 @@ export async function getRecipes(category?: Category): Promise<Recipe[]> {
     let query = supabase
       .from("recipes")
       .select(RECIPE_FIELDS)
+      .or("approval_status.eq.approved,approval_status.is.null")
       .order("created_at", { ascending: false });
 
     if (category) {
@@ -204,7 +205,8 @@ export async function getRandomRecipes(limit: number = 3): Promise<Recipe[]> {
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("recipes")
-      .select(RECIPE_FIELDS);
+      .select(RECIPE_FIELDS)
+      .or("approval_status.eq.approved,approval_status.is.null");
     if (error || !data) return [];
     // Fisher-Yates shuffle
     const arr = [...data] as Recipe[];

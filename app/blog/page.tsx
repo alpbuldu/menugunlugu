@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getBlogCategories, getBlogPosts } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -17,30 +18,97 @@ interface Props {
   searchParams: Promise<{ kategori?: string; page?: string }>;
 }
 
+interface UnifiedPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  image_url: string | null;
+  created_at: string;
+  href: string;
+  categoryName: string | null;
+  authorName: string;
+  authorAvatar: string;
+}
+
 export default async function BlogPage({ searchParams }: Props) {
   const { kategori, page: pageParam } = await searchParams;
-
   const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
 
   const supabase = await createClient();
-  const { data: adminProfile } = await supabase
-    .from("admin_profile")
-    .select("username, avatar_url, full_name")
-    .eq("id", 1)
-    .maybeSingle();
-  const authorName   = adminProfile?.username || "Menü Günlüğü";
-  const authorAvatar = adminProfile?.avatar_url ?? "";
+  const admin    = createAdminClient();
 
-  const [categories, allPosts] = await Promise.all([
+  const [adminProfileRes, categories, adminPosts] = await Promise.all([
+    supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).maybeSingle(),
     getBlogCategories(),
     getBlogPosts(kategori),
   ]);
 
+  const adminProfile  = adminProfileRes.data;
+  const adminAuthorName   = adminProfile?.username   ?? "Menü Günlüğü";
+  const adminAuthorAvatar = adminProfile?.avatar_url ?? "";
+
+  // Üye yazıları (onaylı) + kategorileri
+  const { data: memberPostsRaw } = await admin
+    .from("member_posts")
+    .select("id, title, slug, excerpt, image_url, created_at, submitted_by, category_id, blog_categories:category_id(name)")
+    .eq("approval_status", "approved")
+    .order("created_at", { ascending: false });
+
+  // Üye profilleri
+  const memberIds = [...new Set((memberPostsRaw ?? []).map((p: any) => p.submitted_by).filter(Boolean))];
+  const memberProfileMap: Record<string, { username: string; avatar_url: string | null }> = {};
+  if (memberIds.length) {
+    const { data: profiles } = await supabase
+      .from("profiles").select("id, username, avatar_url").in("id", memberIds);
+    profiles?.forEach((p) => { memberProfileMap[p.id] = { username: p.username, avatar_url: p.avatar_url ?? null }; });
+  }
+
+  // Admin yazılarını birleştir (kategori filtresi halihazırda uygulanmış)
+  const unifiedAdmin: UnifiedPost[] = adminPosts.map((p) => ({
+    id:           p.id,
+    title:        p.title,
+    slug:         p.slug,
+    excerpt:      p.excerpt ?? null,
+    image_url:    p.image_url ?? null,
+    created_at:   p.created_at,
+    href:         `/blog/${p.slug}`,
+    categoryName: p.category?.name ?? null,
+    authorName:   adminAuthorName,
+    authorAvatar: adminAuthorAvatar,
+  }));
+
+  // Üye yazılarını birleştir (kategori filtresi varsa uygula)
+  const unifiedMember: UnifiedPost[] = (memberPostsRaw ?? [])
+    .filter((p: any) => {
+      if (!kategori) return true;
+      // Kategori filtresi: member post'un kategorisi seçili kategoriyle eşleşmeli
+      const catName = (p.blog_categories as any)?.name ?? null;
+      const matchingCat = categories.find(c => c.slug === kategori);
+      return matchingCat && catName === matchingCat.name;
+    })
+    .map((p: any) => {
+      const profile = memberProfileMap[p.submitted_by] ?? null;
+      return {
+        id:           p.id,
+        title:        p.title,
+        slug:         p.slug,
+        excerpt:      p.excerpt ?? null,
+        image_url:    p.image_url ?? null,
+        created_at:   p.created_at,
+        href:         `/yazi/${p.slug}`,
+        categoryName: (p.blog_categories as any)?.name ?? null,
+        authorName:   profile?.username ?? "Üye",
+        authorAvatar: profile?.avatar_url ?? "",
+      };
+    });
+
+  // Birleştir ve tarihe göre sırala
+  const allPosts: UnifiedPost[] = [...unifiedAdmin, ...unifiedMember]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
   const totalPages = Math.ceil(allPosts.length / PER_PAGE);
-  const posts = allPosts.slice(
-    (currentPage - 1) * PER_PAGE,
-    currentPage * PER_PAGE
-  );
+  const posts = allPosts.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
 
   function href(overrides: { kategori?: string; page?: number }) {
     const p = new URLSearchParams();
@@ -103,7 +171,7 @@ export default async function BlogPage({ searchParams }: Props) {
           {posts.map((post) => (
             <Link
               key={post.id}
-              href={`/blog/${post.slug}`}
+              href={post.href}
               className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
             >
               <div className="relative h-48 bg-warm-100 shrink-0">
@@ -121,9 +189,9 @@ export default async function BlogPage({ searchParams }: Props) {
                 )}
               </div>
               <div className="p-5 flex flex-col flex-1">
-                {post.category && (
+                {post.categoryName && (
                   <span className="inline-block self-start w-fit mb-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-100 text-brand-700">
-                    {post.category.name}
+                    {post.categoryName}
                   </span>
                 )}
                 <h2 className="text-base font-semibold text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2">
@@ -135,14 +203,14 @@ export default async function BlogPage({ searchParams }: Props) {
                   </p>
                 )}
                 <div className="flex items-center gap-2 mt-auto pt-3">
-                  {authorAvatar ? (
-                    <img src={authorAvatar} alt={authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                  {post.authorAvatar ? (
+                    <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
                   ) : (
                     <span className="w-5 h-5 rounded-full bg-brand-100 flex items-center justify-center text-[9px] font-bold text-brand-600 flex-shrink-0">
-                      {authorName.charAt(0).toUpperCase()}
+                      {post.authorName.charAt(0).toUpperCase()}
                     </span>
                   )}
-                  <span className="text-xs text-warm-500 font-medium truncate">{authorName}</span>
+                  <span className="text-xs text-warm-500 font-medium truncate">{post.authorName}</span>
                   <span className="text-warm-200 text-xs">·</span>
                   <span className="text-xs text-warm-300 flex-shrink-0">
                     {new Date(post.created_at).toLocaleDateString("tr-TR", {
@@ -159,69 +227,30 @@ export default async function BlogPage({ searchParams }: Props) {
       {/* Sayfalama */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-1.5 mt-12 flex-wrap">
-          {/* Önceki */}
           {currentPage > 1 ? (
-            <Link
-              href={href({ page: currentPage - 1 })}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors"
-              aria-label="Önceki sayfa"
-            >
-              ‹
-            </Link>
+            <Link href={href({ page: currentPage - 1 })}
+              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors">‹</Link>
           ) : (
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">
-              ‹
-            </span>
+            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">‹</span>
           )}
-
-          {/* Sayfa numaraları */}
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
             const isCurrent = p === currentPage;
-            const show =
-              p === 1 ||
-              p === totalPages ||
-              Math.abs(p - currentPage) <= 1;
-            const showEllipsisBefore = p === currentPage - 2 && currentPage - 2 > 1;
-            const showEllipsisAfter  = p === currentPage + 2 && currentPage + 2 < totalPages;
-
+            const show = p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1;
             if (!show) return null;
-
             return (
-              <span key={p} className="flex items-center gap-1.5">
-                {showEllipsisBefore && (
-                  <span className="text-warm-400 text-sm px-1">…</span>
-                )}
-                <Link
-                  href={href({ page: p })}
-                  className={`inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-colors border ${
-                    isCurrent
-                      ? "bg-brand-600 border-brand-600 text-white"
-                      : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"
-                  }`}
-                  aria-current={isCurrent ? "page" : undefined}
-                >
-                  {p}
-                </Link>
-                {showEllipsisAfter && (
-                  <span className="text-warm-400 text-sm px-1">…</span>
-                )}
-              </span>
+              <Link key={p} href={href({ page: p })}
+                className={`inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-colors border ${
+                  isCurrent ? "bg-brand-600 border-brand-600 text-white" : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"
+                }`}>
+                {p}
+              </Link>
             );
           })}
-
-          {/* Sonraki */}
           {currentPage < totalPages ? (
-            <Link
-              href={href({ page: currentPage + 1 })}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors"
-              aria-label="Sonraki sayfa"
-            >
-              ›
-            </Link>
+            <Link href={href({ page: currentPage + 1 })}
+              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors">›</Link>
           ) : (
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">
-              ›
-            </span>
+            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">›</span>
           )}
         </div>
       )}

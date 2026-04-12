@@ -114,9 +114,16 @@ export default async function YaziDetayPage({ params }: Props) {
           </div>
 
           {/* İçerik */}
-          <div className="prose prose-warm max-w-none text-warm-700 text-[15px] leading-relaxed whitespace-pre-wrap">
-            {post.content}
-          </div>
+          {post.content.trim().startsWith("<") ? (
+            <div
+              className="prose prose-warm max-w-none text-warm-700 text-[15px] leading-relaxed tiptap-render"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+          ) : (
+            <div className="prose prose-warm max-w-none text-warm-700 text-[15px] leading-relaxed whitespace-pre-wrap">
+              {post.content}
+            </div>
+          )}
         </div>
       </article>
 

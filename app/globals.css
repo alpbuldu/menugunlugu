@@ -53,3 +53,18 @@ body {
 .prose-content [style*="text-align: center"] { text-align: center; }
 .prose-content [style*="text-align: right"]  { text-align: right; }
 
+
+/* ── Üye yazı (TipTap) içerik stilleri ─────────────────────── */
+.tiptap-render h2 { font-size: 1.35rem; font-weight: 700; margin: 1.5rem 0 0.5rem; color: #2d2926; }
+.tiptap-render h3 { font-size: 1.1rem;  font-weight: 700; margin: 1.2rem 0 0.4rem; color: #2d2926; }
+.tiptap-render h4 { font-size: 0.95rem; font-weight: 700; margin: 1rem 0 0.35rem;  color: #2d2926; }
+.tiptap-render p  { margin: 0.6rem 0; line-height: 1.8; }
+.tiptap-render ul { list-style: disc;    padding-left: 1.5rem; margin: 0.75rem 0; }
+.tiptap-render ol { list-style: decimal; padding-left: 1.5rem; margin: 0.75rem 0; }
+.tiptap-render li { margin: 0.3rem 0; line-height: 1.7; }
+.tiptap-render blockquote { border-left: 3px solid #d4c9be; padding-left: 1rem; color: #7a6f68; margin: 1rem 0; font-style: italic; }
+.tiptap-render strong { font-weight: 700; }
+.tiptap-render em     { font-style: italic; }
+.tiptap-render s      { text-decoration: line-through; }
+.tiptap-render [style*="text-align: center"] { text-align: center; }
+.tiptap-render [style*="text-align: right"]  { text-align: right; }

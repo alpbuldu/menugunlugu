@@ -3,13 +3,21 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+interface BlogCategory {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 interface Props {
   itemId: string;
   type?: "recipe" | "post";
+  categories?: BlogCategory[];
 }
 
-export default function ApprovalActions({ itemId, type = "recipe" }: Props) {
-  const [loading, setLoading] = useState<"approve" | "reject" | null>(null);
+export default function ApprovalActions({ itemId, type = "recipe", categories = [] }: Props) {
+  const [loading,    setLoading]    = useState<"approve" | "reject" | null>(null);
+  const [categoryId, setCategoryId] = useState("");
   const router = useRouter();
 
   async function handle(action: "approve" | "reject") {
@@ -17,14 +25,33 @@ export default function ApprovalActions({ itemId, type = "recipe" }: Props) {
     await fetch("/api/admin/onay", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: itemId, action, type }),
+      body: JSON.stringify({
+        id: itemId,
+        action,
+        type,
+        ...(type === "post" && action === "approve" && categoryId ? { category_id: categoryId } : {}),
+      }),
     });
     setLoading(null);
     router.refresh();
   }
 
   return (
-    <>
+    <div className="flex items-center gap-3 flex-wrap justify-end w-full">
+      {/* Kategori seçimi — sadece post onayında */}
+      {type === "post" && categories.length > 0 && (
+        <select
+          value={categoryId}
+          onChange={(e) => setCategoryId(e.target.value)}
+          className="px-3 py-1.5 rounded-xl border border-warm-200 text-sm text-warm-700 bg-white focus:outline-none focus:border-brand-400 focus:ring-1 focus:ring-brand-200"
+        >
+          <option value="">Kategori seç (isteğe bağlı)</option>
+          {categories.map((cat) => (
+            <option key={cat.id} value={cat.id}>{cat.name}</option>
+          ))}
+        </select>
+      )}
+
       <button
         onClick={() => handle("reject")}
         disabled={!!loading}
@@ -39,6 +66,6 @@ export default function ApprovalActions({ itemId, type = "recipe" }: Props) {
       >
         {loading === "approve" ? "İşleniyor…" : "✅ Onayla"}
       </button>
-    </>
+    </div>
   );
 }

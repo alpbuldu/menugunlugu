@@ -54,7 +54,7 @@ interface PendingPost {
 export default async function OnayPage() {
   const supabase = createAdminClient();
 
-  const [{ data: recipeData }, { data: postData }] = await Promise.all([
+  const [{ data: recipeData }, { data: postData }, { data: categoryData }] = await Promise.all([
     supabase
       .from("recipes")
       .select(`
@@ -73,9 +73,15 @@ export default async function OnayPage() {
       `)
       .eq("approval_status", "pending")
       .order("created_at", { ascending: true }),
+
+    supabase
+      .from("blog_categories")
+      .select("id, name, slug")
+      .order("name"),
   ]);
 
-  const recipes = (recipeData ?? []) as PendingRecipe[];
+  const recipes   = (recipeData   ?? []) as PendingRecipe[];
+  const blogCategories = (categoryData ?? []) as { id: string; name: string; slug: string }[];
   const posts   = (postData   ?? []) as PendingPost[];
   const total   = recipes.length + posts.length;
 
@@ -268,7 +274,7 @@ export default async function OnayPage() {
 
                     {/* Aksiyon */}
                     <div className="border-t border-warm-100 px-5 py-3 bg-warm-50 flex items-center justify-end gap-3">
-                      <ApprovalActions itemId={post.id} type="post" />
+                      <ApprovalActions itemId={post.id} type="post" categories={blogCategories} />
                     </div>
                   </div>
                 ))}

@@ -22,7 +22,7 @@ export async function GET() {
 
 // PATCH — approve or reject a recipe or member post
 export async function PATCH(request: NextRequest) {
-  const { id, action, type = "recipe" } = await request.json();
+  const { id, action, type = "recipe", category_id } = await request.json();
 
   if (!id || !["approve", "reject"].includes(action)) {
     return NextResponse.json({ error: "id ve action (approve|reject) gerekli." }, { status: 400 });
@@ -32,9 +32,19 @@ export async function PATCH(request: NextRequest) {
   const newStatus = action === "approve" ? "approved" : "rejected";
   const table = type === "post" ? "member_posts" : "recipes";
 
+  const updatePayload: Record<string, unknown> = {
+    approval_status: newStatus,
+    updated_at: new Date().toISOString(),
+  };
+
+  // Yazı onaylanırken kategori atanabilir
+  if (type === "post" && action === "approve" && category_id) {
+    updatePayload.category_id = category_id;
+  }
+
   const { error } = await supabase
     .from(table)
-    .update({ approval_status: newStatus, updated_at: new Date().toISOString() })
+    .update(updatePayload)
     .eq("id", id);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

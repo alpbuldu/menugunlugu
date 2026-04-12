@@ -8,10 +8,10 @@ export default function Footer() {
 
           {/* Brand — always visible */}
           <div className="flex flex-col items-center gap-2">
-            <div className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <span className="text-xl">🍽️</span>
               <span className="text-lg font-bold text-white">Menü Günlüğü</span>
-            </div>
+            </Link>
             <p className="text-xs sm:text-sm text-warm-300 whitespace-nowrap">
               Her gün yeni tarifler, her gün yeni lezzetler.
             </p>

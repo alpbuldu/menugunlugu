@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import type { Recipe } from "@/lib/types";
 import UsernameForm from "./UsernameForm";
 import ProfileForm from "./ProfileForm";
+import DeleteRecipeButton from "./DeleteRecipeButton";
 
 export const metadata: Metadata = { title: "Üye Paneli" };
 export const dynamic = "force-dynamic";
@@ -177,6 +178,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
                     <Link href={`/recipes/${r.slug}`}
                       className="text-xs text-brand-600 hover:underline flex-shrink-0">Görüntüle</Link>
                   )}
+                  <DeleteRecipeButton recipeId={r.id} />
                 </div>
               );
             })

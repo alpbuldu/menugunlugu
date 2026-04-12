@@ -1,16 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import sharp from "sharp";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
-const MAX_SIZE_MB   = 5;
+const MAX_SIZE_MB   = 10;
+const TARGET_KB     = 500;
+const MAX_WIDTH     = 1400;
 const BUCKET        = "recipes";
+
+async function compressImage(buffer: Buffer): Promise<Buffer> {
+  const img = sharp(buffer);
+  const meta = await img.metadata();
+  const pipeline = img.resize({
+    width: Math.min(meta.width ?? MAX_WIDTH, MAX_WIDTH),
+    withoutEnlargement: true,
+  });
+  let quality = 82;
+  let result = await pipeline.webp({ quality }).toBuffer();
+  while (result.byteLength > TARGET_KB * 1024 && quality > 40) {
+    quality -= 8;
+    result = await pipeline.webp({ quality }).toBuffer();
+  }
+  return result;
+}
 
 export async function POST(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
-
-  console.log("[upload] SUPABASE_URL:", supabaseUrl);
-  console.log("[upload] bucket:", BUCKET);
 
   if (!serviceKey || serviceKey.includes("your-service")) {
     return NextResponse.json(
@@ -27,27 +43,25 @@ export async function POST(request: NextRequest) {
   }
 
   const file = formData.get("file") as File | null;
-  if (!file) {
-    return NextResponse.json({ error: "No file provided" }, { status: 400 });
-  }
+  if (!file) return NextResponse.json({ error: "No file provided" }, { status: 400 });
 
   if (!ALLOWED_TYPES.includes(file.type)) {
     return NextResponse.json(
-      { error: `Unsupported file type. Allowed: ${ALLOWED_TYPES.join(", ")}` },
+      { error: `Desteklenmeyen format. İzin verilenler: ${ALLOWED_TYPES.join(", ")}` },
       { status: 400 }
     );
   }
 
   if (file.size > MAX_SIZE_MB * 1024 * 1024) {
     return NextResponse.json(
-      { error: `File too large. Max size is ${MAX_SIZE_MB}MB` },
+      { error: `Dosya çok büyük. Maksimum ${MAX_SIZE_MB}MB` },
       { status: 400 }
     );
   }
 
-  const ext      = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-  const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-  const buffer   = Buffer.from(await file.arrayBuffer());
+  const original  = Buffer.from(await file.arrayBuffer());
+  const compressed = await compressImage(original);
+  const filename  = `admin/${Date.now()}-${Math.random().toString(36).slice(2)}.webp`;
 
   const supabase = createSupabaseClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false },
@@ -55,16 +69,13 @@ export async function POST(request: NextRequest) {
 
   const { data, error } = await supabase.storage
     .from(BUCKET)
-    .upload(filename, buffer, { contentType: file.type, upsert: false });
+    .upload(filename, compressed, { contentType: "image/webp", upsert: false });
 
   if (error) {
-    console.error("[upload] storage error:", error.message);
+    console.error("[admin/upload] storage error:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const { data: { publicUrl } } = supabase.storage
-    .from(BUCKET)
-    .getPublicUrl(data.path);
-
+  const { data: { publicUrl } } = supabase.storage.from(BUCKET).getPublicUrl(data.path);
   return NextResponse.json({ url: publicUrl });
 }

@@ -54,14 +54,16 @@ export default async function BlogPostPage({ params }: Props) {
 
   // Admin profil bilgisi
   const supabase = await createClient();
-  const { data: adminProfile } = await supabase
-    .from("admin_profile")
-    .select("username, avatar_url")
-    .eq("id", 1)
-    .single();
-  const authorName     = (adminProfile as any)?.full_name || adminProfile?.username || "Menü Günlüğü";
+  const [adminProfileRes, postCountRes] = await Promise.all([
+    supabase.from("admin_profile").select("username, avatar_url, full_name").eq("id", 1).single(),
+    supabase.from("blog_posts").select("*", { count: "exact", head: true }).eq("published", true),
+  ]);
+  const adminProfile   = adminProfileRes.data;
+  const authorFullName = (adminProfile as any)?.full_name ?? "";
+  const authorHandle   = adminProfile?.username ?? "hikayeliyemekler";
+  const authorName     = authorFullName || authorHandle;
   const authorAvatar   = adminProfile?.avatar_url ?? "";
-  const authorBio      = (adminProfile as any)?.bio ?? "";
+  const authorPostCount = postCountRes.count ?? 0;
   const authorUsername = "__admin__";
 
   return (
@@ -162,7 +164,8 @@ export default async function BlogPostPage({ params }: Props) {
         <div className="flex-1 min-w-0">
           <p className="text-[11px] text-warm-400">Bu yazının sahibi</p>
           <p className="font-semibold text-warm-900 text-sm group-hover:text-brand-700 transition-colors leading-tight">{authorName}</p>
-          <p className="text-[11px] text-warm-400 mt-0.5">Yazıları gör →</p>
+          {authorFullName && <p className="text-[11px] text-warm-400">@{authorHandle}</p>}
+          <p className="text-[11px] text-warm-400 mt-0.5">{authorPostCount} yazı · Yazıları gör →</p>
         </div>
         <span className="text-warm-300 group-hover:text-brand-400 transition-colors text-base flex-shrink-0">→</span>
       </Link>

@@ -61,7 +61,7 @@ export default async function BlogPostPage({ params }: Props) {
   const adminProfile   = adminProfileRes.data;
   const authorFullName = (adminProfile as any)?.full_name ?? "";
   const authorHandle   = adminProfile?.username ?? "hikayeliyemekler";
-  const authorName     = authorFullName || authorHandle;
+  const authorName     = authorHandle;
   const authorAvatar   = adminProfile?.avatar_url ?? "";
   const authorPostCount = postCountRes.count ?? 0;
   const authorUsername = "__admin__";

@@ -259,37 +259,25 @@ export default async function RecipeDetailPage({ params }: Props) {
       {/* Yazar kartı */}
       <Link
         href={`/uye/${authorUsername}`}
-        className="mt-6 flex items-center gap-5 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 hover:border-brand-200 hover:shadow-md transition-all group"
+        className="mt-6 flex items-center gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-4 hover:border-brand-200 hover:shadow-md transition-all group"
       >
-        {/* Avatar */}
         {authorAvatar ? (
           <img src={authorAvatar} alt={authorFullName || authorName}
-            className="w-16 h-16 rounded-full object-cover flex-shrink-0 ring-4 ring-warm-100" />
+            className="w-11 h-11 rounded-full object-cover flex-shrink-0 ring-2 ring-warm-100" />
         ) : (
-          <div className="w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center text-2xl font-bold text-brand-600 flex-shrink-0 ring-4 ring-warm-100">
+          <div className="w-11 h-11 rounded-full bg-brand-100 flex items-center justify-center text-lg font-bold text-brand-600 flex-shrink-0 ring-2 ring-warm-100">
             {(authorFullName || authorName).charAt(0).toUpperCase()}
           </div>
         )}
-
-        {/* Bilgi */}
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-warm-400 mb-0.5">Bu tarifi hazırlayan</p>
-          <p className="font-bold text-warm-900 text-base group-hover:text-brand-700 transition-colors">
+          <p className="text-[11px] text-warm-400">Bu tarifi hazırlayan</p>
+          <p className="font-semibold text-warm-900 text-sm group-hover:text-brand-700 transition-colors leading-tight">
             {authorFullName || authorName}
           </p>
-          {authorFullName && (
-            <p className="text-xs text-warm-400">@{authorName}</p>
-          )}
-          {authorBio && (
-            <p className="text-sm text-warm-500 mt-1 line-clamp-2 leading-relaxed">{authorBio}</p>
-          )}
-          <p className="text-xs text-warm-400 mt-1.5">{authorRecipeCount} tarif · Tüm tarifleri gör →</p>
+          {authorFullName && <p className="text-[11px] text-warm-400">@{authorName}</p>}
+          <p className="text-[11px] text-warm-400 mt-0.5">{authorRecipeCount} tarif · Tüm tarifleri gör →</p>
         </div>
-
-        {/* Ok */}
-        <div className="flex-shrink-0 w-9 h-9 rounded-full bg-warm-100 group-hover:bg-brand-100 flex items-center justify-center transition-colors">
-          <span className="text-warm-400 group-hover:text-brand-600 transition-colors text-lg">→</span>
-        </div>
+        <span className="text-warm-300 group-hover:text-brand-400 transition-colors text-base flex-shrink-0">→</span>
       </Link>
 
       {/* Rating + Favorite */}

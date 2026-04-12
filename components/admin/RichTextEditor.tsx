@@ -211,7 +211,7 @@ export default function RichTextEditor({
 
       {/* ── Editor alanı ── */}
       <style>{`
-        .tiptap-editor [data-placeholder]::before {
+        .tiptap-editor .ProseMirror.is-editor-empty:first-child::before {
           content: attr(data-placeholder);
           color: #b0a99a;
           pointer-events: none;

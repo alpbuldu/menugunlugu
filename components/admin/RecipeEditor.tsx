@@ -3,6 +3,7 @@
 import { useEditor, EditorContent } from "@tiptap/react";
 import { Extension } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
+import Placeholder from "@tiptap/extension-placeholder";
 import { useEffect } from "react";
 
 /** Enter tuşuna basınca başlıktan çıkıp paragraf'a geç */
@@ -69,13 +70,11 @@ export default function RecipeEditor({
     extensions: [
       StarterKit.configure({ heading: { levels: [3, 4] } }),
       HeadingBreak,
+      Placeholder.configure({ placeholder }),
     ],
     content: value || "",
     editorProps: {
-      attributes: {
-        class: "focus:outline-none",
-        "data-placeholder": placeholder,
-      },
+      attributes: { class: "focus:outline-none" },
     },
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
@@ -169,11 +168,10 @@ export default function RecipeEditor({
 
       {/* ── Editor ── */}
       <style>{`
-        .recipe-editor [data-placeholder]::before {
+        .recipe-editor .tiptap p.is-empty.is-editor-empty::before {
           content: attr(data-placeholder);
           color: #b0a99a;
           pointer-events: none;
-          position: absolute;
           float: left;
           height: 0;
         }

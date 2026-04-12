@@ -148,6 +148,9 @@ export default async function UyePanelPage() {
                   <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${s.cls}`}>
                     {s.label}
                   </span>
+                  <Link href={`/tarif-duzenle/${r.id}`} className="text-xs text-warm-500 hover:text-brand-600 hover:underline flex-shrink-0">
+                    Düzenle
+                  </Link>
                   {r.approval_status === "approved" && (
                     <Link href={`/recipes/${r.slug}`} className="text-xs text-brand-600 hover:underline flex-shrink-0">
                       Görüntüle

@@ -34,11 +34,11 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
   if (username === "__admin__") {
     const { data: ap } = await supabase
       .from("admin_profile")
-      .select("username, avatar_url")
+      .select("username, avatar_url, full_name, bio, instagram, twitter, youtube, website")
       .eq("id", 1)
       .maybeSingle();
     if (!ap) notFound();
-    adminProfile = ap;
+    adminProfile = ap as any;
     isAdmin = true;
   }
 
@@ -53,18 +53,20 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
 
   if (!isAdmin && !profile) notFound();
 
-  const displayName = profile?.full_name || profile?.username || adminProfile?.username || username;
-  const handle      = profile?.username || adminProfile?.username || username;
-  const avatarUrl   = profile?.avatar_url || adminProfile?.avatar_url || "";
-  const bio         = profile?.bio || null;
+  const ap = adminProfile as any;
+  const displayName = profile?.full_name || ap?.full_name || profile?.username || ap?.username || username;
+  const handle      = profile?.username  || ap?.username  || username;
+  const avatarUrl   = profile?.avatar_url || ap?.avatar_url || "";
+  const bio         = profile?.bio || ap?.bio || null;
 
-  // Sosyal medya
-  const socials = profile ? [
-    { key: "instagram", url: profile.instagram, icon: "📸", label: "Instagram" },
-    { key: "twitter",   url: profile.twitter,   icon: "🐦", label: "X / Twitter" },
-    { key: "youtube",   url: profile.youtube,   icon: "▶️", label: "YouTube" },
-    { key: "website",   url: profile.website,   icon: "🌐", label: "Web Site" },
-  ].filter((s) => s.url) : [];
+  // Sosyal medya (üye veya admin profili)
+  const src = profile ?? ap ?? {};
+  const socials = [
+    { key: "instagram", url: src.instagram, icon: "📸", label: "Instagram" },
+    { key: "twitter",   url: src.twitter,   icon: "🐦", label: "X / Twitter" },
+    { key: "youtube",   url: src.youtube,   icon: "▶️", label: "YouTube" },
+    { key: "website",   url: src.website,   icon: "🌐", label: "Web Site" },
+  ].filter((s) => s.url);
 
   // Tarifleri çek
   let query = supabase

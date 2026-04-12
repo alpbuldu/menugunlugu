@@ -16,12 +16,12 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  const { username, avatar_url } = await request.json();
+  const { username, avatar_url, full_name, bio, instagram, twitter, youtube, website } = await request.json();
   const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from("admin_profile")
-    .update({ username, avatar_url, updated_at: new Date().toISOString() })
+    .update({ username, avatar_url, full_name, bio, instagram, twitter, youtube, website, updated_at: new Date().toISOString() })
     .eq("id", 1)
     .select()
     .single();

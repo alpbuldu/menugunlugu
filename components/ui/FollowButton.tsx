@@ -1,16 +1,23 @@
 "use client";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 interface Props {
   targetUserId: string;
   initialFollowing: boolean;
+  isLoggedIn: boolean;
 }
 
-export default function FollowButton({ targetUserId, initialFollowing }: Props) {
+export default function FollowButton({ targetUserId, initialFollowing, isLoggedIn }: Props) {
   const [following, setFollowing] = useState(initialFollowing);
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   function handleClick() {
+    if (!isLoggedIn) {
+      router.push("/giris");
+      return;
+    }
     startTransition(async () => {
       const res = await fetch("/api/member/follow", {
         method: "POST",
@@ -20,6 +27,7 @@ export default function FollowButton({ targetUserId, initialFollowing }: Props) 
       if (res.ok) {
         const data = await res.json();
         setFollowing(data.following);
+        router.refresh();
       }
     });
   }

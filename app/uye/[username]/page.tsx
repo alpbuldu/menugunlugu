@@ -27,8 +27,6 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
   const activeCategory = catParam && catParam !== "all" ? catParam : null;
 
   const supabase = await createClient();
-
-  // Current user (for follow button)
   const { data: { user: currentUser } } = await supabase.auth.getUser();
 
   // __admin__ special slug
@@ -73,7 +71,7 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
     { key: "website",   url: src.website,   icon: "🎵", label: "TikTok" },
   ].filter((s) => s.url);
 
-  // Stats: follower / following / recipe / post counts (only for real members)
+  // Stats
   let followerCount  = 0;
   let followingCount = 0;
   let recipeCount    = 0;
@@ -96,13 +94,16 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
     postCount      = postRes.count      ?? 0;
     isFollowing    = !!(followCheckRes as any).data;
   } else if (isAdmin) {
-    const { count } = await supabase.from("recipes").select("*", { count: "exact", head: true }).is("submitted_by", null);
+    const { count } = await supabase
+      .from("recipes")
+      .select("*", { count: "exact", head: true })
+      .is("submitted_by", null);
     recipeCount = count ?? 0;
   }
 
   const baseUrl = `/uye/${username}`;
 
-  // Recipes query
+  // Recipes
   let recipesQuery = supabase
     .from("recipes")
     .select("id, title, slug, category, image_url, created_at");
@@ -116,7 +117,7 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
   const { data: recipes } = await recipesQuery.order("created_at", { ascending: false });
   const allRecipes = recipes ?? [];
 
-  // Posts query (only for members, not admin)
+  // Posts (only for members)
   let allPosts: any[] = [];
   if (!isAdmin && tab === "yazilar") {
     const { data: posts } = await supabase
@@ -128,19 +129,19 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
     allPosts = posts ?? [];
   }
 
-  // Can show follow button?
-  const canFollow = !isAdmin && currentUser && currentUser.id !== profileId;
+  // Follow button: admin profilinde gösterme (admin profiles tablosunda değil)
+  const showFollowButton = !isAdmin && currentUser?.id !== profileId;
 
   return (
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-      {/* ── Profile Header ── */}
+      {/* ── Profil Header ── */}
       <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden mb-6">
-        {/* Cover gradient */}
+        {/* Cover */}
         <div className="h-24 bg-gradient-to-r from-brand-100 via-warm-100 to-brand-50" />
 
         <div className="px-6 pb-6">
-          {/* Avatar + actions row */}
+          {/* Avatar + follow */}
           <div className="flex items-end justify-between -mt-10 mb-4 flex-wrap gap-3">
             <div className="flex-shrink-0">
               {avatarUrl ? (
@@ -153,52 +154,61 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
               )}
             </div>
 
-            {canFollow && (
+            {showFollowButton && (
               <div className="mt-2">
-                <FollowButton targetUserId={profileId!} initialFollowing={isFollowing} />
+                <FollowButton
+                  targetUserId={profileId!}
+                  initialFollowing={isFollowing}
+                  isLoggedIn={!!currentUser}
+                />
               </div>
             )}
           </div>
 
-          {/* Name + handle */}
+          {/* Name */}
           <div className="mb-3">
             <h1 className="text-xl font-bold text-warm-900 leading-tight">{displayName}</h1>
-            {profile?.username && (
+            {handle && handle !== displayName && (
               <p className="text-sm text-warm-400">@{handle}</p>
             )}
           </div>
 
-          {/* Bio */}
           {bio && (
             <p className="text-sm text-warm-600 leading-relaxed mb-4 max-w-lg">{bio}</p>
           )}
 
-          {/* Stats */}
-          {!isAdmin && (
-            <div className="flex flex-wrap gap-5 mb-4">
-              <div className="text-center">
-                <p className="text-lg font-bold text-warm-900">{recipeCount}</p>
-                <p className="text-xs text-warm-400">Tarif</p>
-              </div>
-              <div className="w-px bg-warm-100" />
-              <div className="text-center">
-                <p className="text-lg font-bold text-warm-900">{postCount}</p>
-                <p className="text-xs text-warm-400">Yazı</p>
-              </div>
-              <div className="w-px bg-warm-100" />
-              <div className="text-center">
-                <p className="text-lg font-bold text-warm-900">{followerCount}</p>
-                <p className="text-xs text-warm-400">Takipçi</p>
-              </div>
-              <div className="w-px bg-warm-100" />
-              <div className="text-center">
-                <p className="text-lg font-bold text-warm-900">{followingCount}</p>
-                <p className="text-xs text-warm-400">Takip</p>
-              </div>
-            </div>
-          )}
+          {/* Stats — tıklanabilir */}
+          <div className="flex flex-wrap gap-5 mb-4">
+            <Link
+              href={isAdmin ? baseUrl : `${baseUrl}?tab=tarifler`}
+              className="text-center group cursor-pointer"
+            >
+              <p className="text-lg font-bold text-warm-900 group-hover:text-brand-600 transition-colors">{recipeCount}</p>
+              <p className="text-xs text-warm-400 group-hover:text-brand-500 transition-colors">Tarif</p>
+            </Link>
 
-          {/* Social links */}
+            {!isAdmin && (
+              <>
+                <div className="w-px bg-warm-100" />
+                <Link href={`${baseUrl}?tab=yazilar`} className="text-center group cursor-pointer">
+                  <p className="text-lg font-bold text-warm-900 group-hover:text-brand-600 transition-colors">{postCount}</p>
+                  <p className="text-xs text-warm-400 group-hover:text-brand-500 transition-colors">Yazı</p>
+                </Link>
+                <div className="w-px bg-warm-100" />
+                <div className="text-center">
+                  <p className="text-lg font-bold text-warm-900">{followerCount}</p>
+                  <p className="text-xs text-warm-400">Takipçi</p>
+                </div>
+                <div className="w-px bg-warm-100" />
+                <div className="text-center">
+                  <p className="text-lg font-bold text-warm-900">{followingCount}</p>
+                  <p className="text-xs text-warm-400">Takip</p>
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Social */}
           {socials.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {socials.map((s) => (
@@ -213,7 +223,7 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
         </div>
       </div>
 
-      {/* ── Tabs ── */}
+      {/* ── Tabs (sadece üyeler için) ── */}
       {!isAdmin && (
         <div className="flex gap-1 mb-6 bg-warm-100 p-1 rounded-2xl">
           {[
@@ -239,7 +249,6 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
       {/* ── Recipes Tab ── */}
       {(isAdmin || tab === "tarifler") && (
         <>
-          {/* Category filter */}
           <div className="flex flex-wrap gap-2 mb-6">
             {CATEGORIES.map((cat) => {
               const isActive = cat.key === "all" ? !activeCategory : activeCategory === cat.key;

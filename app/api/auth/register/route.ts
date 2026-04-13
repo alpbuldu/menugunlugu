@@ -122,5 +122,9 @@ export async function POST(request: NextRequest) {
     console.log("[register] RESEND_API_KEY yok — onay linki:", confirmUrl);
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({
+    ok:           true,
+    resend_key:   !!process.env.RESEND_API_KEY,
+    resend_from:  process.env.RESEND_FROM ?? "onboarding@resend.dev (default)",
+  });
 }

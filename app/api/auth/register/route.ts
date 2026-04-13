@@ -78,10 +78,11 @@ export async function POST(request: NextRequest) {
   // Resend ile onay e-postası gönder
   const resendKey = process.env.RESEND_API_KEY;
   if (resendKey) {
+    let emailResult: any = null;
     try {
       const resend = new Resend(resendKey);
       const fromAddr = process.env.RESEND_FROM ?? "Menü Günlüğü <onboarding@resend.dev>";
-      await resend.emails.send({
+      emailResult = await resend.emails.send({
         from:    fromAddr,
         to:      email.trim(),
         subject: "E-posta adresinizi onaylayın — Menü Günlüğü",
@@ -115,16 +116,15 @@ export async function POST(request: NextRequest) {
         `,
       });
     } catch (emailErr: any) {
-      console.error("[register] Resend hatası:", JSON.stringify(emailErr));
+      emailResult = { error: emailErr?.message ?? String(emailErr) };
     }
   } else {
-    // Geliştirme ortamı: Resend yoksa onay linkini log'a yaz
-    console.log("[register] RESEND_API_KEY yok — onay linki:", confirmUrl);
+    emailResult = { error: "RESEND_API_KEY yok" };
   }
 
   return NextResponse.json({
-    ok:           true,
-    resend_key:   !!process.env.RESEND_API_KEY,
-    resend_from:  process.env.RESEND_FROM ?? "onboarding@resend.dev (default)",
+    ok:          true,
+    resend_key:  !!process.env.RESEND_API_KEY,
+    email_result: emailResult,
   });
 }

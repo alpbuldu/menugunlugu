@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { Resend } from "resend";
 
 export async function POST(request: NextRequest) {
   const { email, password, username, marketing_consent } = await request.json();
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
 
   const adminClient = createAdminClient();
 
-  // Check username uniqueness
+  // Kullanıcı adı benzersizlik kontrolü
   const { data: existing } = await adminClient
     .from("profiles")
     .select("id")
@@ -25,14 +25,12 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Create user via regular signUp — this sends a real confirmation email
-  const anonClient = createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
   const origin = request.nextUrl.origin;
-  const { data, error } = await anonClient.auth.signUp({
+
+  // admin.generateLink ile kullanıcı oluştur + onay linki al
+  // Bu yöntem email_confirm: false olarak oluşturur ve onay URL'i döner
+  const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
+    type: "signup",
     email: email.trim(),
     password,
     options: {
@@ -40,36 +38,89 @@ export async function POST(request: NextRequest) {
         username: username.toLowerCase().trim(),
         marketing_consent: !!marketing_consent,
       },
-      emailRedirectTo: `${origin}/auth/confirm`,
+      redirectTo: `${origin}/auth/confirm`,
     },
   });
 
-  if (error) {
-    if (error.message?.toLowerCase().includes("already registered")) {
+  if (linkError) {
+    if (
+      linkError.message?.toLowerCase().includes("already registered") ||
+      linkError.message?.toLowerCase().includes("already been registered")
+    ) {
       return NextResponse.json(
         { error: "Bu e-posta adresi zaten kayıtlı." },
         { status: 409 }
       );
     }
     return NextResponse.json(
-      { error: error.message ?? "Kayıt başarısız." },
+      { error: linkError.message ?? "Kayıt başarısız." },
       { status: 500 }
     );
   }
 
-  // data.user is null when email is already registered (Supabase returns no error for privacy)
-  if (!data.user) {
+  if (!linkData?.user || !linkData?.properties?.action_link) {
     return NextResponse.json(
-      { error: "Bu e-posta adresi zaten kayıtlı. Giriş yapmayı veya şifre sıfırlamayı deneyin." },
-      { status: 409 }
+      { error: "Kayıt sırasında hata oluştu." },
+      { status: 500 }
     );
   }
 
-  // Profile is created by DB trigger, but upsert as safety net
-  await adminClient.from("profiles").upsert({
-    id:       data.user.id,
-    username: username.toLowerCase().trim(),
-  }, { onConflict: "id" });
+  const confirmUrl = linkData.properties.action_link;
+  const userId     = linkData.user.id;
+  const uname      = username.toLowerCase().trim();
+
+  // Profil upsert (trigger yoksa da çalışsın)
+  await adminClient.from("profiles").upsert(
+    { id: userId, username: uname },
+    { onConflict: "id" }
+  );
+
+  // Resend ile onay e-postası gönder
+  const resendKey = process.env.RESEND_API_KEY;
+  if (resendKey) {
+    try {
+      const resend = new Resend(resendKey);
+      await resend.emails.send({
+        from:    "Menü Günlüğü <onay@menugunlugu.com>",
+        to:      email.trim(),
+        subject: "E-posta adresinizi onaylayın — Menü Günlüğü",
+        html: `
+          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#fff;">
+            <div style="text-align:center;margin-bottom:24px;">
+              <span style="font-size:2rem;">🍽️</span>
+              <h1 style="font-size:1.4rem;font-weight:700;color:#5c3221;margin:8px 0 4px;">Menü Günlüğü</h1>
+            </div>
+            <h2 style="font-size:1.1rem;font-weight:600;color:#2d1f0f;margin:0 0 12px;">Merhaba @${uname}!</h2>
+            <p style="color:#7a5c3c;line-height:1.6;margin:0 0 24px;">
+              Menü Günlüğü'ne hoş geldin! Hesabını aktifleştirmek için aşağıdaki butona tıkla.
+            </p>
+            <div style="text-align:center;margin:32px 0;">
+              <a href="${confirmUrl}"
+                 style="display:inline-block;background:#d4821e;color:#fff;font-weight:600;
+                        font-size:0.95rem;padding:14px 32px;border-radius:12px;
+                        text-decoration:none;">
+                E-postamı Onayla
+              </a>
+            </div>
+            <p style="color:#b08060;font-size:0.8rem;line-height:1.5;margin:24px 0 0;">
+              Bu butona tıklayamıyorsan şu adresi tarayıcına kopyala:<br/>
+              <span style="color:#d4821e;word-break:break-all;">${confirmUrl}</span>
+            </p>
+            <hr style="border:none;border-top:1px solid #edd8bc;margin:24px 0;" />
+            <p style="color:#c09060;font-size:0.75rem;text-align:center;margin:0;">
+              Bu e-postayı beklemiyor musun? Güvenle görmezden gelebilirsin.
+            </p>
+          </div>
+        `,
+      });
+    } catch (emailErr) {
+      console.error("[register] Resend hatası:", emailErr);
+      // E-posta gönderilemese de kullanıcı oluşturuldu — logluyoruz ama hata dönmüyoruz
+    }
+  } else {
+    // Geliştirme ortamı: Resend yoksa onay linkini log'a yaz
+    console.log("[register] RESEND_API_KEY yok — onay linki:", confirmUrl);
+  }
 
   return NextResponse.json({ ok: true });
 }

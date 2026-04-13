@@ -38,7 +38,6 @@ export async function POST(request: NextRequest) {
         username: uname,
         marketing_consent: !!marketing_consent,
       },
-      emailRedirectTo: `${origin}/auth/confirm`,
     },
   });
 

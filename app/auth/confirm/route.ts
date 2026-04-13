@@ -16,9 +16,9 @@ export async function GET(request: NextRequest) {
     if (token_hash && type) {
       const { error } = await supabase.auth.verifyOtp({ type, token_hash });
       if (!error) {
-        // After email confirmation, redirect to login with success message
+        // After email confirmation, send to profile page to fill in details
         if (type === "signup" || type === "email") {
-          return NextResponse.redirect(`${origin}/giris?mesaj=email-onaylandi`);
+          return NextResponse.redirect(`${origin}/uye/panel?mesaj=email-onaylandi`);
         }
         return NextResponse.redirect(`${origin}${next}`);
       }

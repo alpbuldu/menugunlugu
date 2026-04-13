@@ -29,8 +29,8 @@ export async function DELETE(
     }
   }
 
-  // Sadece profil verisini sil — auth hesabı korunur
-  const { error } = await supabase.from("profiles").delete().eq("id", id);
+  // Auth hesabını tamamen sil — oturumu geçersiz kılar, profil cascade silinir
+  const { error } = await supabase.auth.admin.deleteUser(id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

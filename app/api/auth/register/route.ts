@@ -80,8 +80,9 @@ export async function POST(request: NextRequest) {
   if (resendKey) {
     try {
       const resend = new Resend(resendKey);
+      const fromAddr = process.env.RESEND_FROM ?? "Menü Günlüğü <onboarding@resend.dev>";
       await resend.emails.send({
-        from:    "Menü Günlüğü <onay@menugunlugu.com>",
+        from:    fromAddr,
         to:      email.trim(),
         subject: "E-posta adresinizi onaylayın — Menü Günlüğü",
         html: `
@@ -113,9 +114,8 @@ export async function POST(request: NextRequest) {
           </div>
         `,
       });
-    } catch (emailErr) {
-      console.error("[register] Resend hatası:", emailErr);
-      // E-posta gönderilemese de kullanıcı oluşturuldu — logluyoruz ama hata dönmüyoruz
+    } catch (emailErr: any) {
+      console.error("[register] Resend hatası:", JSON.stringify(emailErr));
     }
   } else {
     // Geliştirme ortamı: Resend yoksa onay linkini log'a yaz

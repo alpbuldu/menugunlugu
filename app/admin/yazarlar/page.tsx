@@ -111,27 +111,23 @@ export default async function YazarlarPage() {
         </a>
       </div>
 
-      <div className="overflow-x-auto rounded-2xl border border-warm-100 shadow-sm">
-      <div className="bg-white rounded-2xl overflow-hidden min-w-[900px]">
+      <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-warm-50 border-b border-warm-100">
             <tr>
               <th className="text-left px-5 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider">Üye</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden md:table-cell">E-posta</th>
-              <th className="text-center px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden sm:table-cell">Tarif</th>
-              <th className="text-center px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden sm:table-cell">Yazı</th>
-              <th className="text-center px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden md:table-cell">Takipçi</th>
-              <th className="text-center px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden lg:table-cell">Sosyal</th>
-              <th className="text-center px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden lg:table-cell">İzin</th>
-              <th className="text-center px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden lg:table-cell">Ad Değişimi</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden xl:table-cell">Katılım</th>
+              <th className="text-center px-3 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden sm:table-cell">Tarif</th>
+              <th className="text-center px-3 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden sm:table-cell">Yazı</th>
+              <th className="text-center px-3 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden md:table-cell">Takipçi</th>
+              <th className="text-center px-3 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden lg:table-cell">Sosyal</th>
+              <th className="text-center px-3 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden lg:table-cell">İzin</th>
               <th className="px-4 py-3 text-right text-xs font-semibold text-warm-500 uppercase tracking-wider">İşlem</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-warm-50">
             {enriched.map((p) => (
               <tr key={p.id} className="hover:bg-warm-50/50 transition-colors">
-                {/* Üye */}
+                {/* Üye — isim + email + kullanıcı adı */}
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-brand-100 overflow-hidden flex-shrink-0">
@@ -147,34 +143,32 @@ export default async function YazarlarPage() {
                     <div className="min-w-0">
                       <p className="font-medium text-warm-800 truncate">{p.full_name || p.username}</p>
                       <p className="text-xs text-warm-400">@{p.username}</p>
+                      {p.email && (
+                        <a href={`mailto:${p.email}`} className="text-xs text-warm-400 hover:text-brand-600 transition-colors truncate block">
+                          {p.email}
+                        </a>
+                      )}
                     </div>
                   </div>
                 </td>
 
-                {/* E-posta */}
-                <td className="px-4 py-3 hidden md:table-cell">
-                  <a href={`mailto:${p.email}`} className="text-xs text-warm-600 hover:text-brand-600 transition-colors">
-                    {p.email}
-                  </a>
-                </td>
-
                 {/* Tarif */}
-                <td className="px-4 py-3 text-center hidden sm:table-cell">
+                <td className="px-3 py-3 text-center hidden sm:table-cell">
                   <span className="text-warm-700 font-medium">{p.recipe_count}</span>
                 </td>
 
                 {/* Yazı */}
-                <td className="px-4 py-3 text-center hidden sm:table-cell">
+                <td className="px-3 py-3 text-center hidden sm:table-cell">
                   <span className="text-warm-700 font-medium">{p.post_count}</span>
                 </td>
 
                 {/* Takipçi */}
-                <td className="px-4 py-3 text-center hidden md:table-cell">
+                <td className="px-3 py-3 text-center hidden md:table-cell">
                   <span className="text-warm-700 font-medium">{p.follower_count}</span>
                 </td>
 
                 {/* Sosyal medya */}
-                <td className="px-4 py-3 text-center hidden lg:table-cell">
+                <td className="px-3 py-3 text-center hidden lg:table-cell">
                   <div className="flex items-center justify-center gap-2">
                     {p.instagram && (
                       <a href={`https://instagram.com/${p.instagram}`} target="_blank" rel="noopener noreferrer"
@@ -227,33 +221,13 @@ export default async function YazarlarPage() {
                   )}
                 </td>
 
-                {/* Kullanıcı adı değişimi */}
-                <td className="px-4 py-3 text-center hidden lg:table-cell">
-                  <span className={`inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-semibold ${
-                    p.username_change_count >= 3
-                      ? "bg-red-100 text-red-700"
-                      : p.username_change_count === 2
-                      ? "bg-orange-100 text-orange-700"
-                      : "bg-warm-100 text-warm-500"
-                  }`}>
-                    {p.username_change_count} / 3
-                  </span>
-                </td>
-
-                {/* Katılım tarihi */}
-                <td className="px-4 py-3 hidden xl:table-cell text-xs text-warm-400 whitespace-nowrap">
-                  {new Date(p.created_at).toLocaleDateString("tr-TR", {
-                    day: "numeric", month: "short", year: "numeric",
-                  })}
-                </td>
-
                 {/* İşlemler */}
-                <td className="px-4 py-3 text-right">
+                <td className="px-4 py-3 text-right whitespace-nowrap">
                   <div className="flex items-center justify-end gap-3">
                     <Link
                       href={`/uye/${p.username}`}
                       target="_blank"
-                      className="text-xs text-brand-600 hover:text-brand-800 hover:underline transition-colors whitespace-nowrap"
+                      className="text-xs text-brand-600 hover:text-brand-800 hover:underline transition-colors"
                     >
                       Profili gör →
                     </Link>
@@ -264,7 +238,6 @@ export default async function YazarlarPage() {
             ))}
           </tbody>
         </table>
-      </div>
       </div>
     </div>
   );

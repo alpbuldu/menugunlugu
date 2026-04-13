@@ -42,18 +42,29 @@ export default function AuthForm({ defaultTab, from }: Props) {
     setLoading(true);
 
     const supabase = createClient();
-    const { error: err } = await supabase.auth.signInWithPassword({
+    const { data, error: err } = await supabase.auth.signInWithPassword({
       email:    loginEmail.trim(),
       password: loginPassword,
     });
 
     setLoading(false);
-    if (err) {
+    if (err || !data.user) {
       setError("E-posta veya şifre hatalı.");
       return;
     }
 
-    router.push(from ?? "/uye/panel");
+    // İlk giriş kontrolü: full_name yoksa Hesap Bilgilerim'e yönlendir
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", data.user.id)
+      .single();
+
+    if (!profile?.full_name && !from) {
+      router.push("/uye/panel?tab=panelim");
+    } else {
+      router.push(from ?? "/uye/panel");
+    }
     router.refresh();
   }
 

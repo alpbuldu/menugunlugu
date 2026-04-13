@@ -76,11 +76,12 @@ export async function POST(request: NextRequest) {
   );
 
   // Resend ile onay e-postası gönder
-  const resendKey = process.env.RESEND_API_KEY;
+  const resendKey  = process.env.RESEND_API_KEY;
+  let   emailResult: any = null;
+
   if (resendKey) {
-    let emailResult: any = null;
     try {
-      const resend = new Resend(resendKey);
+      const resend   = new Resend(resendKey);
       const fromAddr = process.env.RESEND_FROM ?? "Menü Günlüğü <onboarding@resend.dev>";
       emailResult = await resend.emails.send({
         from:    fromAddr,
@@ -123,8 +124,8 @@ export async function POST(request: NextRequest) {
   }
 
   return NextResponse.json({
-    ok:          true,
-    resend_key:  !!process.env.RESEND_API_KEY,
+    ok:           true,
+    resend_key:   !!resendKey,
     email_result: emailResult,
   });
 }

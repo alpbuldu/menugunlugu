@@ -21,10 +21,12 @@ export default function AuthForm({ defaultTab, from }: Props) {
   const [loginPassword, setLoginPassword] = useState("");
 
   // Register state
-  const [regUsername, setRegUsername] = useState("");
-  const [regEmail,    setRegEmail]    = useState("");
-  const [regPassword, setRegPassword] = useState("");
-  const [regPassword2, setRegPassword2] = useState("");
+  const [regUsername,       setRegUsername]       = useState("");
+  const [regEmail,          setRegEmail]          = useState("");
+  const [regPassword,       setRegPassword]       = useState("");
+  const [regPassword2,      setRegPassword2]      = useState("");
+  const [acceptKvkk,        setAcceptKvkk]        = useState(false);
+  const [acceptMarketing,   setAcceptMarketing]   = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
@@ -73,6 +75,10 @@ export default function AuthForm({ defaultTab, from }: Props) {
       setError("Kullanıcı adı 3-20 karakter, sadece harf/rakam/alt çizgi olabilir.");
       return;
     }
+    if (!acceptKvkk) {
+      setError("Devam etmek için Kullanım Koşulları ve Aydınlatma Metni'ni kabul etmeniz gerekiyor.");
+      return;
+    }
 
     setLoading(true);
 
@@ -80,9 +86,10 @@ export default function AuthForm({ defaultTab, from }: Props) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        email:    regEmail.trim(),
-        password: regPassword,
-        username: regUsername.trim().toLowerCase(),
+        email:             regEmail.trim(),
+        password:          regPassword,
+        username:          regUsername.trim().toLowerCase(),
+        marketing_consent: acceptMarketing,
       }),
     });
 
@@ -223,6 +230,68 @@ export default function AuthForm({ defaultTab, from }: Props) {
                 className={inputCls}
               />
             </div>
+
+            {/* ── KVKK & Legal Checkboxes ── */}
+            <div className="space-y-3 pt-1 border-t border-warm-100">
+              {/* Aydınlatma Metni link */}
+              <a
+                href="/aydinlatma-metni"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-xs text-brand-600 hover:text-brand-800 underline transition-colors mt-3"
+              >
+                Aydınlatma Metni'ni okumak için tıklayın →
+              </a>
+
+              {/* Required: KVKK + Terms */}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <span
+                  onClick={() => setAcceptKvkk(!acceptKvkk)}
+                  className={[
+                    "mt-0.5 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors cursor-pointer",
+                    acceptKvkk
+                      ? "bg-brand-500 border-brand-500"
+                      : "bg-white border-warm-300 hover:border-brand-400",
+                  ].join(" ")}
+                >
+                  {acceptKvkk && (
+                    <svg className="w-3 h-3 text-white" viewBox="0 0 12 10" fill="none">
+                      <path d="M1 5l3.5 3.5L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </span>
+                <span className="text-xs text-warm-600 leading-relaxed">
+                  <a href="/kullanim-kosullari" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline font-medium">Kullanım Koşulları</a>'nı
+                  {" "}ve{" "}
+                  <a href="/gizlilik-politikasi" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:underline font-medium">Kişisel Verilerin Korunması Politikası</a>'nı
+                  {" "}kabul ediyor ve kişisel verilerimin Aydınlatma Metni'nde belirtilen kapsam ve amaçlar doğrultusunda yurt dışına aktarılmasına izin veriyorum.{" "}
+                  <span className="text-red-500">*</span>
+                </span>
+              </label>
+
+              {/* Optional: Marketing */}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <span
+                  onClick={() => setAcceptMarketing(!acceptMarketing)}
+                  className={[
+                    "mt-0.5 flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors cursor-pointer",
+                    acceptMarketing
+                      ? "bg-brand-500 border-brand-500"
+                      : "bg-white border-warm-300 hover:border-brand-400",
+                  ].join(" ")}
+                >
+                  {acceptMarketing && (
+                    <svg className="w-3 h-3 text-white" viewBox="0 0 12 10" fill="none">
+                      <path d="M1 5l3.5 3.5L11 1" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </span>
+                <span className="text-xs text-warm-500 leading-relaxed">
+                  Bana özel hazırlanmış veya benim için geçerli olan pazarlama faaliyetleri hakkında e-posta almak istiyorum.
+                </span>
+              </label>
+            </div>
+
             <button
               type="submit"
               disabled={loading}

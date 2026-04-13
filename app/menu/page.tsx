@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { getTodayMenu } from "@/lib/supabase/queries";
+import { createAdminClient } from "@/lib/supabase/server";
 import type { Recipe, Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 
@@ -14,46 +15,85 @@ export const metadata: Metadata = {
 // Always fetch fresh — the menu changes daily
 export const dynamic = "force-dynamic";
 
-const categoryOrder: { key: keyof Pick<typeof import("@/lib/types"), never>; label: string; field: "soup" | "main" | "side" | "dessert"; category: Category }[] = [
-  { key: "soup",    label: "Çorba",      field: "soup",    category: "soup" },
-  { key: "main",    label: "Ana Yemek",  field: "main",    category: "main" },
-  { key: "side",    label: "Yardımcı Lezzet",  field: "side",    category: "side" },
-  { key: "dessert", label: "Tatlı",      field: "dessert", category: "dessert" },
+interface AuthorInfo { name: string; avatar: string; username: string; }
+
+const categoryOrder = [
+  { field: "soup"    as const, category: "soup"    as Category },
+  { field: "main"    as const, category: "main"    as Category },
+  { field: "side"    as const, category: "side"    as Category },
+  { field: "dessert" as const, category: "dessert" as Category },
 ];
 
-function RecipeCard({ recipe, category }: { recipe: Recipe; category: Category }) {
+function RecipeCard({ recipe, category, author }: { recipe: Recipe; category: Category; author: AuthorInfo }) {
   return (
-    <Link
-      href={`/recipes/${recipe.slug}`}
-      className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
-    >
-      <div className="relative h-52 bg-warm-100">
-        {recipe.image_url ? (
-          <Image
-            src={recipe.image_url}
-            alt={recipe.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-          />
+    <div className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+      <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
+        <div className="relative h-52 bg-warm-100 shrink-0">
+          {recipe.image_url ? (
+            <Image
+              src={recipe.image_url}
+              alt={recipe.title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-5xl text-warm-300">
+              🍽️
+            </div>
+          )}
+        </div>
+        <div className="px-5 pt-5 pb-3">
+          <Badge category={category} />
+          <h2 className="text-lg font-semibold text-warm-800 mt-2 group-hover:text-brand-700 transition-colors">
+            {recipe.title}
+          </h2>
+        </div>
+      </Link>
+
+      {/* Author */}
+      <Link
+        href={`/uye/${author.username}`}
+        className="flex items-center gap-2 px-5 pb-4 pt-2 border-t border-warm-100 hover:bg-warm-50 transition-colors group/author"
+      >
+        {author.avatar ? (
+          <img src={author.avatar} alt={author.name} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
         ) : (
-          <div className="flex items-center justify-center h-full text-5xl text-warm-300">
-            🍽️
-          </div>
+          <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+            {author.name.charAt(0).toUpperCase()}
+          </span>
         )}
-      </div>
-      <div className="p-5">
-        <Badge category={category} />
-        <h2 className="text-lg font-semibold text-warm-800 mt-2 group-hover:text-brand-700 transition-colors">
-          {recipe.title}
-        </h2>
-        <p className="text-sm text-brand-500 mt-1">Tarifi gör →</p>
-      </div>
-    </Link>
+        <div className="flex flex-col min-w-0">
+          <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
+          <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
+            {author.name}
+          </span>
+        </div>
+      </Link>
+    </div>
   );
 }
 
 export default async function MenuPage() {
   const menu = await getTodayMenu();
+
+  // Fetch author info
+  const supabase = createAdminClient();
+  const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();
+  const adminAuthor: AuthorInfo = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "", username: "__admin__" };
+
+  const profileMap: Record<string, AuthorInfo> = {};
+  if (menu) {
+    const memberIds = [menu.soup, menu.main, menu.side, menu.dessert]
+      .map((r) => r?.submitted_by)
+      .filter(Boolean) as string[];
+    const uniqueIds = [...new Set(memberIds)];
+    if (uniqueIds.length) {
+      const { data: profiles } = await supabase.from("profiles").select("id, username, avatar_url").in("id", uniqueIds);
+      profiles?.forEach((p) => {
+        profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "", username: p.username };
+      });
+    }
+  }
 
   const today = new Date().toLocaleDateString("tr-TR", {
     weekday: "long",
@@ -81,7 +121,10 @@ export default async function MenuPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {categoryOrder.map(({ field, category }) => {
             const recipe = menu[field];
-            return <RecipeCard key={field} recipe={recipe} category={category} />;
+            const author = recipe.submitted_by
+              ? (profileMap[recipe.submitted_by] ?? adminAuthor)
+              : adminAuthor;
+            return <RecipeCard key={field} recipe={recipe} category={category} author={author} />;
           })}
         </div>
       )}

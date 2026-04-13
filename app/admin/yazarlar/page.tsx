@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import DeleteUserButton from "./DeleteUserButton";
 
 export const metadata: Metadata = { title: "Yazarlar" };
 export const dynamic = "force-dynamic";
@@ -98,7 +99,7 @@ export default async function YazarlarPage() {
               <th className="text-center px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden md:table-cell">Takipçi</th>
               <th className="text-center px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden lg:table-cell">Kullanıcı Adı Değişimi</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-warm-500 uppercase tracking-wider hidden lg:table-cell">Katılım</th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-warm-500 uppercase tracking-wider">Profil</th>
+              <th className="px-4 py-3 text-right text-xs font-semibold text-warm-500 uppercase tracking-wider">İşlem</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-warm-50">
@@ -161,15 +162,18 @@ export default async function YazarlarPage() {
                   })}
                 </td>
 
-                {/* Profil linki */}
+                {/* İşlemler */}
                 <td className="px-4 py-3 text-right">
-                  <Link
-                    href={`/uye/${p.username}`}
-                    target="_blank"
-                    className="text-xs text-brand-600 hover:text-brand-800 hover:underline transition-colors"
-                  >
-                    Profili gör →
-                  </Link>
+                  <div className="flex items-center justify-end gap-3">
+                    <Link
+                      href={`/uye/${p.username}`}
+                      target="_blank"
+                      className="text-xs text-brand-600 hover:text-brand-800 hover:underline transition-colors whitespace-nowrap"
+                    >
+                      Profili gör →
+                    </Link>
+                    <DeleteUserButton id={p.id} username={p.username} />
+                  </div>
                 </td>
               </tr>
             ))}

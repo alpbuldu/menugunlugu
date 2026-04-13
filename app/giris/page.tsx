@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 export default async function GirisPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; tab?: string }>;
+  searchParams: Promise<{ from?: string; tab?: string; mesaj?: string }>;
 }) {
-  const { from, tab } = await searchParams;
+  const { from, tab, mesaj } = await searchParams;
 
   // Already logged in → redirect
   const supabase = await createClient();
@@ -32,6 +32,18 @@ export default async function GirisPage({
             Tarifleri keşfet, yorum yap, favorilerini kaydet
           </p>
         </div>
+
+        {mesaj === "onay-hatasi" && (
+          <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm text-center">
+            E-posta onay linki geçersiz veya süresi dolmuş. Lütfen tekrar kayıt olmayı deneyin.
+          </div>
+        )}
+
+        {mesaj === "email-onaylandi" && (
+          <div className="mb-4 px-4 py-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm text-center">
+            ✓ E-postanız onaylandı! Artık giriş yapabilirsiniz.
+          </div>
+        )}
 
         <AuthForm defaultTab={tab === "kayit" ? "kayit" : "giris"} from={from} />
       </div>

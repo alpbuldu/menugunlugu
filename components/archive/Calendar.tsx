@@ -58,9 +58,11 @@ export default function Calendar() {
   const [availableDates, setAvailableDates] = useState<string[]>([]);
   const [datesLoading,   setDatesLoading]   = useState(true);
 
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedMenu, setSelectedMenu] = useState<MenuWithRecipes | null>(null);
-  const [menuLoading,  setMenuLoading]  = useState(false);
+  const [selectedDate,    setSelectedDate]    = useState<string | null>(null);
+  const [selectedMenu,    setSelectedMenu]    = useState<MenuWithRecipes | null>(null);
+  const [menuLoading,     setMenuLoading]     = useState(false);
+  const [adminProfile,    setAdminProfile]    = useState<{ username: string; avatar_url: string | null } | null>(null);
+  const [memberProfiles,  setMemberProfiles]  = useState<Record<string, { username: string; avatar_url: string | null }>>({});
 
   useEffect(() => {
     setDatesLoading(true);
@@ -83,6 +85,8 @@ export default function Calendar() {
       const res  = await fetch(`/api/menu/by-date?date=${dateStr}`);
       const data = await res.json();
       setSelectedMenu(data.menu ?? null);
+      if (data.adminProfile)   setAdminProfile(data.adminProfile);
+      if (data.memberProfiles) setMemberProfiles(data.memberProfiles);
     } catch {
       setSelectedMenu(null);
     } finally {
@@ -264,34 +268,59 @@ export default function Calendar() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {COURSE_FIELDS.map(({ field, category }) => {
                   const recipe = selectedMenu[field];
+                  const ap = adminProfile ?? { username: "Menü Günlüğü", avatar_url: null };
+                  const authorRaw = recipe.submitted_by
+                    ? (memberProfiles[recipe.submitted_by] ?? ap)
+                    : ap;
+                  const author = { name: authorRaw.username, avatar: authorRaw.avatar_url ?? "", username: authorRaw.username };
                   return (
-                    <Link
+                    <div
                       key={field}
-                      href={`/recipes/${recipe.slug}`}
                       className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
                     >
-                      <div className="relative h-40 bg-warm-100 shrink-0">
-                        {recipe.image_url ? (
-                          <Image
-                            src={recipe.image_url}
-                            alt={recipe.title}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
+                      <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
+                        <div className="relative h-40 bg-warm-100 shrink-0">
+                          {recipe.image_url ? (
+                            <Image
+                              src={recipe.image_url}
+                              alt={recipe.title}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
+                          ) : (
+                            <div className="flex items-center justify-center h-full text-4xl text-warm-300">
+                              🍳
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-4 flex flex-col">
+                          <Badge category={category} />
+                          <h4 className="font-semibold text-warm-800 mt-1.5 group-hover:text-brand-700 transition-colors line-clamp-2">
+                            {recipe.title}
+                          </h4>
+                        </div>
+                      </Link>
+
+                      {/* Author */}
+                      <Link
+                        href={`/uye/${author.username}`}
+                        className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-warm-100 hover:bg-warm-50 transition-colors group/author"
+                      >
+                        {author.avatar ? (
+                          <img src={author.avatar} alt={author.name} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
                         ) : (
-                          <div className="flex items-center justify-center h-full text-4xl text-warm-300">
-                            🍳
-                          </div>
+                          <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                            {author.name.charAt(0).toUpperCase()}
+                          </span>
                         )}
-                      </div>
-                      <div className="p-4 flex flex-col flex-1">
-                        <Badge category={category} />
-                        <h4 className="font-semibold text-warm-800 mt-1.5 group-hover:text-brand-700 transition-colors line-clamp-2">
-                          {recipe.title}
-                        </h4>
-                        <p className="text-xs text-brand-500 mt-auto pt-2">Tarifi gör →</p>
-                      </div>
-                    </Link>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-[9px] text-warm-300 leading-none mb-0.5">Yazar</span>
+                          <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
+                            {author.name}
+                          </span>
+                        </div>
+                      </Link>
+                    </div>
                   );
                 })}
               </div>

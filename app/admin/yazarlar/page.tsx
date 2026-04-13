@@ -111,7 +111,8 @@ export default async function YazarlarPage() {
         </a>
       </div>
 
-      <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
+      <div className="overflow-x-auto rounded-2xl border border-warm-100 shadow-sm">
+      <div className="bg-white rounded-2xl overflow-hidden min-w-[900px]">
         <table className="w-full text-sm">
           <thead className="bg-warm-50 border-b border-warm-100">
             <tr>
@@ -263,6 +264,7 @@ export default async function YazarlarPage() {
             ))}
           </tbody>
         </table>
+      </div>
       </div>
     </div>
   );

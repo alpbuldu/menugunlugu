@@ -31,7 +31,7 @@ export default async function YazarlarPage() {
 
   const [
     { data: profiles },
-    { data: { users: authUsers } },
+    authResult,
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -39,6 +39,8 @@ export default async function YazarlarPage() {
       .order("created_at", { ascending: false }),
     supabase.auth.admin.listUsers({ perPage: 1000 }),
   ]);
+
+  const authUsers = authResult.data?.users ?? [];
 
   if (!profiles || profiles.length === 0) {
     return (
@@ -54,7 +56,7 @@ export default async function YazarlarPage() {
 
   // Email + marketing consent map from auth users
   const authMap: Record<string, { email: string; marketing_consent: boolean }> = {};
-  authUsers.forEach((u) => {
+  (authUsers ?? []).forEach((u) => {
     authMap[u.id] = {
       email: u.email ?? "",
       marketing_consent: !!u.user_metadata?.marketing_consent,

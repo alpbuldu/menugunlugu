@@ -114,11 +114,11 @@ export default async function UyePanelPage({ searchParams }: Props) {
   const paginatedFavs = (favorites ?? []).slice((favSafePage - 1) * FAV_PAGE_SIZE, favSafePage * FAV_PAGE_SIZE);
 
   const tabs = [
-    { key: "tariflerim",     label: "Tariflerim",       short: "Tariflerim",  count: recipes?.length ?? 0 },
-    { key: "tarif-defterim", label: "Tarif Defterim",   short: "Defterim",    count: favTotal },
-    { key: "yazilarim",      label: "Yazılarım",        short: "Yazılarım",   count: posts?.length ?? 0 },
-    { key: "takip",          label: "Takip Paneli",     short: "Takip",       count: followingCount + (followers?.length ?? 0) },
-    { key: "panelim",        label: "Hesap Bilgilerim", short: "Hesabım",     count: null },
+    { key: "tariflerim",     label: "Tariflerim",       count: recipes?.length ?? 0 },
+    { key: "tarif-defterim", label: "Tarif Defterim",   count: favTotal },
+    { key: "yazilarim",      label: "Yazılarım",        count: posts?.length ?? 0 },
+    { key: "takip",          label: "Takip Paneli",     count: followingCount + (followers?.length ?? 0) },
+    { key: "panelim",        label: "Hesap Bilgilerim", count: null },
   ];
 
   return (
@@ -178,9 +178,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
                 ? "bg-white text-warm-900 shadow-sm"
                 : "text-warm-500 hover:text-warm-700",
             ].join(" ")}>
-            {/* Kısa etiket mobilde, tam etiket masaüstünde */}
-            <span className="sm:hidden leading-tight">{t.short}</span>
-            <span className="hidden sm:inline">{t.label}</span>
+            <span className="leading-tight text-center">{t.label}</span>
             {t.count !== null && (
               <span className={[
                 "text-xs px-1.5 py-0.5 rounded-full flex-shrink-0",

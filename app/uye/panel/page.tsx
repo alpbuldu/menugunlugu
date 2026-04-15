@@ -180,9 +180,9 @@ export default async function UyePanelPage({ searchParams }: Props) {
               )}
             </div>
           </div>
-          <div className="flex gap-2 sm:flex-shrink-0">
-            {/* Fotoğraf butonu — her ekranda görünür */}
-            <AvatarUpload className="flex" />
+          <div className="flex gap-2 sm:flex-shrink-0 items-center">
+            {/* Fotoğraf butonu — webde etiketli, mobilde gizli (aşağıda Çıkış üstünde) */}
+            <AvatarUpload className="hidden sm:flex" />
             <Link href="/tarif-ekle"
               className="flex-1 sm:flex-none text-center px-3 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors">
               + Tarif Ekle
@@ -191,7 +191,11 @@ export default async function UyePanelPage({ searchParams }: Props) {
               className="flex-1 sm:flex-none text-center px-3 py-2 rounded-xl bg-warm-700 hover:bg-warm-800 text-white text-sm font-medium transition-colors">
               + Yazı Ekle
             </Link>
-            <LogoutButton />
+            {/* Mobilde Çıkış üstünde küçük fotoğraf ikonu + Çıkış dikey */}
+            <div className="flex flex-col gap-1 sm:contents">
+              <AvatarUpload label={false} className="sm:hidden" />
+              <LogoutButton />
+            </div>
           </div>
         </div>
       </div>

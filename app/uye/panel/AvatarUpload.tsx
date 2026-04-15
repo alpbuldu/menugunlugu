@@ -48,7 +48,7 @@ export default function AvatarUpload({ label = true, className = "" }: Props) {
             "flex items-center gap-1.5 rounded-xl border transition-colors",
             label
               ? "px-3 py-2 text-sm font-medium bg-warm-100 hover:bg-warm-200 text-warm-700 border-warm-200"
-              : "p-2 text-base bg-warm-100 hover:bg-warm-200 text-warm-700 border-warm-200",
+              : "w-full justify-center p-1.5 text-sm bg-warm-100 hover:bg-warm-200 text-warm-500 border-warm-200",
             uploading ? "opacity-50 cursor-not-allowed" : "",
           ].join(" ")}
         >

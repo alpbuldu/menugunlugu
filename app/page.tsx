@@ -28,12 +28,12 @@ export default async function HomePage() {
       {/* ── Hero ──────────────────────────────────────────────── */}
       <section className="bg-gradient-to-b from-brand-600 to-warm-700 text-white">
         <div className={`${CONTAINER} py-6 sm:py-10 text-center`}>
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 leading-tight">
+          <h1 className="text-xl sm:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4 leading-tight">
             Her Gün Yeni Bir Menü,
             <br />
             <span className="text-brand-200">Her Gün Yeni Lezzetler</span>
           </h1>
-          <p className="text-sm sm:text-lg text-brand-100 mb-5 sm:mb-7 max-w-xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-lg text-brand-100 mb-4 sm:mb-7 max-w-xl mx-auto leading-relaxed">
             Günlük menüler, lezzetli tarifler ve sonsuz ilham.
             <br />
             Bugünün menüsünü keşfet!

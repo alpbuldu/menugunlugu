@@ -5,10 +5,11 @@ import { useRouter } from "next/navigation";
 interface Props {
   /**
    * "inline"  → ikon + "Profil Fotoğrafı Yükle" yan yana (web)
-   * "stacked" → ikon üstte, küçük yazı altta (mobil sağ kolon)
+   * "mobile"  → "Profil Fotoğrafı Yükle" yazısı solda, ikon sağda, tek kutu (mobil)
+   * "stacked" → ikon üstte, küçük yazı altta
    * "icon"    → sadece ikon
    */
-  variant?: "inline" | "stacked" | "icon";
+  variant?: "inline" | "mobile" | "stacked" | "icon";
   className?: string;
 }
 
@@ -54,6 +55,24 @@ export default function AvatarUpload({ variant = "inline", className = "" }: Pro
           e.target.value = "";
         }}
       />
+
+      {/* Mobile: yazı solda, ikon sağda — tek kutu */}
+      {variant === "mobile" && (
+        <div className="flex flex-col items-end gap-0.5">
+          <button
+            onClick={() => inputRef.current?.click()}
+            disabled={uploading}
+            title="Profil fotoğrafı değiştir"
+            className={`flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium leading-snug ${baseCls} ${disabledCls}`}
+          >
+            <span className="text-right leading-tight">
+              {uploading ? "Yükleniyor…" : <><span className="block">Profil Fotoğrafı</span><span className="block">Yükle</span></>}
+            </span>
+            <CameraIcon />
+          </button>
+          {error && <p className="text-[10px] text-red-500 leading-snug text-right max-w-[110px]">{error}</p>}
+        </div>
+      )}
 
       {/* Stacked: ikon üstte, yazı altta — mobil sağ kolon */}
       {variant === "stacked" && (

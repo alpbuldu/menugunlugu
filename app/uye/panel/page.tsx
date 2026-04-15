@@ -182,7 +182,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
               )}
             </div>
             {/* Mobilde sağ köşe: ikon + "Fotoğraf Yükle" dikey */}
-            <AvatarUpload variant="stacked" className="sm:hidden flex-shrink-0" />
+            <AvatarUpload variant="mobile" className="sm:hidden flex-shrink-0" />
           </div>
 
           {/* Butonlar — webde sağ, mobilde alt satır */}

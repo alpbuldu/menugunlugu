@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
+import FollowButton from "@/components/ui/FollowButton";
 import type { Recipe, Category } from "@/lib/types";
 
 /* ── Helpers ──────────────────────────────────────────────────── */
@@ -24,24 +25,28 @@ function at(arr: Recipe[], i: number): Recipe {
 function Arrow({
   dir,
   onClick,
-  mobile,
+  overlay,
+  imgHalf,
 }: {
   dir: "prev" | "next";
   onClick: () => void;
-  mobile: boolean;
+  /** true → overlaid on top of cards (mobile or compact) */
+  overlay: boolean;
+  /** pixels = half of image height, used for vertical centring when overlay */
+  imgHalf: number;
 }) {
   const label = dir === "prev" ? "Önceki" : "Sonraki";
   const glyph = dir === "prev" ? "‹" : "›";
 
-  if (mobile) {
-    /* Overlay on top of the image, vertically centred */
+  if (overlay) {
     const side = dir === "prev" ? "left-3" : "right-3";
     return (
       <button
         onClick={onClick}
         aria-label={label}
+        style={{ top: imgHalf }}
         className={
-          `absolute ${side} top-[96px] -translate-y-1/2 z-20 ` +
+          `absolute ${side} -translate-y-1/2 z-20 ` +
           "w-9 h-9 flex items-center justify-center rounded-full " +
           "bg-white/70 backdrop-blur-sm text-warm-700 text-2xl leading-none " +
           "hover:bg-white/90 transition-all duration-150 shadow-md"
@@ -52,7 +57,7 @@ function Arrow({
     );
   }
 
-  /* Desktop: sits outside the slider track */
+  /* Desktop external: sits outside the slider track */
   const side = dir === "prev" ? "-left-6" : "-right-6";
   return (
     <button
@@ -79,10 +84,19 @@ export default function RecipeSlider({
   recipes,
   adminAuthor,
   profileMap = {},
+  compact = false,
+  isLoggedIn = false,
+  followMap = {},
+  followsAdmin = false,
 }: {
   recipes: Recipe[];
   adminAuthor: AuthorInfo;
   profileMap?: Record<string, AuthorInfo>;
+  /** compact = overlaid arrows, shorter images (for recipe/blog detail) */
+  compact?: boolean;
+  isLoggedIn?: boolean;
+  followMap?: Record<string, boolean>;
+  followsAdmin?: boolean;
 }) {
   const [perPage, setPerPage] = useState(3);
   const [pageIdx, setPageIdx] = useState(0);
@@ -120,7 +134,6 @@ export default function RecipeSlider({
   const totalPages = Math.ceil(items.length / perPage);
 
   function getPage(idx: number): Recipe[] {
-    const n = items.length;
     return Array.from({ length: perPage }, (_, i) => at(items, idx * perPage + i));
   }
 
@@ -141,7 +154,6 @@ export default function RecipeSlider({
   }
 
   function manualGo(dir: "next" | "prev") {
-    // Timer'ı sıfırla — manuel geçişten sonra yeniden 10 sn say
     setHovered(true);
     go(dir);
     if (autoTimer.current) clearTimeout(autoTimer.current);
@@ -164,13 +176,17 @@ export default function RecipeSlider({
   const isMobile = perPage === 1;
   const panelGrid = isMobile ? "grid-cols-1" : "grid-cols-3";
 
+  // Arrow overlay logic: always overlay in compact mode, overlay on mobile otherwise
+  const useOverlay = compact || isMobile;
+  // Image height: compact → h-32 (128px), normal → h-48 (192px)
+  const imgClass = compact ? "h-32" : "h-48";
+  const imgHalf  = compact ? 64 : 96;   // px, for arrow vertical centering
+
+  const showFollow = isLoggedIn !== undefined; // always render FollowButton if prop passed
+
   return (
-    /*
-     * Desktop: mx-8 leaves room for the external arrows (-left-6 / -right-6).
-     * Mobile:  no horizontal margin — card is edge-to-edge; arrows are overlaid.
-     */
     <div
-      className={`relative ${isMobile ? "mx-0" : "mx-8"}`}
+      className={`relative ${compact || isMobile ? "mx-0" : "mx-8"}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -185,11 +201,18 @@ export default function RecipeSlider({
           onTouchEnd={onTouchEnd}
         >
           {panels.map((panel, pi) => (
-            <div key={pi} className={`shrink-0 w-full grid ${panelGrid} gap-6`}>
+            <div key={pi} className={`shrink-0 w-full grid ${panelGrid} gap-4`}>
               {panel.map((recipe, ri) => {
                 const a = recipe.submitted_by
                   ? (profileMap[recipe.submitted_by] ?? adminAuthor)
                   : adminAuthor;
+
+                const authorIsAdmin = !recipe.submitted_by;
+                const authorUserId  = recipe.submitted_by ?? undefined;
+                const initFollowing = authorIsAdmin
+                  ? followsAdmin
+                  : (followMap[recipe.submitted_by!] ?? false);
+
                 return (
                   <div
                     key={`${pi}-${ri}-${recipe.id}`}
@@ -197,7 +220,7 @@ export default function RecipeSlider({
                   >
                     {/* Tarif linki — görsel + başlık */}
                     <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
-                      <div className="relative h-48 bg-warm-200 shrink-0">
+                      <div className={`relative ${imgClass} bg-warm-200 shrink-0`}>
                         {recipe.image_url ? (
                           <Image
                             src={recipe.image_url}
@@ -211,33 +234,41 @@ export default function RecipeSlider({
                           </div>
                         )}
                       </div>
-                      <div className="px-5 pt-5 pb-3">
+                      <div className={compact ? "px-4 pt-3 pb-2" : "px-5 pt-5 pb-3"}>
                         <Badge category={recipe.category as Category} />
-                        <h3 className="font-semibold text-warm-800 mt-2 group-hover:text-brand-700 transition-colors line-clamp-2">
+                        <h3 className={`font-semibold text-warm-800 mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 ${compact ? "text-sm" : ""}`}>
                           {recipe.title}
                         </h3>
                       </div>
                     </Link>
 
-                    {/* Yazar linki — ayrı tıklanabilir alan */}
-                    <Link
-                      href={`/uye/${a.username}`}
-                      className="flex items-center gap-2 px-5 pb-4 pt-2 border-t border-warm-100 hover:bg-warm-50 transition-colors group/author"
-                    >
-                      {a.avatar ? (
-                        <img src={a.avatar} alt={a.name} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
-                      ) : (
-                        <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                          {a.name.charAt(0).toUpperCase()}
-                        </span>
-                      )}
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
-                        <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
-                          {a.name}
-                        </span>
-                      </div>
-                    </Link>
+                    {/* Yazar satırı — ayrı tıklanabilir alan + FollowButton */}
+                    <div className={`flex items-center gap-2 ${compact ? "px-4" : "px-5"} pb-3 pt-2 border-t border-warm-100`}>
+                      <Link
+                        href={`/uye/${a.username}`}
+                        className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author"
+                      >
+                        {a.avatar ? (
+                          <img src={a.avatar} alt={a.name} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                        ) : (
+                          <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                            {a.name.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
+                          <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
+                            {a.name}
+                          </span>
+                        </div>
+                      </Link>
+                      <FollowButton
+                        targetUserId={authorUserId}
+                        isAdminProfile={authorIsAdmin}
+                        initialFollowing={initFollowing}
+                        isLoggedIn={isLoggedIn}
+                      />
+                    </div>
                   </div>
                 );
               })}
@@ -247,8 +278,8 @@ export default function RecipeSlider({
       </div>
 
       {/* Arrows */}
-      <Arrow dir="prev" onClick={() => manualGo("prev")} mobile={isMobile} />
-      <Arrow dir="next" onClick={() => manualGo("next")} mobile={isMobile} />
+      <Arrow dir="prev" onClick={() => manualGo("prev")} overlay={useOverlay} imgHalf={imgHalf} />
+      <Arrow dir="next" onClick={() => manualGo("next")} overlay={useOverlay} imgHalf={imgHalf} />
     </div>
   );
 }

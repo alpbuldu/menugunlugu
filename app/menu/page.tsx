@@ -1,21 +1,20 @@
-// @ts-nocheck
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { getTodayMenu } from "@/lib/supabase/queries";
-import { createAdminClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient } from "@/lib/supabase/server";
 import type { Recipe, Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
+import FollowButton from "@/components/ui/FollowButton";
 
 export const metadata: Metadata = {
   title: "Günün Menüsü",
   description: "Bugünün özel menüsünü keşfedin.",
 };
 
-// Always fetch fresh — the menu changes daily
 export const dynamic = "force-dynamic";
 
-interface AuthorInfo { name: string; avatar: string; username: string; }
+interface AuthorInfo { name: string; avatar: string; username: string; userId: string | null; isAdmin: boolean; }
 
 const categoryOrder = [
   { field: "soup"    as const, category: "soup"    as Category },
@@ -24,22 +23,21 @@ const categoryOrder = [
   { field: "dessert" as const, category: "dessert" as Category },
 ];
 
-function RecipeCard({ recipe, category, author }: { recipe: Recipe; category: Category; author: AuthorInfo }) {
+function RecipeCard({
+  recipe, category, author, initialFollowing, isLoggedIn,
+}: {
+  recipe: Recipe; category: Category; author: AuthorInfo;
+  initialFollowing: boolean; isLoggedIn: boolean;
+}) {
   return (
     <div className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
       <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
         <div className="relative h-52 bg-warm-100 shrink-0">
           {recipe.image_url ? (
-            <Image
-              src={recipe.image_url}
-              alt={recipe.title}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
-            />
+            <Image src={recipe.image_url} alt={recipe.title} fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300" />
           ) : (
-            <div className="flex items-center justify-center h-full text-5xl text-warm-300">
-              🍽️
-            </div>
+            <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍽️</div>
           )}
         </div>
         <div className="px-5 pt-5 pb-3">
@@ -50,25 +48,29 @@ function RecipeCard({ recipe, category, author }: { recipe: Recipe; category: Ca
         </div>
       </Link>
 
-      {/* Author */}
-      <Link
-        href={`/uye/${author.username}`}
-        className="flex items-center gap-2 px-5 pb-4 pt-2 border-t border-warm-100 hover:bg-warm-50 transition-colors group/author"
-      >
-        {author.avatar ? (
-          <img src={author.avatar} alt={author.name} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
-        ) : (
-          <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-            {author.name.charAt(0).toUpperCase()}
-          </span>
-        )}
-        <div className="flex flex-col min-w-0">
-          <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
-          <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
-            {author.name}
-          </span>
-        </div>
-      </Link>
+      <div className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-warm-100">
+        <Link href={`/uye/${author.username}`} className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+          {author.avatar ? (
+            <img src={author.avatar} alt={author.name} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+          ) : (
+            <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+              {author.name.charAt(0).toUpperCase()}
+            </span>
+          )}
+          <div className="flex flex-col min-w-0">
+            <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
+            <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
+              {author.name}
+            </span>
+          </div>
+        </Link>
+        <FollowButton
+          targetUserId={author.isAdmin ? undefined : author.userId ?? undefined}
+          isAdminProfile={author.isAdmin}
+          initialFollowing={initialFollowing}
+          isLoggedIn={isLoggedIn}
+        />
+      </div>
     </div>
   );
 }
@@ -76,30 +78,50 @@ function RecipeCard({ recipe, category, author }: { recipe: Recipe; category: Ca
 export default async function MenuPage() {
   const menu = await getTodayMenu();
 
-  // Fetch author info
   const supabase = createAdminClient();
+  const userSupabase = await createClient();
+  const { data: { user } } = await userSupabase.auth.getUser();
+  const currentUserId = user?.id ?? null;
+
   const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();
-  const adminAuthor: AuthorInfo = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "", username: "__admin__" };
+  const adminAuthor: AuthorInfo = {
+    name: ap?.username ?? "Menü Günlüğü",
+    avatar: ap?.avatar_url ?? "",
+    username: "__admin__",
+    userId: null,
+    isAdmin: true,
+  };
 
   const profileMap: Record<string, AuthorInfo> = {};
   if (menu) {
     const memberIds = [menu.soup, menu.main, menu.side, menu.dessert]
-      .map((r) => r?.submitted_by)
-      .filter(Boolean) as string[];
+      .map((r) => r?.submitted_by).filter(Boolean) as string[];
     const uniqueIds = [...new Set(memberIds)];
     if (uniqueIds.length) {
       const { data: profiles } = await supabase.from("profiles").select("id, username, avatar_url").in("id", uniqueIds);
       profiles?.forEach((p) => {
-        profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "", username: p.username };
+        profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "", username: p.username, userId: p.id, isAdmin: false };
       });
     }
   }
 
+  // Takip durumları
+  let followsAdmin = false;
+  const followedMemberIds = new Set<string>();
+  if (currentUserId && menu) {
+    const memberIds = [...new Set(Object.keys(profileMap))];
+    const [adminRes, memberRes] = await Promise.all([
+      userSupabase.from("admin_follows").select("follower_id").eq("follower_id", currentUserId).maybeSingle(),
+      memberIds.length
+        ? userSupabase.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", memberIds)
+        : Promise.resolve({ data: [] }),
+    ]);
+    followsAdmin = !!adminRes.data;
+    (memberRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
+  }
+
   const today = new Date().toLocaleDateString("tr-TR", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+    weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
 
   return (
@@ -110,12 +132,8 @@ export default async function MenuPage() {
       {!menu ? (
         <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-12 text-center">
           <p className="text-4xl mb-4">🍽️</p>
-          <p className="text-lg font-medium text-warm-700">
-            Bugün için henüz menü yayınlanmamış.
-          </p>
-          <p className="text-sm text-warm-400 mt-2">
-            Lütfen daha sonra tekrar kontrol edin.
-          </p>
+          <p className="text-lg font-medium text-warm-700">Bugün için henüz menü yayınlanmamış.</p>
+          <p className="text-sm text-warm-400 mt-2">Lütfen daha sonra tekrar kontrol edin.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -124,17 +142,26 @@ export default async function MenuPage() {
             const author = recipe.submitted_by
               ? (profileMap[recipe.submitted_by] ?? adminAuthor)
               : adminAuthor;
-            return <RecipeCard key={field} recipe={recipe} category={category} author={author} />;
+            const initialFollowing = author.isAdmin
+              ? followsAdmin
+              : author.userId ? followedMemberIds.has(author.userId) : false;
+            return (
+              <RecipeCard
+                key={field}
+                recipe={recipe}
+                category={category}
+                author={author}
+                initialFollowing={initialFollowing}
+                isLoggedIn={!!currentUserId}
+              />
+            );
           })}
         </div>
       )}
 
-      {/* CTA */}
       <div className="mt-12 text-center">
-        <Link
-          href="/recipes"
-          className="inline-flex items-center gap-1.5 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors"
-        >
+        <Link href="/recipes"
+          className="inline-flex items-center gap-1.5 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors">
           Tüm tarifleri gör →
         </Link>
       </div>

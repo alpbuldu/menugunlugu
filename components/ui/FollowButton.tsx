@@ -42,14 +42,14 @@ export default function FollowButton({ targetUserId, isAdminProfile, initialFoll
       onClick={handleClick}
       disabled={isPending}
       className={[
-        "px-5 py-2 rounded-xl text-sm font-semibold transition-all border",
+        "px-3 py-1 rounded-lg text-xs font-medium transition-all border flex-shrink-0",
         following
-          ? "bg-warm-100 border-warm-300 text-warm-700 hover:bg-red-50 hover:border-red-300 hover:text-red-600"
-          : "bg-brand-600 border-brand-600 text-white hover:bg-brand-700",
-        isPending ? "opacity-60 cursor-not-allowed" : "",
+          ? "bg-warm-100 border-warm-200 text-warm-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
+          : "bg-brand-50 border-brand-200 text-brand-600 hover:bg-brand-600 hover:text-white hover:border-brand-600",
+        isPending ? "opacity-50 cursor-not-allowed" : "",
       ].join(" ")}
     >
-      {isPending ? "..." : following ? "Takip Ediliyor" : "Takip Et"}
+      {isPending ? "…" : following ? "Takip Ediliyor" : "Takip Et"}
     </button>
   );
 }

@@ -89,6 +89,20 @@ export default async function BlogPostPage({ params }: Props) {
     profiles?.forEach((p) => { profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "", username: p.username }; });
   }
 
+  // Slider follow durumu
+  let sliderFollowsAdmin = false;
+  const sliderFollowMap: Record<string, boolean> = {};
+  if (currentUserId && featured.length > 0) {
+    const [adminFollowRes, memberFollowRes] = await Promise.all([
+      supabase.from("admin_follows").select("follower_id").eq("follower_id", currentUserId).maybeSingle(),
+      memberIds.length
+        ? supabase.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", memberIds)
+        : Promise.resolve({ data: [] }),
+    ]);
+    sliderFollowsAdmin = !!adminFollowRes.data;
+    (memberFollowRes.data ?? []).forEach((r: { following_id: string }) => { sliderFollowMap[r.following_id] = true; });
+  }
+
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Link href="/blog"
@@ -182,7 +196,15 @@ export default async function BlogPostPage({ params }: Props) {
               Tüm tarifleri gör →
             </Link>
           </div>
-          <RecipeSlider recipes={featured} adminAuthor={adminAuthor} profileMap={profileMap} />
+          <RecipeSlider
+            recipes={featured}
+            adminAuthor={adminAuthor}
+            profileMap={profileMap}
+            compact
+            isLoggedIn={!!currentUserId}
+            followMap={sliderFollowMap}
+            followsAdmin={sliderFollowsAdmin}
+          />
         </div>
       )}
 

@@ -9,6 +9,9 @@ const CONTAINER = "max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8";
 
 export default async function HomePage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const currentUserId = user?.id ?? null;
+
   const featured = await getRandomRecipes();
 
   // Admin profili
@@ -21,6 +24,20 @@ export default async function HomePage() {
   if (memberIds.length) {
     const { data: profiles } = await supabase.from("profiles").select("id, username, avatar_url").in("id", memberIds);
     profiles?.forEach((p) => { profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "", username: p.username }; });
+  }
+
+  // Follow durumu
+  let followsAdmin = false;
+  const followMap: Record<string, boolean> = {};
+  if (currentUserId && featured.length > 0) {
+    const [adminFollowRes, memberFollowRes] = await Promise.all([
+      supabase.from("admin_follows").select("follower_id").eq("follower_id", currentUserId).maybeSingle(),
+      memberIds.length
+        ? supabase.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", memberIds)
+        : Promise.resolve({ data: [] }),
+    ]);
+    followsAdmin = !!adminFollowRes.data;
+    (memberFollowRes.data ?? []).forEach((r: { following_id: string }) => { followMap[r.following_id] = true; });
   }
 
   return (
@@ -84,7 +101,14 @@ export default async function HomePage() {
               <p>Henüz tarif eklenmemiş.</p>
             </div>
           ) : (
-            <RecipeSlider recipes={featured} adminAuthor={adminAuthor} profileMap={profileMap} />
+            <RecipeSlider
+              recipes={featured}
+              adminAuthor={adminAuthor}
+              profileMap={profileMap}
+              isLoggedIn={!!currentUserId}
+              followMap={followMap}
+              followsAdmin={followsAdmin}
+            />
           )}
         </div>
       </section>

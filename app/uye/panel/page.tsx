@@ -10,6 +10,7 @@ import DeleteRecipeButton from "./DeleteRecipeButton";
 import DeletePostButton from "./DeletePostButton";
 import UnfollowButton from "./UnfollowButton";
 import LogoutButton from "./LogoutButton";
+import FollowButton from "@/components/ui/FollowButton";
 
 export const metadata: Metadata = { title: "Üye Paneli" };
 export const dynamic = "force-dynamic";
@@ -132,6 +133,11 @@ export default async function UyePanelPage({ searchParams }: Props) {
 
   const followingCount = followingAll.length;
   const followerCount  = followers?.length ?? 0;
+
+  // Tarif defterindeki yazarlar için follow durumu
+  const followedMemberSet = new Set((following ?? []).map((f) => f.following_id));
+  const favFollowMap: Record<string, boolean> = {};
+  favMemberIds.forEach((id) => { favFollowMap[id] = followedMemberSet.has(id); });
 
   // Sayfalamalar
   const recipesPag   = paginate(recipes   ?? [], pageNum,  PAGE_SIZE);
@@ -269,20 +275,25 @@ export default async function UyePanelPage({ searchParams }: Props) {
                   const favAuthor: { username: string; avatar_url: string | null } | null = r.submitted_by
                     ? (favProfileMap[r.submitted_by] ?? null)
                     : { username: adminUsername, avatar_url: adminAvatarUrl };
+                  const authorIsAdmin = !r.submitted_by;
+                  const favInitFollowing = authorIsAdmin ? followsAdmin : (favFollowMap[r.submitted_by!] ?? false);
                   return (
-                    <Link key={fav.recipe_id} href={`/recipes/${r.slug}`}
-                      className="group bg-white rounded-xl border border-warm-200 overflow-hidden hover:shadow-md transition-all flex flex-col">
-                      {r.image_url ? (
-                        <Image src={r.image_url} alt={r.title} width={200} height={120}
-                          className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300" />
-                      ) : (
-                        <div className="w-full h-28 bg-warm-100 flex items-center justify-center text-2xl">🍽️</div>
-                      )}
-                      <div className="p-3 flex flex-col flex-1">
-                        <p className="text-sm font-medium text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{r.title}</p>
-                        <p className="text-xs text-warm-400 mt-1 mb-auto">{CATEGORY_LABELS[r.category]}</p>
-                        {favAuthor && (
-                          <div className="flex items-center gap-1.5 pt-2 mt-2 border-t border-warm-100">
+                    <div key={fav.recipe_id} className="group bg-white rounded-xl border border-warm-200 overflow-hidden hover:shadow-md transition-all flex flex-col">
+                      <Link href={`/recipes/${r.slug}`} className="flex flex-col flex-1">
+                        {r.image_url ? (
+                          <Image src={r.image_url} alt={r.title} width={200} height={120}
+                            className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <div className="w-full h-28 bg-warm-100 flex items-center justify-center text-2xl">🍽️</div>
+                        )}
+                        <div className="p-3 flex flex-col flex-1">
+                          <p className="text-sm font-medium text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{r.title}</p>
+                          <p className="text-xs text-warm-400 mt-1">{CATEGORY_LABELS[r.category]}</p>
+                        </div>
+                      </Link>
+                      {favAuthor && (
+                        <div className="flex items-center gap-1.5 px-3 pb-3 pt-2 border-t border-warm-100">
+                          <Link href={`/uye/${favAuthor.username}`} className="flex items-center gap-1.5 flex-1 min-w-0 hover:opacity-80 transition-opacity">
                             {favAuthor.avatar_url ? (
                               <img src={favAuthor.avatar_url} alt={favAuthor.username}
                                 className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
@@ -292,10 +303,16 @@ export default async function UyePanelPage({ searchParams }: Props) {
                               </span>
                             )}
                             <span className="text-[10px] text-warm-400 truncate">{favAuthor.username}</span>
-                          </div>
-                        )}
-                      </div>
-                    </Link>
+                          </Link>
+                          <FollowButton
+                            targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined}
+                            isAdminProfile={authorIsAdmin}
+                            initialFollowing={favInitFollowing}
+                            isLoggedIn={true}
+                          />
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
@@ -308,6 +325,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
       {/* ── Tab: Yazılarım ── */}
       {tab === "yazilarim" && (
         <section className="space-y-3">
+          <p className="text-xs text-warm-400 mb-4">Gönderdiğiniz blog yazıları burada listelenir. Onaylanan yazılar blog sayfasında yayınlanır; incelemede olanlar ekibimiz tarafından değerlendirilmektedir.</p>
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm text-warm-500">{postsPag.total} yazı</p>
             <Link href="/yazi-ekle" className="text-sm text-brand-600 hover:underline">+ Yeni yazı ekle</Link>
@@ -347,6 +365,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
       {/* ── Tab: Takip Paneli ── */}
       {tab === "takip" && (
         <div className="space-y-10">
+          <p className="text-xs text-warm-400">Takip ettiğiniz yazarları ve sizi takip eden üyeleri buradan görebilirsiniz. Bir yazarı takip ettiğinizde yeni tarifleri ve yazıları sizinle öne çıkar.</p>
 
           {/* Takip Ettiklerim */}
           <section>
@@ -463,6 +482,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
       {/* ── Tab: Hesap Bilgilerim ── */}
       {tab === "panelim" && (
         <div className="space-y-6">
+          <p className="text-xs text-warm-400">Profil bilgilerinizi, kullanıcı adınızı ve sosyal medya bağlantılarınızı buradan güncelleyebilirsiniz. Kullanıcı adı değişikliği yalnızca bir kez yapılabilir.</p>
           <UsernameForm currentUsername={profile?.username ?? ""} changeCount={profile?.username_change_count ?? 0} />
           <ProfileForm profile={{
             full_name: profile?.full_name ?? null,

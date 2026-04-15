@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Badge, { type Category } from "@/components/ui/Badge";
+import FollowButton from "@/components/ui/FollowButton";
+import { createClient } from "@/lib/supabase/client";
 import type { MenuWithRecipes } from "@/lib/types";
 
 /* ─── Constants ────────────────────────────────────────────── */
@@ -64,6 +66,19 @@ export default function Calendar() {
   const [adminProfile,    setAdminProfile]    = useState<{ username: string; avatar_url: string | null } | null>(null);
   const [memberProfiles,  setMemberProfiles]  = useState<Record<string, { username: string; avatar_url: string | null }>>({});
 
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isLoggedIn,    setIsLoggedIn]    = useState(false);
+  const [followsAdmin,  setFollowsAdmin]  = useState(false);
+  const [followMap,     setFollowMap]     = useState<Record<string, boolean>>({});
+
+  // Kullanıcı oturumunu al
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) { setCurrentUserId(user.id); setIsLoggedIn(true); }
+    });
+  }, []);
+
   useEffect(() => {
     setDatesLoading(true);
     setAvailableDates([]);
@@ -81,18 +96,39 @@ export default function Calendar() {
     setSelectedDate(dateStr);
     setMenuLoading(true);
     setSelectedMenu(null);
+    setFollowMap({});
+    setFollowsAdmin(false);
     try {
       const res  = await fetch(`/api/menu/by-date?date=${dateStr}`);
       const data = await res.json();
       setSelectedMenu(data.menu ?? null);
       if (data.adminProfile)   setAdminProfile(data.adminProfile);
       if (data.memberProfiles) setMemberProfiles(data.memberProfiles);
+
+      // Follow durumlarını çek
+      if (currentUserId && data.menu) {
+        const menu: MenuWithRecipes = data.menu;
+        const mIds = [...new Set(
+          COURSE_FIELDS.map(f => (menu[f.field] as any)?.submitted_by).filter(Boolean) as string[]
+        )];
+        const supabase = createClient();
+        const [adminRes, memberRes] = await Promise.all([
+          supabase.from("admin_follows").select("follower_id").eq("follower_id", currentUserId).maybeSingle(),
+          mIds.length
+            ? supabase.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", mIds)
+            : Promise.resolve({ data: [] }),
+        ]);
+        setFollowsAdmin(!!adminRes.data);
+        const fm: Record<string, boolean> = {};
+        (memberRes.data ?? []).forEach((r: { following_id: string }) => { fm[r.following_id] = true; });
+        setFollowMap(fm);
+      }
     } catch {
       setSelectedMenu(null);
     } finally {
       setMenuLoading(false);
     }
-  }, []);
+  }, [currentUserId]);
 
   const isCurrentMonth =
     year === now.getFullYear() && month === now.getMonth() + 1;
@@ -302,24 +338,32 @@ export default function Calendar() {
                       </Link>
 
                       {/* Author */}
-                      <Link
-                        href={`/uye/${author.username}`}
-                        className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-warm-100 hover:bg-warm-50 transition-colors group/author"
-                      >
-                        {author.avatar ? (
-                          <img src={author.avatar} alt={author.name} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
-                        ) : (
-                          <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
-                            {author.name.charAt(0).toUpperCase()}
-                          </span>
-                        )}
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-[9px] text-warm-300 leading-none mb-0.5">Yazar</span>
-                          <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
-                            {author.name}
-                          </span>
-                        </div>
-                      </Link>
+                      <div className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-warm-100">
+                        <Link
+                          href={`/uye/${author.username}`}
+                          className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author"
+                        >
+                          {author.avatar ? (
+                            <img src={author.avatar} alt={author.name} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                          ) : (
+                            <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                              {author.name.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[9px] text-warm-300 leading-none mb-0.5">Yazar</span>
+                            <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
+                              {author.name}
+                            </span>
+                          </div>
+                        </Link>
+                        <FollowButton
+                          targetUserId={recipe.submitted_by ?? undefined}
+                          isAdminProfile={!recipe.submitted_by}
+                          initialFollowing={recipe.submitted_by ? (followMap[recipe.submitted_by] ?? false) : followsAdmin}
+                          isLoggedIn={isLoggedIn}
+                        />
+                      </div>
                     </div>
                   );
                 })}

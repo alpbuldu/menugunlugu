@@ -120,9 +120,9 @@ export default function FollowButton({
       disabled={isPending}
       className={[
         size === "xs"
-          ? "w-6 h-6 rounded-md text-sm font-bold transition-all border flex-shrink-0 flex items-center justify-center"
+          ? "px-2 py-0.5 rounded-md text-[11px] font-medium transition-all border flex-shrink-0"
           : size === "md"
-          ? "px-4 py-1.5 rounded-xl text-xs font-semibold transition-all border flex-shrink-0"
+          ? "px-5 py-2 rounded-xl text-sm font-semibold transition-all border flex-shrink-0"
           : "px-3 py-1 rounded-lg text-xs font-medium transition-all border flex-shrink-0",
         size === "xs"
           ? following
@@ -139,7 +139,7 @@ export default function FollowButton({
       ].join(" ")}
     >
       {size === "xs"
-        ? (isPending ? "…" : following ? "✓" : "+")
+        ? (isPending ? "…" : following ? "✓" : "Takip Et")
         : (isPending ? "…" : following ? "Takip Ediliyor" : "Takip Et")}
     </button>
   );

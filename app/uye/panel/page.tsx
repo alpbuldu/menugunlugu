@@ -179,12 +179,10 @@ export default async function UyePanelPage({ searchParams }: Props) {
                 <p className="text-xs text-warm-400">@{profile.username}</p>
               )}
             </div>
-            {/* Fotoğraf butonu — sadece mobilde, ad soyadın sağında */}
-            <AvatarUpload label={false} className="sm:hidden flex-shrink-0" />
           </div>
           <div className="flex gap-2 sm:flex-shrink-0">
-            {/* Fotoğraf butonu — sadece webde, Tarif Ekle'nin yanında */}
-            <AvatarUpload className="hidden sm:flex" />
+            {/* Fotoğraf butonu — her ekranda görünür */}
+            <AvatarUpload className="flex" />
             <Link href="/tarif-ekle"
               className="flex-1 sm:flex-none text-center px-3 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors">
               + Tarif Ekle

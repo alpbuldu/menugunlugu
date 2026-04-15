@@ -59,7 +59,7 @@ export default function AvatarUpload({ label = true, className = "" }: Props) {
             <circle cx="12" cy="13" r="4" />
           </svg>
           {label && (
-            <span>{uploading ? "Yükleniyor…" : "Fotoğraf"}</span>
+            <span>{uploading ? "Yükleniyor…" : "Profil Fotoğrafı Yükle"}</span>
           )}
         </button>
         {error && <p className="text-[11px] text-red-500 leading-snug max-w-[120px]">{error}</p>}

@@ -179,22 +179,29 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
 
         {/* İçerik — avatar bandı üzerine bindiriyor */}
         <div className="px-5 pb-5 sm:px-6 sm:pb-6">
-          <div className="flex items-end gap-3 -mt-9 sm:-mt-10 mb-3">
-            {/* Avatar */}
-            <div className="flex-shrink-0">
-              {avatarUrl ? (
-                <img src={avatarUrl} alt={displayName}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover ring-4 ring-white shadow-sm" />
-              ) : (
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center text-2xl sm:text-3xl font-bold text-brand-700 ring-4 ring-white shadow-sm">
-                  {displayName.charAt(0).toUpperCase()}
-                </div>
+
+          {/* Avatar — tek başına, banda biniyor */}
+          <div className="-mt-9 sm:-mt-11 mb-3 flex-shrink-0 w-fit">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={displayName}
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover ring-4 ring-white shadow-sm" />
+            ) : (
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center text-2xl sm:text-3xl font-bold text-brand-700 ring-4 ring-white shadow-sm">
+                {displayName.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+
+          {/* İsim + Takip Et butonu — aynı satır, band altında */}
+          <div className="flex items-start justify-between gap-3 mb-1.5">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-base sm:text-lg font-bold text-warm-900 leading-snug">{displayName}</h1>
+              {handle && handle !== displayName && (
+                <p className="text-xs text-warm-400 mt-0.5">@{handle}</p>
               )}
             </div>
-            {/* Follow butonu — avatar yanına hizalı */}
-            <div className="flex-1 min-w-0" />
             {showFollowButton && (
-              <div className="flex-shrink-0 mb-1">
+              <div className="flex-shrink-0 mt-0.5">
                 <FollowButton
                   targetUserId={isAdmin ? undefined : profileId!}
                   isAdminProfile={isAdmin}
@@ -203,14 +210,6 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
                   size="md"
                 />
               </div>
-            )}
-          </div>
-
-          {/* İsim */}
-          <div className="mb-1.5">
-            <h1 className="text-base sm:text-lg font-bold text-warm-900 leading-snug">{displayName}</h1>
-            {handle && handle !== displayName && (
-              <p className="text-xs text-warm-400 mt-0.5">@{handle}</p>
             )}
           </div>
 

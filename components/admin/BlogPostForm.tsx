@@ -21,9 +21,10 @@ function toSlug(text: string): string {
 interface Props {
   categories: BlogCategory[];
   post?: BlogPost;
+  apiEndpoint?: string; // override PUT/POST endpoint (e.g. for member posts)
 }
 
-export default function BlogPostForm({ categories, post }: Props) {
+export default function BlogPostForm({ categories, post, apiEndpoint }: Props) {
   const router   = useRouter();
   const isEdit   = !!post;
   const fileRef  = useRef<HTMLInputElement>(null);
@@ -84,8 +85,9 @@ export default function BlogPostForm({ categories, post }: Props) {
         seo_title:    seoTitle.trim() || null,
         seo_keywords: seoKeywords.trim() || null,
       };
+      const defaultEndpoint = isEdit ? `/api/blog/posts/${post!.id}` : "/api/blog/posts";
       const res  = await fetch(
-        isEdit ? `/api/blog/posts/${post!.id}` : "/api/blog/posts",
+        apiEndpoint ?? defaultEndpoint,
         { method: isEdit ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }
       );
       const json = await res.json();

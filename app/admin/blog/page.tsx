@@ -162,7 +162,9 @@ export default async function AdminBlogPage() {
                     <td className="px-5 py-3.5">
                       <div className="flex items-center justify-end gap-3">
                         <Link href={`/yazi/${post.slug}`} target="_blank"
-                          className="text-xs text-brand-600 hover:underline">Görüntüle</Link>
+                          className="text-xs text-warm-400 hover:underline">Görüntüle</Link>
+                        <Link href={`/admin/member-posts/${post.id}/edit`}
+                          className="text-xs text-brand-600 hover:underline">Düzenle</Link>
                         <DeleteButton
                           endpoint={`/api/admin/member-posts/${post.id}`}
                           label={`"${post.title}" silinecek. Emin misiniz?`}

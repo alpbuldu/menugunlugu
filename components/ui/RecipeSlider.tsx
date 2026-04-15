@@ -255,12 +255,9 @@ export default function RecipeSlider({
                             {a.name.charAt(0).toUpperCase()}
                           </span>
                         )}
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
-                          <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors leading-tight break-all">
-                            {a.name}
-                          </span>
-                        </div>
+                        <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
+                          {a.name}
+                        </span>
                       </Link>
                       <FollowButton
                         targetUserId={authorUserId}

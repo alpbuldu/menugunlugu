@@ -63,11 +63,9 @@ export default function AvatarUpload({ variant = "inline", className = "" }: Pro
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
             title="Profil fotoğrafı değiştir"
-            className={`flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium leading-snug ${baseCls} ${disabledCls}`}
+            className={`flex items-center gap-1.5 px-2 py-1.5 text-[10px] font-medium whitespace-nowrap ${baseCls} ${disabledCls}`}
           >
-            <span className="text-right leading-tight">
-              {uploading ? "Yükleniyor…" : <><span className="block">Profil Fotoğrafı</span><span className="block">Yükle</span></>}
-            </span>
+            <span>{uploading ? "Yükleniyor…" : "Profil Fotoğrafı Yükle"}</span>
             <CameraIcon />
           </button>
           {error && <p className="text-[10px] text-red-500 leading-snug text-right max-w-[110px]">{error}</p>}

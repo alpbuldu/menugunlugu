@@ -174,7 +174,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="text-lg font-bold text-warm-900 truncate">
+              <h1 className="text-base font-bold text-warm-900 truncate">
                 {profile?.full_name || profile?.username || user.email}
               </h1>
               {profile?.full_name && profile?.username && (

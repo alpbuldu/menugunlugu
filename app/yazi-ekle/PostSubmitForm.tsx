@@ -130,7 +130,7 @@ export default function PostSubmitForm() {
               className="px-4 py-2 rounded-xl border border-warm-200 bg-white hover:bg-warm-50 text-warm-700 text-sm font-medium transition-colors disabled:opacity-50">
               {uploading ? "Yükleniyor…" : "Görsel Seç"}
             </button>
-            <p className="text-xs text-warm-400 mt-1.5">JPG, PNG veya WebP</p>
+            <p className="text-xs text-warm-400 mt-1.5">JPG, PNG veya WebP — maks. 5 MB</p>
           </div>
         </div>
       </div>

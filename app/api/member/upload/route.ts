@@ -3,8 +3,10 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import sharp from "sharp";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+// Kullanıcı en fazla 5 MB yükleyebilir; sunucu otomatik olarak ~500 KB WebP'ye sıkıştırır.
+// Limit değiştirilmek istenirse MAX_SIZE_MB güncellenir.
 const MAX_SIZE_MB   = 5;
-const TARGET_KB     = 500; // hedef boyut (KB)
+const TARGET_KB     = 500; // hedef çıkış boyutu (KB)
 const MAX_WIDTH     = 1400; // maksimum genişlik (px)
 const BUCKET        = "recipes";
 

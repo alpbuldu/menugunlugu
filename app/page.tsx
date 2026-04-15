@@ -27,7 +27,7 @@ export default async function HomePage() {
     <div>
       {/* ── Hero ──────────────────────────────────────────────── */}
       <section className="bg-gradient-to-b from-brand-600 to-warm-700 text-white">
-        <div className={`${CONTAINER} py-10 sm:py-16 text-center`}>
+        <div className={`${CONTAINER} py-6 sm:py-10 text-center`}>
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 leading-tight">
             Her Gün Yeni Bir Menü,
             <br />

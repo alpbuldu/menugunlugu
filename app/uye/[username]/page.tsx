@@ -172,10 +172,23 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
       {/* ── Profil Header ── */}
-      <div className="bg-white rounded-2xl border border-warm-100 shadow-sm mb-6 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-warm-100 shadow-sm mb-6 overflow-hidden relative">
 
         {/* Yazar bandı */}
         <div className="h-20 sm:h-24 bg-gradient-to-br from-brand-400 via-brand-500 to-brand-600" />
+
+        {/* Takip Et butonu — band'ın hemen altında sağ köşe */}
+        {showFollowButton && (
+          <div className="absolute right-4 top-[84px] sm:right-5 sm:top-[100px]">
+            <FollowButton
+              targetUserId={isAdmin ? undefined : profileId!}
+              isAdminProfile={isAdmin}
+              initialFollowing={isFollowing}
+              isLoggedIn={!!currentUser}
+              size="md"
+            />
+          </div>
+        )}
 
         {/* İçerik — avatar bandı üzerine bindiriyor */}
         <div className="px-5 pb-5 sm:px-6 sm:pb-6">
@@ -192,24 +205,11 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
             )}
           </div>
 
-          {/* İsim + Takip Et butonu — aynı satır, band altında */}
-          <div className="flex items-start justify-between gap-3 mb-1.5">
-            <div className="min-w-0 flex-1">
-              <h1 className="text-base sm:text-lg font-bold text-warm-900 leading-snug">{displayName}</h1>
-              {handle && handle !== displayName && (
-                <p className="text-xs text-warm-400 mt-0.5">@{handle}</p>
-              )}
-            </div>
-            {showFollowButton && (
-              <div className="flex-shrink-0 mt-0.5">
-                <FollowButton
-                  targetUserId={isAdmin ? undefined : profileId!}
-                  isAdminProfile={isAdmin}
-                  initialFollowing={isFollowing}
-                  isLoggedIn={!!currentUser}
-                  size="md"
-                />
-              </div>
+          {/* İsim */}
+          <div className="mb-1.5">
+            <h1 className="text-base sm:text-lg font-bold text-warm-900 leading-snug">{displayName}</h1>
+            {handle && handle !== displayName && (
+              <p className="text-xs text-warm-400 mt-0.5">@{handle}</p>
             )}
           </div>
 

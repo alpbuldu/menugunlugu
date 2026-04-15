@@ -6,7 +6,14 @@
       "Bash(export PATH=\"/opt/homebrew/bin:$PATH\")",
       "Bash(npm install:*)",
       "Bash(vercel --prod)",
-      "Bash(vercel login:*)"
+      "Bash(vercel login:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(kill 77171)",
+      "Bash(find /Users/hikayeliyemekler/menugunlugu/components/admin -name BlogPostForm*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

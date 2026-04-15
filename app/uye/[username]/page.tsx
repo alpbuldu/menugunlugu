@@ -172,79 +172,82 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
       {/* ── Profil Header ── */}
-      <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-5 sm:p-6 mb-6">
-        <div className="flex items-start gap-4">
+      <div className="bg-white rounded-2xl border border-warm-100 shadow-sm mb-6 overflow-hidden">
 
-          {/* Avatar */}
-          <div className="flex-shrink-0">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={displayName}
-                className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl object-cover ring-2 ring-warm-100" />
-            ) : (
-              <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center text-xl sm:text-2xl font-bold text-brand-700">
-                {displayName.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
+        {/* Yazar bandı */}
+        <div className="h-20 sm:h-24 bg-gradient-to-br from-brand-400 via-brand-500 to-brand-600" />
 
-          {/* Bilgiler */}
-          <div className="flex-1 min-w-0">
-            {/* İsim satırı — mobilde buton ayrı satıra geçebilir */}
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <h1 className="text-sm sm:text-base font-bold text-warm-900 leading-snug">{displayName}</h1>
-                {handle && handle !== displayName && (
-                  <p className="text-xs text-warm-400 mt-0.5">@{handle}</p>
-                )}
-              </div>
-              {showFollowButton && (
-                <div className="flex-shrink-0">
-                  <FollowButton
-                    targetUserId={isAdmin ? undefined : profileId!}
-                    isAdminProfile={isAdmin}
-                    initialFollowing={isFollowing}
-                    isLoggedIn={!!currentUser}
-                    size="md"
-                  />
+        {/* İçerik — avatar bandı üzerine bindiriyor */}
+        <div className="px-5 pb-5 sm:px-6 sm:pb-6">
+          <div className="flex items-end gap-3 -mt-9 sm:-mt-10 mb-3">
+            {/* Avatar */}
+            <div className="flex-shrink-0">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={displayName}
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover ring-4 ring-white shadow-sm" />
+              ) : (
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center text-2xl sm:text-3xl font-bold text-brand-700 ring-4 ring-white shadow-sm">
+                  {displayName.charAt(0).toUpperCase()}
                 </div>
               )}
             </div>
-
-            {bio && (
-              <p className="text-sm text-warm-500 leading-relaxed mt-1.5">{bio}</p>
-            )}
-
-            {/* Stats */}
-            <div className="flex items-center gap-3 sm:gap-4 mt-2.5">
-              <Link href={`${baseUrl}?tab=tarifler`} className="flex items-baseline gap-1 group">
-                <span className="text-sm font-bold text-warm-900 group-hover:text-brand-600 transition-colors">{recipeCount}</span>
-                <span className="text-xs text-warm-400 group-hover:text-brand-500 transition-colors">tarif</span>
-              </Link>
-              <span className="w-px h-3 bg-warm-200" />
-              <Link href={`${baseUrl}?tab=yazilar`} className="flex items-baseline gap-1 group">
-                <span className="text-sm font-bold text-warm-900 group-hover:text-brand-600 transition-colors">{postCount}</span>
-                <span className="text-xs text-warm-400 group-hover:text-brand-500 transition-colors">yazı</span>
-              </Link>
-              <span className="w-px h-3 bg-warm-200" />
-              <div className="flex items-baseline gap-1">
-                <span className="text-sm font-bold text-warm-900">{followerCount}</span>
-                <span className="text-xs text-warm-400">takipçi</span>
+            {/* Follow butonu — avatar yanına hizalı */}
+            <div className="flex-1 min-w-0" />
+            {showFollowButton && (
+              <div className="flex-shrink-0 mb-1">
+                <FollowButton
+                  targetUserId={isAdmin ? undefined : profileId!}
+                  isAdminProfile={isAdmin}
+                  initialFollowing={isFollowing}
+                  isLoggedIn={!!currentUser}
+                  size="md"
+                />
               </div>
+            )}
+          </div>
+
+          {/* İsim */}
+          <div className="mb-1.5">
+            <h1 className="text-base sm:text-lg font-bold text-warm-900 leading-snug">{displayName}</h1>
+            {handle && handle !== displayName && (
+              <p className="text-xs text-warm-400 mt-0.5">@{handle}</p>
+            )}
+          </div>
+
+          {bio && (
+            <p className="text-sm text-warm-500 leading-relaxed mb-2">{bio}</p>
+          )}
+
+          {/* Stats */}
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Link href={`${baseUrl}?tab=tarifler`} className="flex items-baseline gap-1 group">
+              <span className="text-sm font-bold text-warm-900 group-hover:text-brand-600 transition-colors">{recipeCount}</span>
+              <span className="text-xs text-warm-400 group-hover:text-brand-500 transition-colors">tarif</span>
+            </Link>
+            <span className="w-px h-3 bg-warm-200" />
+            <Link href={`${baseUrl}?tab=yazilar`} className="flex items-baseline gap-1 group">
+              <span className="text-sm font-bold text-warm-900 group-hover:text-brand-600 transition-colors">{postCount}</span>
+              <span className="text-xs text-warm-400 group-hover:text-brand-500 transition-colors">yazı</span>
+            </Link>
+            <span className="w-px h-3 bg-warm-200" />
+            <div className="flex items-baseline gap-1">
+              <span className="text-sm font-bold text-warm-900">{followerCount}</span>
+              <span className="text-xs text-warm-400">takipçi</span>
             </div>
           </div>
-        </div>
 
-        {/* Socials — tam genişlik, alta */}
-        {socials.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-warm-100">
-            {socials.map((s) => (
-              <a key={s.key} href={s.url!} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-warm-50 border border-warm-200 text-warm-600 text-xs font-medium hover:border-brand-300 hover:text-brand-600 transition-colors">
-                <span className="flex-shrink-0">{s.svg}</span><span>{s.label}</span>
-              </a>
-            ))}
-          </div>
-        )}
+          {/* Socials — tam genişlik, alta */}
+          {socials.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-warm-100">
+              {socials.map((s) => (
+                <a key={s.key} href={s.url!} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-warm-50 border border-warm-200 text-warm-600 text-xs font-medium hover:border-brand-300 hover:text-brand-600 transition-colors">
+                  <span className="flex-shrink-0">{s.svg}</span><span>{s.label}</span>
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ── Tabs ── */}

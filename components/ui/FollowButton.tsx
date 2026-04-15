@@ -7,8 +7,8 @@ interface Props {
   isAdminProfile?: boolean;
   initialFollowing: boolean;
   isLoggedIn: boolean;
-  /** "sm" = varsayılan mini, "md" = profil sayfası için biraz daha belirgin */
-  size?: "sm" | "md";
+  /** "xs" = ikon (+ / ✓), "sm" = varsayılan mini, "md" = profil sayfası için belirgin */
+  size?: "xs" | "sm" | "md";
 }
 
 const CHANNEL = "follow-state";
@@ -119,10 +119,16 @@ export default function FollowButton({
       onClick={handleClick}
       disabled={isPending}
       className={[
-        size === "md"
+        size === "xs"
+          ? "w-6 h-6 rounded-md text-sm font-bold transition-all border flex-shrink-0 flex items-center justify-center"
+          : size === "md"
           ? "px-4 py-1.5 rounded-xl text-xs font-semibold transition-all border flex-shrink-0"
           : "px-3 py-1 rounded-lg text-xs font-medium transition-all border flex-shrink-0",
-        size === "md"
+        size === "xs"
+          ? following
+            ? "bg-warm-100 border-warm-200 text-warm-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
+            : "bg-brand-50 border-brand-200 text-brand-600 hover:bg-brand-600 hover:text-white hover:border-brand-600"
+          : size === "md"
           ? following
             ? "bg-warm-100 border-warm-200 text-warm-600 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
             : "bg-brand-600 border-brand-600 text-white hover:bg-brand-700 hover:border-brand-700"
@@ -132,7 +138,9 @@ export default function FollowButton({
         isPending ? "opacity-50 cursor-not-allowed" : "",
       ].join(" ")}
     >
-      {isPending ? "…" : following ? "Takip Ediliyor" : "Takip Et"}
+      {size === "xs"
+        ? (isPending ? "…" : following ? "✓" : "+")
+        : (isPending ? "…" : following ? "Takip Ediliyor" : "Takip Et")}
     </button>
   );
 }

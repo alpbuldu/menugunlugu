@@ -264,6 +264,7 @@ export default function RecipeSlider({
                         isAdminProfile={authorIsAdmin}
                         initialFollowing={initFollowing}
                         isLoggedIn={isLoggedIn}
+                        size="xs"
                       />
                     </div>
                   </div>

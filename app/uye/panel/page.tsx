@@ -11,6 +11,7 @@ import DeletePostButton from "./DeletePostButton";
 import UnfollowButton from "./UnfollowButton";
 import LogoutButton from "./LogoutButton";
 import FollowButton from "@/components/ui/FollowButton";
+import AvatarUpload from "./AvatarUpload";
 
 export const metadata: Metadata = { title: "Üye Paneli" };
 export const dynamic = "force-dynamic";
@@ -178,8 +179,12 @@ export default async function UyePanelPage({ searchParams }: Props) {
                 <p className="text-xs text-warm-400">@{profile.username}</p>
               )}
             </div>
+            {/* Fotoğraf butonu — sadece mobilde, ad soyadın sağında */}
+            <AvatarUpload label={false} className="sm:hidden flex-shrink-0" />
           </div>
           <div className="flex gap-2 sm:flex-shrink-0">
+            {/* Fotoğraf butonu — sadece webde, Tarif Ekle'nin yanında */}
+            <AvatarUpload className="hidden sm:flex" />
             <Link href="/tarif-ekle"
               className="flex-1 sm:flex-none text-center px-3 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors">
               + Tarif Ekle
@@ -302,13 +307,14 @@ export default async function UyePanelPage({ searchParams }: Props) {
                                 {favAuthor.username.charAt(0).toUpperCase()}
                               </span>
                             )}
-                            <span className="text-[10px] text-warm-400 truncate">{favAuthor.username}</span>
+                            <span className="text-xs text-warm-500 truncate">{favAuthor.username}</span>
                           </Link>
                           <FollowButton
                             targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined}
                             isAdminProfile={authorIsAdmin}
                             initialFollowing={favInitFollowing}
                             isLoggedIn={true}
+                            size="xs"
                           />
                         </div>
                       )}

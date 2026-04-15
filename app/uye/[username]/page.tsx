@@ -173,44 +173,60 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
 
       {/* ── Profil Header ── */}
       <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-6 mb-6">
-        <div className="flex items-start gap-5">
+        {/* Mobil: dikey ortalı; masaüstü: yatay */}
+        <div className="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-5">
+
           {/* Avatar */}
-          <div className="flex-shrink-0">
+          <div className="flex flex-col items-center sm:items-start sm:flex-shrink-0 gap-3">
             {avatarUrl ? (
               <img src={avatarUrl} alt={displayName}
-                className="w-16 h-16 rounded-2xl object-cover ring-2 ring-warm-100" />
+                className="w-20 h-20 sm:w-16 sm:h-16 rounded-2xl object-cover ring-2 ring-warm-100" />
             ) : (
-              <div className="w-16 h-16 rounded-2xl bg-brand-100 flex items-center justify-center text-2xl font-bold text-brand-600 ring-2 ring-warm-100">
+              <div className="w-20 h-20 sm:w-16 sm:h-16 rounded-2xl bg-brand-100 flex items-center justify-center text-3xl sm:text-2xl font-bold text-brand-600 ring-2 ring-warm-100">
                 {displayName.charAt(0).toUpperCase()}
               </div>
             )}
-          </div>
-
-          {/* Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-3 flex-wrap">
-              <div>
-                <h1 className="text-lg font-bold text-warm-900 leading-tight">{displayName}</h1>
-                {handle && handle !== displayName && (
-                  <p className="text-xs text-warm-400 mt-0.5">@{handle}</p>
-                )}
-              </div>
-              {showFollowButton && (
+            {/* Takip butonu mobilde avatar altında */}
+            {showFollowButton && (
+              <div className="sm:hidden">
                 <FollowButton
                   targetUserId={isAdmin ? undefined : profileId!}
                   isAdminProfile={isAdmin}
                   initialFollowing={isFollowing}
                   isLoggedIn={!!currentUser}
                 />
+              </div>
+            )}
+          </div>
+
+          {/* Info */}
+          <div className="flex-1 min-w-0 text-center sm:text-left">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+              <div>
+                <h1 className="text-lg font-bold text-warm-900 leading-tight">{displayName}</h1>
+                {handle && handle !== displayName && (
+                  <p className="text-xs text-warm-400 mt-0.5">@{handle}</p>
+                )}
+              </div>
+              {/* Takip butonu masaüstünde sağ üst köşede */}
+              {showFollowButton && (
+                <div className="hidden sm:block flex-shrink-0">
+                  <FollowButton
+                    targetUserId={isAdmin ? undefined : profileId!}
+                    isAdminProfile={isAdmin}
+                    initialFollowing={isFollowing}
+                    isLoggedIn={!!currentUser}
+                  />
+                </div>
               )}
             </div>
 
             {bio && (
-              <p className="text-sm text-warm-500 leading-relaxed mt-2 max-w-lg">{bio}</p>
+              <p className="text-sm text-warm-500 leading-relaxed mt-2 max-w-lg mx-auto sm:mx-0">{bio}</p>
             )}
 
             {/* Stats */}
-            <div className="flex flex-wrap items-center gap-4 mt-3">
+            <div className="flex items-center justify-center sm:justify-start gap-4 mt-3">
               <Link href={`${baseUrl}?tab=tarifler`} className="flex items-baseline gap-1 group">
                 <span className="text-sm font-bold text-warm-900 group-hover:text-brand-600 transition-colors">{recipeCount}</span>
                 <span className="text-xs text-warm-400 group-hover:text-brand-500 transition-colors">tarif</span>
@@ -229,7 +245,7 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
 
             {/* Socials */}
             {socials.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap justify-center sm:justify-start gap-2 mt-3">
                 {socials.map((s) => (
                   <a key={s.key} href={s.url!} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-warm-50 border border-warm-200 text-warm-600 text-xs font-medium hover:border-brand-300 hover:text-brand-600 transition-colors">

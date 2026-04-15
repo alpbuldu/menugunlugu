@@ -10,11 +10,11 @@ import type { Category } from "@/lib/types";
 import type { User } from "@supabase/supabase-js";
 
 const links = [
-  { href: "/",        label: "Ana Sayfa" },
-  { href: "/menu",    label: "Günün Menüsü" },
-  { href: "/archive", label: "Dünün Menüsü" },
-  { href: "/recipes", label: "Tarifler" },
-  { href: "/blog",    label: "Blog" },
+  { href: "/",        label: "Ana Sayfa",     emoji: "🏠" },
+  { href: "/menu",    label: "Günün Menüsü",  emoji: "🍽️" },
+  { href: "/archive", label: "Dünün Menüsü",  emoji: "📅" },
+  { href: "/recipes", label: "Tarifler",       emoji: "🥘" },
+  { href: "/blog",    label: "Blog",           emoji: "📖" },
 ];
 
 const CATEGORY_LABELS: Record<Category, string> = {
@@ -364,10 +364,11 @@ export default function Navigation() {
           <div className="absolute top-full left-0 right-0 bg-white border border-brand-200 border-t-0 rounded-b-2xl shadow-lg z-50 overflow-hidden">
             {links.map((link) => (
               <Link key={link.href} href={link.href} onClick={() => setOpen(false)}
-                className={clsx("flex items-center px-5 py-3.5 text-sm font-medium border-b border-warm-100 last:border-0 transition-colors",
+                className={clsx("flex items-center gap-2 px-5 py-3.5 text-sm font-medium border-b border-warm-100 transition-colors",
                   pathname === link.href
                     ? "text-brand-700 bg-brand-50"
                     : "text-warm-700 hover:bg-warm-50 hover:text-warm-900")}>
+                <span>{link.emoji}</span>
                 {link.label}
               </Link>
             ))}
@@ -379,12 +380,17 @@ export default function Navigation() {
               <>
                 <Link href="/uye/panel" onClick={() => setOpen(false)}
                   className="flex items-center gap-2 px-5 py-3.5 text-sm font-medium border-b border-warm-100 text-warm-700 hover:bg-warm-50 transition-colors">
-                  <div className="w-6 h-6 rounded-full bg-brand-100 overflow-hidden flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-full bg-brand-100 overflow-hidden flex items-center justify-center flex-shrink-0">
                     {profile?.avatar_url
                       ? <Image src={profile.avatar_url} alt="Profil" width={24} height={24} className="w-full h-full object-cover" />
                       : <span className="text-xs">👤</span>}
                   </div>
-                  {profile?.username ?? "Panelim"}
+                  <span>
+                    <span className="text-warm-500">Hesabım</span>
+                    {profile?.username && (
+                      <> — <span className="font-semibold">{profile.username}</span></>
+                    )}
+                  </span>
                 </Link>
                 <button onClick={handleMobileLogout}
                   className="w-full flex items-center gap-2 px-5 py-3.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">

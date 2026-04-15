@@ -1,10 +1,10 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 interface Props {
-  targetUserId?: string;   // normal üye için
-  isAdminProfile?: boolean; // admin profili için
+  targetUserId?: string;
+  isAdminProfile?: boolean;
   initialFollowing: boolean;
   isLoggedIn: boolean;
 }
@@ -13,6 +13,18 @@ export default function FollowButton({ targetUserId, isAdminProfile, initialFoll
   const [following, setFollowing] = useState(initialFollowing);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+
+  // Her instance aynı yazarın başka kartlarındaki değişikliği dinler
+  useEffect(() => {
+    const myId = isAdminProfile ? "__admin__" : targetUserId;
+    if (!myId) return;
+    function handler(e: Event) {
+      const { id, following: newVal } = (e as CustomEvent<{ id: string; following: boolean }>).detail;
+      if (id === myId) setFollowing(newVal);
+    }
+    window.addEventListener("follow-change", handler);
+    return () => window.removeEventListener("follow-change", handler);
+  }, [isAdminProfile, targetUserId]);
 
   function handleClick() {
     if (!isLoggedIn) {
@@ -31,7 +43,11 @@ export default function FollowButton({ targetUserId, isAdminProfile, initialFoll
       });
       if (res.ok) {
         const data = await res.json();
-        setFollowing(data.following);
+        const newVal: boolean = data.following;
+        setFollowing(newVal);
+        // Aynı yazarın diğer kartlarını da güncelle
+        const id = isAdminProfile ? "__admin__" : targetUserId;
+        window.dispatchEvent(new CustomEvent("follow-change", { detail: { id, following: newVal } }));
         router.refresh();
       }
     });

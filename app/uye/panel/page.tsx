@@ -482,7 +482,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
       {/* ── Tab: Hesap Bilgilerim ── */}
       {tab === "panelim" && (
         <div className="space-y-6">
-          <p className="text-xs text-warm-400">Profil bilgilerinizi, kullanıcı adınızı ve sosyal medya bağlantılarınızı buradan güncelleyebilirsiniz. Kullanıcı adı değişikliği yalnızca bir kez yapılabilir.</p>
+          <p className="text-xs text-warm-400">Profil bilgilerinizi, kullanıcı adınızı ve sosyal medya bağlantılarınızı buradan güncelleyebilirsiniz. Kullanıcı adı değişikliği en fazla 3 kez yapılabilir.</p>
           <UsernameForm currentUsername={profile?.username ?? ""} changeCount={profile?.username_change_count ?? 0} />
           <ProfileForm profile={{
             full_name: profile?.full_name ?? null,

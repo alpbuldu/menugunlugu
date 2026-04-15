@@ -178,9 +178,9 @@ export default function RecipeSlider({
 
   // Arrow overlay logic: always overlay in compact mode, overlay on mobile otherwise
   const useOverlay = compact || isMobile;
-  // Image height: compact → h-32 (128px), normal → h-48 (192px)
-  const imgClass = compact ? "h-32" : "h-48";
-  const imgHalf  = compact ? 64 : 96;   // px, for arrow vertical centering
+  // Image height: compact desktop → h-32 (128px), compact mobile → h-44 (176px), normal → h-48 (192px)
+  const imgClass = compact ? (isMobile ? "h-44" : "h-32") : "h-48";
+  const imgHalf  = compact ? (isMobile ? 88 : 64) : 96;
 
   const showFollow = isLoggedIn !== undefined; // always render FollowButton if prop passed
 
@@ -257,7 +257,7 @@ export default function RecipeSlider({
                         )}
                         <div className="flex flex-col min-w-0">
                           <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
-                          <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
+                          <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors leading-tight break-all">
                             {a.name}
                           </span>
                         </div>

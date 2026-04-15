@@ -9,6 +9,7 @@ import ProfileForm from "./ProfileForm";
 import DeleteRecipeButton from "./DeleteRecipeButton";
 import DeletePostButton from "./DeletePostButton";
 import UnfollowButton from "./UnfollowButton";
+import LogoutButton from "./LogoutButton";
 
 export const metadata: Metadata = { title: "Üye Paneli" };
 export const dynamic = "force-dynamic";
@@ -146,12 +147,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
             className="px-3 py-2 rounded-xl bg-warm-700 hover:bg-warm-800 text-white text-sm font-medium transition-colors">
             + Yazı Ekle
           </Link>
-          <form action="/api/auth/member-logout" method="POST">
-            <button type="submit"
-              className="px-3 py-2 rounded-xl border border-warm-200 hover:bg-warm-100 text-warm-600 text-sm font-medium transition-colors">
-              Çıkış
-            </button>
-          </form>
+          <LogoutButton />
         </div>
       </div>
 

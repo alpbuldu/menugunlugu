@@ -179,9 +179,9 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
           <div className="flex-shrink-0">
             {avatarUrl ? (
               <img src={avatarUrl} alt={displayName}
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover ring-2 ring-warm-100" />
+                className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl object-cover ring-2 ring-warm-100" />
             ) : (
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center text-2xl sm:text-3xl font-bold text-brand-700">
+              <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-brand-100 to-brand-200 flex items-center justify-center text-xl sm:text-2xl font-bold text-brand-700">
                 {displayName.charAt(0).toUpperCase()}
               </div>
             )}
@@ -189,22 +189,24 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
 
           {/* Bilgiler */}
           <div className="flex-1 min-w-0">
-            {/* İsim + Takip Et */}
-            <div className="flex items-start justify-between gap-3 mb-1">
-              <div className="min-w-0">
-                <h1 className="text-base sm:text-lg font-bold text-warm-900 leading-tight">{displayName}</h1>
+            {/* İsim satırı — mobilde buton ayrı satıra geçebilir */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-sm sm:text-base font-bold text-warm-900 leading-snug">{displayName}</h1>
                 {handle && handle !== displayName && (
                   <p className="text-xs text-warm-400 mt-0.5">@{handle}</p>
                 )}
               </div>
               {showFollowButton && (
-                <FollowButton
-                  targetUserId={isAdmin ? undefined : profileId!}
-                  isAdminProfile={isAdmin}
-                  initialFollowing={isFollowing}
-                  isLoggedIn={!!currentUser}
-                  size="md"
-                />
+                <div className="flex-shrink-0">
+                  <FollowButton
+                    targetUserId={isAdmin ? undefined : profileId!}
+                    isAdminProfile={isAdmin}
+                    initialFollowing={isFollowing}
+                    isLoggedIn={!!currentUser}
+                    size="md"
+                  />
+                </div>
               )}
             </div>
 

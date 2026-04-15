@@ -120,11 +120,15 @@ export default function FollowButton({
       disabled={isPending}
       className={[
         size === "md"
-          ? "px-5 py-2 rounded-xl text-sm font-medium transition-all border flex-shrink-0"
+          ? "px-4 py-1.5 rounded-xl text-xs font-semibold transition-all border flex-shrink-0"
           : "px-3 py-1 rounded-lg text-xs font-medium transition-all border flex-shrink-0",
-        following
-          ? "bg-warm-100 border-warm-200 text-warm-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
-          : "bg-brand-50 border-brand-200 text-brand-600 hover:bg-brand-600 hover:text-white hover:border-brand-600",
+        size === "md"
+          ? following
+            ? "bg-warm-100 border-warm-200 text-warm-600 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
+            : "bg-brand-600 border-brand-600 text-white hover:bg-brand-700 hover:border-brand-700"
+          : following
+            ? "bg-warm-100 border-warm-200 text-warm-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
+            : "bg-brand-50 border-brand-200 text-brand-600 hover:bg-brand-600 hover:text-white hover:border-brand-600",
         isPending ? "opacity-50 cursor-not-allowed" : "",
       ].join(" ")}
     >

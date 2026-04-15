@@ -293,7 +293,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
                       </Link>
                       {favAuthor && (
                         <div className="flex items-center gap-1.5 px-3 pb-3 pt-2 border-t border-warm-100">
-                          <Link href={`/uye/${favAuthor.username}`} className="flex items-center gap-1.5 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+                          <Link href={authorIsAdmin ? "/uye/__admin__" : `/uye/${favAuthor.username}`} className="flex items-center gap-1.5 flex-1 min-w-0 hover:opacity-80 transition-opacity">
                             {favAuthor.avatar_url ? (
                               <img src={favAuthor.avatar_url} alt={favAuthor.username}
                                 className="w-5 h-5 rounded-full object-cover flex-shrink-0" />

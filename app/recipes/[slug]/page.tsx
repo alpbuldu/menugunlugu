@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getRecipeBySlug } from "@/lib/supabase/queries";
+import { getRecipeBySlug, getRandomRecipes } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 import ShareButton from "@/components/ui/ShareButton";
 import RatingStars from "@/components/recipe/RatingStars";
 import FavoriteButton from "@/components/recipe/FavoriteButton";
+import FollowButton from "@/components/ui/FollowButton";
+import RecipeSlider from "@/components/ui/RecipeSlider";
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 
@@ -54,36 +56,39 @@ export default async function RecipeDetailPage({ params }: Props) {
 
   if (!recipe) notFound();
 
-  // Current user (for comments + favorites)
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
 
-  // Yazar bilgisi: üye tarafından eklendiyse profil, yoksa admin profili
-  let authorName     = "Menü Günlüğü";
-  let authorAvatar   = "";
-  let authorUsername = "__admin__";
-  let authorBio      = "";
-  let authorFullName = "";
+  // Yazar bilgisi
+  let authorName       = "Menü Günlüğü";
+  let authorAvatar     = "";
+  let authorUsername   = "__admin__";
+  let authorBio        = "";
+  let authorFullName   = "";
   let authorRecipeCount = 0;
+  let authorUserId: string | null = null;
+  let isAdminAuthor    = true;
 
   if ((recipe as any).submitted_by) {
+    isAdminAuthor = false;
+    authorUserId  = (recipe as any).submitted_by;
     const { data: profile } = await supabase
       .from("profiles")
       .select("username, avatar_url, full_name, bio")
-      .eq("id", (recipe as any).submitted_by)
+      .eq("id", authorUserId!)
       .single();
     if (profile) {
-      authorName      = profile.username;
-      authorAvatar    = profile.avatar_url ?? "";
-      authorUsername  = profile.username;
-      authorBio       = profile.bio ?? "";
-      authorFullName  = profile.full_name ?? "";
+      authorName     = profile.username;
+      authorAvatar   = profile.avatar_url ?? "";
+      authorUsername = profile.username;
+      authorBio      = profile.bio ?? "";
+      authorFullName = profile.full_name ?? "";
     }
     const { count } = await supabase
       .from("recipes")
       .select("id", { count: "exact", head: true })
-      .eq("submitted_by", (recipe as any).submitted_by)
+      .eq("submitted_by", authorUserId!)
       .eq("approval_status", "approved");
     authorRecipeCount = count ?? 0;
   } else {
@@ -93,10 +98,10 @@ export default async function RecipeDetailPage({ params }: Props) {
       .eq("id", 1)
       .single();
     if (adminProfile) {
-      authorName      = adminProfile.username;
-      authorAvatar    = adminProfile.avatar_url ?? "";
-      authorBio       = (adminProfile as any).bio ?? "";
-      authorFullName  = (adminProfile as any).full_name ?? "";
+      authorName     = adminProfile.username;
+      authorAvatar   = adminProfile.avatar_url ?? "";
+      authorBio      = (adminProfile as any).bio ?? "";
+      authorFullName = (adminProfile as any).full_name ?? "";
     }
     const { count } = await supabase
       .from("recipes")
@@ -105,10 +110,43 @@ export default async function RecipeDetailPage({ params }: Props) {
     authorRecipeCount = count ?? 0;
   }
 
-  // Malzemeler: HTML editörden mi yoksa eski düz metin mi?
-  const ingredientsIsHtml = recipe.ingredients.trim().startsWith("<");
+  // Takip durumu
+  let initialFollowing = false;
+  if (currentUserId) {
+    if (isAdminAuthor) {
+      const { data } = await supabase
+        .from("admin_follows")
+        .select("follower_id")
+        .eq("follower_id", currentUserId)
+        .maybeSingle();
+      initialFollowing = !!data;
+    } else if (authorUserId) {
+      const { data } = await supabase
+        .from("follows")
+        .select("follower_id")
+        .eq("follower_id", currentUserId)
+        .eq("following_id", authorUserId)
+        .maybeSingle();
+      initialFollowing = !!data;
+    }
+  }
 
-  // HTML malzeme içeriğini parse et: başlık veya malzeme satırı
+  // Öne çıkan tarifler (slider)
+  const [featured, adminProfileForSlider] = await Promise.all([
+    getRandomRecipes(),
+    supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single(),
+  ]);
+  const ap = adminProfileForSlider.data;
+  const adminAuthor = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "", username: "__admin__" };
+  const memberIds = [...new Set(featured.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
+  const profileMap: Record<string, { name: string; avatar: string; username: string }> = {};
+  if (memberIds.length) {
+    const { data: profiles } = await supabase.from("profiles").select("id, username, avatar_url").in("id", memberIds);
+    profiles?.forEach((p) => { profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "", username: p.username }; });
+  }
+
+  // Malzemeler
+  const ingredientsIsHtml = recipe.ingredients.trim().startsWith("<");
   type IngredientItem = { type: "heading"; text: string } | { type: "item"; text: string };
   function parseIngredients(html: string): IngredientItem[] {
     const result: IngredientItem[] = [];
@@ -131,12 +169,10 @@ export default async function RecipeDetailPage({ params }: Props) {
     }
     return result;
   }
-
   const ingredients = ingredientsIsHtml
     ? null
     : recipe.ingredients.split(/[\n,]+/).map((s) => s.trim()).filter(Boolean);
 
-  // Yapılış: düz metin veya TipTap HTML olabilir
   const instructionsIsHtml = recipe.instructions.trim().startsWith("<");
   function parseInstructions(html: string): string[] {
     const flat = html
@@ -145,10 +181,7 @@ export default async function RecipeDetailPage({ params }: Props) {
       .replace(/<\/(p|li)>/gi, "")
       .replace(/<br\s*\/?>/gi, "\n")
       .replace(/<[^>]+>/g, "");
-    return flat
-      .split("\n")
-      .map((s) => s.replace(/&nbsp;/g, "").trim())
-      .filter(Boolean);
+    return flat.split("\n").map((s) => s.replace(/&nbsp;/g, "").trim()).filter(Boolean);
   }
   const steps = instructionsIsHtml
     ? parseInstructions(recipe.instructions)
@@ -158,11 +191,8 @@ export default async function RecipeDetailPage({ params }: Props) {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      {/* Back link */}
-      <Link
-        href="/recipes"
-        className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-6"
-      >
+      <Link href="/recipes"
+        className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-6">
         ← Tariflere dön
       </Link>
 
@@ -170,19 +200,10 @@ export default async function RecipeDetailPage({ params }: Props) {
         {/* Hero image */}
         <div className="relative h-72 bg-warm-100">
           {hasImage ? (
-            <Image
-              src={recipe.image_url!}
-              alt={recipe.title}
-              fill
-              className="object-cover"
-              priority
-            />
+            <Image src={recipe.image_url!} alt={recipe.title} fill className="object-cover" priority />
           ) : (
-            <div className="flex items-center justify-center h-full text-7xl text-warm-300">
-              🍽️
-            </div>
+            <div className="flex items-center justify-center h-full text-7xl text-warm-300">🍽️</div>
           )}
-          {/* Yazar overlay */}
           <Link
             href={`/uye/${authorUsername}`}
             className="absolute bottom-3 left-3 flex items-center gap-2 bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors rounded-full px-3 py-1.5"
@@ -199,7 +220,6 @@ export default async function RecipeDetailPage({ params }: Props) {
         </div>
 
         <div className="p-8">
-          {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-2 flex-wrap">
               <Badge category={recipe.category as Category} />
@@ -209,12 +229,9 @@ export default async function RecipeDetailPage({ params }: Props) {
                 </span>
               )}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-warm-900 mt-3 leading-snug">
-              {recipe.title}
-            </h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-warm-900 mt-3 leading-snug">{recipe.title}</h1>
           </div>
 
-          {/* Ingredients */}
           <section className="mb-8">
             <h2 className="text-lg font-semibold text-warm-800 mb-4 flex items-center gap-2">
               <span className="w-6 h-6 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-sm">🧂</span>
@@ -224,9 +241,7 @@ export default async function RecipeDetailPage({ params }: Props) {
               <div className="bg-warm-50 rounded-xl p-5 space-y-1">
                 {parseIngredients(recipe.ingredients).map((item, i) =>
                   item.type === "heading" ? (
-                    <h3 key={i} className="text-sm font-bold text-warm-800 border-b border-warm-200 pb-1 mt-4 mb-0 first:mt-0">
-                      {item.text}
-                    </h3>
+                    <h3 key={i} className="text-sm font-bold text-warm-800 border-b border-warm-200 pb-1 mt-4 mb-0 first:mt-0">{item.text}</h3>
                   ) : (
                     <div key={i} className="flex items-start gap-2.5 text-warm-700 text-sm py-0.5">
                       <span className="text-brand-400 mt-0.5 shrink-0">•</span>
@@ -247,7 +262,6 @@ export default async function RecipeDetailPage({ params }: Props) {
             )}
           </section>
 
-          {/* Instructions */}
           <section>
             <h2 className="text-lg font-semibold text-warm-800 mb-4 flex items-center gap-2">
               <span className="w-6 h-6 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-sm">👨‍🍳</span>
@@ -259,9 +273,7 @@ export default async function RecipeDetailPage({ params }: Props) {
                   <span className="flex-shrink-0 w-7 h-7 rounded-full bg-brand-600 text-white font-bold text-xs flex items-center justify-center mt-0.5">
                     {i + 1}
                   </span>
-                  <span className="pt-0.5 leading-relaxed">
-                    {step.replace(/^\d+\.\s*/, "")}
-                  </span>
+                  <span className="pt-0.5 leading-relaxed">{step.replace(/^\d+\.\s*/, "")}</span>
                 </li>
               ))}
             </ol>
@@ -270,28 +282,32 @@ export default async function RecipeDetailPage({ params }: Props) {
       </div>
 
       {/* Yazar kartı */}
-      <Link
-        href={`/uye/${authorUsername}`}
-        className="mt-6 flex items-center gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-4 hover:border-brand-200 hover:shadow-md transition-all group"
-      >
-        {authorAvatar ? (
-          <img src={authorAvatar} alt={authorFullName || authorName}
-            className="w-11 h-11 rounded-full object-cover flex-shrink-0 ring-2 ring-warm-100" />
-        ) : (
-          <div className="w-11 h-11 rounded-full bg-brand-100 flex items-center justify-center text-lg font-bold text-brand-600 flex-shrink-0 ring-2 ring-warm-100">
-            {(authorFullName || authorName).charAt(0).toUpperCase()}
+      <div className="mt-6 flex items-center gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-4">
+        <Link href={`/uye/${authorUsername}`} className="flex items-center gap-4 flex-1 min-w-0 group">
+          {authorAvatar ? (
+            <img src={authorAvatar} alt={authorFullName || authorName}
+              className="w-11 h-11 rounded-full object-cover flex-shrink-0 ring-2 ring-warm-100" />
+          ) : (
+            <div className="w-11 h-11 rounded-full bg-brand-100 flex items-center justify-center text-lg font-bold text-brand-600 flex-shrink-0 ring-2 ring-warm-100">
+              {(authorFullName || authorName).charAt(0).toUpperCase()}
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] text-warm-400">Bu tarifi hazırlayan</p>
+            <p className="font-semibold text-warm-900 text-sm group-hover:text-brand-700 transition-colors leading-tight">
+              {authorFullName || authorName}
+            </p>
+            {authorFullName && <p className="text-[11px] text-warm-400">@{authorName}</p>}
+            <p className="text-[11px] text-warm-400 mt-0.5">{authorRecipeCount} tarif · Tüm tarifleri gör →</p>
           </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <p className="text-[11px] text-warm-400">Bu tarifi hazırlayan</p>
-          <p className="font-semibold text-warm-900 text-sm group-hover:text-brand-700 transition-colors leading-tight">
-            {authorFullName || authorName}
-          </p>
-          {authorFullName && <p className="text-[11px] text-warm-400">@{authorName}</p>}
-          <p className="text-[11px] text-warm-400 mt-0.5">{authorRecipeCount} tarif · Tüm tarifleri gör →</p>
-        </div>
-        <span className="text-warm-300 group-hover:text-brand-400 transition-colors text-base flex-shrink-0">→</span>
-      </Link>
+        </Link>
+        <FollowButton
+          targetUserId={isAdminAuthor ? undefined : authorUserId ?? undefined}
+          isAdminProfile={isAdminAuthor}
+          initialFollowing={initialFollowing}
+          isLoggedIn={!!currentUserId}
+        />
+      </div>
 
       {/* Rating + Favorite */}
       <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -299,12 +315,23 @@ export default async function RecipeDetailPage({ params }: Props) {
         <FavoriteButton recipeId={recipe.id} />
       </div>
 
+      {/* Öne Çıkan Tarifler slider */}
+      {featured.length > 0 && (
+        <div className="mt-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-warm-800">Öne Çıkan Tarifler</h2>
+            <Link href="/recipes" className="text-sm text-brand-600 hover:underline">
+              Tüm tarifleri gör →
+            </Link>
+          </div>
+          <RecipeSlider recipes={featured} adminAuthor={adminAuthor} profileMap={profileMap} />
+        </div>
+      )}
+
       {/* Bottom nav */}
       <div className="mt-6 flex items-center justify-between flex-wrap gap-3">
-        <Link
-          href="/recipes"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-warm-200 text-warm-700 rounded-xl text-sm font-medium hover:bg-warm-50 transition-colors"
-        >
+        <Link href="/recipes"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-warm-200 text-warm-700 rounded-xl text-sm font-medium hover:bg-warm-50 transition-colors">
           ← Tüm tariflere dön
         </Link>
         <ShareButton title={recipe.title} />

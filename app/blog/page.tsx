@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getBlogCategories, getBlogPosts } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
+import FollowButton from "@/components/ui/FollowButton";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -29,6 +30,9 @@ interface UnifiedPost {
   categoryName: string | null;
   authorName: string;
   authorAvatar: string;
+  authorUsername: string;
+  authorId: string | null;   // null = admin
+  isAdminAuthor: boolean;
 }
 
 export default async function BlogPage({ searchParams }: Props) {
@@ -76,6 +80,9 @@ export default async function BlogPage({ searchParams }: Props) {
     categoryName: p.category?.name ?? null,
     authorName:   adminAuthorName,
     authorAvatar: adminAuthorAvatar,
+    authorUsername: "__admin__",
+    authorId:     null,
+    isAdminAuthor: true,
   }));
 
   // Üye yazılarını birleştir (kategori filtresi varsa uygula)
@@ -100,6 +107,9 @@ export default async function BlogPage({ searchParams }: Props) {
         categoryName: (p.blog_categories as any)?.name ?? null,
         authorName:   profile?.username ?? "Üye",
         authorAvatar: profile?.avatar_url ?? "",
+        authorUsername: profile?.username ?? "Üye",
+        authorId:     p.submitted_by as string,
+        isAdminAuthor: false,
       };
     });
 
@@ -109,6 +119,23 @@ export default async function BlogPage({ searchParams }: Props) {
 
   const totalPages = Math.ceil(allPosts.length / PER_PAGE);
   const posts = allPosts.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+
+  // Takip durumu
+  const { data: { user } } = await supabase.auth.getUser();
+  const currentUserId = user?.id ?? null;
+  let followsAdmin = false;
+  const followedMemberIds = new Set<string>();
+  if (currentUserId) {
+    const memberAuthorIds = [...new Set(posts.filter((p) => !p.isAdminAuthor && p.authorId).map((p) => p.authorId as string))];
+    const [adminFollowRes, memberFollowRes] = await Promise.all([
+      supabase.from("admin_follows").select("follower_id").eq("follower_id", currentUserId).maybeSingle(),
+      memberAuthorIds.length
+        ? supabase.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", memberAuthorIds)
+        : Promise.resolve({ data: [] }),
+    ]);
+    followsAdmin = !!adminFollowRes.data;
+    (memberFollowRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
+  }
 
   function href(overrides: { kategori?: string; page?: number }) {
     const p = new URLSearchParams();
@@ -168,59 +195,71 @@ export default async function BlogPage({ searchParams }: Props) {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map((post) => (
-            <Link
-              key={post.id}
-              href={post.href}
-              className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
-            >
-              <div className="relative h-48 bg-warm-100 shrink-0">
-                {post.image_url ? (
-                  <Image
-                    src={post.image_url}
-                    alt={post.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-full text-5xl text-warm-300">
-                    ✍️
+          {posts.map((post) => {
+            const initialFollowing = post.isAdminAuthor
+              ? followsAdmin
+              : post.authorId ? followedMemberIds.has(post.authorId) : false;
+            return (
+              <div
+                key={post.id}
+                className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
+              >
+                <Link href={post.href} className="flex flex-col flex-1">
+                  <div className="relative h-48 bg-warm-100 shrink-0">
+                    {post.image_url ? (
+                      <Image
+                        src={post.image_url}
+                        alt={post.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-5xl text-warm-300">
+                        ✍️
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              <div className="p-5 flex flex-col flex-1">
-                {post.categoryName && (
-                  <span className="inline-block self-start w-fit mb-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-100 text-brand-700">
-                    {post.categoryName}
-                  </span>
-                )}
-                <h2 className="text-base font-semibold text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2">
-                  {post.title}
-                </h2>
-                {post.excerpt && (
-                  <p className="text-sm text-warm-400 mt-1.5 line-clamp-2 leading-relaxed">
-                    {post.excerpt}
-                  </p>
-                )}
-                <div className="flex items-center gap-2 mt-auto pt-3">
-                  {post.authorAvatar ? (
-                    <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
-                  ) : (
-                    <span className="w-5 h-5 rounded-full bg-brand-100 flex items-center justify-center text-[9px] font-bold text-brand-600 flex-shrink-0">
-                      {post.authorName.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                  <span className="text-xs text-warm-500 font-medium truncate">{post.authorName}</span>
-                  <span className="text-warm-200 text-xs">·</span>
-                  <span className="text-xs text-warm-300 flex-shrink-0">
-                    {new Date(post.created_at).toLocaleDateString("tr-TR", {
-                      day: "numeric", month: "short", year: "numeric",
-                    })}
-                  </span>
+                  <div className="p-5 flex flex-col flex-1">
+                    {post.categoryName && (
+                      <span className="inline-block self-start w-fit mb-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-100 text-brand-700">
+                        {post.categoryName}
+                      </span>
+                    )}
+                    <h2 className="text-base font-semibold text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2">
+                      {post.title}
+                    </h2>
+                    {post.excerpt && (
+                      <p className="text-sm text-warm-400 mt-1.5 line-clamp-2 leading-relaxed">
+                        {post.excerpt}
+                      </p>
+                    )}
+                    <p className="text-xs text-warm-300 mt-auto pt-3 flex-shrink-0">
+                      {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })}
+                    </p>
+                  </div>
+                </Link>
+                {/* Yazar satırı + Takip Et */}
+                <div className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-warm-100">
+                  <Link href={`/uye/${post.authorUsername}`} className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+                    {post.authorAvatar ? (
+                      <img src={post.authorAvatar} alt={post.authorName} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                    ) : (
+                      <span className="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-[9px] font-bold text-brand-600 flex-shrink-0">
+                        {post.authorName.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                    <span className="text-xs text-warm-500 font-medium group-hover/author:text-brand-600 transition-colors truncate">{post.authorName}</span>
+                  </Link>
+                  <FollowButton
+                    targetUserId={post.isAdminAuthor ? undefined : post.authorId ?? undefined}
+                    isAdminProfile={post.isAdminAuthor}
+                    initialFollowing={initialFollowing}
+                    isLoggedIn={!!currentUserId}
+                  />
                 </div>
               </div>
-            </Link>
-          ))}
+            );
+          })}
         </div>
       )}
 

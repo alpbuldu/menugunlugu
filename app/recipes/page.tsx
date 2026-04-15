@@ -5,6 +5,7 @@ import { getRecipes } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
+import FollowButton from "@/components/ui/FollowButton";
 
 export const metadata: Metadata = {
   title: "Tarifler",
@@ -61,6 +62,22 @@ export default async function RecipesPage({ searchParams }: Props) {
     return submittedBy ? (profileMap[submittedBy] ?? adminAuthor) : adminAuthor;
   }
 
+  // Takip durumu
+  const { data: { user } } = await supabase.auth.getUser();
+  const currentUserId = user?.id ?? null;
+  let followsAdmin = false;
+  const followedMemberIds = new Set<string>();
+  if (currentUserId) {
+    const [adminFollowRes, memberFollowRes] = await Promise.all([
+      supabase.from("admin_follows").select("follower_id").eq("follower_id", currentUserId).maybeSingle(),
+      memberIds.length
+        ? supabase.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", memberIds)
+        : Promise.resolve({ data: [] }),
+    ]);
+    followsAdmin = !!adminFollowRes.data;
+    (memberFollowRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
+  }
+
   /** Build ?category=X&page=Y preserving current filters */
   function href(overrides: { category?: string; page?: number }) {
     const p = new URLSearchParams();
@@ -107,6 +124,8 @@ export default async function RecipesPage({ searchParams }: Props) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {recipes.map((recipe) => {
             const a = getAuthor(recipe.submitted_by ?? null);
+            const isAdmin = !recipe.submitted_by;
+            const initialFollowing = isAdmin ? followsAdmin : followedMemberIds.has(recipe.submitted_by!);
             return (
               <div
                 key={recipe.id}
@@ -134,24 +153,27 @@ export default async function RecipesPage({ searchParams }: Props) {
                     </h2>
                   </div>
                 </Link>
-                <Link
-                  href={`/uye/${a.username}`}
-                  className="flex items-center gap-2 px-5 pb-4 pt-2 border-t border-warm-100 hover:bg-warm-50 transition-colors group/author"
-                >
-                  {a.avatar ? (
-                    <img src={a.avatar} alt={a.name} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
-                  ) : (
-                    <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                      {a.name.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
-                    <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
-                      {a.name}
-                    </span>
-                  </div>
-                </Link>
+                <div className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-warm-100">
+                  <Link href={`/uye/${a.username}`} className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+                    {a.avatar ? (
+                      <img src={a.avatar} alt={a.name} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                    ) : (
+                      <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                        {a.name.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
+                      <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{a.name}</span>
+                    </div>
+                  </Link>
+                  <FollowButton
+                    targetUserId={isAdmin ? undefined : recipe.submitted_by ?? undefined}
+                    isAdminProfile={isAdmin}
+                    initialFollowing={initialFollowing}
+                    isLoggedIn={!!currentUserId}
+                  />
+                </div>
               </div>
             );
           })}

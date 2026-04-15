@@ -211,6 +211,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
       {/* ── Tab: Tariflerim ── */}
       {tab === "tariflerim" && (
         <section className="space-y-3">
+          <p className="text-xs text-warm-400 mb-4">Gönderdiğiniz tarifler burada listelenir. Onaylanan tarifler sitede yayınlanır; incelemede olanlar ekibimiz tarafından değerlendirilmektedir.</p>
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm text-warm-500">{recipesPag.total} tarif</p>
             <Link href="/tarif-ekle" className="text-sm text-brand-600 hover:underline">+ Yeni tarif ekle</Link>
@@ -255,6 +256,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
       {/* ── Tab: Tarif Defterim ── */}
       {tab === "tarif-defterim" && (
         <section>
+          <p className="text-xs text-warm-400 mb-3">Beğendiğiniz tarifleri kalp butonuna basarak buraya kaydedebilirsiniz. Kaydettiğiniz tarifler yalnızca size görünür.</p>
           <p className="text-sm text-warm-500 mb-4">{favsPag.total} tarif kaydedildi</p>
           {favsPag.total === 0 ? (
             <Empty icon="📚" text="Tarif defteriniz boş. Tarifleri incelerken ❤️ butona basın." />

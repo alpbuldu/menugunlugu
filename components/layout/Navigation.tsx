@@ -364,43 +364,48 @@ export default function Navigation() {
           <div className="absolute top-full left-0 right-0 bg-white border border-brand-200 border-t-0 rounded-b-2xl shadow-lg z-50 overflow-hidden">
             {links.map((link) => (
               <Link key={link.href} href={link.href} onClick={() => setOpen(false)}
-                className={clsx("flex items-center gap-2 px-5 py-3.5 text-sm font-medium border-b border-warm-100 transition-colors",
+                className={clsx("flex items-center gap-3 px-5 py-3.5 text-sm font-medium border-b border-warm-100 transition-colors",
                   pathname === link.href
                     ? "text-brand-700 bg-brand-50"
                     : "text-warm-700 hover:bg-warm-50 hover:text-warm-900")}>
-                <span>{link.emoji}</span>
+                <span className="w-5 text-center flex-shrink-0">{link.emoji}</span>
                 {link.label}
               </Link>
             ))}
             <Link href="/tarif-ekle" onClick={() => setOpen(false)}
-              className="flex items-center gap-2 px-5 py-3.5 text-sm font-medium border-b border-warm-100 text-brand-700 hover:bg-brand-50 transition-colors">
-              ✏️ Tarif Ekle
+              className="flex items-center gap-3 px-5 py-3.5 text-sm font-medium border-b border-warm-100 text-warm-700 hover:bg-warm-50 transition-colors">
+              <span className="w-5 text-center flex-shrink-0">✏️</span>
+              Tarif Ekle
             </Link>
             {user ? (
               <>
                 <Link href="/uye/panel" onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-5 py-3.5 text-sm font-medium border-b border-warm-100 text-warm-700 hover:bg-warm-50 transition-colors">
-                  <div className="w-6 h-6 rounded-full bg-brand-100 overflow-hidden flex items-center justify-center flex-shrink-0">
-                    {profile?.avatar_url
-                      ? <Image src={profile.avatar_url} alt="Profil" width={24} height={24} className="w-full h-full object-cover" />
-                      : <span className="text-xs">👤</span>}
-                  </div>
-                  <span>
-                    <span className="text-warm-500">Hesabım</span>
+                  className="flex items-center gap-3 px-5 py-3.5 text-sm font-medium border-b border-warm-100 text-warm-700 hover:bg-warm-50 transition-colors">
+                  <span className="w-5 flex-shrink-0 flex items-center justify-center">
+                    <div className="w-5 h-5 rounded-full bg-brand-100 overflow-hidden flex items-center justify-center">
+                      {profile?.avatar_url
+                        ? <Image src={profile.avatar_url} alt="Profil" width={20} height={20} className="w-full h-full object-cover" />
+                        : <span className="text-[10px]">👤</span>}
+                    </div>
+                  </span>
+                  <span className="truncate">
+                    Hesabım
                     {profile?.username && (
-                      <> — <span className="font-semibold">{profile.username}</span></>
+                      <span className="text-warm-400"> — {profile.username}</span>
                     )}
                   </span>
                 </Link>
                 <button onClick={handleMobileLogout}
-                  className="w-full flex items-center gap-2 px-5 py-3.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">
-                  🚪 Çıkış Yap
+                  className="w-full flex items-center gap-3 px-5 py-3.5 text-sm font-medium text-red-500 hover:bg-red-50 transition-colors">
+                  <span className="w-5 text-center flex-shrink-0">🚪</span>
+                  Çıkış Yap
                 </button>
               </>
             ) : (
               <Link href="/giris" onClick={() => setOpen(false)}
-                className="flex items-center gap-2 px-5 py-3.5 text-sm font-medium text-brand-700 hover:bg-brand-50 transition-colors">
-                🔑 Giriş Yap
+                className="flex items-center gap-3 px-5 py-3.5 text-sm font-medium text-brand-700 hover:bg-brand-50 transition-colors">
+                <span className="w-5 text-center flex-shrink-0">🔑</span>
+                Giriş Yap
               </Link>
             )}
           </div>

@@ -255,7 +255,7 @@ export default function RecipeSlider({
                             {a.name.charAt(0).toUpperCase()}
                           </span>
                         )}
-                        <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
+                        <span className={`font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate ${compact && !isMobile ? "text-[10px]" : "text-xs"}`}>
                           {a.name}
                         </span>
                       </Link>
@@ -264,7 +264,7 @@ export default function RecipeSlider({
                         isAdminProfile={authorIsAdmin}
                         initialFollowing={initFollowing}
                         isLoggedIn={isLoggedIn}
-                        size={compact ? "xs" : "sm"}
+                        size={compact && !isMobile ? "xs" : "sm"}
                       />
                     </div>
                   </div>

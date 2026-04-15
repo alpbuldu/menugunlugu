@@ -160,43 +160,44 @@ export default async function UyePanelPage({ searchParams }: Props) {
 
       {/* ── Profil başlık ── */}
       <div className="mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
 
-        {/* Üst satır: avatar + isim + fotoğraf yükle (mobil sağda dikey, web gizli) */}
-        <div className="flex items-center gap-4 mb-3">
-          <div className="w-14 h-14 rounded-full bg-brand-100 flex items-center justify-center overflow-hidden flex-shrink-0 border border-brand-200">
-            {profile?.avatar_url ? (
-              <Image src={profile.avatar_url} alt="Profil" width={56} height={56} className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-xl font-bold text-brand-600">
-                {(profile?.full_name || profile?.username || user.email || "U").charAt(0).toUpperCase()}
-              </span>
-            )}
+          {/* Avatar + isim satırı */}
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            <div className="w-14 h-14 rounded-full bg-brand-100 flex items-center justify-center overflow-hidden flex-shrink-0 border border-brand-200">
+              {profile?.avatar_url ? (
+                <Image src={profile.avatar_url} alt="Profil" width={56} height={56} className="w-full h-full object-cover" />
+              ) : (
+                <span className="text-xl font-bold text-brand-600">
+                  {(profile?.full_name || profile?.username || user.email || "U").charAt(0).toUpperCase()}
+                </span>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg font-bold text-warm-900 truncate">
+                {profile?.full_name || profile?.username || user.email}
+              </h1>
+              {profile?.full_name && profile?.username && (
+                <p className="text-xs text-warm-400">@{profile.username}</p>
+              )}
+            </div>
+            {/* Mobilde sağ köşe: ikon + "Fotoğraf Yükle" dikey */}
+            <AvatarUpload variant="stacked" className="sm:hidden flex-shrink-0" />
           </div>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-bold text-warm-900 truncate">
-              {profile?.full_name || profile?.username || user.email}
-            </h1>
-            {profile?.full_name && profile?.username && (
-              <p className="text-xs text-warm-400">@{profile.username}</p>
-            )}
-          </div>
-          {/* Mobilde sağ köşe: ikon üstte, "Fotoğraf Yükle" altta */}
-          <AvatarUpload variant="stacked" className="sm:hidden flex-shrink-0" />
-        </div>
 
-        {/* Alt satır: butonlar */}
-        <div className="flex gap-2 sm:flex-shrink-0 items-center">
-          {/* Web'de fotoğraf yükle butonu buton satırında */}
-          <AvatarUpload variant="inline" className="hidden sm:block" />
-          <Link href="/tarif-ekle"
-            className="flex-1 sm:flex-none text-center px-3 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors">
-            + Tarif Ekle
-          </Link>
-          <Link href="/yazi-ekle"
-            className="flex-1 sm:flex-none text-center px-3 py-2 rounded-xl bg-warm-700 hover:bg-warm-800 text-white text-sm font-medium transition-colors">
-            + Yazı Ekle
-          </Link>
-          <LogoutButton />
+          {/* Butonlar — webde sağ, mobilde alt satır */}
+          <div className="flex gap-2 sm:flex-shrink-0 items-center">
+            <AvatarUpload variant="inline" className="hidden sm:block" />
+            <Link href="/tarif-ekle"
+              className="flex-1 sm:flex-none text-center px-3 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors">
+              + Tarif Ekle
+            </Link>
+            <Link href="/yazi-ekle"
+              className="flex-1 sm:flex-none text-center px-3 py-2 rounded-xl bg-warm-700 hover:bg-warm-800 text-white text-sm font-medium transition-colors">
+              + Yazı Ekle
+            </Link>
+            <LogoutButton />
+          </div>
         </div>
       </div>
 

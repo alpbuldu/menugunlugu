@@ -267,7 +267,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
       side:    sel.side.id,
       dessert: sel.dessert.id,
     });
-    window.open(`/menu-pdf?${params.toString()}`, "_blank");
+    window.open(`/api/menu-pdf-download?${params.toString()}`, "_blank");
   }
 
   const currentRecipes = grouped[activeCategory];
@@ -322,7 +322,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm font-medium hover:bg-amber-100 hover:border-amber-300 transition-colors"
                 >
                   <span>📄</span>
-                  Günün Menüsü Kartı
+                  Günün Menüsü
                 </button>
                 <button
                   type="button"

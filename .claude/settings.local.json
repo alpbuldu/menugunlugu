@@ -13,7 +13,8 @@
       "mcp__Claude_Preview__preview_start",
       "Bash(kill 77171)",
       "Bash(find /Users/hikayeliyemekler/menugunlugu/components/admin -name BlogPostForm*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm list:*)"
     ]
   }
 }

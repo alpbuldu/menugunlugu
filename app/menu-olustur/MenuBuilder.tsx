@@ -15,7 +15,14 @@ const SLOTS: { key: Category; label: string; emoji: string }[] = [
 type Selection = Partial<Record<Category, MenuRecipe>>;
 
 function parseIngredients(html: string): string[] {
-  const text = html.replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim();
+  const text = html
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<\/div>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&");
   return text
     .split("\n")
     .map((l) => l.trim())
@@ -57,72 +64,6 @@ function CloseIcon() {
   );
 }
 
-interface ShoppingModalProps {
-  selection: Record<Category, MenuRecipe>;
-  onClose: () => void;
-}
-
-function ShoppingModal({ selection, onClose }: ShoppingModalProps) {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-warm-100 bg-brand-50">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">🛒</span>
-            <h2 className="text-base font-semibold text-warm-900">Alışveriş Listesi</h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-warm-500 hover:bg-warm-100 hover:text-warm-800 transition-colors"
-            aria-label="Kapat"
-          >
-            <CloseIcon />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="overflow-y-auto max-h-[60vh] px-6 py-4 space-y-5">
-          {SLOTS.map(({ key, label, emoji }) => {
-            const recipe = selection[key];
-            const items = parseIngredients(recipe.ingredients);
-            if (!items.length) return null;
-            return (
-              <div key={key}>
-                <div className="flex items-center gap-1.5 mb-2">
-                  <span className="text-sm">{emoji}</span>
-                  <h3 className="text-xs font-semibold text-brand-700 uppercase tracking-wider">{label}</h3>
-                  <span className="text-xs text-warm-400">— {recipe.title}</span>
-                </div>
-                <ul className="space-y-1">
-                  {items.map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-warm-700">
-                      <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-300 flex-shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-warm-100 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-warm-100 text-warm-700 text-sm font-medium hover:bg-warm-200 transition-colors"
-          >
-            Kapat
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 interface SlotCardProps {
   slot: { key: Category; label: string; emoji: string };
@@ -273,7 +214,6 @@ interface MenuBuilderProps {
 export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   const [activeCategory, setActiveCategory] = useState<Category>("soup");
   const [selection, setSelection] = useState<Selection>({});
-  const [showShopping, setShowShopping] = useState(false);
 
   const allFilled = SLOTS.every(({ key }) => !!selection[key]);
   const filledCount = SLOTS.filter(({ key }) => !!selection[key]).length;
@@ -303,6 +243,18 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
       dessert: sel.dessert.title,
     });
     window.open(`/api/menu-karti?${params.toString()}`, "_blank");
+  }
+
+  function handlePdf() {
+    if (!allFilled) return;
+    const sel = selection as Record<Category, MenuRecipe>;
+    const params = new URLSearchParams({
+      soup:    sel.soup.id,
+      main:    sel.main.id,
+      side:    sel.side.id,
+      dessert: sel.dessert.id,
+    });
+    window.open(`/menu-pdf?${params.toString()}`, "_blank");
   }
 
   const currentRecipes = grouped[activeCategory];
@@ -351,11 +303,11 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
               <div className="mt-4 space-y-2">
                 <button
                   type="button"
-                  onClick={() => setShowShopping(true)}
+                  onClick={handlePdf}
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm font-medium hover:bg-amber-100 hover:border-amber-300 transition-colors"
                 >
-                  <span>🛒</span>
-                  Alışveriş Listesi
+                  <span>📄</span>
+                  Günün Menüsü Kartı
                 </button>
                 <button
                   type="button"
@@ -429,13 +381,6 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
         </div>
       </div>
 
-      {/* Shopping list modal */}
-      {showShopping && allFilled && (
-        <ShoppingModal
-          selection={selection as Record<Category, MenuRecipe>}
-          onClose={() => setShowShopping(false)}
-        />
-      )}
     </>
   );
 }

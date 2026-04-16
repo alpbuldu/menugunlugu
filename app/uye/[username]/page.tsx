@@ -179,7 +179,7 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
 
         {/* Takip Et butonu — band'ın hemen altında sağ köşe */}
         {showFollowButton && (
-          <div className="absolute right-8 top-[92px] sm:right-10 sm:top-[110px]">
+          <div className="absolute right-5 top-[92px] sm:right-10 sm:top-[110px]">
             <FollowButton
               targetUserId={isAdmin ? undefined : profileId!}
               isAdminProfile={isAdmin}

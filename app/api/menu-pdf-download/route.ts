@@ -133,7 +133,29 @@ export async function GET(request: NextRequest) {
   const allIngredients: string[] = [];
   for (const key of SLOTS) allIngredients.push(...recipes[key].ingredients);
 
-  /* Register fonts from public CDN (lazy, runs once per cold start) */
+  /* Pre-fetch images → base64 data URIs (react-pdf can't fetch Supabase URLs) */
+  async function fetchImageDataUri(url: string | null): Promise<string | null> {
+    if (!url) return null;
+    try {
+      const res = await fetch(url, { headers: { "Accept-Encoding": "identity" } });
+      if (!res.ok) return null;
+      const buf = Buffer.from(await res.arrayBuffer());
+      const ct  = res.headers.get("content-type") ?? "image/jpeg";
+      return `data:${ct};base64,${buf.toString("base64")}`;
+    } catch {
+      return null;
+    }
+  }
+
+  const imageUris = await Promise.all(
+    SLOTS.map((key) => fetchImageDataUri(recipes[key].image_url))
+  );
+
+  SLOTS.forEach((key, i) => {
+    recipes[key].image_url = imageUris[i];
+  });
+
+  /* Register fonts */
   const origin = new URL(request.url).origin;
   ensureFonts(origin);
 

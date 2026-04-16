@@ -161,14 +161,14 @@ function RecipeCard({ recipe, isSelected, onSelect }: RecipeCardProps) {
     <button
       type="button"
       onClick={onSelect}
-      className={`group relative w-full text-left rounded-xl border overflow-hidden transition-all duration-150 ${
+      className={`group relative w-full text-left rounded-xl border overflow-hidden transition-all duration-150 flex flex-col ${
         isSelected
           ? "border-brand-400 shadow-md ring-2 ring-brand-200/60"
           : "border-warm-200 hover:border-brand-300 shadow-sm hover:shadow-md"
       }`}
     >
-      {/* Image */}
-      <div className="relative h-36 bg-warm-100">
+      {/* Image — fixed height so all cards align */}
+      <div className="relative h-32 sm:h-36 bg-warm-100 flex-shrink-0">
         {recipe.image_url ? (
           <Image
             src={recipe.image_url}
@@ -193,8 +193,8 @@ function RecipeCard({ recipe, isSelected, onSelect }: RecipeCardProps) {
         )}
       </div>
 
-      {/* Title */}
-      <div className="px-3 py-2.5">
+      {/* Title — fixed height, 2 lines always */}
+      <div className="px-3 py-2.5 h-[52px] flex items-center">
         <p
           className={`text-sm font-medium line-clamp-2 leading-snug transition-colors ${
             isSelected ? "text-brand-700" : "text-warm-800 group-hover:text-brand-700"

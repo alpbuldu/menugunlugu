@@ -4,7 +4,30 @@ import {
   View,
   Text,
   StyleSheet,
+  Font,
 } from "@react-pdf/renderer";
+
+/* ── Font registration (Latin + Turkish support) ─────────────── */
+Font.register({
+  family: "Roboto",
+  fonts: [
+    {
+      src: "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf",
+      fontWeight: 400,
+    },
+    {
+      src: "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf",
+      fontWeight: 500,
+    },
+    {
+      src: "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Bold.ttf",
+      fontWeight: 700,
+    },
+  ],
+});
+
+/* Disable automatic hyphenation */
+Font.registerHyphenationCallback((word) => [word]);
 
 /* ── Brand palette ───────────────────────────────────────────── */
 const C = {
@@ -25,7 +48,7 @@ const C = {
 const s = StyleSheet.create({
   page: {
     backgroundColor: C.white,
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
     fontSize: 10,
     color: C.text,
   },
@@ -42,13 +65,15 @@ const s = StyleSheet.create({
     fontSize: 8,
     color: C.brandLight,
     letterSpacing: 2.5,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto",
+    fontWeight: 700,
     marginBottom: 14,
     textTransform: "uppercase",
   },
   coverTitle: {
     fontSize: 40,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto",
+    fontWeight: 700,
     color: C.white,
     marginBottom: 6,
     letterSpacing: -0.5,
@@ -56,7 +81,7 @@ const s = StyleSheet.create({
   coverDate: {
     fontSize: 12,
     color: C.brandLight,
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
   },
   coverBody: {
     paddingTop: 32,
@@ -89,7 +114,8 @@ const s = StyleSheet.create({
   },
   mealLabel: {
     fontSize: 7.5,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto",
+    fontWeight: 700,
     color: C.brand,
     letterSpacing: 1.5,
     textTransform: "uppercase",
@@ -97,13 +123,14 @@ const s = StyleSheet.create({
   },
   mealTitle: {
     fontSize: 15,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto",
+    fontWeight: 700,
     color: C.text,
   },
   mealAuthor: {
     fontSize: 8,
     color: C.muted,
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
     marginTop: 2,
   },
 
@@ -121,20 +148,22 @@ const s = StyleSheet.create({
   sectionLabel: {
     fontSize: 7.5,
     color: C.brandLight,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto",
+    fontWeight: 700,
     letterSpacing: 2,
     textTransform: "uppercase",
     marginBottom: 3,
   },
   sectionTitle: {
     fontSize: 20,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto",
+    fontWeight: 700,
     color: C.white,
   },
   sectionRight: {
     fontSize: 8,
     color: C.brandLight,
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
     textAlign: "right",
   },
 
@@ -168,7 +197,7 @@ const s = StyleSheet.create({
   shoppingText: {
     fontSize: 9.5,
     color: C.textMid,
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
     flex: 1,
     lineHeight: 1.4,
   },
@@ -179,13 +208,14 @@ const s = StyleSheet.create({
   },
   recipeTitle: {
     fontSize: 22,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto",
+    fontWeight: 700,
     color: C.text,
   },
   recipeMeta: {
     fontSize: 8.5,
     color: C.muted,
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
     marginTop: 3,
     marginBottom: 22,
   },
@@ -201,7 +231,8 @@ const s = StyleSheet.create({
   },
   colHeading: {
     fontSize: 7.5,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto",
+    fontWeight: 700,
     color: C.brand,
     letterSpacing: 1.5,
     textTransform: "uppercase",
@@ -228,7 +259,7 @@ const s = StyleSheet.create({
   ingText: {
     fontSize: 9.5,
     color: C.textMid,
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
     flex: 1,
     lineHeight: 1.4,
   },
@@ -253,13 +284,14 @@ const s = StyleSheet.create({
   },
   stepNum: {
     fontSize: 7.5,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto",
+    fontWeight: 700,
     color: C.brand,
   },
   stepText: {
     fontSize: 9.5,
     color: C.textMid,
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
     flex: 1,
     lineHeight: 1.55,
   },
@@ -281,12 +313,13 @@ const s = StyleSheet.create({
   footerText: {
     fontSize: 7.5,
     color: C.muted,
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
   },
   footerBrand: {
     fontSize: 7.5,
     color: C.brand,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Roboto",
+    fontWeight: 700,
   },
 });
 

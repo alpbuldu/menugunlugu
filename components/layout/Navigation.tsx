@@ -324,8 +324,8 @@ export default function Navigation() {
   return (
     <>
       {/* ── Desktop ──────────────────────────────────────────── */}
-      <div className="hidden md:flex items-center gap-4">
-        <nav className="flex items-center gap-0.5">
+      <div className="hidden md:flex items-center gap-2">
+        <nav className="flex items-center gap-1">
           {links.map((link) => (
             <Link key={link.href} href={link.href}
               className={clsx("px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",

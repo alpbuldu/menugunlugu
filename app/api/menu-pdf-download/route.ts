@@ -135,16 +135,24 @@ export async function GET(request: NextRequest) {
   /* Render PDF */
   const dateStr = formatDate(new Date());
 
-  // @ts-expect-error react-pdf types differ from React types
-  const buffer = await renderToBuffer(
-    createElement(MenuPdfDocument, { recipes, allIngredients, dateStr })
-  );
+  try {
+    // @ts-expect-error react-pdf types differ from React types
+    const buffer = await renderToBuffer(
+      createElement(MenuPdfDocument, { recipes, allIngredients, dateStr })
+    );
 
-  return new Response(buffer as unknown as BodyInit, {
-    headers: {
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="gunun-menusu-${new Date().toISOString().slice(0, 10)}.pdf"`,
-      "Cache-Control": "no-store",
-    },
-  });
+    return new Response(buffer as unknown as BodyInit, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="gunun-menusu-${new Date().toISOString().slice(0, 10)}.pdf"`,
+        "Cache-Control": "no-store",
+      },
+    });
+  } catch (err) {
+    console.error("[menu-pdf-download] render error:", err);
+    return NextResponse.json(
+      { error: "PDF oluşturulamadı", detail: String(err) },
+      { status: 500 }
+    );
+  }
 }

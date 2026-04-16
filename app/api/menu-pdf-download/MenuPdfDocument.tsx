@@ -1,3 +1,4 @@
+import path from "path";
 import {
   Document,
   Page,
@@ -7,22 +8,15 @@ import {
   Font,
 } from "@react-pdf/renderer";
 
-/* ── Font registration (Latin + Turkish support) ─────────────── */
+/* ── Font registration (local TTF — Turkish support) ─────────── */
+const FONTS_DIR = path.join(process.cwd(), "public", "fonts");
+
 Font.register({
   family: "Roboto",
   fonts: [
-    {
-      src: "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf",
-      fontWeight: 400,
-    },
-    {
-      src: "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf",
-      fontWeight: 500,
-    },
-    {
-      src: "https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Bold.ttf",
-      fontWeight: 700,
-    },
+    { src: path.join(FONTS_DIR, "Roboto-Regular.ttf"), fontWeight: 400 },
+    { src: path.join(FONTS_DIR, "Roboto-Medium.ttf"),  fontWeight: 500 },
+    { src: path.join(FONTS_DIR, "Roboto-Bold.ttf"),    fontWeight: 700 },
   ],
 });
 

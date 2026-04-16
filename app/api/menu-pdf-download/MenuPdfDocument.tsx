@@ -8,25 +8,32 @@ import {
   Font,
 } from "@react-pdf/renderer";
 
-/* ── Font registration (lazy, data URI — bypasses CDN compression) */
+/* ── Font registration ───────────────────────────────────────────
+   Fetch fonts from our public CDN (Node fetch auto-decompresses),
+   write to /tmp (always writable on Vercel), register local paths.
+   _fontsReady cached per warm instance — cold start re-registers. */
+import fs   from "fs";
+import path from "path";
+import os   from "os";
+
 let _fontsReady = false;
 
 export async function ensureFonts(siteUrl: string) {
   if (_fontsReady) return;
   const base = siteUrl.replace(/\/$/, "");
 
-  // Fetch fonts ourselves so Node's fetch handles decompression,
-  // then pass as data URIs so react-pdf never makes its own HTTP call.
-  const toDataUri = async (url: string) => {
+  async function fetchToTmp(url: string, filename: string): Promise<string> {
     const res = await fetch(url, { headers: { "Accept-Encoding": "identity" } });
-    if (!res.ok) throw new Error(`Font fetch failed: ${url} (${res.status})`);
-    const buf = await res.arrayBuffer();
-    return `data:font/truetype;base64,${Buffer.from(buf).toString("base64")}`;
-  };
+    if (!res.ok) throw new Error(`Font fetch failed: ${url} → HTTP ${res.status}`);
+    const buf = Buffer.from(await res.arrayBuffer());
+    const dest = path.join(os.tmpdir(), filename);
+    fs.writeFileSync(dest, buf);
+    return dest;
+  }
 
   const [regular, bold] = await Promise.all([
-    toDataUri(`${base}/fonts/Roboto-Regular.ttf`),
-    toDataUri(`${base}/fonts/Roboto-Bold.ttf`),
+    fetchToTmp(`${base}/fonts/Roboto-Regular.ttf`, "pdf-roboto-regular.ttf"),
+    fetchToTmp(`${base}/fonts/Roboto-Bold.ttf`,    "pdf-roboto-bold.ttf"),
   ]);
 
   Font.register({

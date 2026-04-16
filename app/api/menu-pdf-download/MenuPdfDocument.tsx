@@ -8,44 +8,21 @@ import {
   Font,
 } from "@react-pdf/renderer";
 
-/* ── Font registration ───────────────────────────────────────────
-   Fetch fonts from our public CDN (Node fetch auto-decompresses),
-   write to /tmp (always writable on Vercel), register local paths.
-   _fontsReady cached per warm instance — cold start re-registers. */
-import fs   from "fs";
 import path from "path";
-import os   from "os";
 
-let _fontsReady = false;
+/* ── Font registration (local files via process.cwd) ─────────── */
+const FONTS = path.join(process.cwd(), "public", "fonts");
 
-export async function ensureFonts(siteUrl: string) {
-  if (_fontsReady) return;
-  const base = siteUrl.replace(/\/$/, "");
+Font.register({
+  family: "Roboto",
+  fonts: [
+    { src: path.join(FONTS, "Roboto-Regular.ttf"), fontWeight: 400 },
+    { src: path.join(FONTS, "Roboto-Medium.ttf"),  fontWeight: 700 },
+  ],
+});
+Font.registerHyphenationCallback((word) => [word]);
 
-  async function fetchToTmp(url: string, filename: string): Promise<string> {
-    const res = await fetch(url, { headers: { "Accept-Encoding": "identity" } });
-    if (!res.ok) throw new Error(`Font fetch failed: ${url} → HTTP ${res.status}`);
-    const buf = Buffer.from(await res.arrayBuffer());
-    const dest = path.join(os.tmpdir(), filename);
-    fs.writeFileSync(dest, buf);
-    return dest;
-  }
-
-  const [regular, bold] = await Promise.all([
-    fetchToTmp(`${base}/fonts/Roboto-Regular.ttf`, "pdf-roboto-regular.ttf"),
-    fetchToTmp(`${base}/fonts/Roboto-Bold.ttf`,    "pdf-roboto-bold.ttf"),
-  ]);
-
-  Font.register({
-    family: "Roboto",
-    fonts: [
-      { src: regular, fontWeight: 400 },
-      { src: bold,    fontWeight: 700 },
-    ],
-  });
-  Font.registerHyphenationCallback((word) => [word]);
-  _fontsReady = true;
-}
+export function ensureFonts(_siteUrl: string) { /* fonts registered at module load */ }
 
 /* ── Brand palette ───────────────────────────────────────────── */
 const C = {

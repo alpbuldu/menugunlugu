@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
 
   /* Register fonts from public CDN (lazy, runs once per cold start) */
   const origin = new URL(request.url).origin;
-  await ensureFonts(origin);
+  ensureFonts(origin);
 
   /* Render PDF */
   const dateStr = formatDate(new Date());

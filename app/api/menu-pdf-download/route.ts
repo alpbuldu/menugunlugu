@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
   /* Fetch recipes */
   const { data: rows, error } = await supabase
     .from("recipes")
-    .select("id, title, category, ingredients, instructions, servings, submitted_by")
+    .select("id, title, category, image_url, ingredients, instructions, servings, submitted_by")
     .in("id", allIds);
 
   if (error || !rows?.length) {
@@ -113,6 +113,7 @@ export async function GET(request: NextRequest) {
       id: r.id,
       title: r.title,
       category: r.category,
+      image_url: r.image_url ?? null,
       ingredients: parseIngredients(r.ingredients ?? ""),
       instructions: parseInstructions(r.instructions ?? ""),
       servings: r.servings ?? null,

@@ -55,56 +55,62 @@ export default async function UyePanelPage({ searchParams }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/giris");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id, username, avatar_url, bio, full_name, instagram, twitter, youtube, website, username_change_count")
-    .eq("id", user.id)
-    .single();
+  // Tüm sorgular paralel — tek round-trip
+  const [
+    { data: profile },
+    { data: recipes },
+    { data: favorites },
+    { data: posts },
+    { data: following },
+    { data: adminFollowRow },
+    { data: adminProfile },
+    { data: followers },
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("id, username, avatar_url, bio, full_name, instagram, twitter, youtube, website, username_change_count")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("recipes")
+      .select("id, title, slug, category, image_url, approval_status, created_at")
+      .eq("submitted_by", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("favorites")
+      .select("recipe_id, created_at, recipes(id, title, slug, category, image_url, submitted_by)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("member_posts")
+      .select("id, title, slug, approval_status, created_at")
+      .eq("submitted_by", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("follows")
+      .select("following_id, created_at, profiles!follows_following_id_fkey(id, username, full_name, avatar_url)")
+      .eq("follower_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("admin_follows")
+      .select("follower_id")
+      .eq("follower_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("admin_profile")
+      .select("username, avatar_url, full_name")
+      .eq("id", 1)
+      .maybeSingle(),
+    supabase
+      .from("follows")
+      .select("follower_id, created_at, profiles!follows_follower_id_fkey(id, username, full_name, avatar_url)")
+      .eq("following_id", user.id)
+      .order("created_at", { ascending: false }),
+  ]);
 
-  const { data: recipes } = await supabase
-    .from("recipes")
-    .select("id, title, slug, category, image_url, approval_status, created_at")
-    .eq("submitted_by", user.id)
-    .order("created_at", { ascending: false });
-
-  const { data: favorites } = await supabase
-    .from("favorites")
-    .select("recipe_id, created_at, recipes(id, title, slug, category, image_url, submitted_by)")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
-
-  const { data: posts } = await supabase
-    .from("member_posts")
-    .select("id, title, slug, approval_status, created_at")
-    .eq("submitted_by", user.id)
-    .order("created_at", { ascending: false });
-
-  const { data: following } = await supabase
-    .from("follows")
-    .select("following_id, created_at, profiles!follows_following_id_fkey(id, username, full_name, avatar_url)")
-    .eq("follower_id", user.id)
-    .order("created_at", { ascending: false });
-
-  const { data: adminFollowRow } = await supabase
-    .from("admin_follows")
-    .select("follower_id")
-    .eq("follower_id", user.id)
-    .maybeSingle();
   const followsAdmin = !!adminFollowRow;
 
-  const { data: adminProfile } = await supabase
-    .from("admin_profile")
-    .select("username, avatar_url, full_name")
-    .eq("id", 1)
-    .maybeSingle();
-
-  const { data: followers } = await supabase
-    .from("follows")
-    .select("follower_id, created_at, profiles!follows_follower_id_fkey(id, username, full_name, avatar_url)")
-    .eq("following_id", user.id)
-    .order("created_at", { ascending: false });
-
-  // Favori tariflerdeki yazarlar
+  // Favori tariflerdeki yazarlar — favorites geldikten sonra tek ek sorgu
   const favMemberIds = [...new Set(
     (favorites ?? []).flatMap((f) => {
       const r = f.recipes as unknown as { submitted_by?: string } | null;

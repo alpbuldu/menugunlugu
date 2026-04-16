@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import type { Category } from "@/lib/types";
 import type { MenuRecipe } from "./page";
@@ -214,6 +214,19 @@ interface MenuBuilderProps {
 export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   const [activeCategory, setActiveCategory] = useState<Category>("soup");
   const [selection, setSelection] = useState<Selection>({});
+  const [page, setPage] = useState(0);
+  const [perPage, setPerPage] = useState(15);
+
+  // Detect screen size for per-page count
+  useEffect(() => {
+    const update = () => setPerPage(window.innerWidth < 640 ? 12 : 15);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  // Reset page when category changes
+  useEffect(() => setPage(0), [activeCategory]);
 
   const allFilled = SLOTS.every(({ key }) => !!selection[key]);
   const filledCount = SLOTS.filter(({ key }) => !!selection[key]).length;
@@ -222,7 +235,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     setSelection((prev) => ({ ...prev, [activeCategory]: recipe }));
     // Auto-advance to next unfilled slot
     const nextSlot = SLOTS.find(({ key }) => key !== activeCategory && !selection[key]);
-    if (nextSlot) setActiveCategory(nextSlot.key);
+    if (nextSlot) { setActiveCategory(nextSlot.key); setPage(0); }
   }
 
   function clearSlot(category: Category) {
@@ -258,6 +271,8 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   }
 
   const currentRecipes = grouped[activeCategory];
+  const totalPages = Math.ceil(currentRecipes.length / perPage);
+  const pagedRecipes = currentRecipes.slice(page * perPage, (page + 1) * perPage);
 
   return (
     <>
@@ -367,16 +382,44 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
               <p className="text-sm text-warm-500">Bu kategoride onaylı tarif bulunamadı.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
-              {currentRecipes.map((recipe) => (
-                <RecipeCard
-                  key={recipe.id}
-                  recipe={recipe}
-                  isSelected={selection[activeCategory]?.id === recipe.id}
-                  onSelect={() => selectRecipe(recipe)}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
+                {pagedRecipes.map((recipe) => (
+                  <RecipeCard
+                    key={recipe.id}
+                    recipe={recipe}
+                    isSelected={selection[activeCategory]?.id === recipe.id}
+                    onSelect={() => selectRecipe(recipe)}
+                  />
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-warm-100">
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-warm-200 text-warm-600 hover:bg-warm-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    ← Önceki
+                  </button>
+                  <span className="text-xs text-warm-400">
+                    {page + 1} / {totalPages}
+                    <span className="ml-1.5 text-warm-300">({currentRecipes.length} tarif)</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                    disabled={page === totalPages - 1}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-warm-200 text-warm-600 hover:bg-warm-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Sonraki →
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

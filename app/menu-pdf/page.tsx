@@ -13,6 +13,12 @@ interface PdfRecipe {
   ingredients: string;
   instructions: string;
   servings: number | null;
+  submitted_by: string | null;
+}
+
+interface AuthorInfo {
+  name: string;
+  username: string;
 }
 
 const SLOTS: { key: Category; label: string; emoji: string }[] = [
@@ -82,9 +88,11 @@ export default async function MenuPdfPage({
   }
 
   const supabase = await createClient();
+
+  // Fetch recipes
   const { data: rows } = await supabase
     .from("recipes")
-    .select("id, title, category, image_url, ingredients, instructions, servings")
+    .select("id, title, category, image_url, ingredients, instructions, servings, submitted_by")
     .in("id", allIds);
 
   const byId: Record<string, PdfRecipe> = {};
@@ -97,6 +105,47 @@ export default async function MenuPdfPage({
     dessert: byId[ids.dessert] ?? null,
   };
 
+  // Fetch member authors
+  const memberIds = [...new Set(
+    Object.values(recipes)
+      .filter((r) => r?.submitted_by)
+      .map((r) => r!.submitted_by!)
+  )];
+
+  const profileMap: Record<string, AuthorInfo> = {};
+  if (memberIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, username")
+      .in("id", memberIds);
+    for (const p of profiles ?? []) {
+      profileMap[p.id] = { name: p.username, username: p.username };
+    }
+  }
+
+  // Fetch admin author
+  const { data: adminProfile } = await supabase
+    .from("admin_profile")
+    .select("username")
+    .single();
+
+  const adminAuthor: AuthorInfo = {
+    name: adminProfile?.username ?? "Menü Günlüğü",
+    username: "__admin__",
+  };
+
+  function getAuthor(recipe: PdfRecipe): AuthorInfo {
+    if (!recipe.submitted_by) return adminAuthor;
+    return profileMap[recipe.submitted_by] ?? { name: "Bilinmeyen", username: "" };
+  }
+
+  // Build consolidated ingredient list
+  const allIngredients: string[] = [];
+  for (const { key } of SLOTS) {
+    const r = recipes[key];
+    if (r) allIngredients.push(...parseIngredients(r.ingredients));
+  }
+
   const today = formatDate(new Date());
 
   return (
@@ -108,8 +157,9 @@ export default async function MenuPdfPage({
         @media print {
           .no-print { display: none !important; }
           body { margin: 0; }
+          input[type="checkbox"] { width: 14px; height: 14px; }
         }
-        @page { margin: 15mm; size: A4; }
+        @page { margin: 14mm 16mm; size: A4 portrait; }
         .page-break { page-break-after: always; break-after: page; }
       `}</style>
 
@@ -121,21 +171,27 @@ export default async function MenuPdfPage({
         <div className="page-break" style={{ minHeight: "257mm" }}>
           {/* Gradient header */}
           <div className="bg-gradient-to-br from-brand-500 to-brand-700 text-white px-10 py-12">
-            <p className="text-xs font-semibold opacity-75 uppercase tracking-widest mb-1">menugunlugu.com</p>
+            <p className="text-[10px] font-semibold opacity-75 uppercase tracking-widest mb-1">menugunlugu.com</p>
             <h1 className="text-4xl font-bold mb-2">Günün Menüsü</h1>
-            <p className="text-base opacity-75">{today}</p>
+            <p className="text-sm opacity-70">{today}</p>
           </div>
 
           {/* Meal list */}
-          <div className="px-10 py-8 space-y-0">
+          <div className="px-10 py-6">
             {SLOTS.map(({ key, label, emoji }) => {
               const r = recipes[key];
+              const author = r ? getAuthor(r) : null;
               return (
                 <div key={key} className="flex items-center gap-4 py-5 border-b border-warm-100 last:border-0">
-                  <span className="text-3xl w-10 text-center flex-shrink-0">{emoji}</span>
-                  <div>
-                    <p className="text-[11px] font-semibold text-brand-600 uppercase tracking-wider mb-0.5">{label}</p>
-                    <p className="text-xl font-semibold text-warm-800">{r?.title ?? "—"}</p>
+                  <span className="text-2xl w-9 text-center flex-shrink-0">{emoji}</span>
+                  <div className="flex-1">
+                    <p className="text-[10px] font-semibold text-brand-600 uppercase tracking-wider mb-0.5">{label}</p>
+                    <p className="text-lg font-semibold text-warm-800">{r?.title ?? "—"}</p>
+                    {author && (
+                      <p className="text-[10px] text-warm-400 mt-0.5">
+                        Yazar: {author.name}
+                      </p>
+                    )}
                   </div>
                 </div>
               );
@@ -143,7 +199,7 @@ export default async function MenuPdfPage({
           </div>
 
           {/* Footer */}
-          <div className="px-10 py-6 mt-auto border-t border-warm-100">
+          <div className="px-10 py-5 border-t border-warm-100">
             <p className="text-xs text-warm-400 text-center">menugunlugu.com · Günün Menüsü PDF</p>
           </div>
         </div>
@@ -154,37 +210,26 @@ export default async function MenuPdfPage({
         <div className="page-break" style={{ minHeight: "257mm" }}>
           {/* Page header */}
           <div className="px-10 pt-10 pb-4 border-b-2 border-brand-500 mb-8">
-            <p className="text-[11px] font-semibold text-brand-600 uppercase tracking-widest mb-1">Menü Günlüğü</p>
+            <p className="text-[10px] font-semibold text-brand-600 uppercase tracking-widest mb-1">Menü Günlüğü</p>
             <h2 className="text-2xl font-bold text-warm-900 flex items-center gap-2">
               <span>🛒</span> Alışveriş Listesi
             </h2>
-            <p className="text-sm text-warm-400 mt-1">{today}</p>
+            <p className="text-xs text-warm-400 mt-1">{today} · 4 öğün</p>
           </div>
 
-          <div className="px-10 space-y-7">
-            {SLOTS.map(({ key, label, emoji }) => {
-              const r = recipes[key];
-              if (!r) return null;
-              const items = parseIngredients(r.ingredients);
-              if (!items.length) return null;
-              return (
-                <div key={key}>
-                  <div className="flex items-center gap-1.5 mb-2.5">
-                    <span>{emoji}</span>
-                    <h3 className="text-xs font-semibold text-brand-700 uppercase tracking-wider">{label}</h3>
-                    <span className="text-xs text-warm-400">— {r.title}</span>
-                  </div>
-                  <ul className="grid grid-cols-2 gap-x-8 gap-y-1.5">
-                    {items.map((item, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-warm-700">
-                        <span className="mt-[7px] w-1.5 h-1.5 rounded-full bg-brand-300 flex-shrink-0" />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
+          <div className="px-10">
+            <ul className="grid grid-cols-2 gap-x-10 gap-y-2.5">
+              {allIngredients.map((item, i) => (
+                <li key={i} className="flex items-center gap-2.5 text-sm text-warm-700">
+                  <input
+                    type="checkbox"
+                    className="flex-shrink-0 w-3.5 h-3.5 rounded border border-warm-400 accent-brand-600"
+                    readOnly
+                  />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
@@ -196,6 +241,7 @@ export default async function MenuPdfPage({
           if (!r) return null;
           const ingredients = parseIngredients(r.ingredients);
           const steps = parseInstructions(r.instructions);
+          const author = getAuthor(r);
           const isLast = slotIdx === SLOTS.length - 1;
 
           return (
@@ -205,14 +251,24 @@ export default async function MenuPdfPage({
               style={{ minHeight: "257mm" }}
             >
               {/* Recipe header */}
-              <div className="px-10 pt-10 pb-4 border-b-2 border-brand-500 mb-8">
-                <p className="text-[11px] font-semibold text-brand-600 uppercase tracking-widest mb-1">
+              <div className="px-10 pt-10 pb-4 border-b-2 border-brand-500 mb-6">
+                <p className="text-[10px] font-semibold text-brand-600 uppercase tracking-widest mb-1">
                   {emoji} {label}
                 </p>
-                <h2 className="text-2xl font-bold text-warm-900">{r.title}</h2>
-                {r.servings && (
-                  <p className="text-xs text-warm-400 mt-1">{r.servings} kişilik</p>
-                )}
+                <h2 className="text-2xl font-bold text-warm-900 mb-1">{r.title}</h2>
+                <div className="flex items-center gap-4 text-xs text-warm-400">
+                  {r.servings && <span>{r.servings} kişilik</span>}
+                  <span>
+                    Yazar:{" "}
+                    <span className="font-medium text-warm-600">{author.name}</span>
+                    {author.username && author.username !== "__admin__" && (
+                      <span className="ml-1 text-brand-500">menugunlugu.com/uye/{author.username}</span>
+                    )}
+                    {author.username === "__admin__" && (
+                      <span className="ml-1 text-brand-500">menugunlugu.com</span>
+                    )}
+                  </span>
+                </div>
               </div>
 
               <div className="px-10 grid grid-cols-5 gap-10">

@@ -1,4 +1,3 @@
-import path from "path";
 import {
   Document,
   Page,
@@ -9,19 +8,23 @@ import {
   Font,
 } from "@react-pdf/renderer";
 
-/* ── Font registration (local TTF — full Turkish support) ────── */
-const FONTS_DIR = path.join(process.cwd(), "public", "fonts");
+/* ── Font registration (lazy, CDN URL — full Turkish support) ── */
+let _fontsReady = false;
 
-Font.register({
-  family: "Roboto",
-  fonts: [
-    { src: path.join(FONTS_DIR, "Roboto-Regular.ttf"), fontWeight: 400 },
-    { src: path.join(FONTS_DIR, "Roboto-Medium.ttf"),  fontWeight: 500 },
-    { src: path.join(FONTS_DIR, "Roboto-Bold.ttf"),    fontWeight: 700 },
-  ],
-});
-
-Font.registerHyphenationCallback((word) => [word]);
+export function ensureFonts(siteUrl: string) {
+  if (_fontsReady) return;
+  const base = siteUrl.replace(/\/$/, "");
+  Font.register({
+    family: "Roboto",
+    fonts: [
+      { src: `${base}/fonts/Roboto-Regular.ttf`, fontWeight: 400 },
+      { src: `${base}/fonts/Roboto-Medium.ttf`,  fontWeight: 500 },
+      { src: `${base}/fonts/Roboto-Bold.ttf`,    fontWeight: 700 },
+    ],
+  });
+  Font.registerHyphenationCallback((word) => [word]);
+  _fontsReady = true;
+}
 
 /* ── Brand palette ───────────────────────────────────────────── */
 const C = {

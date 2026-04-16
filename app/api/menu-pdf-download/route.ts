@@ -3,7 +3,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import { createElement } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
-import { MenuPdfDocument, type PdfRecipeData } from "./MenuPdfDocument";
+import { MenuPdfDocument, ensureFonts, type PdfRecipeData } from "./MenuPdfDocument";
 
 export const dynamic = "force-dynamic";
 // Use Node.js runtime (not edge) for react-pdf
@@ -132,6 +132,10 @@ export async function GET(request: NextRequest) {
   /* Consolidated ingredient list */
   const allIngredients: string[] = [];
   for (const key of SLOTS) allIngredients.push(...recipes[key].ingredients);
+
+  /* Register fonts from public CDN (lazy, runs once per cold start) */
+  const origin = new URL(request.url).origin;
+  ensureFonts(origin);
 
   /* Render PDF */
   const dateStr = formatDate(new Date());

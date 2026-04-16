@@ -8,18 +8,32 @@ import {
   Font,
 } from "@react-pdf/renderer";
 
-/* ── Font registration (lazy, CDN URL — full Turkish support) ── */
+/* ── Font registration (lazy, data URI — bypasses CDN compression) */
 let _fontsReady = false;
 
-export function ensureFonts(siteUrl: string) {
+export async function ensureFonts(siteUrl: string) {
   if (_fontsReady) return;
   const base = siteUrl.replace(/\/$/, "");
+
+  // Fetch fonts ourselves so Node's fetch handles decompression,
+  // then pass as data URIs so react-pdf never makes its own HTTP call.
+  const toDataUri = async (url: string) => {
+    const res = await fetch(url, { headers: { "Accept-Encoding": "identity" } });
+    if (!res.ok) throw new Error(`Font fetch failed: ${url} (${res.status})`);
+    const buf = await res.arrayBuffer();
+    return `data:font/truetype;base64,${Buffer.from(buf).toString("base64")}`;
+  };
+
+  const [regular, bold] = await Promise.all([
+    toDataUri(`${base}/fonts/Roboto-Regular.ttf`),
+    toDataUri(`${base}/fonts/Roboto-Bold.ttf`),
+  ]);
+
   Font.register({
     family: "Roboto",
     fonts: [
-      { src: `${base}/fonts/Roboto-Regular.ttf`, fontWeight: 400 },
-      { src: `${base}/fonts/Roboto-Medium.ttf`,  fontWeight: 500 },
-      { src: `${base}/fonts/Roboto-Bold.ttf`,    fontWeight: 700 },
+      { src: regular, fontWeight: 400 },
+      { src: bold,    fontWeight: 700 },
     ],
   });
   Font.registerHyphenationCallback((word) => [word]);

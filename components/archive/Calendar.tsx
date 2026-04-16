@@ -308,7 +308,8 @@ export default function Calendar() {
                   const authorRaw = recipe.submitted_by
                     ? (memberProfiles[recipe.submitted_by] ?? ap)
                     : ap;
-                  const author = { name: authorRaw.username, avatar: authorRaw.avatar_url ?? "", username: authorRaw.username };
+                  const isAdmin = !recipe.submitted_by;
+                  const author = { name: authorRaw.username, avatar: authorRaw.avatar_url ?? "", username: isAdmin ? "__admin__" : authorRaw.username };
                   return (
                     <div
                       key={field}

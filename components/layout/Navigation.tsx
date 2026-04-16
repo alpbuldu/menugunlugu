@@ -183,15 +183,14 @@ function DesktopUserMenu() {
   return (
     <div ref={ref} className="relative">
       <button onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-warm-100 transition-colors">
+        className="flex items-center gap-1.5 px-2 py-1 rounded-full hover:bg-warm-100 transition-colors"
+        title={profile?.username ?? user.email?.split("@")[0]}
+      >
         <div className="w-7 h-7 rounded-full bg-brand-100 border border-brand-200 overflow-hidden flex items-center justify-center flex-shrink-0">
           {profile?.avatar_url
             ? <Image src={profile.avatar_url} alt="Profil" width={28} height={28} className="w-full h-full object-cover" />
             : <span className="text-xs">👤</span>}
         </div>
-        <span className="text-sm font-medium text-warm-700 max-w-[100px] truncate">
-          {profile?.username ?? user.email?.split("@")[0]}
-        </span>
         <svg className="w-3 h-3 text-warm-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="m19 9-7 7-7-7" />
         </svg>

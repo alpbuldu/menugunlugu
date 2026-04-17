@@ -330,7 +330,7 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
       {/* Site URL + slogan — en son render → şeritlerin üstünde; reply bar (~150px) kapatmaz */}
       <div style={{ position: "absolute", bottom: 162, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
         <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 22, fontWeight: 700, letterSpacing: 2, display: "flex" }}>www.menugunlugu.com</div>
-        <div style={{ color: "#FCD34D", fontSize: 14, letterSpacing: 1.8, display: "flex" }}>TARİFİNİ YÜKLE · MENÜ OLUŞTUR · PAYLAŞ!</div>
+        <div style={{ color: "#FCD34D", fontSize: 14, letterSpacing: 1.8, display: "flex", textShadow: "-1.5px -1.5px 0 #fff, 1.5px -1.5px 0 #fff, -1.5px 1.5px 0 #fff, 1.5px 1.5px 0 #fff" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
       </div>
 
     </div>

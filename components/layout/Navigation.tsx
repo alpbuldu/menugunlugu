@@ -211,7 +211,7 @@ function DesktopSearch() {
           className="w-[180px] pl-8 pr-3 py-1 rounded-full text-xs bg-warm-100 border border-warm-200 text-warm-700 placeholder:text-warm-400 focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-200/60 transition-colors" />
       </div>
       {showDropdown && (
-        <div className="absolute top-full mt-2 right-0 w-[300px]">
+        <div className="absolute top-full mt-2 right-0 w-[300px] z-[100]">
           <SearchDropdown fetching={fetching} recipeResults={recipeResults} authorResults={authorResults} clearSearch={clearSearch} />
         </div>
       )}

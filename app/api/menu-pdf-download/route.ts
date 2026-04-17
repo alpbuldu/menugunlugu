@@ -129,43 +129,71 @@ export async function GET(request: NextRequest) {
     dessert: buildRecipe(ids.dessert),
   };
 
-  /* Pre-fetch images → base64 data URIs (react-pdf can't fetch Supabase URLs) */
-  async function fetchImageDataUri(url: string | null, attempt = 1): Promise<string | null> {
+  /* Pre-fetch images → base64 data URIs (react-pdf can't fetch Supabase URLs directly) */
+  // Parse  https://<project>.supabase.co/storage/v1/object/public/<bucket>/<path>
+  function parseStorageUrl(url: string): { bucket: string; path: string } | null {
+    try {
+      const { pathname } = new URL(url);
+      // pathname: /storage/v1/object/public/<bucket>/<...path>
+      const match = pathname.match(/^\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
+      if (!match) return null;
+      return { bucket: match[1], path: match[2] };
+    } catch {
+      return null;
+    }
+  }
+
+  async function fetchImageDataUri(url: string | null): Promise<string | null> {
     if (!url) return null;
+
+    // Try Supabase storage client first (most reliable inside serverless)
+    const parsed = parseStorageUrl(url);
+    if (parsed) {
+      try {
+        const { data, error } = await supabase.storage
+          .from(parsed.bucket)
+          .download(parsed.path);
+        if (!error && data) {
+          const arr = await data.arrayBuffer();
+          const buf = Buffer.from(arr);
+          if (buf.length > 0) {
+            const mime = data.type?.split(";")[0].trim() || "image/jpeg";
+            return `data:${mime};base64,${buf.toString("base64")}`;
+          }
+        }
+        console.error(`[menu-pdf] storage.download failed: ${error?.message} — ${url}`);
+      } catch (e) {
+        console.error(`[menu-pdf] storage.download error: ${url}`, e);
+      }
+    }
+
+    // Fallback: raw fetch
     try {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 12_000);
       const res = await fetch(url, {
-        headers: {
-          "Accept-Encoding": "identity",
-          "User-Agent": "menugunlugu-pdf/1.0",
-        },
+        headers: { "Accept-Encoding": "identity" },
         signal: controller.signal,
         cache: "no-store",
         redirect: "follow",
       });
       clearTimeout(timer);
       if (!res.ok) {
-        console.error(`[menu-pdf] image fetch ${res.status} (attempt ${attempt}): ${url}`);
-        if (attempt < 3) return fetchImageDataUri(url, attempt + 1);
+        console.error(`[menu-pdf] fallback fetch ${res.status}: ${url}`);
         return null;
       }
       const buf = Buffer.from(await res.arrayBuffer());
-      if (buf.length === 0) {
-        console.error(`[menu-pdf] empty image body: ${url}`);
-        return null;
-      }
+      if (buf.length === 0) return null;
       const ct   = res.headers.get("content-type") ?? "image/jpeg";
       const mime = ct.split(";")[0].trim() || "image/jpeg";
       return `data:${mime};base64,${buf.toString("base64")}`;
     } catch (e) {
-      console.error(`[menu-pdf] image fetch error (attempt ${attempt}): ${url}`, e);
-      if (attempt < 3) return fetchImageDataUri(url, attempt + 1);
+      console.error(`[menu-pdf] fallback fetch error: ${url}`, e);
       return null;
     }
   }
 
-  // Fetch sequentially to avoid hitting Supabase rate limits
+  // Fetch sequentially
   const imageUris: (string | null)[] = [];
   for (const key of SLOTS) {
     imageUris.push(await fetchImageDataUri(recipes[key].image_url));

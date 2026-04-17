@@ -10,27 +10,31 @@ import path from "node:path";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/* ── Colors ──────────────────────────────────────────────────── */
+/* ── Palette ─────────────────────────────────────────────────── */
 const C = {
-  amber:  "#d97706",
-  amberD: "#92400e",
-  amberL: "#fef3e2",
-  amberM: "#fde68a",
-  gold:   "#fbbf24",
-  bgDark: "#0f0500",
+  amber:   "#d97706",
+  amberD:  "#92400e",
+  amberL:  "#FFF8F1",
+  amberM:  "#fde68a",
+  cream:   "#FFFCF8",
+  text:    "#1c1917",
+  textMid: "#57534e",
+  muted:   "#a8a29e",
+  white:   "#ffffff",
+  gold:    "#f59e0b",
 };
 
 const SLOTS = [
-  { key: "soup"    as const, cat: "ÇORBA" },
-  { key: "main"    as const, cat: "ANA YEMEK" },
-  { key: "side"    as const, cat: "YARDIMCI LEZZET" },
-  { key: "dessert" as const, cat: "TATLI" },
+  { key: "soup"    as const, cat: "Çorba" },
+  { key: "main"    as const, cat: "Ana Yemek" },
+  { key: "side"    as const, cat: "Yardımcı Lezzet" },
+  { key: "dessert" as const, cat: "Tatlı" },
 ];
 
 type Key = "soup" | "main" | "side" | "dessert";
 interface Card { title: string; author: string; cat: string; img: string | null }
 
-/* ── Image fetching (same as PDF route) ──────────────────────── */
+/* ── Node fetch + sharp (same as PDF route) ──────────────────── */
 function nodeGet(url: string, hops = 5): Promise<Buffer | null> {
   return new Promise(resolve => {
     if (hops < 0) return resolve(null);
@@ -39,9 +43,7 @@ function nodeGet(url: string, hops = 5): Promise<Buffer | null> {
     const mod = url.startsWith("https") ? https : http;
     const req = mod.get(url, { headers: { "User-Agent": "menugunlugu/1.0" } }, res => {
       if (res.statusCode && [301,302,303,307,308].includes(res.statusCode) && res.headers.location) {
-        res.resume();
-        nodeGet(res.headers.location, hops - 1).then(fin);
-        return;
+        res.resume(); nodeGet(res.headers.location, hops - 1).then(fin); return;
       }
       if (res.statusCode !== 200) { res.resume(); return fin(null); }
       const ch: Buffer[] = [];
@@ -62,7 +64,7 @@ async function getImg(url: string | null): Promise<string | null> {
   const isGif  = buf[0] === 0x47 && buf[1] === 0x49;
   const isPng  = buf[0] === 0x89 && buf[1] === 0x50;
   if (isWebp || isGif) {
-    try { const j = await sharp(buf).jpeg({ quality: 88 }).toBuffer(); return `data:image/jpeg;base64,${j.toString("base64")}`; }
+    try { const j = await sharp(buf).jpeg({ quality: 90 }).toBuffer(); return `data:image/jpeg;base64,${j.toString("base64")}`; }
     catch { return null; }
   }
   return `data:${isPng ? "image/png" : "image/jpeg"};base64,${buf.toString("base64")}`;
@@ -80,17 +82,12 @@ export async function GET(request: NextRequest) {
     dessert: searchParams.get("dessert") ?? "",
   };
 
-  if (Object.values(ids).some(v => !v)) {
-    return new Response("4 IDs required", { status: 400 });
-  }
+  if (Object.values(ids).some(v => !v)) return new Response("4 IDs required", { status: 400 });
 
   const supabase = await createClient();
-
   const { data: rows } = await supabase
-    .from("recipes")
-    .select("id, title, image_url, submitted_by")
+    .from("recipes").select("id, title, image_url, submitted_by")
     .in("id", Object.values(ids));
-
   if (!rows?.length) return new Response("Not found", { status: 404 });
 
   const byId: Record<string, (typeof rows)[number]> = {};
@@ -106,12 +103,10 @@ export async function GET(request: NextRequest) {
   const { data: ap } = await supabase.from("admin_profile").select("username").single();
   const adminName = ap?.username ?? "Menü Günlüğü";
 
-  /* Build cards + fetch images sequentially */
   const cards: Card[] = [];
   for (const s of SLOTS) {
     const r = byId[ids[s.key]];
-    const isAdmin = !r?.submitted_by;
-    const author = isAdmin ? adminName : (profileMap[r?.submitted_by!] ?? "");
+    const author = !r?.submitted_by ? adminName : (profileMap[r.submitted_by!] ?? "");
     const img = await getImg(r?.image_url ?? null);
     cards.push({ title: r?.title ?? "—", author, cat: s.cat, img });
   }
@@ -122,126 +117,161 @@ export async function GET(request: NextRequest) {
 
   const fontR = readFileSync(path.join(process.cwd(), "public", "fonts", "Roboto-Regular.ttf"));
   const fontB = readFileSync(path.join(process.cwd(), "public", "fonts", "Roboto-Medium.ttf"));
-
-  const W = 1080;
-  const H = isStory ? 1920 : 1350;
+  const W = 1080, H = isStory ? 1920 : 1350;
 
   return new ImageResponse(
-    isStory
-      ? <StoryView cards={cards} date={dateStr} />
-      : <PostView  cards={cards} date={dateStr} />,
-    {
-      width: W, height: H,
-      fonts: [
-        { name: "Roboto", data: fontR, weight: 400, style: "normal" },
-        { name: "Roboto", data: fontB, weight: 700, style: "normal" },
-      ],
-    }
+    isStory ? <StoryView cards={cards} date={dateStr} /> : <PostView cards={cards} date={dateStr} />,
+    { width: W, height: H, fonts: [
+      { name: "Roboto", data: fontR, weight: 400, style: "normal" },
+      { name: "Roboto", data: fontB, weight: 700, style: "normal" },
+    ]}
   );
 }
 
-/* ── Shared image cell ───────────────────────────────────────── */
-function Cell({ img, cat, title, author, textSize = 22 }: {
-  img: string | null; cat: string; title: string; author: string; textSize?: number;
-}) {
-  return (
-    <div style={{ position: "relative", display: "flex", flex: 1, overflow: "hidden" }}>
-      {/* Background image or placeholder */}
-      {img
-        ? <img src={img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-        : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.amberM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ fontSize: 72, display: "flex" }}>🍽️</div>
-          </div>
-      }
-      {/* Dark gradient bottom */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "68%", background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.55) 50%, transparent 100%)", display: "flex" }} />
-      {/* Text */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 24px 22px", display: "flex", flexDirection: "column", gap: 4 }}>
-        <div style={{ color: C.gold, fontSize: 11, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{cat}</div>
-        <div style={{ color: "#ffffff", fontSize: textSize, fontWeight: 700, lineHeight: 1.25, display: "flex" }}>{title}</div>
-        {author && <div style={{ color: "#d1d5db", fontSize: 13, display: "flex" }}>{author}</div>}
-      </div>
-    </div>
-  );
-}
-
-/* ── Post layout 1080×1350 ───────────────────────────────────── */
+/* ── Post layout · 1080 × 1350 ──────────────────────────────── */
+/*  Cream bg, 2×2 card grid, image top + text bottom per card   */
 function PostView({ cards, date }: { cards: Card[]; date: string }) {
-  return (
-    <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: C.bgDark }}>
+  const PAD  = 28;
+  const GAP  = 14;
+  const HEAD = 148;
+  const FOOT = 52;
+  // card height = (1350 - HEAD - FOOT - PAD*2 - GAP) / 2
+  const CARD_H = Math.floor((1350 - HEAD - FOOT - PAD * 2 - GAP) / 2); // 520
+  const CARD_W = Math.floor((1080 - PAD * 2 - GAP) / 2);               // 505
+  const IMG_H  = Math.floor(CARD_H * 0.62);                             // ~322
+  const INFO_H = CARD_H - IMG_H;                                        // ~198
 
-      {/* Header */}
-      <div style={{ height: 158, backgroundColor: C.amber, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 52px", gap: 4 }}>
-        <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 12, fontWeight: 400, letterSpacing: 4, display: "flex" }}>MENÜ GÜNLÜĞÜ</div>
-        <div style={{ color: "#ffffff", fontSize: 46, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
-        <div style={{ color: C.amberM, fontSize: 15, display: "flex" }}>{date}</div>
-      </div>
-      <div style={{ height: 4, backgroundColor: C.amberD, display: "flex" }} />
-
-      {/* 2×2 Grid */}
-      <div style={{ display: "flex", flex: 1, flexDirection: "column" }}>
-        {/* Row 1 */}
-        <div style={{ display: "flex", flex: 1 }}>
-          <Cell {...cards[0]} textSize={20} />
-          <div style={{ width: 3, backgroundColor: C.amber, display: "flex", flexShrink: 0 }} />
-          <Cell {...cards[1]} textSize={20} />
-        </div>
-        <div style={{ height: 3, backgroundColor: C.amber, display: "flex" }} />
-        {/* Row 2 */}
-        <div style={{ display: "flex", flex: 1 }}>
-          <Cell {...cards[2]} textSize={20} />
-          <div style={{ width: 3, backgroundColor: C.amber, display: "flex", flexShrink: 0 }} />
-          <Cell {...cards[3]} textSize={20} />
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div style={{ height: 56, backgroundColor: C.amberD, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ color: C.amberL, fontSize: 17, fontWeight: 700, letterSpacing: 1.5, display: "flex" }}>menugunlugu.com</div>
-      </div>
-
-    </div>
-  );
-}
-
-/* ── Story layout 1080×1920 ──────────────────────────────────── */
-function StoryView({ cards, date }: { cards: Card[]; date: string }) {
-  return (
-    <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: C.bgDark }}>
-
-      {/* Header */}
-      <div style={{ height: 200, backgroundColor: C.amber, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 60px", gap: 6 }}>
-        <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 13, fontWeight: 400, letterSpacing: 4, display: "flex" }}>MENÜ GÜNLÜĞÜ</div>
-        <div style={{ color: "#ffffff", fontSize: 52, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
-        <div style={{ color: C.amberM, fontSize: 18, display: "flex" }}>{date}</div>
-      </div>
-      <div style={{ height: 4, backgroundColor: C.amberD, display: "flex" }} />
-
-      {/* 4 strips */}
-      {cards.map((card, i) => (
-        <div key={i} style={{ position: "relative", display: "flex", flex: 1, overflow: "hidden" }}>
+  function PostCard({ card, idx }: { card: Card; idx: number }) {
+    return (
+      <div style={{ width: CARD_W, height: CARD_H, display: "flex", flexDirection: "column", borderRadius: 18, overflow: "hidden", border: `1px solid ${C.amberM}` }}>
+        {/* Image */}
+        <div style={{ width: CARD_W, height: IMG_H, position: "relative", display: "flex", overflow: "hidden", flexShrink: 0 }}>
           {card.img
             ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: i % 2 === 0 ? C.amberM : "#fef3e2", display: "flex" }} />
+            : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.amberM, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ fontSize: 56, display: "flex" }}>🍽️</div>
+              </div>
           }
-          {/* Left-side gradient for text readability */}
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, background: "linear-gradient(to right, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 42%, transparent 68%)", display: "flex" }} />
-          {/* Text on left */}
-          <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, width: "58%", padding: "0 56px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 7 }}>
-            <div style={{ color: C.gold, fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat}</div>
-            <div style={{ color: "#ffffff", fontSize: 34, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
-            {card.author && <div style={{ color: "#d1d5db", fontSize: 17, display: "flex" }}>{card.author}</div>}
+          {/* Category pill */}
+          <div style={{ position: "absolute", top: 12, left: 12, backgroundColor: C.amber, borderRadius: 100, paddingTop: 5, paddingBottom: 5, paddingLeft: 12, paddingRight: 12, display: "flex" }}>
+            <div style={{ color: C.white, fontSize: 10, fontWeight: 700, letterSpacing: 1.5, fontFamily: "Roboto", display: "flex" }}>{card.cat.toUpperCase()}</div>
           </div>
-          {/* Subtle divider */}
-          {i < 3 && <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 1, backgroundColor: "rgba(217,119,6,0.4)", display: "flex" }} />}
         </div>
-      ))}
+        {/* Info */}
+        <div style={{ flex: 1, backgroundColor: C.white, padding: "14px 18px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 5 }}>
+          <div style={{ color: C.text, fontSize: 19, fontWeight: 700, lineHeight: 1.2, fontFamily: "Roboto", display: "flex" }}>{card.title}</div>
+          {card.author && (
+            <div style={{ color: C.muted, fontSize: 12, fontFamily: "Roboto", display: "flex" }}>
+              Yazar: <span style={{ color: C.amber, marginLeft: 4, fontWeight: 700, display: "flex" }}>{card.author}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
-      {/* Footer */}
-      <div style={{ height: 56, backgroundColor: C.amberD, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ color: C.amberL, fontSize: 19, fontWeight: 700, letterSpacing: 1.5, display: "flex" }}>menugunlugu.com</div>
+  return (
+    <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: C.amberL }}>
+      {/* Top accent */}
+      <div style={{ height: 5, display: "flex", background: `linear-gradient(90deg, ${C.amberD} 0%, ${C.amber} 50%, ${C.gold} 100%)` }} />
+
+      {/* Header */}
+      <div style={{ height: HEAD - 5, backgroundColor: C.amberL, display: "flex", alignItems: "center", justifyContent: "space-between", padding: `0 ${PAD + 4}px` }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <div style={{ color: C.amber, fontSize: 13, fontWeight: 700, letterSpacing: 3, display: "flex" }}>MENÜ GÜNLÜĞÜ</div>
+          <div style={{ color: C.text, fontSize: 36, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
+        </div>
+        <div style={{ color: C.textMid, fontSize: 14, textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+          <div style={{ display: "flex" }}>{date.split(" ").slice(0, 2).join(" ")}</div>
+          <div style={{ display: "flex" }}>{date.split(" ").slice(2).join(" ")}</div>
+        </div>
       </div>
 
+      {/* 2×2 grid */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: `0 ${PAD}px`, gap: GAP, justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: GAP }}>
+          <PostCard card={cards[0]} idx={0} />
+          <PostCard card={cards[1]} idx={1} />
+        </div>
+        <div style={{ display: "flex", gap: GAP }}>
+          <PostCard card={cards[2]} idx={2} />
+          <PostCard card={cards[3]} idx={3} />
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div style={{ height: FOOT, backgroundColor: C.amberD, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+        <div style={{ color: C.amberM, fontSize: 13, fontWeight: 700, letterSpacing: 2, display: "flex" }}>MENÜ GÜNLÜĞÜ</div>
+        <div style={{ color: "rgba(253,230,138,0.4)", fontSize: 12, display: "flex" }}>·</div>
+        <div style={{ color: C.amberL, fontSize: 13, display: "flex" }}>menugunlugu.com</div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Story layout · 1080 × 1920 ─────────────────────────────── */
+/*  Split card: cream text on left, image on right               */
+function StoryView({ cards, date }: { cards: Card[]; date: string }) {
+  const HEAD  = 188;
+  const FOOT  = 52;
+  const STRIP = Math.floor((1920 - HEAD - FOOT) / 4); // 420
+
+  function Strip({ card, idx }: { card: Card; idx: number }) {
+    const isEven = idx % 2 === 0;
+    const txtW = 520, imgW = 1080 - txtW;
+
+    const TextSide = () => (
+      <div style={{ width: txtW, height: STRIP, backgroundColor: idx === 0 ? C.cream : C.amberL, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 44px", gap: 8 }}>
+        <div style={{ color: C.amber, fontSize: 11, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
+        <div style={{ color: C.text, fontSize: 28, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
+        {card.author && (
+          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            <div style={{ color: C.muted, fontSize: 13, display: "flex" }}>Yazar:</div>
+            <div style={{ color: C.amber, fontSize: 13, fontWeight: 700, display: "flex" }}>{card.author}</div>
+          </div>
+        )}
+      </div>
+    );
+
+    const ImgSide = () => (
+      <div style={{ width: imgW, height: STRIP, position: "relative", display: "flex", overflow: "hidden", flexShrink: 0 }}>
+        {card.img
+          ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+          : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.amberM, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ fontSize: 60, display: "flex" }}>🍽️</div>
+            </div>
+        }
+      </div>
+    );
+
+    return (
+      <div style={{ display: "flex", height: STRIP, flexShrink: 0, borderBottom: idx < 3 ? `1px solid ${C.amberM}` : "none" }}>
+        {isEven ? <><TextSide /><ImgSide /></> : <><ImgSide /><TextSide /></>}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: C.cream }}>
+      {/* Top accent */}
+      <div style={{ height: 5, display: "flex", background: `linear-gradient(90deg, ${C.amberD} 0%, ${C.amber} 50%, ${C.gold} 100%)` }} />
+
+      {/* Header */}
+      <div style={{ height: HEAD - 5, backgroundColor: C.amber, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 56px", gap: 6 }}>
+        <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 400, letterSpacing: 4, display: "flex" }}>MENÜ GÜNLÜĞÜ · menugunlugu.com</div>
+        <div style={{ color: C.white, fontSize: 52, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
+        <div style={{ color: C.amberM, fontSize: 17, display: "flex" }}>{date}</div>
+      </div>
+
+      {/* 4 strips */}
+      {cards.map((card, i) => <Strip key={i} card={card} idx={i} />)}
+
+      {/* Footer */}
+      <div style={{ height: FOOT, backgroundColor: C.amberD, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+        <div style={{ color: C.amberM, fontSize: 13, fontWeight: 700, letterSpacing: 2, display: "flex" }}>MENÜ GÜNLÜĞÜ</div>
+        <div style={{ color: "rgba(253,230,138,0.4)", fontSize: 12, display: "flex" }}>·</div>
+        <div style={{ color: C.amberL, fontSize: 13, display: "flex" }}>menugunlugu.com</div>
+      </div>
     </div>
   );
 }

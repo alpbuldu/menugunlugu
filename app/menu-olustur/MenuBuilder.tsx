@@ -217,16 +217,19 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   const [page, setPage] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const topRef = useRef<HTMLDivElement>(null);
+  const touchRef = useRef<{ x: number; y: number } | null>(null);
+  const [scrollTick, setScrollTick] = useState(0);
 
   const allFilled = SLOTS.every(({ key }) => !!selection[key]);
   const filledCount = SLOTS.filter(({ key }) => !!selection[key]).length;
 
-  // Scroll to top on mobile when all slots are filled
+  // Scroll to top on mobile on every recipe selection
   useEffect(() => {
-    if (allFilled && window.innerWidth < 1024) {
+    if (scrollTick === 0) return;
+    if (window.innerWidth < 1024) {
       topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
-  }, [allFilled]);
+  }, [scrollTick]);
 
   // Detect screen size for per-page count
   useEffect(() => {
@@ -241,9 +244,25 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
 
   function selectRecipe(recipe: MenuRecipe) {
     setSelection((prev) => ({ ...prev, [activeCategory]: recipe }));
+    setScrollTick((t) => t + 1);
     // Auto-advance to next unfilled slot
     const nextSlot = SLOTS.find(({ key }) => key !== activeCategory && !selection[key]);
     if (nextSlot) { setActiveCategory(nextSlot.key); setPage(0); }
+  }
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (!touchRef.current) return;
+    const dx = e.changedTouches[0].clientX - touchRef.current.x;
+    const dy = e.changedTouches[0].clientY - touchRef.current.y;
+    touchRef.current = null;
+    if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx) * 0.8) return;
+    const currentIdx = SLOTS.findIndex(({ key }) => key === activeCategory);
+    if (dx < 0 && currentIdx < SLOTS.length - 1) { setActiveCategory(SLOTS[currentIdx + 1].key); setPage(0); }
+    else if (dx > 0 && currentIdx > 0) { setActiveCategory(SLOTS[currentIdx - 1].key); setPage(0); }
   }
 
   function clearSlot(category: Category) {
@@ -381,7 +400,11 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
         </div>
 
         {/* ── Right / Bottom: Recipe Picker ────────────────────── */}
-        <div className="flex-1 min-w-0 flex flex-col">
+        <div
+          className="flex-1 min-w-0 flex flex-col"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
           {/* Category tabs */}
           <div className="flex gap-1.5 overflow-x-auto pb-1 mb-4 scrollbar-none">
             {SLOTS.map((slot) => (
@@ -406,15 +429,36 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
             ))}
           </div>
 
-          {/* Active category info */}
-          <div className="mb-3 flex items-center gap-2">
-            <span className="text-warm-500 text-sm">
-              {currentRecipes.length} tarif
-            </span>
-            {selection[activeCategory] && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200 font-medium">
-                Seçili: {selection[activeCategory]!.title}
-              </span>
+          {/* Active category info + inline pagination */}
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-warm-500 text-sm flex-shrink-0">{currentRecipes.length} tarif</span>
+              {selection[activeCategory] && (
+                <span className="text-xs px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200 font-medium truncate">
+                  Seçili: {selection[activeCategory]!.title}
+                </span>
+              )}
+            </div>
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-warm-200 text-warm-500 hover:bg-warm-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-xs"
+                >
+                  ←
+                </button>
+                <span className="text-xs text-warm-400 min-w-[36px] text-center">{page + 1}/{totalPages}</span>
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                  disabled={page === totalPages - 1}
+                  className="w-7 h-7 flex items-center justify-center rounded-lg border border-warm-200 text-warm-500 hover:bg-warm-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors text-xs"
+                >
+                  →
+                </button>
+              </div>
             )}
           </div>
 
@@ -437,31 +481,6 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                 ))}
               </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4 pt-3 border-t border-warm-100">
-                  <button
-                    type="button"
-                    onClick={() => setPage((p) => Math.max(0, p - 1))}
-                    disabled={page === 0}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-warm-200 text-warm-600 hover:bg-warm-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    ← Önceki
-                  </button>
-                  <span className="text-xs text-warm-400">
-                    {page + 1} / {totalPages}
-                    <span className="ml-1.5 text-warm-300">({currentRecipes.length} tarif)</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-                    disabled={page === totalPages - 1}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-warm-200 text-warm-600 hover:bg-warm-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Sonraki →
-                  </button>
-                </div>
-              )}
             </>
           )}
         </div>

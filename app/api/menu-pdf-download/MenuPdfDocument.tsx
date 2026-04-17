@@ -112,11 +112,6 @@ const s = StyleSheet.create({
   stepNum: { ...bold(), fontSize: 7, color: C.brand },
   stepText: { ...reg(), fontSize: 9, color: C.textMid, flex: 1, lineHeight: 1.5 },
 
-  /* ── Shopping list ───────────── */
-  shopRow: { flexDirection: "row", alignItems: "flex-start", marginBottom: 8, width: "50%", paddingRight: 16 },
-  shopBox: { width: 10, height: 10, borderWidth: 1.2, borderColor: C.muted, borderStyle: "solid", borderRadius: 2, marginRight: 8, marginTop: 1, flexShrink: 0 },
-  shopText: { ...reg(), fontSize: 9.5, color: C.textMid, flex: 1, lineHeight: 1.4 },
-
   /* ── Footer ──────────────────── */
   footer: {
     position: "absolute", bottom: 18, left: 44, right: 44,
@@ -142,7 +137,6 @@ export interface PdfRecipeData {
 
 interface Props {
   recipes: { soup: PdfRecipeData; main: PdfRecipeData; side: PdfRecipeData; dessert: PdfRecipeData };
-  allIngredients: string[];
   dateStr: string;
 }
 
@@ -154,7 +148,7 @@ const SLOTS = [
 ];
 
 /* ── Document ────────────────────────────────────────────────── */
-export function MenuPdfDocument({ recipes, allIngredients, dateStr }: Props) {
+export function MenuPdfDocument({ recipes, dateStr }: Props) {
   return (
     <Document title="Gunun Menusu" author="Menu Gunlugu" language="tr">
 
@@ -264,36 +258,6 @@ export function MenuPdfDocument({ recipes, allIngredients, dateStr }: Props) {
           </Page>
         );
       })}
-
-      {/* ══════════════════════════════════════════════════════════
-          SAYFA 6 — ALIŞVERİŞ LİSTESİ (SON SAYFA)
-      ══════════════════════════════════════════════════════════ */}
-      <Page size="A4" style={s.page}>
-        <View style={s.sectionBand}>
-          <View>
-            <Text style={s.sectionLabel}>{"Men\u00FC G\u00FCnl\u00FC\u011F\u00FC"}</Text>
-            <Text style={s.sectionTitle}>{"Al\u0131\u015Fveri\u015F Listesi"}</Text>
-          </View>
-          <Text style={s.sectionRight}>{dateStr}{"\n"}{allIngredients.length} malzeme</Text>
-        </View>
-        <View style={s.sectionAccent} />
-
-        <View style={s.body}>
-          <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-            {allIngredients.map((item, i) => (
-              <View key={i} style={s.shopRow}>
-                <View style={s.shopBox} />
-                <Text style={s.shopText}>{item}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <View style={s.footer}>
-          <Text style={s.footerSite}>menugunlugu.com</Text>
-          <Text style={s.footerInfo}>{dateStr}</Text>
-        </View>
-      </Page>
 
     </Document>
   );

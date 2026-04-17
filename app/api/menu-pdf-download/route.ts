@@ -129,38 +129,43 @@ export async function GET(request: NextRequest) {
     dessert: buildRecipe(ids.dessert),
   };
 
-  /* Consolidated ingredient list */
-  const allIngredients: string[] = [];
-  for (const key of SLOTS) allIngredients.push(...recipes[key].ingredients);
-
   /* Pre-fetch images → base64 data URIs (react-pdf can't fetch Supabase URLs) */
-  async function fetchImageDataUri(url: string | null): Promise<string | null> {
+  async function fetchImageDataUri(url: string | null, attempt = 1): Promise<string | null> {
     if (!url) return null;
     try {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 10_000);
+      const timer = setTimeout(() => controller.abort(), 12_000);
       const res = await fetch(url, {
-        headers: { "Accept-Encoding": "identity" },
+        headers: {
+          "Accept-Encoding": "identity",
+          "User-Agent": "menugunlugu-pdf/1.0",
+        },
         signal: controller.signal,
         cache: "no-store",
+        redirect: "follow",
       });
       clearTimeout(timer);
       if (!res.ok) {
-        console.error(`[menu-pdf] image fetch ${res.status}: ${url}`);
+        console.error(`[menu-pdf] image fetch ${res.status} (attempt ${attempt}): ${url}`);
+        if (attempt < 3) return fetchImageDataUri(url, attempt + 1);
         return null;
       }
       const buf = Buffer.from(await res.arrayBuffer());
-      const ct  = res.headers.get("content-type") ?? "image/jpeg";
-      // strip charset suffix if present (e.g. "image/jpeg; charset=...")
-      const mime = ct.split(";")[0].trim();
+      if (buf.length === 0) {
+        console.error(`[menu-pdf] empty image body: ${url}`);
+        return null;
+      }
+      const ct   = res.headers.get("content-type") ?? "image/jpeg";
+      const mime = ct.split(";")[0].trim() || "image/jpeg";
       return `data:${mime};base64,${buf.toString("base64")}`;
     } catch (e) {
-      console.error(`[menu-pdf] image fetch error: ${url}`, e);
+      console.error(`[menu-pdf] image fetch error (attempt ${attempt}): ${url}`, e);
+      if (attempt < 3) return fetchImageDataUri(url, attempt + 1);
       return null;
     }
   }
 
-  // Fetch one-by-one to avoid hitting Supabase rate limits
+  // Fetch sequentially to avoid hitting Supabase rate limits
   const imageUris: (string | null)[] = [];
   for (const key of SLOTS) {
     imageUris.push(await fetchImageDataUri(recipes[key].image_url));
@@ -180,7 +185,7 @@ export async function GET(request: NextRequest) {
   try {
     // @ts-expect-error react-pdf types differ from React types
     const buffer = await renderToBuffer(
-      createElement(MenuPdfDocument, { recipes, allIngredients, dateStr })
+      createElement(MenuPdfDocument, { recipes, dateStr })
     );
 
     return new Response(buffer as unknown as BodyInit, {

@@ -18,6 +18,16 @@ export default function FavoriteButton({ recipeId }: Props) {
       .finally(() => setLoading(false));
   }, [recipeId]);
 
+  // Aynı sayfadaki diğer FavoriteButton örneklerini dinle
+  useEffect(() => {
+    function onSync(e: Event) {
+      const { recipeId: id, favorited: val } = (e as CustomEvent).detail;
+      if (id === recipeId) setFavorited(val);
+    }
+    window.addEventListener("favorite-changed", onSync);
+    return () => window.removeEventListener("favorite-changed", onSync);
+  }, [recipeId]);
+
   async function toggle() {
     setSaving(true);
     const res  = await fetch(`/api/recipes/${recipeId}/favorites`, { method: "POST" });
@@ -28,7 +38,13 @@ export default function FavoriteButton({ recipeId }: Props) {
       router.push("/giris");
       return;
     }
-    if (res.ok) setFavorited(data.favorited);
+    if (res.ok) {
+      setFavorited(data.favorited);
+      // Sayfadaki diğer örnekleri güncelle
+      window.dispatchEvent(new CustomEvent("favorite-changed", {
+        detail: { recipeId, favorited: data.favorited },
+      }));
+    }
   }
 
   if (loading) return <div className="w-10 h-10 rounded-full bg-warm-100 animate-pulse" />;

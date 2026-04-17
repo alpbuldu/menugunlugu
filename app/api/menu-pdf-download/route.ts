@@ -137,19 +137,34 @@ export async function GET(request: NextRequest) {
   async function fetchImageDataUri(url: string | null): Promise<string | null> {
     if (!url) return null;
     try {
-      const res = await fetch(url, { headers: { "Accept-Encoding": "identity" } });
-      if (!res.ok) return null;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10_000);
+      const res = await fetch(url, {
+        headers: { "Accept-Encoding": "identity" },
+        signal: controller.signal,
+        cache: "no-store",
+      });
+      clearTimeout(timer);
+      if (!res.ok) {
+        console.error(`[menu-pdf] image fetch ${res.status}: ${url}`);
+        return null;
+      }
       const buf = Buffer.from(await res.arrayBuffer());
       const ct  = res.headers.get("content-type") ?? "image/jpeg";
-      return `data:${ct};base64,${buf.toString("base64")}`;
-    } catch {
+      // strip charset suffix if present (e.g. "image/jpeg; charset=...")
+      const mime = ct.split(";")[0].trim();
+      return `data:${mime};base64,${buf.toString("base64")}`;
+    } catch (e) {
+      console.error(`[menu-pdf] image fetch error: ${url}`, e);
       return null;
     }
   }
 
-  const imageUris = await Promise.all(
-    SLOTS.map((key) => fetchImageDataUri(recipes[key].image_url))
-  );
+  // Fetch one-by-one to avoid hitting Supabase rate limits
+  const imageUris: (string | null)[] = [];
+  for (const key of SLOTS) {
+    imageUris.push(await fetchImageDataUri(recipes[key].image_url));
+  }
 
   SLOTS.forEach((key, i) => {
     recipes[key].image_url = imageUris[i];

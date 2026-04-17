@@ -23,6 +23,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
 };
 
 interface SearchRecipe { id: string; title: string; slug: string; category: Category; author: string; }
+interface SearchAuthor { username: string; displayName: string; avatar: string | null; isAdmin: boolean; }
 interface ProfileData  { username: string; avatar_url: string | null; }
 
 function SearchIcon({ className }: { className?: string }) {
@@ -37,19 +38,22 @@ function SearchIcon({ className }: { className?: string }) {
 }
 
 function useSearch() {
-  const [query,    setQuery]    = useState("");
-  const [recipes,  setRecipes]  = useState<SearchRecipe[]>([]);
-  const [results,  setResults]  = useState<SearchRecipe[]>([]);
-  const [fetched,  setFetched]  = useState(false);
-  const [fetching, setFetching] = useState(false);
+  const [query,         setQuery]         = useState("");
+  const [recipes,       setRecipes]       = useState<SearchRecipe[]>([]);
+  const [authors,       setAuthors]       = useState<SearchAuthor[]>([]);
+  const [recipeResults, setRecipeResults] = useState<SearchRecipe[]>([]);
+  const [authorResults, setAuthorResults] = useState<SearchAuthor[]>([]);
+  const [fetched,       setFetched]       = useState(false);
+  const [fetching,      setFetching]      = useState(false);
 
-  const ensureRecipes = useCallback(async () => {
+  const ensureData = useCallback(async () => {
     if (fetched || fetching) return;
     setFetching(true);
     try {
-      const res  = await fetch("/api/recipes");
+      const res  = await fetch("/api/search");
       const json = await res.json();
       setRecipes((json.recipes ?? []) as SearchRecipe[]);
+      setAuthors((json.authors ?? []) as SearchAuthor[]);
     } catch { /* silently fail */ } finally {
       setFetched(true);
       setFetching(false);
@@ -58,17 +62,97 @@ function useSearch() {
 
   useEffect(() => {
     const q = query.trim().toLocaleLowerCase("tr");
-    if (!q) { setResults([]); return; }
-    setResults(
+    if (!q) { setRecipeResults([]); setAuthorResults([]); return; }
+    setRecipeResults(
       recipes.filter(r =>
         r.title.toLocaleLowerCase("tr").includes(q) ||
         (r.author ?? "").toLocaleLowerCase("tr").includes(q)
-      ).slice(0, 6)
+      ).slice(0, 4)
     );
-  }, [query, recipes]);
+    setAuthorResults(
+      authors.filter(a =>
+        a.username.toLocaleLowerCase("tr").includes(q) ||
+        a.displayName.toLocaleLowerCase("tr").includes(q)
+      ).slice(0, 3)
+    );
+  }, [query, recipes, authors]);
 
-  function clearSearch() { setQuery(""); setResults([]); }
-  return { query, setQuery, results, fetching, ensureRecipes, clearSearch };
+  function clearSearch() { setQuery(""); setRecipeResults([]); setAuthorResults([]); }
+  return { query, setQuery, recipeResults, authorResults, fetching, ensureData, clearSearch };
+}
+
+/* Shared dropdown content */
+function SearchDropdown({
+  fetching, recipeResults, authorResults, clearSearch,
+}: {
+  fetching: boolean;
+  recipeResults: SearchRecipe[];
+  authorResults: SearchAuthor[];
+  clearSearch: () => void;
+}) {
+  const hasResults = recipeResults.length > 0 || authorResults.length > 0;
+  return (
+    <div className="bg-white border border-warm-200 rounded-2xl shadow-lg overflow-hidden z-50">
+      {fetching ? (
+        <div className="px-4 py-3 text-sm text-warm-400">Yükleniyor…</div>
+      ) : !hasResults ? (
+        <div className="px-4 py-3 text-sm text-warm-400">Sonuç bulunamadı</div>
+      ) : (
+        <>
+          {/* Yazarlar */}
+          {authorResults.length > 0 && (
+            <div>
+              <div className="px-4 pt-2.5 pb-1 text-[10px] font-semibold text-warm-400 uppercase tracking-wider">Yazarlar</div>
+              <ul>
+                {authorResults.map((author, i) => (
+                  <li key={author.username}>
+                    <Link href={`/uye/${author.username}`} onClick={clearSearch}
+                      className={clsx("flex items-center gap-3 px-4 py-2.5 hover:bg-warm-50 transition-colors",
+                        (i !== authorResults.length - 1 || recipeResults.length > 0) && "border-b border-warm-100")}>
+                      {author.avatar ? (
+                        <img src={author.avatar} alt={author.displayName} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
+                      ) : (
+                        <span className="w-7 h-7 rounded-full bg-brand-100 text-brand-600 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                          {author.displayName.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-medium text-warm-800 truncate">{author.displayName}</span>
+                        <span className="text-[11px] text-warm-400 truncate">@{author.username}</span>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {/* Tarifler */}
+          {recipeResults.length > 0 && (
+            <div>
+              <div className="px-4 pt-2.5 pb-1 text-[10px] font-semibold text-warm-400 uppercase tracking-wider">Tarifler</div>
+              <ul>
+                {recipeResults.map((recipe, i) => (
+                  <li key={recipe.id}>
+                    <Link href={`/recipes/${recipe.slug}`} onClick={clearSearch}
+                      className={clsx("flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-warm-50 transition-colors",
+                        i !== recipeResults.length - 1 && "border-b border-warm-100")}>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-medium text-warm-800 truncate">{recipe.title}</span>
+                        {recipe.author && (
+                          <span className="text-[11px] text-warm-400 truncate">{recipe.author}</span>
+                        )}
+                      </div>
+                      <span className="text-xs text-warm-400 flex-shrink-0">{CATEGORY_LABELS[recipe.category]}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
 }
 
 function useAuthUser() {
@@ -105,7 +189,7 @@ function useAuthUser() {
 }
 
 function DesktopSearch() {
-  const { query, setQuery, results, fetching, ensureRecipes, clearSearch } = useSearch();
+  const { query, setQuery, recipeResults, authorResults, fetching, ensureData, clearSearch } = useSearch();
   const containerRef = useRef<HTMLDivElement>(null);
   const showDropdown = query.trim().length > 0;
 
@@ -123,34 +207,12 @@ function DesktopSearch() {
       <div className="relative">
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-warm-400 pointer-events-none" />
         <input type="text" value={query} onChange={(e) => setQuery(e.target.value)}
-          onFocus={ensureRecipes} placeholder="Tarif ara…" autoComplete="off"
-          className="w-[130px] pl-8 pr-3 py-1 rounded-full text-sm bg-warm-100 border border-warm-200 text-warm-700 placeholder:text-warm-400 focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-200/60 transition-colors" />
+          onFocus={ensureData} placeholder="Tarif veya yazar ara…" autoComplete="off"
+          className="w-[180px] pl-8 pr-3 py-1 rounded-full text-sm bg-warm-100 border border-warm-200 text-warm-700 placeholder:text-warm-400 focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-200/60 transition-colors" />
       </div>
       {showDropdown && (
-        <div className="absolute top-full mt-2 left-0 w-full min-w-[240px] bg-white border border-warm-200 rounded-2xl shadow-lg overflow-hidden z-50">
-          {fetching ? (
-            <div className="px-4 py-3 text-sm text-warm-400">Yükleniyor…</div>
-          ) : results.length === 0 ? (
-            <div className="px-4 py-3 text-sm text-warm-400">Sonuç bulunamadı</div>
-          ) : (
-            <ul>
-              {results.map((recipe, i) => (
-                <li key={recipe.id}>
-                  <Link href={`/recipes/${recipe.slug}`} onClick={clearSearch}
-                    className={clsx("flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-warm-50 transition-colors",
-                      i !== results.length - 1 && "border-b border-warm-100")}>
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-sm font-medium text-warm-800 truncate">{recipe.title}</span>
-                      {recipe.author && (
-                        <span className="text-[11px] text-warm-400 truncate">{recipe.author}</span>
-                      )}
-                    </div>
-                    <span className="text-xs text-warm-400 flex-shrink-0">{CATEGORY_LABELS[recipe.category]}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+        <div className="absolute top-full mt-2 right-0 w-[300px]">
+          <SearchDropdown fetching={fetching} recipeResults={recipeResults} authorResults={authorResults} clearSearch={clearSearch} />
         </div>
       )}
     </div>
@@ -242,7 +304,7 @@ function DesktopUserMenu() {
 }
 
 function MobileSearchPanel({ onClose }: { onClose: () => void }) {
-  const { query, setQuery, results, fetching, ensureRecipes, clearSearch } = useSearch();
+  const { query, setQuery, recipeResults, authorResults, fetching, ensureData, clearSearch } = useSearch();
   const showDropdown = query.trim().length > 0;
   function handleSelect() { clearSearch(); onClose(); }
 
@@ -252,35 +314,18 @@ function MobileSearchPanel({ onClose }: { onClose: () => void }) {
         <div className="relative">
           <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-warm-400 pointer-events-none" />
           <input type="text" value={query} onChange={(e) => setQuery(e.target.value)}
-            onFocus={ensureRecipes} placeholder="Tarif ara…" autoFocus autoComplete="off"
+            onFocus={ensureData} placeholder="Tarif veya yazar ara…" autoFocus autoComplete="off"
             className="w-full pl-9 pr-4 py-2.5 rounded-full text-base bg-warm-50 border border-warm-200 text-warm-700 placeholder:text-warm-400 focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-200/60 transition-colors" />
         </div>
       </div>
       {showDropdown && (
         <div className="border-t border-warm-100">
-          {fetching ? (
-            <div className="px-5 py-4 text-sm text-warm-400">Yükleniyor…</div>
-          ) : results.length === 0 ? (
-            <div className="px-5 py-4 text-sm text-warm-400">Sonuç bulunamadı</div>
-          ) : (
-            <ul>
-              {results.map((recipe, i) => (
-                <li key={recipe.id}>
-                  <Link href={`/recipes/${recipe.slug}`} onClick={handleSelect}
-                    className={clsx("flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-warm-50 active:bg-warm-100 transition-colors",
-                      i !== results.length - 1 && "border-b border-warm-100")}>
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-sm font-medium text-warm-800 truncate">{recipe.title}</span>
-                      {recipe.author && (
-                        <span className="text-[11px] text-warm-400 truncate">{recipe.author}</span>
-                      )}
-                    </div>
-                    <span className="text-xs text-warm-400 flex-shrink-0">{CATEGORY_LABELS[recipe.category]}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
+          <SearchDropdown
+            fetching={fetching}
+            recipeResults={recipeResults}
+            authorResults={authorResults}
+            clearSearch={handleSelect}
+          />
         </div>
       )}
     </div>

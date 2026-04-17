@@ -184,22 +184,29 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
       {/* Top amber line */}
       <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
 
-      {/* 2×2 image grid */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        {/* Row 1 */}
-        <div style={{ flex: 1, display: "flex" }}>
-          <ImageCell card={cards[0]} fontSize={19} authorPrefix />
-          <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-          <ImageCell card={cards[1]} fontSize={19} authorPrefix />
+      {/* 2×2 image grid — with left/right amber borders */}
+      <div style={{ flex: 1, display: "flex" }}>
+        {/* Left amber border */}
+        <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+        {/* Grid */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          {/* Row 1 */}
+          <div style={{ flex: 1, display: "flex" }}>
+            <ImageCell card={cards[0]} fontSize={19} authorPrefix />
+            <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+            <ImageCell card={cards[1]} fontSize={19} authorPrefix />
+          </div>
+          {/* Row divider */}
+          <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+          {/* Row 2 */}
+          <div style={{ flex: 1, display: "flex" }}>
+            <ImageCell card={cards[2]} fontSize={19} authorPrefix />
+            <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+            <ImageCell card={cards[3]} fontSize={19} authorPrefix />
+          </div>
         </div>
-        {/* Row divider */}
-        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-        {/* Row 2 */}
-        <div style={{ flex: 1, display: "flex" }}>
-          <ImageCell card={cards[2]} fontSize={19} authorPrefix />
-          <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-          <ImageCell card={cards[3]} fontSize={19} authorPrefix />
-        </div>
+        {/* Right amber border */}
+        <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
       </div>
 
       {/* Bottom amber line */}

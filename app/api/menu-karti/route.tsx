@@ -267,7 +267,12 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
   const OTHER_H = 463;
 
   return (
-    <div style={{ width: 1080, height: 1920, display: "flex", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+    <div style={{ width: 1080, height: 1920, display: "flex", position: "relative", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+
+      {/* Site URL — reply bar'ın (~150px) üstünde sabit */}
+      <div style={{ position: "absolute", bottom: 165, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 10 }}>
+        <div style={{ color: "rgba(255,255,255,0.60)", fontSize: 16, letterSpacing: 1.5, display: "flex" }}>menugunlugu.com</div>
+      </div>
 
       {/* Left amber border */}
       <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
@@ -293,7 +298,6 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
           <div style={{ position: "absolute", top: 215, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
             <div style={{ color: "#FCD34D", fontSize: 17, letterSpacing: 1, display: "flex" }}>{date}</div>
             <div style={{ color: "#FFFFFF", fontSize: 58, fontWeight: 700, lineHeight: 1.1, display: "flex" }}>Günün Menüsü</div>
-            <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 17, display: "flex" }}>menugunlugu.com</div>
           </div>
 
           {/* Recipe info — bottom */}

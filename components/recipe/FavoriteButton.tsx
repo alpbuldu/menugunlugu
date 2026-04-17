@@ -35,7 +35,7 @@ export default function FavoriteButton({ recipeId, compact = false }: Props) {
     setSaving(false);
 
     if (res.status === 401) {
-      router.push("/giris");
+      router.push(`/giris?from=${encodeURIComponent(window.location.pathname + window.location.search)}`);
       return;
     }
     if (res.ok) {

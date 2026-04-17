@@ -432,11 +432,6 @@ export default function Navigation() {
                 {link.label}
               </Link>
             ))}
-            <Link href="/tarif-ekle" onClick={() => setOpen(false)}
-              className="flex items-center gap-3 px-5 py-3.5 text-sm font-medium border-b border-warm-100 text-warm-700 hover:bg-warm-50 transition-colors">
-              <span className="w-5 text-center flex-shrink-0">✏️</span>
-              Tarif Ekle
-            </Link>
             {user ? (
               <>
                 <Link href="/uye/panel" onClick={() => setOpen(false)}

@@ -243,7 +243,12 @@ export default async function RecipeDetailPage({ params }: Props) {
                 </span>
               )}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-warm-900 mt-3 leading-snug">{recipe.title}</h1>
+            <div className="flex items-start justify-between gap-4 mt-3">
+              <h1 className="text-2xl sm:text-3xl font-bold text-warm-900 leading-snug">{recipe.title}</h1>
+              <div className="flex-shrink-0 pt-1">
+                <FavoriteButton recipeId={recipe.id} />
+              </div>
+            </div>
           </div>
 
           <section className="mb-8">

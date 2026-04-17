@@ -372,7 +372,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                   }`}
                 >
                   <span>📸</span>
-                  <span>Menünü Paylaş · Post</span>
+                  <span className="whitespace-nowrap">Paylaş · Post</span>
                 </button>
                 <button
                   type="button"
@@ -386,7 +386,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                   }`}
                 >
                   <span>📱</span>
-                  <span>Menünü Paylaş · Story</span>
+                  <span className="whitespace-nowrap">Paylaş · Story</span>
                 </button>
               </div>
 

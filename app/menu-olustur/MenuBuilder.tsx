@@ -254,14 +254,15 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     });
   }
 
-  function handleDownload() {
+  function handleCard(format: "post" | "story") {
     if (!allFilled) return;
     const sel = selection as Record<Category, MenuRecipe>;
     const params = new URLSearchParams({
-      soup:    sel.soup.title,
-      main:    sel.main.title,
-      side:    sel.side.title,
-      dessert: sel.dessert.title,
+      soup:    sel.soup.id,
+      main:    sel.main.id,
+      side:    sel.side.id,
+      dessert: sel.dessert.id,
+      format,
     });
     window.open(`/api/menu-karti?${params.toString()}`, "_blank");
   }
@@ -339,20 +340,36 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                 <span>Günün Menüsünü Oluştur</span>
               </button>
 
-              <button
-                type="button"
-                onClick={handleDownload}
-                disabled={!allFilled}
-                title={allFilled ? "Menü kartını görsel olarak indir" : "4 yemek seçerek menü kartını oluştur"}
-                className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm ${
-                  allFilled
-                    ? "bg-brand-600 text-white hover:bg-brand-700 cursor-pointer"
-                    : "bg-warm-200 text-warm-400 cursor-not-allowed"
-                }`}
-              >
-                <span>📥</span>
-                <span>Menü Kartını İndir</span>
-              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleCard("post")}
+                  disabled={!allFilled}
+                  title={allFilled ? "Post kartı indir (1080×1350)" : "4 yemek seç"}
+                  className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm ${
+                    allFilled
+                      ? "bg-brand-600 text-white hover:bg-brand-700 cursor-pointer"
+                      : "bg-warm-200 text-warm-400 cursor-not-allowed"
+                  }`}
+                >
+                  <span>📸</span>
+                  <span>Post</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleCard("story")}
+                  disabled={!allFilled}
+                  title={allFilled ? "Story kartı indir (1080×1920)" : "4 yemek seç"}
+                  className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm ${
+                    allFilled
+                      ? "bg-brand-600 text-white hover:bg-brand-700 cursor-pointer"
+                      : "bg-warm-200 text-warm-400 cursor-not-allowed"
+                  }`}
+                >
+                  <span>📱</span>
+                  <span>Story</span>
+                </button>
+              </div>
 
               {!allFilled && (
                 <p className="text-center text-[11px] text-warm-400 pt-0.5">

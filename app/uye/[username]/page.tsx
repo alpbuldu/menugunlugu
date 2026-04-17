@@ -35,14 +35,16 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
   let isAdmin = false;
   let adminProfile: any = null;
 
-  if (username === "__admin__") {
-    const { data: ap } = await supabase
-      .from("admin_profile")
-      .select("username, avatar_url, full_name, bio, instagram, twitter, youtube, website")
-      .eq("id", 1)
-      .maybeSingle();
-    if (!ap) notFound();
-    adminProfile = ap;
+  // Admin profili hem __admin__ hem de gerçek kullanıcı adıyla erişilebilir
+  const { data: apData } = await supabase
+    .from("admin_profile")
+    .select("username, avatar_url, full_name, bio, instagram, twitter, youtube, website")
+    .eq("id", 1)
+    .maybeSingle();
+
+  if (username === "__admin__" || (apData && apData.username === username)) {
+    if (!apData) notFound();
+    adminProfile = apData;
     isAdmin = true;
   }
 

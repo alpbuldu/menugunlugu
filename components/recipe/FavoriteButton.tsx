@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-interface Props { recipeId: string; }
+interface Props { recipeId: string; compact?: boolean; }
 
-export default function FavoriteButton({ recipeId }: Props) {
+export default function FavoriteButton({ recipeId, compact = false }: Props) {
   const [favorited, setFavorited] = useState(false);
   const [loading,   setLoading]   = useState(true);
   const [saving,    setSaving]    = useState(false);
@@ -47,7 +47,26 @@ export default function FavoriteButton({ recipeId }: Props) {
     }
   }
 
-  if (loading) return <div className="w-10 h-10 rounded-full bg-warm-100 animate-pulse" />;
+  if (loading) return <div className={compact ? "w-7 h-7 rounded-full bg-warm-100 animate-pulse" : "w-10 h-10 rounded-full bg-warm-100 animate-pulse"} />;
+
+  if (compact) {
+    return (
+      <button
+        onClick={toggle}
+        disabled={saving}
+        title={favorited ? "Tarif Defterinden çıkar" : "Tarif Defterine ekle"}
+        className={[
+          "flex items-center justify-center w-7 h-7 rounded-full border transition-all",
+          favorited
+            ? "bg-red-50 border-red-200 text-red-500 hover:bg-red-100"
+            : "bg-white border-warm-200 text-warm-400 hover:bg-warm-50 hover:text-red-400 hover:border-red-200",
+          saving ? "opacity-60 cursor-not-allowed" : "",
+        ].join(" ")}
+      >
+        <span className="text-sm leading-none">{favorited ? "❤️" : "🤍"}</span>
+      </button>
+    );
+  }
 
   return (
     <button

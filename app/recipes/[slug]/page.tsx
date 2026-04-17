@@ -245,7 +245,11 @@ export default async function RecipeDetailPage({ params }: Props) {
                   </span>
                 )}
               </div>
-              <div className="flex-shrink-0">
+              {/* Mobilde compact (sadece ikon), masaüstünde tam buton */}
+              <div className="flex-shrink-0 sm:hidden">
+                <FavoriteButton recipeId={recipe.id} compact />
+              </div>
+              <div className="flex-shrink-0 hidden sm:block">
                 <FavoriteButton recipeId={recipe.id} />
               </div>
             </div>

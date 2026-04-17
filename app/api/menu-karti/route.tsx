@@ -156,7 +156,7 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
       {/* Header — dark strip, same color as footer */}
       <div style={{ height: HEAD, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", flexShrink: 0 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <div style={{ color: "#FFFFFF", fontSize: 12, display: "flex" }}>{date}</div>
+          <div style={{ color: "#FCD34D", fontSize: 12, display: "flex" }}>{date}</div>
           <div style={{ color: "#FEF3E2", fontSize: 33, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 7 }}>
@@ -171,12 +171,12 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
           </div>
           {/* Instagram */}
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
               <circle cx="12" cy="12" r="4"/>
-              <circle cx="17.5" cy="6.5" r="0.8" fill="#FFFFFF" stroke="none"/>
+              <circle cx="17.5" cy="6.5" r="0.8" fill="#FCD34D" stroke="none"/>
             </svg>
-            <div style={{ color: "#FFFFFF", fontSize: 13, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
+            <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
           </div>
         </div>
       </div>
@@ -245,7 +245,7 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
       {/* Header — dark strip, metin alt kısımda (safe zone başlangıcı ~y200) */}
       <div style={{ height: HEAD, backgroundColor: "#92400E", display: "flex", alignItems: "flex-end", justifyContent: "space-between", padding: "0 44px 22px", flexShrink: 0 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-          <div style={{ color: "#FFFFFF", fontSize: 15, display: "flex" }}>{date}</div>
+          <div style={{ color: "#FCD34D", fontSize: 15, display: "flex" }}>{date}</div>
           <div style={{ color: "#FEF3E2", fontSize: 46, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12, paddingBottom: 4 }}>
@@ -260,12 +260,12 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
           </div>
           {/* Instagram */}
           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
               <circle cx="12" cy="12" r="4"/>
-              <circle cx="17.5" cy="6.5" r="0.8" fill="#FFFFFF" stroke="none"/>
+              <circle cx="17.5" cy="6.5" r="0.8" fill="#FCD34D" stroke="none"/>
             </svg>
-            <div style={{ color: "#FFFFFF", fontSize: 15, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
+            <div style={{ color: "#FCD34D", fontSize: 15, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
           </div>
         </div>
       </div>

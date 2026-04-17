@@ -55,31 +55,34 @@ export default async function HomePage() {
             <br />
             Bugünün menüsünü keşfet!
           </p>
-          {/* Mobile: row 1 — primary button centered */}
-          <div className="flex sm:hidden justify-center mb-2.5">
-            <Link href="/menu" className="inline-flex items-center justify-center w-[160px] py-2 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
-              Bugünün Menüsü →
+          {/* Mobile: 2×2 grid */}
+          <div className="grid sm:hidden grid-cols-2 gap-2.5 max-w-xs mx-auto">
+            <Link href="/menu" className="inline-flex items-center justify-center py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+              Bugünün Menüsü
             </Link>
-          </div>
-          {/* Mobile: row 2 — two buttons side by side */}
-          <div className="flex sm:hidden flex-row gap-2.5 justify-center">
-            <Link href="/archive" className="inline-flex items-center justify-center w-[160px] py-2 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+            <Link href="/archive" className="inline-flex items-center justify-center py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
               Dünün Menüsü
             </Link>
-            <Link href="/recipes" className="inline-flex items-center justify-center w-[160px] py-2 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+            <Link href="/recipes" className="inline-flex items-center justify-center py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
               Tariflere Göz At
             </Link>
+            <Link href="/menu-olustur" className="inline-flex items-center justify-center py-2.5 bg-brand-500 text-white rounded-lg font-medium text-sm hover:bg-brand-400 transition-colors">
+              Menü Oluştur ✨
+            </Link>
           </div>
-          {/* Desktop: all 3 in a single row */}
+          {/* Desktop: all 4 in a single row */}
           <div className="hidden sm:flex flex-row gap-3 justify-center">
-            <Link href="/menu" className="inline-flex items-center justify-center w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+            <Link href="/menu" className="inline-flex items-center justify-center w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               Bugünün Menüsü →
             </Link>
-            <Link href="/archive" className="inline-flex items-center justify-center w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+            <Link href="/archive" className="inline-flex items-center justify-center w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               Dünün Menüsü
             </Link>
-            <Link href="/recipes" className="inline-flex items-center justify-center w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+            <Link href="/recipes" className="inline-flex items-center justify-center w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               Tariflere Göz At
+            </Link>
+            <Link href="/menu-olustur" className="inline-flex items-center justify-center w-[190px] py-3 bg-brand-500 text-white rounded-xl font-medium text-base hover:bg-brand-400 transition-colors">
+              Menü Oluştur ✨
             </Link>
           </div>
         </div>

@@ -215,7 +215,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   const [activeCategory, setActiveCategory] = useState<Category>("soup");
   const [selection, setSelection] = useState<Selection>({});
   const [page, setPage] = useState(0);
-  const [perPage, setPerPage] = useState(15);
+  const [perPage, setPerPage] = useState(10);
   const topRef = useRef<HTMLDivElement>(null);
 
   const allFilled = SLOTS.every(({ key }) => !!selection[key]);
@@ -230,7 +230,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
 
   // Detect screen size for per-page count
   useEffect(() => {
-    const update = () => setPerPage(window.innerWidth < 640 ? 12 : 15);
+    const update = () => setPerPage(window.innerWidth < 640 ? 8 : 10);
     update();
     window.addEventListener("resize", update);
     return () => window.removeEventListener("resize", update);

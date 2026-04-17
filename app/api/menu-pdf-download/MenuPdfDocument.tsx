@@ -4,6 +4,7 @@ import {
   View,
   Text,
   Image,
+  Link,
   StyleSheet,
   Font,
 } from "@react-pdf/renderer";
@@ -86,6 +87,9 @@ const s = StyleSheet.create({
   /* ── Body ────────────────────── */
   body: { paddingTop: 22, paddingBottom: 60, paddingLeft: 44, paddingRight: 44 },
   recipeMeta: { ...reg(), fontSize: 8.5, color: C.muted, marginBottom: 18 },
+  authorRow: { flexDirection: "row", alignItems: "center", marginBottom: 18, gap: 4 },
+  authorLabel: { ...reg(), fontSize: 8.5, color: C.muted },
+  authorLink: { ...bold(), fontSize: 8.5, color: C.brand, textDecoration: "underline" },
 
   /* ── Two columns ─────────────── */
   cols: { flexDirection: "row", gap: 24 },
@@ -180,7 +184,18 @@ export function MenuPdfDocument({ recipes, dateStr }: Props) {
                 <View style={s.mealInfo}>
                   <Text style={s.mealLabel}>{label}</Text>
                   <Text style={s.mealTitle}>{r.title}</Text>
-                  {r.author ? <Text style={s.mealAuthor}>Yazar: {r.author}</Text> : null}
+                  {r.author ? (
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
+                      <Text style={s.mealAuthor}>Yazar:</Text>
+                      {r.authorUrl ? (
+                        <Link src={`https://${r.authorUrl}`} style={{ ...s.mealAuthor, color: C.brand, textDecoration: "underline" }}>
+                          {r.author}
+                        </Link>
+                      ) : (
+                        <Text style={s.mealAuthor}>{r.author}</Text>
+                      )}
+                    </View>
+                  ) : null}
                 </View>
               </View>
             );
@@ -219,9 +234,16 @@ export function MenuPdfDocument({ recipes, dateStr }: Props) {
 
             <View style={s.body}>
               {r.author ? (
-                <Text style={s.recipeMeta}>
-                  Yazar: {r.author}{r.authorUrl ? `  ·  ${r.authorUrl}` : ""}
-                </Text>
+                <View style={s.authorRow}>
+                  <Text style={s.authorLabel}>Yazar:</Text>
+                  {r.authorUrl ? (
+                    <Link src={`https://${r.authorUrl}`} style={s.authorLink}>
+                      {r.author}
+                    </Link>
+                  ) : (
+                    <Text style={s.authorLabel}>{r.author}</Text>
+                  )}
+                </View>
               ) : null}
 
               <View style={s.cols}>

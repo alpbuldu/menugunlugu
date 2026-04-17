@@ -57,32 +57,32 @@ export default async function HomePage() {
           </p>
           {/* Mobile: 2×2 grid */}
           <div className="grid sm:hidden grid-cols-2 gap-2.5 max-w-xs mx-auto">
-            <Link href="/menu" className="inline-flex items-center justify-center py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
-              Bugünün Menüsü
+            <Link href="/menu" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+              🍽️ Bugünün Menüsü
             </Link>
-            <Link href="/archive" className="inline-flex items-center justify-center py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
-              Dünün Menüsü
+            <Link href="/archive" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+              📅 Dünün Menüsü
             </Link>
-            <Link href="/recipes" className="inline-flex items-center justify-center py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
-              Tariflere Göz At
+            <Link href="/recipes" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+              🥘 Tariflere Göz At
             </Link>
-            <Link href="/menu-olustur" className="inline-flex items-center justify-center py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
-              Menü Oluştur ✨
+            <Link href="/menu-olustur" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+              ✨ Menü Oluştur
             </Link>
           </div>
           {/* Desktop: all 4 in a single row */}
           <div className="hidden sm:flex flex-row gap-3 justify-center">
-            <Link href="/menu" className="inline-flex items-center justify-center w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
-              Bugünün Menüsü →
+            <Link href="/menu" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+              🍽️ Bugünün Menüsü
             </Link>
-            <Link href="/archive" className="inline-flex items-center justify-center w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
-              Dünün Menüsü
+            <Link href="/archive" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+              📅 Dünün Menüsü
             </Link>
-            <Link href="/recipes" className="inline-flex items-center justify-center w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
-              Tariflere Göz At
+            <Link href="/recipes" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+              🥘 Tariflere Göz At
             </Link>
-            <Link href="/menu-olustur" className="inline-flex items-center justify-center w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
-              Menü Oluştur ✨
+            <Link href="/menu-olustur" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+              ✨ Menü Oluştur
             </Link>
           </div>
         </div>

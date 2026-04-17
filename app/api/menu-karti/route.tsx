@@ -219,7 +219,7 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
           <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
           <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
         </div>
-        <div style={{ color: "#FCD34D", fontSize: 10, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE · MENÜNÜ OLUŞTUR · PAYLAŞ!</div>
+        <div style={{ color: "#FCD34D", fontSize: 10, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜNÜ OLUŞTUR · PAYLAŞ!</div>
       </div>
 
     </div>

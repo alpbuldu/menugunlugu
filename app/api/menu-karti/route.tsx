@@ -291,7 +291,7 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
 
           {/* Header text — ortalı, y≥215 (Instagram safe zone altı) */}
           <div style={{ position: "absolute", top: 215, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-            <div style={{ color: "#FCD34D", fontSize: 22, letterSpacing: 1, display: "flex" }}>{date}</div>
+            <div style={{ color: "#FCD34D", fontSize: 24, letterSpacing: 1, display: "flex" }}>{date}</div>
             <div style={{ color: "#FFFFFF", fontSize: 58, fontWeight: 700, lineHeight: 1.1, display: "flex" }}>Günün Menüsü</div>
           </div>
 
@@ -327,9 +327,10 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
       {/* Right amber border */}
       <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
 
-      {/* Site URL — en son render → şeritlerin üstünde; reply bar (~150px) kapatmaz */}
-      <div style={{ position: "absolute", bottom: 170, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
+      {/* Site URL + slogan — en son render → şeritlerin üstünde; reply bar (~150px) kapatmaz */}
+      <div style={{ position: "absolute", bottom: 162, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
         <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 22, fontWeight: 700, letterSpacing: 2, display: "flex" }}>www.menugunlugu.com</div>
+        <div style={{ color: "#FCD34D", fontSize: 14, letterSpacing: 1.8, display: "flex" }}>TARİFİNİ YÜKLE · MENÜ OLUŞTUR · PAYLAŞ!</div>
       </div>
 
     </div>

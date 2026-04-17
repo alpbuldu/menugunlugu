@@ -232,46 +232,80 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
 ════════════════════════════════════════════════════════════════ */
 function StoryView({ cards, date }: { cards: Card[]; date: string }) {
   const HEAD = 162;
-  const FOOT = 50;
+  const FOOT = 70;
   const DIV  = 3;
 
   return (
     <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
       {/* Header — cream strip */}
-      <div style={{ height: HEAD, backgroundColor: "#F5F0E8", display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 44px", gap: 5, flexShrink: 0 }}>
-        <div style={{ color: "#D97706", fontSize: 10, fontWeight: 700, letterSpacing: 3.5, display: "flex" }}>MENÜ GÜNLÜĞÜ · menugunlugu.com</div>
-        <div style={{ color: "#1C1917", fontSize: 42, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
-        <div style={{ color: "#A8A29E", fontSize: 15, display: "flex" }}>{date}</div>
+      <div style={{ height: HEAD, backgroundColor: "#F5F0E8", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 44px", flexShrink: 0 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ color: "#1C1917", fontSize: 15, display: "flex" }}>{date}</div>
+          <div style={{ color: "#D97706", fontSize: 42, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
+          {/* Website */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            <div style={{ color: "#D97706", fontSize: 15, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
+          </div>
+          {/* Instagram */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1C1917" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="0.8" fill="#1C1917" stroke="none"/>
+            </svg>
+            <div style={{ color: "#1C1917", fontSize: 15, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
+          </div>
+        </div>
       </div>
 
       {/* Top amber line */}
       <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
 
-      {/* 4 image strips */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <div style={{ flex: 1, display: "flex" }}>
-          <ImageCell card={cards[0]} fontSize={28} />
+      {/* 4 image strips — with left/right amber borders */}
+      <div style={{ flex: 1, display: "flex" }}>
+        {/* Left amber border */}
+        <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+        {/* Strips */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <div style={{ flex: 1, display: "flex" }}>
+            <ImageCell card={cards[0]} fontSize={28} authorPrefix />
+          </div>
+          <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+          <div style={{ flex: 1, display: "flex" }}>
+            <ImageCell card={cards[1]} fontSize={28} authorPrefix />
+          </div>
+          <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+          <div style={{ flex: 1, display: "flex" }}>
+            <ImageCell card={cards[2]} fontSize={28} authorPrefix />
+          </div>
+          <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+          <div style={{ flex: 1, display: "flex" }}>
+            <ImageCell card={cards[3]} fontSize={28} authorPrefix />
+          </div>
         </div>
-        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-        <div style={{ flex: 1, display: "flex" }}>
-          <ImageCell card={cards[1]} fontSize={28} />
-        </div>
-        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-        <div style={{ flex: 1, display: "flex" }}>
-          <ImageCell card={cards[2]} fontSize={28} />
-        </div>
-        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-        <div style={{ flex: 1, display: "flex" }}>
-          <ImageCell card={cards[3]} fontSize={28} />
-        </div>
+        {/* Right amber border */}
+        <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
       </div>
 
+      {/* Bottom amber line */}
+      <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+
       {/* Footer */}
-      <div style={{ height: FOOT, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexShrink: 0 }}>
-        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
-        <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
-        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
+      <div style={{ height: FOOT, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
+          <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
+          <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
+        </div>
+        <div style={{ color: "#FCD34D", fontSize: 10, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE · MENÜNÜ OLUŞTUR · PAYLAŞ!</div>
       </div>
 
     </div>

@@ -148,7 +148,7 @@ function ImageCell({
         position: "absolute",
         ...(isTop ? { top: 0 } : { bottom: 0 }),
         ...(isRight ? { right: 0 } : { left: 0 }),
-        padding: "18px 20px",
+        padding: "14px 22px",
         display: "flex",
         flexDirection: "column",
         alignItems: isRight ? "flex-end" : "flex-start",
@@ -297,7 +297,7 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
           </div>
 
           {/* Recipe info — bottom */}
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 28px 22px", display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 22px 14px", display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{cards[0].cat.toUpperCase()}</div>
             <div style={{ color: "#FFFFFF", fontSize: 30, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{cards[0].title}</div>
             {cards[0].author && (

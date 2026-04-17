@@ -182,8 +182,17 @@ export async function GET(request: NextRequest) {
 
   // Fetch sequentially
   const imageUris: (string | null)[] = [];
+  const debugInfo: Record<string, { url: string | null; fetched: boolean; bytes: number }> = {};
   for (const key of SLOTS) {
-    imageUris.push(await fetchImageDataUri(recipes[key].image_url));
+    const url = recipes[key].image_url;
+    const dataUri = await fetchImageDataUri(url);
+    imageUris.push(dataUri);
+    debugInfo[key] = { url, fetched: !!dataUri, bytes: dataUri ? Math.round(dataUri.length * 0.75) : 0 };
+  }
+
+  // ?debug=1 → return JSON instead of PDF
+  if (searchParams.get("debug") === "1") {
+    return NextResponse.json({ recipes: Object.fromEntries(SLOTS.map(k => [k, recipes[k].title])), images: debugInfo });
   }
 
   SLOTS.forEach((key, i) => {

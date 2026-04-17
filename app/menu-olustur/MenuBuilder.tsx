@@ -216,6 +216,8 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   const [selection, setSelection] = useState<Selection>({});
   const [page, setPage] = useState(0);
   const [perPage, setPerPage] = useState(10);
+  const [searchTitle, setSearchTitle] = useState("");
+  const [searchAuthor, setSearchAuthor] = useState("");
   const topRef = useRef<HTMLDivElement>(null);
   const touchRef = useRef<{ x: number; y: number } | null>(null);
   const [scrollTick, setScrollTick] = useState(0);
@@ -239,8 +241,8 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  // Reset page when category changes
-  useEffect(() => setPage(0), [activeCategory]);
+  // Reset page + search when category changes
+  useEffect(() => { setPage(0); setSearchTitle(""); setSearchAuthor(""); }, [activeCategory]);
 
   function selectRecipe(recipe: MenuRecipe) {
     setSelection((prev) => ({ ...prev, [activeCategory]: recipe }));
@@ -299,8 +301,14 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   }
 
   const currentRecipes = grouped[activeCategory];
-  const totalPages = Math.ceil(currentRecipes.length / perPage);
-  const pagedRecipes = currentRecipes.slice(page * perPage, (page + 1) * perPage);
+  const norm = (s: string) => s.toLocaleLowerCase("tr");
+  const filtered = currentRecipes.filter((r) => {
+    const titleOk  = !searchTitle  || norm(r.title).includes(norm(searchTitle));
+    const authorOk = !searchAuthor || norm(r.author).includes(norm(searchAuthor));
+    return titleOk && authorOk;
+  });
+  const totalPages = Math.ceil(filtered.length / perPage);
+  const pagedRecipes = filtered.slice(page * perPage, (page + 1) * perPage);
 
   return (
     <>
@@ -457,10 +465,56 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
             ))}
           </div>
 
+          {/* Search inputs */}
+          <div className="flex gap-2 mb-3">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                value={searchTitle}
+                onChange={(e) => { setSearchTitle(e.target.value); setPage(0); }}
+                placeholder="Tarif ara..."
+                className="w-full text-sm pl-3 pr-7 py-2 rounded-xl border border-warm-200 bg-white focus:outline-none focus:border-brand-400 text-warm-800 placeholder:text-warm-400"
+              />
+              {searchTitle && (
+                <button
+                  type="button"
+                  onClick={() => { setSearchTitle(""); setPage(0); }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-warm-400 hover:text-warm-600"
+                  aria-label="Aramayı temizle"
+                >
+                  <CloseIcon />
+                </button>
+              )}
+            </div>
+            <div className="relative flex-1">
+              <input
+                type="text"
+                value={searchAuthor}
+                onChange={(e) => { setSearchAuthor(e.target.value); setPage(0); }}
+                placeholder="Yazar ara..."
+                className="w-full text-sm pl-3 pr-7 py-2 rounded-xl border border-warm-200 bg-white focus:outline-none focus:border-brand-400 text-warm-800 placeholder:text-warm-400"
+              />
+              {searchAuthor && (
+                <button
+                  type="button"
+                  onClick={() => { setSearchAuthor(""); setPage(0); }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-warm-400 hover:text-warm-600"
+                  aria-label="Aramayı temizle"
+                >
+                  <CloseIcon />
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Active category info + inline pagination */}
           <div className="mb-3 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              <span className="text-warm-500 text-sm flex-shrink-0">{currentRecipes.length} tarif</span>
+              <span className="text-warm-500 text-sm flex-shrink-0">
+                {filtered.length !== currentRecipes.length
+                  ? `${filtered.length} / ${currentRecipes.length} tarif`
+                  : `${currentRecipes.length} tarif`}
+              </span>
               {selection[activeCategory] && (
                 <span className="text-xs px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200 font-medium truncate">
                   Seçili: {selection[activeCategory]!.title}
@@ -491,10 +545,14 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
           </div>
 
           {/* Recipe grid */}
-          {currentRecipes.length === 0 ? (
+          {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center bg-white rounded-2xl border border-warm-100">
               <p className="text-4xl mb-3">🔍</p>
-              <p className="text-sm text-warm-500">Bu kategoride onaylı tarif bulunamadı.</p>
+              <p className="text-sm text-warm-500">
+                {currentRecipes.length === 0
+                  ? "Bu kategoride onaylı tarif bulunamadı."
+                  : "Arama kriterlerine uyan tarif bulunamadı."}
+              </p>
             </div>
           ) : (
             <>
@@ -521,7 +579,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                   </button>
                   <span className="text-xs text-warm-400">
                     {page + 1} / {totalPages}
-                    <span className="ml-1.5 text-warm-300">({currentRecipes.length} tarif)</span>
+                    <span className="ml-1.5 text-warm-300">({filtered.length} tarif)</span>
                   </span>
                   <button
                     type="button"

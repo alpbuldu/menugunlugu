@@ -17,6 +17,7 @@ export interface MenuRecipe {
   category: Category;
   image_url: string | null;
   ingredients: string;
+  author: string;
 }
 
 export default async function MenuOlusturPage() {
@@ -24,11 +25,32 @@ export default async function MenuOlusturPage() {
 
   const { data: recipes } = await supabase
     .from("recipes")
-    .select("id, title, slug, category, image_url, ingredients")
+    .select("id, title, slug, category, image_url, ingredients, submitted_by")
     .eq("approval_status", "approved")
     .order("title");
 
-  const allRecipes = (recipes ?? []) as MenuRecipe[];
+  // Yazar adlarını çek
+  const memberIds = [...new Set(
+    (recipes ?? []).filter((r) => r.submitted_by).map((r) => r.submitted_by as string)
+  )];
+  const profileMap: Record<string, string> = {};
+  if (memberIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from("profiles").select("id, username").in("id", memberIds);
+    for (const p of profiles ?? []) profileMap[p.id] = p.username;
+  }
+  const { data: ap } = await supabase.from("admin_profile").select("username").single();
+  const adminName = ap?.username ?? "Menü Günlüğü";
+
+  const allRecipes: MenuRecipe[] = (recipes ?? []).map((r) => ({
+    id: r.id,
+    title: r.title,
+    slug: r.slug,
+    category: r.category as Category,
+    image_url: r.image_url,
+    ingredients: r.ingredients,
+    author: r.submitted_by ? (profileMap[r.submitted_by] ?? "") : adminName,
+  }));
 
   const grouped: Record<Category, MenuRecipe[]> = {
     soup:    allRecipes.filter((r) => r.category === "soup"),

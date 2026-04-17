@@ -155,10 +155,10 @@ function ImageCell({
         gap: 5,
         maxWidth: "85%",
       }}>
-        <div style={{ color: "#FCD34D", fontSize: 10, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{card.cat.toUpperCase()}</div>
+        <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{card.cat.toUpperCase()}</div>
         <div style={{ color: "#FFFFFF", fontSize, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
         {card.author && (
-          <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 12, display: "flex" }}>
+          <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 15, display: "flex" }}>
             {authorPrefix ? `Yazar: ${card.author}` : card.author}
           </div>
         )}
@@ -293,11 +293,12 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
           <div style={{ position: "absolute", top: 215, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
             <div style={{ color: "#FCD34D", fontSize: 17, letterSpacing: 1, display: "flex" }}>{date}</div>
             <div style={{ color: "#FFFFFF", fontSize: 58, fontWeight: 700, lineHeight: 1.1, display: "flex" }}>Günün Menüsü</div>
+            <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 17, display: "flex" }}>menugunlugu.com</div>
           </div>
 
           {/* Recipe info — bottom */}
           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 28px 22px", display: "flex", flexDirection: "column", gap: 6 }}>
-            <div style={{ color: "#FCD34D", fontSize: 11, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{cards[0].cat.toUpperCase()}</div>
+            <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{cards[0].cat.toUpperCase()}</div>
             <div style={{ color: "#FFFFFF", fontSize: 30, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{cards[0].title}</div>
             {cards[0].author && (
               <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 15, display: "flex" }}>Yazar: {cards[0].author}</div>

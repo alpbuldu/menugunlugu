@@ -481,6 +481,30 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                 ))}
               </div>
 
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-warm-100">
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-warm-200 text-warm-600 hover:bg-warm-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    ← Önceki
+                  </button>
+                  <span className="text-xs text-warm-400">
+                    {page + 1} / {totalPages}
+                    <span className="ml-1.5 text-warm-300">({currentRecipes.length} tarif)</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                    disabled={page === totalPages - 1}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-warm-200 text-warm-600 hover:bg-warm-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Sonraki →
+                  </button>
+                </div>
+              )}
             </>
           )}
         </div>

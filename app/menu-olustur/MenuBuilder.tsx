@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import type { Category } from "@/lib/types";
 import type { MenuRecipe } from "./page";
@@ -216,6 +216,17 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   const [selection, setSelection] = useState<Selection>({});
   const [page, setPage] = useState(0);
   const [perPage, setPerPage] = useState(15);
+  const topRef = useRef<HTMLDivElement>(null);
+
+  const allFilled = SLOTS.every(({ key }) => !!selection[key]);
+  const filledCount = SLOTS.filter(({ key }) => !!selection[key]).length;
+
+  // Scroll to top on mobile when all slots are filled
+  useEffect(() => {
+    if (allFilled && window.innerWidth < 1024) {
+      topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [allFilled]);
 
   // Detect screen size for per-page count
   useEffect(() => {
@@ -227,9 +238,6 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
 
   // Reset page when category changes
   useEffect(() => setPage(0), [activeCategory]);
-
-  const allFilled = SLOTS.every(({ key }) => !!selection[key]);
-  const filledCount = SLOTS.filter(({ key }) => !!selection[key]).length;
 
   function selectRecipe(recipe: MenuRecipe) {
     setSelection((prev) => ({ ...prev, [activeCategory]: recipe }));
@@ -276,10 +284,10 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
 
   return (
     <>
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div ref={topRef} className="flex flex-col lg:flex-row gap-6 lg:items-stretch">
         {/* ── Left / Top: Slots ────────────────────────────────── */}
-        <div className="lg:w-80 xl:w-96 flex-shrink-0">
-          <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-4">
+        <div className="lg:w-80 xl:w-96 flex-shrink-0 flex flex-col">
+          <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-4 flex flex-col flex-1">
             <h2 className="text-xs font-semibold text-warm-500 uppercase tracking-wider mb-3 px-1">
               Seçimleriniz
             </h2>
@@ -298,12 +306,13 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
             </div>
 
             {/* Progress */}
-            <div className="mt-4 px-1">
+            <div className="mt-auto pt-4 px-1">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs text-warm-400">{filledCount} / 4 seçildi</span>
-                {allFilled && (
-                  <span className="text-xs text-brand-600 font-medium">Menü hazır!</span>
-                )}
+                {allFilled
+                  ? <span className="text-xs text-brand-600 font-medium">Menü hazır!</span>
+                  : <span className="text-xs text-warm-400">{4 - filledCount} yemek kaldı</span>
+                }
               </div>
               <div className="h-1.5 rounded-full bg-warm-100 overflow-hidden">
                 <div
@@ -313,32 +322,49 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
               </div>
             </div>
 
-            {/* Action buttons */}
-            {allFilled && (
-              <div className="mt-4 space-y-2">
-                <button
-                  type="button"
-                  onClick={handlePdf}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm font-medium hover:bg-amber-100 hover:border-amber-300 transition-colors"
-                >
-                  <span>📄</span>
-                  Günün Menüsü
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDownload}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 text-white text-sm font-medium hover:bg-brand-700 transition-colors shadow-sm"
-                >
-                  <span>📥</span>
-                  Menü Kartını İndir
-                </button>
-              </div>
-            )}
+            {/* Action buttons — always visible, disabled until all 4 selected */}
+            <div className="mt-4 space-y-2">
+              <button
+                type="button"
+                onClick={handlePdf}
+                disabled={!allFilled}
+                title={allFilled ? "Günün menüsünü PDF olarak indir" : "4 yemek seçerek günün menüsünü oluştur"}
+                className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${
+                  allFilled
+                    ? "bg-amber-50 border-amber-200 text-amber-800 hover:bg-amber-100 hover:border-amber-300 cursor-pointer"
+                    : "bg-warm-50 border-warm-200 text-warm-400 cursor-not-allowed"
+                }`}
+              >
+                <span>📄</span>
+                <span>Günün Menüsünü Oluştur</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDownload}
+                disabled={!allFilled}
+                title={allFilled ? "Menü kartını görsel olarak indir" : "4 yemek seçerek menü kartını oluştur"}
+                className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm ${
+                  allFilled
+                    ? "bg-brand-600 text-white hover:bg-brand-700 cursor-pointer"
+                    : "bg-warm-200 text-warm-400 cursor-not-allowed"
+                }`}
+              >
+                <span>📥</span>
+                <span>Menü Kartını İndir</span>
+              </button>
+
+              {!allFilled && (
+                <p className="text-center text-[11px] text-warm-400 pt-0.5">
+                  4 yemek seç → kartı oluştur
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
         {/* ── Right / Bottom: Recipe Picker ────────────────────── */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 flex flex-col">
           {/* Category tabs */}
           <div className="flex gap-1.5 overflow-x-auto pb-1 mb-4 scrollbar-none">
             {SLOTS.map((slot) => (

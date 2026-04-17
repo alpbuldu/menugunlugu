@@ -220,35 +220,38 @@ export default async function RecipeDetailPage({ params }: Props) {
           )}
           <Link
             href={`/uye/${authorUsername}`}
-            className="absolute bottom-3 left-3 flex items-center gap-2 bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors rounded-full px-3 py-1.5"
+            className="absolute bottom-3 right-3 flex flex-col items-end gap-1 bg-black/45 backdrop-blur-sm hover:bg-black/60 transition-colors rounded-xl px-3 py-2"
           >
-            {authorAvatar ? (
-              <img src={authorAvatar} alt={authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
-            ) : (
-              <span className="w-5 h-5 rounded-full bg-brand-400 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                {authorName.charAt(0).toUpperCase()}
-              </span>
-            )}
-            <span className="text-xs font-medium text-white">{authorName}</span>
+            <span className="text-[9px] font-semibold text-white/70 uppercase tracking-widest leading-none">Yazar</span>
+            <div className="flex items-center gap-1.5">
+              {authorAvatar ? (
+                <img src={authorAvatar} alt={authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+              ) : (
+                <span className="w-5 h-5 rounded-full bg-brand-400 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                  {authorName.charAt(0).toUpperCase()}
+                </span>
+              )}
+              <span className="text-xs font-medium text-white">{authorName}</span>
+            </div>
           </Link>
         </div>
 
         <div className="p-8">
           <div className="mb-8">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge category={recipe.category as Category} />
-              {recipe.servings && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-warm-100 text-warm-600">
-                  👤 {recipe.servings} kişilik
-                </span>
-              )}
-            </div>
-            <div className="flex items-start justify-between gap-4 mt-3">
-              <h1 className="text-2xl sm:text-3xl font-bold text-warm-900 leading-snug">{recipe.title}</h1>
-              <div className="flex-shrink-0 pt-1">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge category={recipe.category as Category} />
+                {recipe.servings && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-warm-100 text-warm-600">
+                    👤 {recipe.servings} kişilik
+                  </span>
+                )}
+              </div>
+              <div className="flex-shrink-0">
                 <FavoriteButton recipeId={recipe.id} />
               </div>
             </div>
+            <h1 className="text-xl sm:text-3xl font-bold text-warm-900 mt-3 leading-snug">{recipe.title}</h1>
           </div>
 
           <section className="mb-8">

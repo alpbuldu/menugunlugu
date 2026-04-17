@@ -114,8 +114,21 @@ export async function GET(request: NextRequest) {
   );
 }
 
-/* ── Shared: image cell with bottom text overlay ─────────────── */
-function ImageCell({ card, fontSize = 21, authorPrefix = false }: { card: Card; fontSize?: number; authorPrefix?: boolean }) {
+/* ── Shared: image cell with configurable text overlay ───────── */
+function ImageCell({
+  card,
+  fontSize = 21,
+  authorPrefix = false,
+  textPosition = "bottom",
+}: {
+  card: Card;
+  fontSize?: number;
+  authorPrefix?: boolean;
+  textPosition?: "bottom" | "top-left" | "top-right";
+}) {
+  const isTop   = textPosition !== "bottom";
+  const isRight = textPosition === "top-right";
+
   return (
     <div style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}>
       {/* Background image */}
@@ -125,10 +138,23 @@ function ImageCell({ card, fontSize = 21, authorPrefix = false }: { card: Card; 
             <div style={{ fontSize: 60, display: "flex" }}>🍽️</div>
           </div>
       }
-      {/* Soft bottom gradient */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "70%", background: "linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.35) 48%, transparent 100%)", display: "flex" }} />
+      {/* Gradient — direction matches text position */}
+      {isTop
+        ? <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "65%", background: "linear-gradient(to bottom, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.35) 55%, transparent 100%)", display: "flex" }} />
+        : <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "70%", background: "linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.35) 48%, transparent 100%)", display: "flex" }} />
+      }
       {/* Text */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 20px 18px", display: "flex", flexDirection: "column", gap: 5 }}>
+      <div style={{
+        position: "absolute",
+        ...(isTop ? { top: 0 } : { bottom: 0 }),
+        ...(isRight ? { right: 0 } : { left: 0 }),
+        padding: "18px 20px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: isRight ? "flex-end" : "flex-start",
+        gap: 5,
+        maxWidth: "85%",
+      }}>
         <div style={{ color: "#FCD34D", fontSize: 10, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{card.cat.toUpperCase()}</div>
         <div style={{ color: "#FFFFFF", fontSize, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
         {card.author && (
@@ -263,15 +289,10 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
           {/* Bottom gradient (recipe info) */}
           <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "55%", background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.4) 55%, transparent 100%)", display: "flex" }} />
 
-          {/* Header text — y≥215, Instagram UI'ının altında */}
-          <div style={{ position: "absolute", top: 215, left: 44, right: 44, display: "flex", flexDirection: "column", gap: 10 }}>
+          {/* Header text — ortalı, y≥215 (Instagram safe zone altı) */}
+          <div style={{ position: "absolute", top: 215, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
             <div style={{ color: "#FCD34D", fontSize: 17, letterSpacing: 1, display: "flex" }}>{date}</div>
             <div style={{ color: "#FFFFFF", fontSize: 58, fontWeight: 700, lineHeight: 1.1, display: "flex" }}>Günün Menüsü</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 14, marginTop: 2 }}>
-              <div style={{ color: "rgba(255,255,255,0.72)", fontSize: 17, display: "flex" }}>menugunlugu.com</div>
-              <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
-              <div style={{ color: "#FCD34D", fontSize: 17, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
-            </div>
           </div>
 
           {/* Recipe info — bottom */}
@@ -286,17 +307,19 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
 
         <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
 
-        {/* ── Strips 2–4 ── */}
+        {/* ── Strip 2: Ana Yemek — sağ üst ── */}
         <div style={{ height: OTHER_H, display: "flex", flexShrink: 0, overflow: "hidden" }}>
-          <ImageCell card={cards[1]} fontSize={28} authorPrefix />
+          <ImageCell card={cards[1]} fontSize={28} authorPrefix textPosition="top-right" />
         </div>
         <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+        {/* ── Strip 3: Yardımcı Lezzet — sol üst ── */}
         <div style={{ height: OTHER_H, display: "flex", flexShrink: 0, overflow: "hidden" }}>
-          <ImageCell card={cards[2]} fontSize={28} authorPrefix />
+          <ImageCell card={cards[2]} fontSize={28} authorPrefix textPosition="top-left" />
         </div>
         <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+        {/* ── Strip 4: Tatlı — sağ üst ── */}
         <div style={{ height: OTHER_H, display: "flex", flexShrink: 0, overflow: "hidden" }}>
-          <ImageCell card={cards[3]} fontSize={28} authorPrefix />
+          <ImageCell card={cards[3]} fontSize={28} authorPrefix textPosition="top-right" />
         </div>
 
       </div>

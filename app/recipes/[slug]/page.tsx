@@ -220,19 +220,17 @@ export default async function RecipeDetailPage({ params }: Props) {
           )}
           <Link
             href={`/uye/${authorUsername}`}
-            className="absolute bottom-3 right-3 flex flex-col items-end gap-1 bg-black/45 backdrop-blur-sm hover:bg-black/60 transition-colors rounded-xl px-3 py-2"
+            className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors rounded-full px-2.5 py-1"
           >
-            <span className="text-[9px] font-semibold text-white/70 uppercase tracking-widest leading-none">Yazar</span>
-            <div className="flex items-center gap-1.5">
-              {authorAvatar ? (
-                <img src={authorAvatar} alt={authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
-              ) : (
-                <span className="w-5 h-5 rounded-full bg-brand-400 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                  {authorName.charAt(0).toUpperCase()}
-                </span>
-              )}
-              <span className="text-xs font-medium text-white">{authorName}</span>
-            </div>
+            {authorAvatar ? (
+              <img src={authorAvatar} alt={authorName} className="w-4 h-4 rounded-full object-cover flex-shrink-0" />
+            ) : (
+              <span className="w-4 h-4 rounded-full bg-brand-400 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                {authorName.charAt(0).toUpperCase()}
+              </span>
+            )}
+            <span className="text-[10px] text-white/60 font-medium">Yazar:</span>
+            <span className="text-[10px] font-semibold text-white">{authorName}</span>
           </Link>
         </div>
 

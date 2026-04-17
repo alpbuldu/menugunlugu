@@ -66,7 +66,7 @@ export default async function HomePage() {
             <Link href="/recipes" className="inline-flex items-center justify-center py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
               Tariflere Göz At
             </Link>
-            <Link href="/menu-olustur" className="inline-flex items-center justify-center py-2.5 bg-brand-500 text-white rounded-lg font-medium text-sm hover:bg-brand-400 transition-colors">
+            <Link href="/menu-olustur" className="inline-flex items-center justify-center py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
               Menü Oluştur ✨
             </Link>
           </div>
@@ -81,7 +81,7 @@ export default async function HomePage() {
             <Link href="/recipes" className="inline-flex items-center justify-center w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               Tariflere Göz At
             </Link>
-            <Link href="/menu-olustur" className="inline-flex items-center justify-center w-[190px] py-3 bg-brand-500 text-white rounded-xl font-medium text-base hover:bg-brand-400 transition-colors">
+            <Link href="/menu-olustur" className="inline-flex items-center justify-center w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               Menü Oluştur ✨
             </Link>
           </div>

@@ -208,7 +208,7 @@ function DesktopSearch() {
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-[15px] h-[15px] text-warm-400 pointer-events-none" />
         <input type="text" value={query} onChange={(e) => setQuery(e.target.value)}
           onFocus={ensureData} placeholder="Tarif veya yazar ara…" autoComplete="off"
-          className="w-[150px] pl-7 pr-2 py-0.5 rounded-full text-[11px] bg-warm-100 border border-warm-200 text-warm-700 placeholder:text-warm-400 focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-200/60 transition-colors" />
+          className="w-[165px] pl-7 pr-2 py-1 rounded-full text-xs bg-warm-100 border border-warm-200 text-warm-700 placeholder:text-warm-400 focus:outline-none focus:border-brand-300 focus:ring-2 focus:ring-brand-200/60 transition-colors" />
       </div>
       {showDropdown && (
         <div className="absolute top-full mt-2 right-0 w-[300px] z-[100]">

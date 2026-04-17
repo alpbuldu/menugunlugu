@@ -108,7 +108,9 @@ export async function GET(request: NextRequest) {
     const r = byId[id];
     const isAdmin = !r.submitted_by;
     const author = isAdmin ? adminName : (profileMap[r.submitted_by!] ?? "");
-    const authorUrl = author ? `menugunlugu.com/uye/${author}` : "menugunlugu.com";
+    const authorUrl = isAdmin
+      ? "menugunlugu.com/uye/__admin__"
+      : author ? `menugunlugu.com/uye/${author}` : "menugunlugu.com";
 
     return {
       id: r.id,

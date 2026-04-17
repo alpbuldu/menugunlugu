@@ -4,6 +4,8 @@ import { createElement } from "react";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
 import { MenuPdfDocument, ensureFonts, type PdfRecipeData } from "./MenuPdfDocument";
+import https from "node:https";
+import http from "node:http";
 
 export const dynamic = "force-dynamic";
 // Use Node.js runtime (not edge) for react-pdf
@@ -129,68 +131,53 @@ export async function GET(request: NextRequest) {
     dessert: buildRecipe(ids.dessert),
   };
 
-  /* Pre-fetch images → base64 data URIs (react-pdf can't fetch Supabase URLs directly) */
-  // Parse  https://<project>.supabase.co/storage/v1/object/public/<bucket>/<path>
-  function parseStorageUrl(url: string): { bucket: string; path: string } | null {
-    try {
-      const { pathname } = new URL(url);
-      // pathname: /storage/v1/object/public/<bucket>/<...path>
-      const match = pathname.match(/^\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
-      if (!match) return null;
-      return { bucket: match[1], path: match[2] };
-    } catch {
-      return null;
-    }
+  /* Pre-fetch images → base64 data URIs via node:https (bypasses Next.js fetch cache) */
+  function nodeGet(url: string, redirects = 5): Promise<Buffer | null> {
+    return new Promise((resolve) => {
+      if (redirects < 0) { resolve(null); return; }
+      let resolved = false;
+      const done = (v: Buffer | null) => { if (!resolved) { resolved = true; resolve(v); } };
+
+      const mod = url.startsWith("https") ? https : http;
+      const req = mod.get(url, { headers: { "User-Agent": "menugunlugu-pdf/1.0" } }, (res) => {
+        if (res.statusCode && [301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
+          res.resume();
+          nodeGet(res.headers.location, redirects - 1).then(done);
+          return;
+        }
+        if (res.statusCode !== 200) {
+          console.error(`[menu-pdf] nodeGet ${res.statusCode}: ${url}`);
+          res.resume();
+          done(null);
+          return;
+        }
+        const chunks: Buffer[] = [];
+        res.on("data", (c: Buffer) => chunks.push(c));
+        res.on("end", () => done(Buffer.concat(chunks)));
+        res.on("error", (e) => { console.error("[menu-pdf] stream error:", e); done(null); });
+      });
+      req.on("error", (e) => { console.error("[menu-pdf] req error:", e); done(null); });
+      req.setTimeout(12_000, () => { req.destroy(); done(null); });
+    });
   }
 
   async function fetchImageDataUri(url: string | null): Promise<string | null> {
     if (!url) return null;
+    console.log(`[menu-pdf] fetching image: ${url}`);
 
-    // Try Supabase storage client first (most reliable inside serverless)
-    const parsed = parseStorageUrl(url);
-    if (parsed) {
-      try {
-        const { data, error } = await supabase.storage
-          .from(parsed.bucket)
-          .download(parsed.path);
-        if (!error && data) {
-          const arr = await data.arrayBuffer();
-          const buf = Buffer.from(arr);
-          if (buf.length > 0) {
-            const mime = data.type?.split(";")[0].trim() || "image/jpeg";
-            return `data:${mime};base64,${buf.toString("base64")}`;
-          }
-        }
-        console.error(`[menu-pdf] storage.download failed: ${error?.message} — ${url}`);
-      } catch (e) {
-        console.error(`[menu-pdf] storage.download error: ${url}`, e);
-      }
-    }
-
-    // Fallback: raw fetch
-    try {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 12_000);
-      const res = await fetch(url, {
-        headers: { "Accept-Encoding": "identity" },
-        signal: controller.signal,
-        cache: "no-store",
-        redirect: "follow",
-      });
-      clearTimeout(timer);
-      if (!res.ok) {
-        console.error(`[menu-pdf] fallback fetch ${res.status}: ${url}`);
-        return null;
-      }
-      const buf = Buffer.from(await res.arrayBuffer());
-      if (buf.length === 0) return null;
-      const ct   = res.headers.get("content-type") ?? "image/jpeg";
-      const mime = ct.split(";")[0].trim() || "image/jpeg";
+    const buf = await nodeGet(url);
+    if (buf && buf.length > 0) {
+      // Detect mime from magic bytes
+      let mime = "image/jpeg";
+      if (buf[0] === 0x89 && buf[1] === 0x50) mime = "image/png";
+      else if (buf[0] === 0x47 && buf[1] === 0x49) mime = "image/gif";
+      else if (buf[0] === 0x52 && buf[1] === 0x49) mime = "image/webp";
+      console.log(`[menu-pdf] ok ${buf.length}b ${mime}: ${url}`);
       return `data:${mime};base64,${buf.toString("base64")}`;
-    } catch (e) {
-      console.error(`[menu-pdf] fallback fetch error: ${url}`, e);
-      return null;
     }
+
+    console.error(`[menu-pdf] all strategies failed: ${url}`);
+    return null;
   }
 
   // Fetch sequentially

@@ -337,7 +337,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                 }`}
               >
                 <span>📄</span>
-                <span>Günün Menüsünü Oluştur</span>
+                <span>Tarif Kartını Oluştur</span>
               </button>
 
               <div className="grid grid-cols-2 gap-2">
@@ -346,28 +346,28 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                   onClick={() => handleCard("post")}
                   disabled={!allFilled}
                   title={allFilled ? "Post kartı indir (1080×1350)" : "4 yemek seç"}
-                  className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm ${
+                  className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors shadow-sm ${
                     allFilled
                       ? "bg-brand-600 text-white hover:bg-brand-700 cursor-pointer"
                       : "bg-warm-200 text-warm-400 cursor-not-allowed"
                   }`}
                 >
                   <span>📸</span>
-                  <span>Post</span>
+                  <span>Menünü Paylaş · Post</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => handleCard("story")}
                   disabled={!allFilled}
                   title={allFilled ? "Story kartı indir (1080×1920)" : "4 yemek seç"}
-                  className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-sm ${
+                  className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors shadow-sm ${
                     allFilled
                       ? "bg-brand-600 text-white hover:bg-brand-700 cursor-pointer"
                       : "bg-warm-200 text-warm-400 cursor-not-allowed"
                   }`}
                 >
                   <span>📱</span>
-                  <span>Story</span>
+                  <span>Menünü Paylaş · Story</span>
                 </button>
               </div>
 

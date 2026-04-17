@@ -42,7 +42,7 @@ export default async function MenuOlusturPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-warm-900 mb-2">Menü Oluştur</h1>
         <p className="text-warm-500 text-sm">
-          Her öğün için bir tarif seç ve menü kartını oluştur.
+          Çorba, ana yemek, yardımcı lezzet ve tatlı seç — günün menünü PDF tarif kartı olarak indir ya da sosyal medyada paylaşmak için post veya story formatında hazırla.
         </p>
       </div>
       <MenuBuilder grouped={grouped} />

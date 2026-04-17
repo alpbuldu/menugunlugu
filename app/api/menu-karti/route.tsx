@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
 }
 
 /* ── Shared: image cell with bottom text overlay ─────────────── */
-function ImageCell({ card, fontSize = 21 }: { card: Card; fontSize?: number }) {
+function ImageCell({ card, fontSize = 21, authorPrefix = false }: { card: Card; fontSize?: number; authorPrefix?: boolean }) {
   return (
     <div style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}>
       {/* Background image */}
@@ -132,7 +132,9 @@ function ImageCell({ card, fontSize = 21 }: { card: Card; fontSize?: number }) {
         <div style={{ color: "#FCD34D", fontSize: 10, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{card.cat.toUpperCase()}</div>
         <div style={{ color: "#FFFFFF", fontSize, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
         {card.author && (
-          <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 12, display: "flex" }}>{card.author}</div>
+          <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 12, display: "flex" }}>
+            {authorPrefix ? `Yazar: ${card.author}` : card.author}
+          </div>
         )}
       </div>
     </div>
@@ -145,7 +147,7 @@ function ImageCell({ card, fontSize = 21 }: { card: Card; fontSize?: number }) {
 ════════════════════════════════════════════════════════════════ */
 function PostView({ cards, date }: { cards: Card[]; date: string }) {
   const HEAD = 108;
-  const FOOT = 50;
+  const FOOT = 70;
   const DIV  = 3;   // amber divider thickness
 
   return (
@@ -154,12 +156,11 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
       {/* Header — cream strip */}
       <div style={{ height: HEAD, backgroundColor: "#F5F0E8", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", flexShrink: 0 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <div style={{ color: "#D97706", fontSize: 10, fontWeight: 700, letterSpacing: 3.5, display: "flex" }}>MENÜ GÜNLÜĞÜ</div>
+          <div style={{ color: "#78716C", fontSize: 12, display: "flex" }}>{date}</div>
           <div style={{ color: "#1C1917", fontSize: 33, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
-          <div style={{ color: "#78716C", fontSize: 12, display: "flex" }}>{date.split(",")[0]}</div>
-          <div style={{ color: "#D97706", fontSize: 11, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
+          <div style={{ color: "#D97706", fontSize: 13, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
         </div>
       </div>
 
@@ -170,25 +171,28 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         {/* Row 1 */}
         <div style={{ flex: 1, display: "flex" }}>
-          <ImageCell card={cards[0]} fontSize={19} />
+          <ImageCell card={cards[0]} fontSize={19} authorPrefix />
           <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-          <ImageCell card={cards[1]} fontSize={19} />
+          <ImageCell card={cards[1]} fontSize={19} authorPrefix />
         </div>
         {/* Row divider */}
         <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
         {/* Row 2 */}
         <div style={{ flex: 1, display: "flex" }}>
-          <ImageCell card={cards[2]} fontSize={19} />
+          <ImageCell card={cards[2]} fontSize={19} authorPrefix />
           <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-          <ImageCell card={cards[3]} fontSize={19} />
+          <ImageCell card={cards[3]} fontSize={19} authorPrefix />
         </div>
       </div>
 
       {/* Footer */}
-      <div style={{ height: FOOT, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexShrink: 0 }}>
-        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
-        <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
-        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
+      <div style={{ height: FOOT, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
+          <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
+          <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
+        </div>
+        <div style={{ color: "#FCD34D", fontSize: 10, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE · MENÜNÜ OLUŞTUR · PAYLAŞ</div>
       </div>
 
     </div>

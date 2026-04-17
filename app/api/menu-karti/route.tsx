@@ -159,8 +159,25 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
           <div style={{ color: "#78716C", fontSize: 12, display: "flex" }}>{date}</div>
           <div style={{ color: "#1C1917", fontSize: 33, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
-          <div style={{ color: "#D97706", fontSize: 13, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 7 }}>
+          {/* Website */}
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#78716C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M2 12h20"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            <div style={{ color: "#78716C", fontSize: 11, display: "flex" }}>menugunlugu.com</div>
+          </div>
+          {/* Instagram */}
+          <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+              <circle cx="12" cy="12" r="4"/>
+              <circle cx="17.5" cy="6.5" r="0.8" fill="#D97706" stroke="none"/>
+            </svg>
+            <div style={{ color: "#D97706", fontSize: 13, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
+          </div>
         </div>
       </div>
 

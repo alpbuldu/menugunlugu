@@ -49,7 +49,7 @@ const s = StyleSheet.create({
 
   /* ── Cover ───────────────────── */
   coverBand: { backgroundColor: C.brand, paddingTop: 48, paddingBottom: 48, paddingLeft: 44, paddingRight: 44 },
-  coverSite: { ...bold(), fontSize: 8, color: C.brandLight, letterSpacing: 2.5, textTransform: "uppercase", marginBottom: 12 },
+  coverSite: { ...bold(), fontSize: 8, color: C.brandLight, letterSpacing: 2.5, textTransform: "uppercase", marginBottom: 12, textDecoration: "none" },
   coverTitle: { ...bold(), fontSize: 42, color: C.white, marginBottom: 6 },
   coverDate: { ...reg(), fontSize: 12, color: C.brandLight },
   coverAccent: { height: 4, backgroundColor: C.brandDark },
@@ -122,7 +122,7 @@ const s = StyleSheet.create({
     flexDirection: "row", justifyContent: "space-between", alignItems: "center",
     borderTopWidth: 0.5, borderTopColor: C.line, borderTopStyle: "solid", paddingTop: 6,
   },
-  footerSite: { ...bold(), fontSize: 7.5, color: C.brand },
+  footerSite: { ...bold(), fontSize: 7.5, color: C.brand, textDecoration: "none" },
   footerInfo: { ...reg(), fontSize: 7.5, color: C.muted },
 });
 
@@ -161,7 +161,7 @@ export function MenuPdfDocument({ recipes, dateStr }: Props) {
       ══════════════════════════════════════════════════════════ */}
       <Page size="A4" style={s.page}>
         <View style={s.coverBand}>
-          <Text style={s.coverSite}>menugunlugu.com</Text>
+          <Link src="https://menugunlugu.com" style={s.coverSite}>menugunlugu.com</Link>
           <Text style={s.coverTitle}>{"G\u00FCn\u00FCn Men\u00FCs\u00FC"}</Text>
           <Text style={s.coverDate}>{dateStr}</Text>
         </View>
@@ -274,7 +274,7 @@ export function MenuPdfDocument({ recipes, dateStr }: Props) {
             </View>
 
             <View style={s.footer}>
-              <Text style={s.footerSite}>menugunlugu.com</Text>
+              <Link src="https://menugunlugu.com" style={s.footerSite}>menugunlugu.com</Link>
               <Text style={s.footerInfo}>{label} · {dateStr}</Text>
             </View>
           </Page>

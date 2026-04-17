@@ -383,7 +383,8 @@ export default function Navigation() {
   return (
     <>
       {/* ── Desktop ──────────────────────────────────────────── */}
-      <div className="hidden md:flex items-center gap-2">
+      <div className="hidden md:flex items-center gap-2 flex-1">
+        {/* Sol: nav linkleri */}
         <nav className="flex items-center gap-1">
           {links.map((link) => (
             <Link key={link.href} href={link.href}
@@ -395,12 +396,18 @@ export default function Navigation() {
             </Link>
           ))}
         </nav>
-        <Link href="/tarif-ekle"
-          className="px-3 py-1 rounded-full text-xs font-medium bg-brand-500 hover:bg-brand-600 text-white transition-colors flex-shrink-0">
-          + Tarif Ekle
-        </Link>
-        <DesktopSearch />
-        <DesktopUserMenu />
+        {/* Orta: arama */}
+        <div className="flex-1 flex justify-center">
+          <DesktopSearch />
+        </div>
+        {/* Sağ: eylemler */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Link href="/tarif-ekle"
+            className="px-3 py-1 rounded-full text-xs font-medium bg-brand-500 hover:bg-brand-600 text-white transition-colors">
+            + Tarif Ekle
+          </Link>
+          <DesktopUserMenu />
+        </div>
       </div>
 
       {/* ── Mobile ───────────────────────────────────────────── */}

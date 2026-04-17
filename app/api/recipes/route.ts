@@ -30,7 +30,24 @@ export async function GET(request: NextRequest) {
       : undefined;
 
   const recipes = await getRecipes(category);
-  return NextResponse.json({ recipes });
+
+  // Yazar adlarını ekle
+  const supabase = createAdminClient();
+  const memberIds = [...new Set(recipes.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
+  const profileMap: Record<string, string> = {};
+  if (memberIds.length > 0) {
+    const { data: profiles } = await supabase.from("profiles").select("id, username").in("id", memberIds);
+    for (const p of profiles ?? []) profileMap[p.id] = p.username;
+  }
+  const { data: ap } = await supabase.from("admin_profile").select("username").single();
+  const adminName = ap?.username ?? "Menü Günlüğü";
+
+  const recipesWithAuthor = recipes.map((r) => ({
+    ...r,
+    author: r.submitted_by ? (profileMap[r.submitted_by] ?? "") : adminName,
+  }));
+
+  return NextResponse.json({ recipes: recipesWithAuthor });
 }
 
 export async function POST(request: NextRequest) {

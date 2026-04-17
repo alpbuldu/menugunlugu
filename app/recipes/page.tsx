@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 import FollowButton from "@/components/ui/FollowButton";
-import RecipeSearchForm from "./RecipeSearchForm";
 
 export const metadata: Metadata = {
   title: "Tarifler",
@@ -28,11 +27,11 @@ const categories: { key: CategoryFilter; label: string }[] = [
 ];
 
 interface Props {
-  searchParams: Promise<{ category?: string; page?: string; q?: string; authorQ?: string }>;
+  searchParams: Promise<{ category?: string; page?: string }>;
 }
 
 export default async function RecipesPage({ searchParams }: Props) {
-  const { category: categoryParam, page: pageParam, q: qParam, authorQ: authorQParam } = await searchParams;
+  const { category: categoryParam, page: pageParam } = await searchParams;
 
   const validCategories: Category[] = ["soup", "main", "side", "dessert"];
   const activeCategory =
@@ -41,36 +40,9 @@ export default async function RecipesPage({ searchParams }: Props) {
       : undefined;
 
   const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
-  const q = qParam?.trim() ?? "";
-  const authorQ = authorQParam?.trim() ?? "";
 
   const supabase = await createClient();
-  const allRecipesRaw = await getRecipes(activeCategory);
-
-  // Admin profili (yazar araması için gerekebilir)
-  const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();
-  const adminName = ap?.username ?? "Menü Günlüğü";
-
-  // Yazar adı araması varsa tüm profilleri çek
-  const allProfileMap: Record<string, string> = {};
-  if (authorQ) {
-    const allMemberIds = [...new Set(allRecipesRaw.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
-    if (allMemberIds.length > 0) {
-      const { data: profiles } = await supabase.from("profiles").select("id, username").in("id", allMemberIds);
-      for (const p of profiles ?? []) allProfileMap[p.id] = p.username;
-    }
-  }
-
-  // Filtrele
-  const norm = (s: string) => s.toLocaleLowerCase("tr");
-  const allRecipes = allRecipesRaw.filter((r) => {
-    if (q && !norm(r.title).includes(norm(q))) return false;
-    if (authorQ) {
-      const authorName = r.submitted_by ? (allProfileMap[r.submitted_by] ?? "") : adminName;
-      if (!norm(authorName).includes(norm(authorQ))) return false;
-    }
-    return true;
-  });
+  const allRecipes = await getRecipes(activeCategory);
   const totalPages = Math.ceil(allRecipes.length / PER_PAGE);
   const recipes = allRecipes.slice(
     (currentPage - 1) * PER_PAGE,
@@ -78,7 +50,8 @@ export default async function RecipesPage({ searchParams }: Props) {
   );
 
   // Yazar verileri
-  const adminAuthor = { name: adminName, avatar: ap?.avatar_url ?? "", username: ap?.username ?? "__admin__" };
+  const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();
+  const adminAuthor = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "", username: ap?.username ?? "__admin__" };
   const memberIds = [...new Set(recipes.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
   const profileMap: Record<string, { name: string; avatar: string; username: string }> = {};
   if (memberIds.length) {
@@ -105,15 +78,13 @@ export default async function RecipesPage({ searchParams }: Props) {
     (memberFollowRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
   }
 
-  /** Build ?category=X&page=Y&q=Z preserving current filters */
+  /** Build ?category=X&page=Y preserving current filters */
   function href(overrides: { category?: string; page?: number }) {
     const p = new URLSearchParams();
     const cat = "category" in overrides ? overrides.category : activeCategory;
     if (cat) p.set("category", cat);
     const pg = overrides.page ?? currentPage;
     if (pg > 1) p.set("page", String(pg));
-    if (q) p.set("q", q);
-    if (authorQ) p.set("authorQ", authorQ);
     const qs = p.toString();
     return `/recipes${qs ? `?${qs}` : ""}`;
   }
@@ -121,9 +92,6 @@ export default async function RecipesPage({ searchParams }: Props) {
   return (
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-8">Tarifler</h1>
-
-      {/* Search */}
-      <RecipeSearchForm initialQ={q} initialAuthorQ={authorQ} category={activeCategory} />
 
       {/* Category Filter */}
       <div className="flex flex-wrap gap-2 mb-10">

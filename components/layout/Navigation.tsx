@@ -22,7 +22,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
   soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı",
 };
 
-interface SearchRecipe { id: string; title: string; slug: string; category: Category; }
+interface SearchRecipe { id: string; title: string; slug: string; category: Category; author: string; }
 interface ProfileData  { username: string; avatar_url: string | null; }
 
 function SearchIcon({ className }: { className?: string }) {
@@ -57,9 +57,14 @@ function useSearch() {
   }, [fetched, fetching]);
 
   useEffect(() => {
-    const q = query.trim().toLowerCase();
+    const q = query.trim().toLocaleLowerCase("tr");
     if (!q) { setResults([]); return; }
-    setResults(recipes.filter(r => r.title.toLowerCase().includes(q)).slice(0, 5));
+    setResults(
+      recipes.filter(r =>
+        r.title.toLocaleLowerCase("tr").includes(q) ||
+        (r.author ?? "").toLocaleLowerCase("tr").includes(q)
+      ).slice(0, 6)
+    );
   }, [query, recipes]);
 
   function clearSearch() { setQuery(""); setResults([]); }
@@ -134,7 +139,12 @@ function DesktopSearch() {
                   <Link href={`/recipes/${recipe.slug}`} onClick={clearSearch}
                     className={clsx("flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-warm-50 transition-colors",
                       i !== results.length - 1 && "border-b border-warm-100")}>
-                    <span className="text-sm font-medium text-warm-800 truncate">{recipe.title}</span>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-sm font-medium text-warm-800 truncate">{recipe.title}</span>
+                      {recipe.author && (
+                        <span className="text-[11px] text-warm-400 truncate">{recipe.author}</span>
+                      )}
+                    </div>
                     <span className="text-xs text-warm-400 flex-shrink-0">{CATEGORY_LABELS[recipe.category]}</span>
                   </Link>
                 </li>
@@ -259,7 +269,12 @@ function MobileSearchPanel({ onClose }: { onClose: () => void }) {
                   <Link href={`/recipes/${recipe.slug}`} onClick={handleSelect}
                     className={clsx("flex items-center justify-between gap-3 px-5 py-3.5 hover:bg-warm-50 active:bg-warm-100 transition-colors",
                       i !== results.length - 1 && "border-b border-warm-100")}>
-                    <span className="text-sm font-medium text-warm-800">{recipe.title}</span>
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-sm font-medium text-warm-800 truncate">{recipe.title}</span>
+                      {recipe.author && (
+                        <span className="text-[11px] text-warm-400 truncate">{recipe.author}</span>
+                      )}
+                    </div>
                     <span className="text-xs text-warm-400 flex-shrink-0">{CATEGORY_LABELS[recipe.category]}</span>
                   </Link>
                 </li>

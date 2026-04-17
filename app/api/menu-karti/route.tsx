@@ -12,16 +12,17 @@ export const dynamic = "force-dynamic";
 
 /* ── Palette ─────────────────────────────────────────────────── */
 const C = {
-  amber:   "#d97706",
-  amberD:  "#92400e",
-  amberL:  "#FFF8F1",
-  amberM:  "#fde68a",
-  cream:   "#FFFCF8",
-  text:    "#1c1917",
-  textMid: "#57534e",
-  muted:   "#a8a29e",
-  white:   "#ffffff",
-  gold:    "#f59e0b",
+  sand:    "#F5F0E8",   // warm background
+  cream:   "#FAFAF8",   // lighter variant
+  white:   "#FFFFFF",
+  border:  "#EAD9C0",   // warm card border
+  amber:   "#D97706",
+  amberD:  "#92400E",
+  amberSoft: "#F5E6CC", // soft amber for pills
+  text:    "#1C1917",
+  mid:     "#57534E",
+  muted:   "#A8A29E",
+  gold:    "#F59E0B",
 };
 
 const SLOTS = [
@@ -34,7 +35,7 @@ const SLOTS = [
 type Key = "soup" | "main" | "side" | "dessert";
 interface Card { title: string; author: string; cat: string; img: string | null }
 
-/* ── Node fetch + sharp (same as PDF route) ──────────────────── */
+/* ── Image fetch + WebP→JPEG ─────────────────────────────────── */
 function nodeGet(url: string, hops = 5): Promise<Buffer | null> {
   return new Promise(resolve => {
     if (hops < 0) return resolve(null);
@@ -99,7 +100,6 @@ export async function GET(request: NextRequest) {
     const { data: ps } = await supabase.from("profiles").select("id, username").in("id", memberIds);
     for (const p of ps ?? []) profileMap[p.id] = p.username;
   }
-
   const { data: ap } = await supabase.from("admin_profile").select("username").single();
   const adminName = ap?.username ?? "Menü Günlüğü";
 
@@ -117,52 +117,56 @@ export async function GET(request: NextRequest) {
 
   const fontR = readFileSync(path.join(process.cwd(), "public", "fonts", "Roboto-Regular.ttf"));
   const fontB = readFileSync(path.join(process.cwd(), "public", "fonts", "Roboto-Medium.ttf"));
-  const W = 1080, H = isStory ? 1920 : 1350;
 
   return new ImageResponse(
     isStory ? <StoryView cards={cards} date={dateStr} /> : <PostView cards={cards} date={dateStr} />,
-    { width: W, height: H, fonts: [
-      { name: "Roboto", data: fontR, weight: 400, style: "normal" },
-      { name: "Roboto", data: fontB, weight: 700, style: "normal" },
-    ]}
+    {
+      width: 1080, height: isStory ? 1920 : 1350,
+      fonts: [
+        { name: "Roboto", data: fontR, weight: 400, style: "normal" },
+        { name: "Roboto", data: fontB, weight: 700, style: "normal" },
+      ],
+    }
   );
 }
 
-/* ── Post layout · 1080 × 1350 ──────────────────────────────── */
-/*  Cream bg, 2×2 card grid, image top + text bottom per card   */
+/* ════════════════════════════════════════════════════════════════
+   POST  1080 × 1350
+   Warm sand bg · 2×2 white cards · image top · text bottom
+════════════════════════════════════════════════════════════════ */
 function PostView({ cards, date }: { cards: Card[]; date: string }) {
-  const PAD  = 28;
-  const GAP  = 14;
-  const HEAD = 148;
-  const FOOT = 52;
-  // card height = (1350 - HEAD - FOOT - PAD*2 - GAP) / 2
-  const CARD_H = Math.floor((1350 - HEAD - FOOT - PAD * 2 - GAP) / 2); // 520
-  const CARD_W = Math.floor((1080 - PAD * 2 - GAP) / 2);               // 505
-  const IMG_H  = Math.floor(CARD_H * 0.62);                             // ~322
-  const INFO_H = CARD_H - IMG_H;                                        // ~198
+  const PAD = 24;
+  const GAP = 12;
+  const HEAD = 136;
+  const FOOT = 56;
+  const CARD_W = Math.floor((1080 - PAD * 2 - GAP) / 2);      // 510
+  const ROW_H  = Math.floor((1350 - HEAD - FOOT - PAD * 2 - GAP) / 2); // ~519
+  const IMG_H  = Math.floor(ROW_H * 0.63);                      // ~327
+  const TXT_H  = ROW_H - IMG_H;                                 // ~192
 
-  function PostCard({ card, idx }: { card: Card; idx: number }) {
+  function Card({ card }: { card: Card }) {
     return (
-      <div style={{ width: CARD_W, height: CARD_H, display: "flex", flexDirection: "column", borderRadius: 18, overflow: "hidden", border: `1px solid ${C.amberM}` }}>
+      <div style={{ width: CARD_W, height: ROW_H, display: "flex", flexDirection: "column", backgroundColor: C.white, borderRadius: 20, border: `1.5px solid ${C.border}`, overflow: "hidden" }}>
         {/* Image */}
         <div style={{ width: CARD_W, height: IMG_H, position: "relative", display: "flex", overflow: "hidden", flexShrink: 0 }}>
           {card.img
             ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.amberM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ fontSize: 56, display: "flex" }}>🍽️</div>
+            : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.amberSoft, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ fontSize: 52, display: "flex" }}>🍽️</div>
               </div>
           }
-          {/* Category pill */}
-          <div style={{ position: "absolute", top: 12, left: 12, backgroundColor: C.amber, borderRadius: 100, paddingTop: 5, paddingBottom: 5, paddingLeft: 12, paddingRight: 12, display: "flex" }}>
-            <div style={{ color: C.white, fontSize: 10, fontWeight: 700, letterSpacing: 1.5, fontFamily: "Roboto", display: "flex" }}>{card.cat.toUpperCase()}</div>
+          {/* Soft category pill */}
+          <div style={{ position: "absolute", top: 14, left: 14, backgroundColor: "rgba(255,255,255,0.92)", borderRadius: 100, paddingTop: 5, paddingBottom: 5, paddingLeft: 13, paddingRight: 13, display: "flex" }}>
+            <div style={{ color: C.amber, fontSize: 10, fontWeight: 700, letterSpacing: 1.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
           </div>
         </div>
-        {/* Info */}
-        <div style={{ flex: 1, backgroundColor: C.white, padding: "14px 18px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 5 }}>
-          <div style={{ color: C.text, fontSize: 19, fontWeight: 700, lineHeight: 1.2, fontFamily: "Roboto", display: "flex" }}>{card.title}</div>
+        {/* Text */}
+        <div style={{ flex: 1, padding: "16px 18px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 7 }}>
+          <div style={{ color: C.text, fontSize: 19, fontWeight: 700, lineHeight: 1.25, display: "flex" }}>{card.title}</div>
           {card.author && (
-            <div style={{ color: C.muted, fontSize: 12, fontFamily: "Roboto", display: "flex" }}>
-              Yazar: <span style={{ color: C.amber, marginLeft: 4, fontWeight: 700, display: "flex" }}>{card.author}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ width: 3, height: 3, borderRadius: 2, backgroundColor: C.amber, flexShrink: 0, display: "flex" }} />
+              <div style={{ color: C.muted, fontSize: 13, display: "flex" }}>{card.author}</div>
             </div>
           )}
         </div>
@@ -171,106 +175,103 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
   }
 
   return (
-    <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: C.amberL }}>
-      {/* Top accent */}
-      <div style={{ height: 5, display: "flex", background: `linear-gradient(90deg, ${C.amberD} 0%, ${C.amber} 50%, ${C.gold} 100%)` }} />
+    <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: C.sand }}>
+      {/* Top amber stripe */}
+      <div style={{ height: 5, display: "flex", background: `linear-gradient(90deg, ${C.amberD}, ${C.amber}, ${C.gold})` }} />
 
       {/* Header */}
-      <div style={{ height: HEAD - 5, backgroundColor: C.amberL, display: "flex", alignItems: "center", justifyContent: "space-between", padding: `0 ${PAD + 4}px` }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          <div style={{ color: C.amber, fontSize: 13, fontWeight: 700, letterSpacing: 3, display: "flex" }}>MENÜ GÜNLÜĞÜ</div>
-          <div style={{ color: C.text, fontSize: 36, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
+      <div style={{ height: HEAD - 5, backgroundColor: C.sand, display: "flex", alignItems: "center", justifyContent: "space-between", padding: `0 ${PAD + 2}px` }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          <div style={{ color: C.amber, fontSize: 11, fontWeight: 700, letterSpacing: 3.5, display: "flex" }}>MENÜ GÜNLÜĞÜ</div>
+          <div style={{ color: C.text, fontSize: 38, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
         </div>
-        <div style={{ color: C.textMid, fontSize: 14, textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
-          <div style={{ display: "flex" }}>{date.split(" ").slice(0, 2).join(" ")}</div>
-          <div style={{ display: "flex" }}>{date.split(" ").slice(2).join(" ")}</div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
+          <div style={{ color: C.mid, fontSize: 13, display: "flex" }}>{date.split(",")[0]}</div>
+          <div style={{ color: C.muted, fontSize: 12, display: "flex" }}>menugunlugu.com</div>
         </div>
       </div>
 
-      {/* 2×2 grid */}
+      {/* Grid */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: `0 ${PAD}px`, gap: GAP, justifyContent: "center" }}>
         <div style={{ display: "flex", gap: GAP }}>
-          <PostCard card={cards[0]} idx={0} />
-          <PostCard card={cards[1]} idx={1} />
+          <Card card={cards[0]} />
+          <Card card={cards[1]} />
         </div>
         <div style={{ display: "flex", gap: GAP }}>
-          <PostCard card={cards[2]} idx={2} />
-          <PostCard card={cards[3]} idx={3} />
+          <Card card={cards[2]} />
+          <Card card={cards[3]} />
         </div>
       </div>
 
       {/* Footer */}
-      <div style={{ height: FOOT, backgroundColor: C.amberD, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-        <div style={{ color: C.amberM, fontSize: 13, fontWeight: 700, letterSpacing: 2, display: "flex" }}>MENÜ GÜNLÜĞÜ</div>
-        <div style={{ color: "rgba(253,230,138,0.4)", fontSize: 12, display: "flex" }}>·</div>
-        <div style={{ color: C.amberL, fontSize: 13, display: "flex" }}>menugunlugu.com</div>
+      <div style={{ height: FOOT, backgroundColor: C.amberD, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: C.gold, display: "flex" }} />
+        <div style={{ color: "#FEF3E2", fontSize: 14, fontWeight: 700, letterSpacing: 2, display: "flex" }}>MENUGUNLUGU.COM</div>
+        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: C.gold, display: "flex" }} />
       </div>
     </div>
   );
 }
 
-/* ── Story layout · 1080 × 1920 ─────────────────────────────── */
-/*  Split card: cream text on left, image on right               */
+/* ════════════════════════════════════════════════════════════════
+   STORY  1080 × 1920
+   4 strips: full-bleed image top · clean text bar bottom
+════════════════════════════════════════════════════════════════ */
 function StoryView({ cards, date }: { cards: Card[]; date: string }) {
-  const HEAD  = 188;
-  const FOOT  = 52;
-  const STRIP = Math.floor((1920 - HEAD - FOOT) / 4); // 420
+  const HEAD   = 192;
+  const FOOT   = 56;
+  const STRIP  = Math.floor((1920 - HEAD - FOOT) / 4); // 418
+  const IMG_H  = Math.floor(STRIP * 0.63);              // 263
+  const TXT_H  = STRIP - IMG_H;                         // 155
 
   function Strip({ card, idx }: { card: Card; idx: number }) {
-    const isEven = idx % 2 === 0;
-    const txtW = 520, imgW = 1080 - txtW;
-
-    const TextSide = () => (
-      <div style={{ width: txtW, height: STRIP, backgroundColor: idx === 0 ? C.cream : C.amberL, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 44px", gap: 8 }}>
-        <div style={{ color: C.amber, fontSize: 11, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
-        <div style={{ color: C.text, fontSize: 28, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
-        {card.author && (
-          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-            <div style={{ color: C.muted, fontSize: 13, display: "flex" }}>Yazar:</div>
-            <div style={{ color: C.amber, fontSize: 13, fontWeight: 700, display: "flex" }}>{card.author}</div>
-          </div>
-        )}
-      </div>
-    );
-
-    const ImgSide = () => (
-      <div style={{ width: imgW, height: STRIP, position: "relative", display: "flex", overflow: "hidden", flexShrink: 0 }}>
-        {card.img
-          ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-          : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.amberM, display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ fontSize: 60, display: "flex" }}>🍽️</div>
-            </div>
-        }
-      </div>
-    );
-
+    const bg = idx % 2 === 0 ? C.white : C.cream;
     return (
-      <div style={{ display: "flex", height: STRIP, flexShrink: 0, borderBottom: idx < 3 ? `1px solid ${C.amberM}` : "none" }}>
-        {isEven ? <><TextSide /><ImgSide /></> : <><ImgSide /><TextSide /></>}
+      <div style={{ display: "flex", flexDirection: "column", height: STRIP, flexShrink: 0 }}>
+        {/* Image */}
+        <div style={{ width: 1080, height: IMG_H, position: "relative", display: "flex", overflow: "hidden", flexShrink: 0 }}>
+          {card.img
+            ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+            : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.amberSoft, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div style={{ fontSize: 64, display: "flex" }}>🍽️</div>
+              </div>
+          }
+        </div>
+        {/* Text bar */}
+        <div style={{ height: TXT_H, backgroundColor: bg, borderBottom: `1px solid ${C.border}`, padding: "0 48px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 6 }}>
+          <div style={{ color: C.amber, fontSize: 10, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
+          <div style={{ color: C.text, fontSize: 26, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
+          {card.author && (
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ width: 3, height: 3, borderRadius: 2, backgroundColor: C.amber, flexShrink: 0, display: "flex" }} />
+              <div style={{ color: C.muted, fontSize: 13, display: "flex" }}>{card.author}</div>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: C.cream }}>
-      {/* Top accent */}
-      <div style={{ height: 5, display: "flex", background: `linear-gradient(90deg, ${C.amberD} 0%, ${C.amber} 50%, ${C.gold} 100%)` }} />
+    <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: C.sand }}>
+      {/* Top stripe */}
+      <div style={{ height: 5, display: "flex", background: `linear-gradient(90deg, ${C.amberD}, ${C.amber}, ${C.gold})` }} />
 
       {/* Header */}
-      <div style={{ height: HEAD - 5, backgroundColor: C.amber, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 56px", gap: 6 }}>
-        <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 12, fontWeight: 400, letterSpacing: 4, display: "flex" }}>MENÜ GÜNLÜĞÜ · menugunlugu.com</div>
-        <div style={{ color: C.white, fontSize: 52, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
-        <div style={{ color: C.amberM, fontSize: 17, display: "flex" }}>{date}</div>
+      <div style={{ height: HEAD - 5, backgroundColor: C.amber, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 52px", gap: 6 }}>
+        <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, fontWeight: 700, letterSpacing: 4, display: "flex" }}>MENÜ GÜNLÜĞÜ · menugunlugu.com</div>
+        <div style={{ color: C.white, fontSize: 50, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
+        <div style={{ color: "rgba(255,255,255,0.8)", fontSize: 16, display: "flex" }}>{date}</div>
       </div>
 
       {/* 4 strips */}
       {cards.map((card, i) => <Strip key={i} card={card} idx={i} />)}
 
       {/* Footer */}
-      <div style={{ height: FOOT, backgroundColor: C.amberD, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-        <div style={{ color: C.amberM, fontSize: 13, fontWeight: 700, letterSpacing: 2, display: "flex" }}>MENÜ GÜNLÜĞÜ</div>
-        <div style={{ color: "rgba(253,230,138,0.4)", fontSize: 12, display: "flex" }}>·</div>
-        <div style={{ color: C.amberL, fontSize: 13, display: "flex" }}>menugunlugu.com</div>
+      <div style={{ height: FOOT, backgroundColor: C.amberD, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: C.gold, display: "flex" }} />
+        <div style={{ color: "#FEF3E2", fontSize: 14, fontWeight: 700, letterSpacing: 2, display: "flex" }}>MENUGUNLUGU.COM</div>
+        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: C.gold, display: "flex" }} />
       </div>
     </div>
   );

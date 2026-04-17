@@ -148,14 +148,14 @@ function ImageCell({
         position: "absolute",
         ...(isTop ? { top: 0 } : { bottom: 0 }),
         ...(isRight ? { right: 0 } : { left: 0 }),
-        padding: "14px 22px",
+        padding: "20px 22px",
         display: "flex",
         flexDirection: "column",
         alignItems: isRight ? "flex-end" : "flex-start",
         gap: 5,
         maxWidth: "85%",
       }}>
-        <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{card.cat.toUpperCase()}</div>
+        <div style={{ color: "#FCD34D", fontSize: 17, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{card.cat.toUpperCase()}</div>
         <div style={{ color: "#FFFFFF", fontSize, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
         {card.author && (
           <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 15, display: "flex" }}>
@@ -269,11 +269,6 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
   return (
     <div style={{ width: 1080, height: 1920, display: "flex", position: "relative", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
-      {/* Site URL — reply bar'ın (~150px) üstünde sabit */}
-      <div style={{ position: "absolute", bottom: 165, left: 0, right: 0, display: "flex", justifyContent: "center", zIndex: 10 }}>
-        <div style={{ color: "rgba(255,255,255,0.60)", fontSize: 16, letterSpacing: 1.5, display: "flex" }}>menugunlugu.com</div>
-      </div>
-
       {/* Left amber border */}
       <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
 
@@ -301,8 +296,8 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
           </div>
 
           {/* Recipe info — bottom */}
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 22px 14px", display: "flex", flexDirection: "column", gap: 6 }}>
-            <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{cards[0].cat.toUpperCase()}</div>
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 22px 20px", display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ color: "#FCD34D", fontSize: 17, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{cards[0].cat.toUpperCase()}</div>
             <div style={{ color: "#FFFFFF", fontSize: 30, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{cards[0].title}</div>
             {cards[0].author && (
               <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 15, display: "flex" }}>Yazar: {cards[0].author}</div>
@@ -331,6 +326,11 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
 
       {/* Right amber border */}
       <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+
+      {/* Site URL — en son render → şeritlerin üstünde; reply bar (~150px) kapatmaz */}
+      <div style={{ position: "absolute", bottom: 168, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
+        <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 18, letterSpacing: 1.5, display: "flex" }}>www.menugunlugu.com</div>
+      </div>
 
     </div>
   );

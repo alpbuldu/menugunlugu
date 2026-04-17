@@ -5,11 +5,11 @@ import Image from "next/image";
 import type { Category } from "@/lib/types";
 import type { MenuRecipe } from "./page";
 
-const SLOTS: { key: Category; label: string; emoji: string }[] = [
-  { key: "soup",    label: "Çorba",           emoji: "🥣" },
-  { key: "main",    label: "Ana Yemek",        emoji: "🍽️" },
-  { key: "side",    label: "Yardımcı Lezzet",  emoji: "🥗" },
-  { key: "dessert", label: "Tatlı",            emoji: "🍮" },
+const SLOTS: { key: Category; label: string; short: string; emoji: string }[] = [
+  { key: "soup",    label: "Çorba",           short: "Çorba",     emoji: "🥣" },
+  { key: "main",    label: "Ana Yemek",        short: "Ana Yemek", emoji: "🍽️" },
+  { key: "side",    label: "Yardımcı Lezzet",  short: "Yardımcı",  emoji: "🥗" },
+  { key: "dessert", label: "Tatlı",            short: "Tatlı",     emoji: "🍮" },
 ];
 
 type Selection = Partial<Record<Category, MenuRecipe>>;
@@ -405,8 +405,36 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          {/* Category tabs */}
-          <div className="flex gap-1.5 overflow-x-auto pb-1 mb-4 scrollbar-none">
+          {/* Category tabs — mobile: segmented control / desktop: pill buttons */}
+
+          {/* Mobile segmented control */}
+          <div className="flex lg:hidden bg-warm-100 rounded-2xl p-1 mb-4 gap-0.5">
+            {SLOTS.map((slot) => (
+              <button
+                key={slot.key}
+                type="button"
+                onClick={() => setActiveCategory(slot.key)}
+                className={`relative flex-1 flex flex-col items-center gap-0.5 py-2.5 rounded-xl transition-all duration-200 ${
+                  activeCategory === slot.key
+                    ? "bg-white shadow-sm"
+                    : "hover:bg-warm-50"
+                }`}
+              >
+                <span className="text-xl leading-none">{slot.emoji}</span>
+                <span className={`text-[10px] font-medium leading-tight ${
+                  activeCategory === slot.key ? "text-brand-700" : "text-warm-500"
+                }`}>{slot.short}</span>
+                {selection[slot.key] && (
+                  <span className={`absolute top-2 right-2 w-1.5 h-1.5 rounded-full ${
+                    activeCategory === slot.key ? "bg-brand-400" : "bg-brand-300"
+                  }`} />
+                )}
+              </button>
+            ))}
+          </div>
+
+          {/* Desktop pill buttons */}
+          <div className="hidden lg:flex gap-1.5 overflow-x-auto pb-1 mb-4 scrollbar-none">
             {SLOTS.map((slot) => (
               <button
                 key={slot.key}

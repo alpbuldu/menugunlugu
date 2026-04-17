@@ -327,6 +327,9 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
       {/* Right amber border */}
       <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
 
+      {/* Alt karartı — URL ve slogan okunabilsin */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 320, background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.5) 50%, transparent 100%)", display: "flex" }} />
+
       {/* Site URL + slogan — en son render → şeritlerin üstünde; reply bar (~150px) kapatmaz */}
       <div style={{ position: "absolute", bottom: 162, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
         <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 22, fontWeight: 700, letterSpacing: 2, display: "flex" }}>www.menugunlugu.com</div>

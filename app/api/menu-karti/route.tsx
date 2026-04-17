@@ -10,21 +10,6 @@ import path from "node:path";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-/* ── Palette ─────────────────────────────────────────────────── */
-const C = {
-  sand:    "#F5F0E8",   // warm background
-  cream:   "#FAFAF8",   // lighter variant
-  white:   "#FFFFFF",
-  border:  "#EAD9C0",   // warm card border
-  amber:   "#D97706",
-  amberD:  "#92400E",
-  amberSoft: "#F5E6CC", // soft amber for pills
-  text:    "#1C1917",
-  mid:     "#57534E",
-  muted:   "#A8A29E",
-  gold:    "#F59E0B",
-};
-
 const SLOTS = [
   { key: "soup"    as const, cat: "Çorba" },
   { key: "main"    as const, cat: "Ana Yemek" },
@@ -35,7 +20,7 @@ const SLOTS = [
 type Key = "soup" | "main" | "side" | "dessert";
 interface Card { title: string; author: string; cat: string; img: string | null }
 
-/* ── Image fetch + WebP→JPEG ─────────────────────────────────── */
+/* ── Image fetch ─────────────────────────────────────────────── */
 function nodeGet(url: string, hops = 5): Promise<Buffer | null> {
   return new Promise(resolve => {
     if (hops < 0) return resolve(null);
@@ -82,7 +67,6 @@ export async function GET(request: NextRequest) {
     side:    searchParams.get("side")    ?? "",
     dessert: searchParams.get("dessert") ?? "",
   };
-
   if (Object.values(ids).some(v => !v)) return new Response("4 IDs required", { status: 400 });
 
   const supabase = await createClient();
@@ -130,149 +114,135 @@ export async function GET(request: NextRequest) {
   );
 }
 
-/* ════════════════════════════════════════════════════════════════
-   POST  1080 × 1350
-   Warm sand bg · 2×2 white cards · image top · text bottom
-════════════════════════════════════════════════════════════════ */
-function PostView({ cards, date }: { cards: Card[]; date: string }) {
-  const PAD = 24;
-  const GAP = 12;
-  const HEAD = 136;
-  const FOOT = 56;
-  const CARD_W = Math.floor((1080 - PAD * 2 - GAP) / 2);      // 510
-  const ROW_H  = Math.floor((1350 - HEAD - FOOT - PAD * 2 - GAP) / 2); // ~519
-  const IMG_H  = Math.floor(ROW_H * 0.63);                      // ~327
-  const TXT_H  = ROW_H - IMG_H;                                 // ~192
-
-  function Card({ card }: { card: Card }) {
-    return (
-      <div style={{ width: CARD_W, height: ROW_H, display: "flex", flexDirection: "column", backgroundColor: C.white, borderRadius: 20, border: `1.5px solid ${C.border}`, overflow: "hidden" }}>
-        {/* Image */}
-        <div style={{ width: CARD_W, height: IMG_H, position: "relative", display: "flex", overflow: "hidden", flexShrink: 0 }}>
-          {card.img
-            ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.amberSoft, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ fontSize: 52, display: "flex" }}>🍽️</div>
-              </div>
-          }
-          {/* Soft category pill */}
-          <div style={{ position: "absolute", top: 14, left: 14, backgroundColor: "rgba(255,255,255,0.92)", borderRadius: 100, paddingTop: 5, paddingBottom: 5, paddingLeft: 13, paddingRight: 13, display: "flex" }}>
-            <div style={{ color: C.amber, fontSize: 10, fontWeight: 700, letterSpacing: 1.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
-          </div>
-        </div>
-        {/* Text */}
-        <div style={{ flex: 1, padding: "16px 18px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 7 }}>
-          <div style={{ color: C.text, fontSize: 19, fontWeight: 700, lineHeight: 1.25, display: "flex" }}>{card.title}</div>
-          {card.author && (
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 3, height: 3, borderRadius: 2, backgroundColor: C.amber, flexShrink: 0, display: "flex" }} />
-              <div style={{ color: C.muted, fontSize: 13, display: "flex" }}>{card.author}</div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
+/* ── Shared: image cell with bottom text overlay ─────────────── */
+function ImageCell({ card, fontSize = 21 }: { card: Card; fontSize?: number }) {
   return (
-    <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: C.sand }}>
-      {/* Top amber stripe */}
-      <div style={{ height: 5, display: "flex", background: `linear-gradient(90deg, ${C.amberD}, ${C.amber}, ${C.gold})` }} />
-
-      {/* Header */}
-      <div style={{ height: HEAD - 5, backgroundColor: C.sand, display: "flex", alignItems: "center", justifyContent: "space-between", padding: `0 ${PAD + 2}px` }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <div style={{ color: C.amber, fontSize: 11, fontWeight: 700, letterSpacing: 3.5, display: "flex" }}>MENÜ GÜNLÜĞÜ</div>
-          <div style={{ color: C.text, fontSize: 38, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
-          <div style={{ color: C.mid, fontSize: 13, display: "flex" }}>{date.split(",")[0]}</div>
-          <div style={{ color: C.muted, fontSize: 12, display: "flex" }}>menugunlugu.com</div>
-        </div>
-      </div>
-
-      {/* Grid */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: `0 ${PAD}px`, gap: GAP, justifyContent: "center" }}>
-        <div style={{ display: "flex", gap: GAP }}>
-          <Card card={cards[0]} />
-          <Card card={cards[1]} />
-        </div>
-        <div style={{ display: "flex", gap: GAP }}>
-          <Card card={cards[2]} />
-          <Card card={cards[3]} />
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div style={{ height: FOOT, backgroundColor: C.amberD, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: C.gold, display: "flex" }} />
-        <div style={{ color: "#FEF3E2", fontSize: 14, fontWeight: 700, letterSpacing: 2, display: "flex" }}>MENUGUNLUGU.COM</div>
-        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: C.gold, display: "flex" }} />
+    <div style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}>
+      {/* Background image */}
+      {card.img
+        ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#C8A97A", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ fontSize: 60, display: "flex" }}>🍽️</div>
+          </div>
+      }
+      {/* Soft bottom gradient */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "70%", background: "linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.35) 48%, transparent 100%)", display: "flex" }} />
+      {/* Text */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 20px 18px", display: "flex", flexDirection: "column", gap: 5 }}>
+        <div style={{ color: "#FCD34D", fontSize: 10, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{card.cat.toUpperCase()}</div>
+        <div style={{ color: "#FFFFFF", fontSize, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
+        {card.author && (
+          <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 12, display: "flex" }}>{card.author}</div>
+        )}
       </div>
     </div>
   );
 }
 
 /* ════════════════════════════════════════════════════════════════
-   STORY  1080 × 1920
-   4 strips: full-bleed image top · clean text bar bottom
+   POST  1080 × 1350
+   Slim cream header · full-bleed 2×2 image grid · amber dividers
 ════════════════════════════════════════════════════════════════ */
-function StoryView({ cards, date }: { cards: Card[]; date: string }) {
-  const HEAD   = 192;
-  const FOOT   = 56;
-  const STRIP  = Math.floor((1920 - HEAD - FOOT) / 4); // 418
-  const IMG_H  = Math.floor(STRIP * 0.63);              // 263
-  const TXT_H  = STRIP - IMG_H;                         // 155
-
-  function Strip({ card, idx }: { card: Card; idx: number }) {
-    const bg = idx % 2 === 0 ? C.white : C.cream;
-    return (
-      <div style={{ display: "flex", flexDirection: "column", height: STRIP, flexShrink: 0 }}>
-        {/* Image */}
-        <div style={{ width: 1080, height: IMG_H, position: "relative", display: "flex", overflow: "hidden", flexShrink: 0 }}>
-          {card.img
-            ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.amberSoft, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ fontSize: 64, display: "flex" }}>🍽️</div>
-              </div>
-          }
-        </div>
-        {/* Text bar */}
-        <div style={{ height: TXT_H, backgroundColor: bg, borderBottom: `1px solid ${C.border}`, padding: "0 48px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 6 }}>
-          <div style={{ color: C.amber, fontSize: 10, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
-          <div style={{ color: C.text, fontSize: 26, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
-          {card.author && (
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 3, height: 3, borderRadius: 2, backgroundColor: C.amber, flexShrink: 0, display: "flex" }} />
-              <div style={{ color: C.muted, fontSize: 13, display: "flex" }}>{card.author}</div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
+function PostView({ cards, date }: { cards: Card[]; date: string }) {
+  const HEAD = 108;
+  const FOOT = 50;
+  const DIV  = 3;   // amber divider thickness
 
   return (
-    <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: C.sand }}>
-      {/* Top stripe */}
-      <div style={{ height: 5, display: "flex", background: `linear-gradient(90deg, ${C.amberD}, ${C.amber}, ${C.gold})` }} />
+    <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
-      {/* Header */}
-      <div style={{ height: HEAD - 5, backgroundColor: C.amber, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 52px", gap: 6 }}>
-        <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 11, fontWeight: 700, letterSpacing: 4, display: "flex" }}>MENÜ GÜNLÜĞÜ · menugunlugu.com</div>
-        <div style={{ color: C.white, fontSize: 50, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
-        <div style={{ color: "rgba(255,255,255,0.8)", fontSize: 16, display: "flex" }}>{date}</div>
+      {/* Header — cream strip */}
+      <div style={{ height: HEAD, backgroundColor: "#F5F0E8", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", flexShrink: 0 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <div style={{ color: "#D97706", fontSize: 10, fontWeight: 700, letterSpacing: 3.5, display: "flex" }}>MENÜ GÜNLÜĞÜ</div>
+          <div style={{ color: "#1C1917", fontSize: 33, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 3 }}>
+          <div style={{ color: "#78716C", fontSize: 12, display: "flex" }}>{date.split(",")[0]}</div>
+          <div style={{ color: "#D97706", fontSize: 11, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
+        </div>
       </div>
 
-      {/* 4 strips */}
-      {cards.map((card, i) => <Strip key={i} card={card} idx={i} />)}
+      {/* Top amber line */}
+      <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+
+      {/* 2×2 image grid */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        {/* Row 1 */}
+        <div style={{ flex: 1, display: "flex" }}>
+          <ImageCell card={cards[0]} fontSize={19} />
+          <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+          <ImageCell card={cards[1]} fontSize={19} />
+        </div>
+        {/* Row divider */}
+        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+        {/* Row 2 */}
+        <div style={{ flex: 1, display: "flex" }}>
+          <ImageCell card={cards[2]} fontSize={19} />
+          <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+          <ImageCell card={cards[3]} fontSize={19} />
+        </div>
+      </div>
 
       {/* Footer */}
-      <div style={{ height: FOOT, backgroundColor: C.amberD, display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: C.gold, display: "flex" }} />
-        <div style={{ color: "#FEF3E2", fontSize: 14, fontWeight: 700, letterSpacing: 2, display: "flex" }}>MENUGUNLUGU.COM</div>
-        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: C.gold, display: "flex" }} />
+      <div style={{ height: FOOT, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexShrink: 0 }}>
+        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
+        <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
+        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
       </div>
+
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════
+   STORY  1080 × 1920
+   Slim cream header · 4 full-bleed image strips · amber dividers
+════════════════════════════════════════════════════════════════ */
+function StoryView({ cards, date }: { cards: Card[]; date: string }) {
+  const HEAD = 162;
+  const FOOT = 50;
+  const DIV  = 3;
+
+  return (
+    <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+
+      {/* Header — cream strip */}
+      <div style={{ height: HEAD, backgroundColor: "#F5F0E8", display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 44px", gap: 5, flexShrink: 0 }}>
+        <div style={{ color: "#D97706", fontSize: 10, fontWeight: 700, letterSpacing: 3.5, display: "flex" }}>MENÜ GÜNLÜĞÜ · menugunlugu.com</div>
+        <div style={{ color: "#1C1917", fontSize: 42, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
+        <div style={{ color: "#A8A29E", fontSize: 15, display: "flex" }}>{date}</div>
+      </div>
+
+      {/* Top amber line */}
+      <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+
+      {/* 4 image strips */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 1, display: "flex" }}>
+          <ImageCell card={cards[0]} fontSize={28} />
+        </div>
+        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+        <div style={{ flex: 1, display: "flex" }}>
+          <ImageCell card={cards[1]} fontSize={28} />
+        </div>
+        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+        <div style={{ flex: 1, display: "flex" }}>
+          <ImageCell card={cards[2]} fontSize={28} />
+        </div>
+        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+        <div style={{ flex: 1, display: "flex" }}>
+          <ImageCell card={cards[3]} fontSize={28} />
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div style={{ height: FOOT, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexShrink: 0 }}>
+        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
+        <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
+        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
+      </div>
+
     </div>
   );
 }

@@ -153,30 +153,30 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
   return (
     <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
-      {/* Header — cream strip */}
-      <div style={{ height: HEAD, backgroundColor: "#F5F0E8", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", flexShrink: 0 }}>
+      {/* Header — dark strip, same color as footer */}
+      <div style={{ height: HEAD, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", flexShrink: 0 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <div style={{ color: "#1C1917", fontSize: 12, display: "flex" }}>{date}</div>
-          <div style={{ color: "#D97706", fontSize: 33, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
+          <div style={{ color: "rgba(254,243,226,0.65)", fontSize: 12, display: "flex" }}>{date}</div>
+          <div style={{ color: "#FCD34D", fontSize: 33, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 7 }}>
           {/* Website */}
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FEF3E2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
               <path d="M2 12h20"/>
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
             </svg>
-            <div style={{ color: "#D97706", fontSize: 13, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
+            <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
           </div>
           {/* Instagram */}
           <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1C1917" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(254,243,226,0.65)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
               <circle cx="12" cy="12" r="4"/>
-              <circle cx="17.5" cy="6.5" r="0.8" fill="#1C1917" stroke="none"/>
+              <circle cx="17.5" cy="6.5" r="0.8" fill="rgba(254,243,226,0.65)" stroke="none"/>
             </svg>
-            <div style={{ color: "#1C1917", fontSize: 13, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
+            <div style={{ color: "rgba(254,243,226,0.65)", fontSize: 13, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
           </div>
         </div>
       </div>
@@ -228,40 +228,44 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
 
 /* ════════════════════════════════════════════════════════════════
    STORY  1080 × 1920
-   Slim cream header · 4 full-bleed image strips · amber dividers
+   Instagram/TikTok safe zones:
+     top ~200px covered by platform UI (progress bar + profile)
+     bottom ~150px covered by reply bar
+   → Header 270px, metin alt kısımda (y≥210); footer 90px (kısmen kapanır, ama ana içerik açık)
 ════════════════════════════════════════════════════════════════ */
 function StoryView({ cards, date }: { cards: Card[]; date: string }) {
-  const HEAD = 162;
-  const FOOT = 70;
+  // HEAD yüksek tutulup metin ALTA yaslandı → Instagram'ın ~200px UI'ı sadece üst boşluğu kapatır
+  const HEAD = 270;
+  const FOOT = 90;
   const DIV  = 3;
 
   return (
     <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
-      {/* Header — cream strip */}
-      <div style={{ height: HEAD, backgroundColor: "#F5F0E8", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 44px", flexShrink: 0 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <div style={{ color: "#1C1917", fontSize: 15, display: "flex" }}>{date}</div>
-          <div style={{ color: "#D97706", fontSize: 42, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
+      {/* Header — dark strip, metin alt kısımda (safe zone başlangıcı ~y200) */}
+      <div style={{ height: HEAD, backgroundColor: "#92400E", display: "flex", alignItems: "flex-end", justifyContent: "space-between", padding: "0 44px 22px", flexShrink: 0 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+          <div style={{ color: "rgba(254,243,226,0.65)", fontSize: 15, display: "flex" }}>{date}</div>
+          <div style={{ color: "#FCD34D", fontSize: 46, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 12, paddingBottom: 4 }}>
           {/* Website */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FEF3E2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"/>
               <path d="M2 12h20"/>
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
             </svg>
-            <div style={{ color: "#D97706", fontSize: 15, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
+            <div style={{ color: "#FEF3E2", fontSize: 15, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
           </div>
           {/* Instagram */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1C1917" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(254,243,226,0.65)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
               <circle cx="12" cy="12" r="4"/>
-              <circle cx="17.5" cy="6.5" r="0.8" fill="#1C1917" stroke="none"/>
+              <circle cx="17.5" cy="6.5" r="0.8" fill="rgba(254,243,226,0.65)" stroke="none"/>
             </svg>
-            <div style={{ color: "#1C1917", fontSize: 15, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
+            <div style={{ color: "rgba(254,243,226,0.65)", fontSize: 15, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
           </div>
         </div>
       </div>
@@ -298,14 +302,14 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
       {/* Bottom amber line */}
       <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
 
-      {/* Footer */}
-      <div style={{ height: FOOT, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, flexShrink: 0 }}>
+      {/* Footer — Instagram reply bar alttan ~150px kapatır, burası kısmen görünür */}
+      <div style={{ height: FOOT, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 5, flexShrink: 0 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
-          <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
+          <div style={{ color: "#FEF3E2", fontSize: 14, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
           <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
         </div>
-        <div style={{ color: "#FCD34D", fontSize: 10, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE · MENÜNÜ OLUŞTUR · PAYLAŞ!</div>
+        <div style={{ color: "#FCD34D", fontSize: 11, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE · MENÜNÜ OLUŞTUR · PAYLAŞ!</div>
       </div>
 
     </div>

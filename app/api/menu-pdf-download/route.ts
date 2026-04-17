@@ -6,6 +6,7 @@ import type { Category } from "@/lib/types";
 import { MenuPdfDocument, ensureFonts, type PdfRecipeData } from "./MenuPdfDocument";
 import https from "node:https";
 import http from "node:http";
+import sharp from "sharp";
 
 export const dynamic = "force-dynamic";
 // Use Node.js runtime (not edge) for react-pdf
@@ -163,21 +164,31 @@ export async function GET(request: NextRequest) {
 
   async function fetchImageDataUri(url: string | null): Promise<string | null> {
     if (!url) return null;
-    console.log(`[menu-pdf] fetching image: ${url}`);
 
     const buf = await nodeGet(url);
-    if (buf && buf.length > 0) {
-      // Detect mime from magic bytes
-      let mime = "image/jpeg";
-      if (buf[0] === 0x89 && buf[1] === 0x50) mime = "image/png";
-      else if (buf[0] === 0x47 && buf[1] === 0x49) mime = "image/gif";
-      else if (buf[0] === 0x52 && buf[1] === 0x49) mime = "image/webp";
-      console.log(`[menu-pdf] ok ${buf.length}b ${mime}: ${url}`);
-      return `data:${mime};base64,${buf.toString("base64")}`;
+    if (!buf || buf.length === 0) {
+      console.error(`[menu-pdf] fetch failed: ${url}`);
+      return null;
     }
 
-    console.error(`[menu-pdf] all strategies failed: ${url}`);
-    return null;
+    // Detect format from magic bytes
+    const isWebp = buf[0] === 0x52 && buf[1] === 0x49; // RIFF
+    const isGif  = buf[0] === 0x47 && buf[1] === 0x49; // GI
+    const isPng  = buf[0] === 0x89 && buf[1] === 0x50; // .PNG
+
+    // react-pdf only supports JPEG and PNG — convert WebP/GIF to JPEG via sharp
+    if (isWebp || isGif) {
+      try {
+        const jpeg = await sharp(buf).jpeg({ quality: 90 }).toBuffer();
+        return `data:image/jpeg;base64,${jpeg.toString("base64")}`;
+      } catch (e) {
+        console.error(`[menu-pdf] sharp convert error: ${url}`, e);
+        return null;
+      }
+    }
+
+    const mime = isPng ? "image/png" : "image/jpeg";
+    return `data:${mime};base64,${buf.toString("base64")}`;
   }
 
   // Fetch sequentially

@@ -153,8 +153,6 @@ export default function FollowButton({
               <line x1="22" y1="11" x2="16" y2="11"/>
             </svg>
           ))
-        : size === "xs"
-        ? (isPending ? "…" : following ? "✓" : "Takip Et")
         : (isPending ? "…" : following ? "Takip Ediliyor" : "Takip Et")}
     </button>
   );

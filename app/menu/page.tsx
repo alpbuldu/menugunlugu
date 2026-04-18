@@ -41,8 +41,8 @@ function RecipeCard({
           )}
         </div>
         <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
-          <Badge category={category} />
-          <h2 className="text-xs sm:text-lg font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors leading-snug">
+          <Badge category={category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
+          <h2 className="text-sm sm:text-lg font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors leading-snug">
             {recipe.title}
           </h2>
         </div>
@@ -66,7 +66,7 @@ function RecipeCard({
           isAdminProfile={author.isAdmin}
           initialFollowing={initialFollowing}
           isLoggedIn={isLoggedIn}
-          compact
+          size="xs"
         />
       </div>
     </div>
@@ -157,9 +157,9 @@ export default async function MenuPage() {
         </div>
       )}
 
-      <div className="mt-12 text-center">
+      <div className="mt-6 sm:mt-12 sm:text-center">
         <Link href="/recipes"
-          className="inline-flex items-center gap-1.5 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors">
+          className="flex sm:inline-flex items-center justify-center gap-1.5 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors border border-warm-200 sm:border-0 rounded-xl px-4 py-3 sm:px-0 sm:py-0 hover:bg-warm-50 sm:hover:bg-transparent">
           Tüm tarifleri gör →
         </Link>
       </div>

@@ -121,7 +121,7 @@ export default async function RecipesPage({ searchParams }: Props) {
           <p className="text-lg">Bu kategoride henüz tarif yok.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {recipes.map((recipe) => {
             const a = getAuthor(recipe.submitted_by ?? null);
             const isAdmin = !recipe.submitted_by;
@@ -129,10 +129,10 @@ export default async function RecipesPage({ searchParams }: Props) {
             return (
               <div
                 key={recipe.id}
-                className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
+                className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
               >
                 <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
-                  <div className="relative h-48 bg-warm-100 shrink-0">
+                  <div className="relative h-28 sm:h-48 bg-warm-100 shrink-0">
                     {recipe.image_url ? (
                       <Image
                         src={recipe.image_url}
@@ -146,14 +146,14 @@ export default async function RecipesPage({ searchParams }: Props) {
                       </div>
                     )}
                   </div>
-                  <div className="px-5 pt-5 pb-3">
-                    <Badge category={recipe.category as Category} />
-                    <h2 className="text-base font-semibold text-warm-800 mt-2 group-hover:text-brand-700 transition-colors line-clamp-2">
+                  <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
+                    <Badge category={recipe.category as Category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
+                    <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
                       {recipe.title}
                     </h2>
                   </div>
                 </Link>
-                <div className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-warm-100">
+                <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
                   <Link href={`/uye/${a.username}`} className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
                     {a.avatar ? (
                       <img src={a.avatar} alt={a.name} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />

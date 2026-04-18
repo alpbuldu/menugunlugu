@@ -323,7 +323,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
                             isAdminProfile={authorIsAdmin}
                             initialFollowing={favInitFollowing}
                             isLoggedIn={true}
-                            size="xs"
+                            size="icon"
                           />
                         </div>
                       )}

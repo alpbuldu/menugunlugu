@@ -20,7 +20,7 @@ export default function ArchivePage() {
       <div className="mt-6 sm:mt-12 sm:text-center">
         <Link
           href="/recipes"
-          className="flex sm:inline-flex items-center justify-center gap-1.5 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors border border-warm-200 sm:border-0 rounded-xl px-4 py-3 sm:px-0 sm:py-0 hover:bg-warm-50 sm:hover:bg-transparent"
+          className="flex sm:inline-flex items-center justify-center gap-1.5 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors border border-warm-200 rounded-xl px-4 py-3 hover:bg-warm-50"
         >
           Tüm tarifleri gör →
         </Link>

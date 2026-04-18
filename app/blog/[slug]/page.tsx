@@ -165,8 +165,6 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
       </div>
 
-      <AdBanner placement="blog_post" className="mt-4 2xl:hidden" />
-
       {/* Yazar kartı */}
       <div className="mt-4 flex items-center gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-4">
         <Link href={`/uye/${authorUsername}?tab=yazilar`} className="flex items-center gap-4 flex-1 min-w-0 group">

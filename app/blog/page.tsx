@@ -5,6 +5,7 @@ import { getBlogCategories, getBlogPosts } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import FollowButton from "@/components/ui/FollowButton";
+import SidebarLayout from "@/components/ui/SidebarLayout";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -148,7 +149,8 @@ export default async function BlogPage({ searchParams }: Props) {
   }
 
   return (
-    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+    <SidebarLayout>
+    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-3 sm:mb-6">Blog</h1>
 
       {/* Kategori filtreleri */}
@@ -298,5 +300,6 @@ export default async function BlogPage({ searchParams }: Props) {
         </div>
       )}
     </div>
+    </SidebarLayout>
   );
 }

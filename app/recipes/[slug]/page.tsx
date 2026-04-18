@@ -322,8 +322,6 @@ export default async function RecipeDetailPage({ params }: Props) {
         </div>
       </div>
 
-      <AdBanner placement="recipe_detail" className="mt-6 2xl:hidden" />
-
       {/* Yazar kartı */}
       <div className="mt-4 flex items-center gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm px-6 py-4">
         <Link href={`/uye/${authorUsername}`} className="flex items-center gap-4 flex-1 min-w-0 group">

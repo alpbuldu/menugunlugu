@@ -71,7 +71,6 @@ export default async function MenuOlusturPage() {
         </p>
       </div>
       <MenuBuilder grouped={grouped} />
-      <AdBanner placement="menu_builder" className="mt-6 2xl:hidden" />
     </div>
     </SidebarLayout>
   );

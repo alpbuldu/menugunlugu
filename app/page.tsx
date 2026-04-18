@@ -2,7 +2,6 @@ import Link from "next/link";
 import { getRandomRecipes } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import RecipeSlider from "@/components/ui/RecipeSlider";
-import AdBanner from "@/components/ui/AdBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -88,9 +87,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ── Ad Banner ─────────────────────────────────────────── */}
-      <AdBanner placement="home" className={`${CONTAINER} pt-4`} />
 
       {/* ── Featured Recipes ──────────────────────────────────── */}
       <section className="bg-warm-100 py-8 sm:py-16">

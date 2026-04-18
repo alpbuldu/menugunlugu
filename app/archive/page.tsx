@@ -19,8 +19,6 @@ export default function ArchivePage() {
       </p>
       <Calendar />
 
-      <AdBanner placement="archive" className="mt-6 sm:mt-10 2xl:hidden" />
-
       {/* CTA */}
       <div className="mt-6 sm:text-center">
         <Link

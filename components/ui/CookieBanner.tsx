@@ -21,10 +21,11 @@ export default function CookieBanner() {
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-warm-900/95 backdrop-blur-sm border-t border-warm-700 px-4 py-2.5">
       <div className="max-w-[1100px] mx-auto flex items-center justify-between gap-3">
         <p className="text-xs text-warm-400 leading-snug">
-          Çerez kullanıyoruz.{" "}
+          Bu site deneyiminizi iyileştirmek için çerez kullanır.{" "}
           <Link href="/gizlilik-politikasi" className="text-brand-400 hover:text-brand-300 underline underline-offset-2 transition-colors">
-            Gizlilik Politikası
-          </Link>
+            Gizlilik Politikamızı
+          </Link>{" "}
+          inceleyebilirsiniz.
         </p>
         <button
           onClick={accept}

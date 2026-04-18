@@ -196,11 +196,9 @@ function RecipeCard({ recipe, isSelected, onSelect }: RecipeCardProps) {
         {!isSelected && recipe.author && (
           <>
             <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-            <div className="absolute bottom-1.5 left-2 right-2 pointer-events-none">
-              <span className="text-[10px] text-white/50 leading-none block">Yazar</span>
-              <span className="text-[10px] text-white/90 truncate leading-none block">
-                {recipe.author}
-              </span>
+            <div className="absolute bottom-1.5 left-2 right-2 pointer-events-none flex flex-col gap-px">
+              <span className="text-[10px] text-white/55 leading-none font-semibold">Yazar</span>
+              <span className="text-[10px] text-white/90 truncate leading-none">{recipe.author}</span>
             </div>
           </>
         )}

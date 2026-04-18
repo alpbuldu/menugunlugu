@@ -41,7 +41,7 @@ function RecipeCard({
           )}
         </div>
         <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
-          <Badge category={category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
+          <Badge category={category} compact className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
           <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors leading-snug">
             {recipe.title}
           </h2>

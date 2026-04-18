@@ -331,7 +331,7 @@ export default function Calendar() {
                           )}
                         </div>
                         <div className="px-3 pt-3 pb-2 sm:px-4 sm:pt-4 sm:pb-3 flex flex-col">
-                          <Badge category={category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
+                          <Badge category={category} compact className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
                           <h4 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
                             {recipe.title}
                           </h4>

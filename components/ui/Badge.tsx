@@ -9,6 +9,13 @@ export const categoryLabels: Record<Category, string> = {
   dessert: "Tatlı",
 };
 
+const categoryLabelsShort: Record<Category, string> = {
+  soup:    "Çorba",
+  main:    "Ana Yemek",
+  side:    "Yardımcı",
+  dessert: "Tatlı",
+};
+
 const categoryColors: Record<Category, string> = {
   soup:    "bg-blue-100 text-blue-700",
   main:    "bg-brand-100 text-brand-700",
@@ -19,9 +26,11 @@ const categoryColors: Record<Category, string> = {
 interface BadgeProps {
   category: Category;
   className?: string;
+  /** Mobil dar kartlar için kısa etiket (Yardımcı Lezzet → Yardımcı) */
+  compact?: boolean;
 }
 
-export default function Badge({ category, className }: BadgeProps) {
+export default function Badge({ category, className, compact }: BadgeProps) {
   return (
     <span
       className={clsx(
@@ -30,7 +39,7 @@ export default function Badge({ category, className }: BadgeProps) {
         className
       )}
     >
-      {categoryLabels[category]}
+      {compact ? categoryLabelsShort[category] : categoryLabels[category]}
     </span>
   );
 }

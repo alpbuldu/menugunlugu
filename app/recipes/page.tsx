@@ -18,12 +18,12 @@ const PER_PAGE = 12;
 
 type CategoryFilter = Category | "all";
 
-const categories: { key: CategoryFilter; label: string }[] = [
-  { key: "all",     label: "Tümü" },
-  { key: "soup",    label: "Çorbalar" },
-  { key: "main",    label: "Ana Yemekler" },
-  { key: "side",    label: "Yardımcı Lezzetler" },
-  { key: "dessert", label: "Tatlılar" },
+const categories: { key: CategoryFilter; label: string; short: string }[] = [
+  { key: "all",     label: "Tümü",              short: "Tümü"      },
+  { key: "soup",    label: "Çorbalar",           short: "Çorba"     },
+  { key: "main",    label: "Ana Yemekler",       short: "Ana"       },
+  { key: "side",    label: "Yardımcı Lezzetler", short: "Yardımcı"  },
+  { key: "dessert", label: "Tatlılar",           short: "Tatlı"     },
 ];
 
 interface Props {
@@ -94,7 +94,7 @@ export default async function RecipesPage({ searchParams }: Props) {
       <h1 className="text-3xl font-bold text-warm-900 mb-3 sm:mb-6">Tarifler</h1>
 
       {/* Category Filter */}
-      <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-8">
+      <div className="flex gap-1.5 sm:gap-2 mb-4 sm:mb-8">
         {categories.map((cat) => {
           const isActive =
             cat.key === "all" ? !activeCategory : activeCategory === cat.key;
@@ -102,13 +102,14 @@ export default async function RecipesPage({ searchParams }: Props) {
             <Link
               key={cat.key}
               href={href({ category: cat.key === "all" ? undefined : cat.key, page: 1 })}
-              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium border transition-colors ${
+              className={`flex-1 sm:flex-none text-center sm:text-left px-1 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-sm font-medium border transition-colors ${
                 isActive
                   ? "bg-brand-600 border-brand-600 text-white"
                   : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
               }`}
             >
-              {cat.label}
+              <span className="sm:hidden">{cat.short}</span>
+              <span className="hidden sm:inline">{cat.label}</span>
             </Link>
           );
         })}

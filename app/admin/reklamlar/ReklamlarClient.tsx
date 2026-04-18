@@ -13,23 +13,23 @@ interface Ad {
 }
 
 const PLACEMENT_LABELS: Record<string, string> = {
-  home:          "Ana Sayfa",
-  menu:          "Günün Menüsü",
-  archive:       "Dünün Menüsü",
-  blog_post:     "Blog İçi",
-  recipe_detail: "Tarif Detayı",
-  menu_builder:  "Menü Oluştur",
-  sidebar:       "Kenar Çubukları (Sol & Sağ)",
+  sidebar_menu:          "Günün Menüsü — Kenar",
+  sidebar_archive:       "Dünün Menüsü — Kenar",
+  sidebar_recipes:       "Tarifler Listesi — Kenar",
+  sidebar_recipe_detail: "Tarif Detayı — Kenar",
+  sidebar_blog:          "Blog Listesi — Kenar",
+  sidebar_blog_post:     "Blog Yazısı — Kenar",
+  sidebar_menu_builder:  "Menü Oluştur — Kenar",
 };
 
 const PLACEMENT_SIZES: Record<string, string> = {
-  home:          "728 × 90 px (yatay bant)",
-  menu:          "728 × 90 px (yatay bant, mobil)",
-  archive:       "728 × 90 px (yatay bant, mobil)",
-  blog_post:     "728 × 90 px (yatay bant, mobil)",
-  recipe_detail: "728 × 90 px (yatay bant, mobil)",
-  menu_builder:  "728 × 90 px (yatay bant, mobil)",
-  sidebar:       "160 × 600 px (dikey skyscraper)",
+  sidebar_menu:          "160 × 600 px (dikey)",
+  sidebar_archive:       "160 × 600 px (dikey)",
+  sidebar_recipes:       "160 × 600 px (dikey)",
+  sidebar_recipe_detail: "160 × 600 px (dikey)",
+  sidebar_blog:          "160 × 600 px (dikey)",
+  sidebar_blog_post:     "160 × 600 px (dikey)",
+  sidebar_menu_builder:  "160 × 600 px (dikey)",
 };
 
 const PLACEMENTS = Object.keys(PLACEMENT_LABELS);

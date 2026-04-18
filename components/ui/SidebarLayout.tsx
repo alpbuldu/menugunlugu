@@ -28,14 +28,16 @@ function SidebarAd({ ad }: { ad: Ad }) {
 
 export default async function SidebarLayout({
   children,
+  placement,
 }: {
   children: React.ReactNode;
+  placement: string;
 }) {
   const supabase = createAdminClient();
   const { data: ad } = await supabase
     .from("ads")
     .select("image_url, link_url, title")
-    .eq("placement", "sidebar")
+    .eq("placement", placement)
     .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(1)

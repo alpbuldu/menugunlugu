@@ -172,6 +172,7 @@ export default async function RecipesPage({ searchParams }: Props) {
                     isAdminProfile={isAdmin}
                     initialFollowing={initialFollowing}
                     isLoggedIn={!!currentUserId}
+                    size="xs"
                   />
                 </div>
               </div>

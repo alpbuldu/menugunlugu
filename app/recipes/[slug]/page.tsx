@@ -320,7 +320,7 @@ export default async function RecipeDetailPage({ params }: Props) {
       </div>
 
       {/* Yazar kartı */}
-      <div className="mt-6 flex items-center gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-4">
+      <div className="mt-6 flex items-center gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm px-6 py-4">
         <Link href={`/uye/${authorUsername}`} className="flex items-center gap-4 flex-1 min-w-0 group">
           {authorAvatar ? (
             <img src={authorAvatar} alt={authorFullName || authorName}

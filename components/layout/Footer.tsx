@@ -67,13 +67,16 @@ export default function Footer() {
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
               Sayfalar
             </h3>
-            <ul className="space-y-2 text-sm text-warm-300">
-              <li><Link href="/menu" className="hover:text-white transition-colors">Günün Menüsü</Link></li>
-              <li><Link href="/recipes" className="hover:text-white transition-colors">Tarifler</Link></li>
-              <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-              <li><Link href="/hakkimizda" className="hover:text-white transition-colors">Hakkımızda</Link></li>
-              <li><Link href="/iletisim" className="hover:text-white transition-colors">İletişim</Link></li>
-            </ul>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-warm-300">
+              <Link href="/menu" className="hover:text-white transition-colors">Günün Menüsü</Link>
+              <Link href="/hakkimizda" className="hover:text-white transition-colors">Hakkımızda</Link>
+              <Link href="/recipes" className="hover:text-white transition-colors">Tarifler</Link>
+              <Link href="/iletisim" className="hover:text-white transition-colors">İletişim</Link>
+              <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
+              <Link href="/uye/panel" className="hover:text-white transition-colors">Hesabım</Link>
+              <Link href="/menu-olustur" className="hover:text-white transition-colors">Menü Oluştur</Link>
+              <Link href="/archive" className="hover:text-white transition-colors">Dünün Menüsü</Link>
+            </div>
           </div>
 
           {/* Categories — desktop only */}

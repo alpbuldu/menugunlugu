@@ -77,7 +77,7 @@ function RecipeCard({
             isAdminProfile={author.isAdmin}
             initialFollowing={initialFollowing}
             isLoggedIn={isLoggedIn}
-            size="sm"
+            size="xs"
           />
         </span>
       </div>

@@ -32,6 +32,12 @@ export default function RootLayout({
           src="https://www.googletagmanager.com/gtag/js?id=G-69LK11MP4Q"
           strategy="afterInteractive"
         />
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8588576330436541"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         <Script id="ga4-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];

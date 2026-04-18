@@ -90,11 +90,11 @@ export default async function RecipesPage({ searchParams }: Props) {
   }
 
   return (
-    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-warm-900 mb-8">Tarifler</h1>
+    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+      <h1 className="text-3xl font-bold text-warm-900 mb-3 sm:mb-6">Tarifler</h1>
 
       {/* Category Filter */}
-      <div className="flex flex-wrap gap-2 mb-10">
+      <div className="flex overflow-x-auto gap-2 mb-4 sm:mb-8 pb-1 scrollbar-none">
         {categories.map((cat) => {
           const isActive =
             cat.key === "all" ? !activeCategory : activeCategory === cat.key;
@@ -102,7 +102,7 @@ export default async function RecipesPage({ searchParams }: Props) {
             <Link
               key={cat.key}
               href={href({ category: cat.key === "all" ? undefined : cat.key, page: 1 })}
-              className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
                 isActive
                   ? "bg-brand-600 border-brand-600 text-white"
                   : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"

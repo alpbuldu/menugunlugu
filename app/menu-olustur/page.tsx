@@ -60,9 +60,9 @@ export default async function MenuOlusturPage() {
   };
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-warm-900 mb-2">Menü Oluştur</h1>
+    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+      <div className="mb-4 sm:mb-8">
+        <h1 className="text-3xl font-bold text-warm-900 mb-1 sm:mb-2">Menü Oluştur</h1>
         <p className="text-warm-500 text-sm">
           Her kategoriden bir yemek seç ve günün menüsünü oluştur. PDF tarif kartı olarak ya da sosyal medyada paylaşmak için post veya story formatında indir.
         </p>

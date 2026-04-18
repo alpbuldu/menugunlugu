@@ -184,6 +184,7 @@ export default async function BlogPostPage({ params }: Props) {
           isAdminProfile={true}
           initialFollowing={initialFollowing}
           isLoggedIn={!!currentUserId}
+          size="xs"
         />
       </div>
 

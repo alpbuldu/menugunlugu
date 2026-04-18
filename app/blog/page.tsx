@@ -255,6 +255,7 @@ export default async function BlogPage({ searchParams }: Props) {
                     isAdminProfile={post.isAdminAuthor}
                     initialFollowing={initialFollowing}
                     isLoggedIn={!!currentUserId}
+                    size="xs"
                   />
                 </div>
               </div>

@@ -16,7 +16,7 @@ export default function HakkimizdaPage() {
           className="text-brand-600 font-medium hover:text-brand-700 transition-colors">
           Hikayeli Yemekler
         </a>
-        {"'in günlük menü defteri"}
+        {"'in günlük menü defteri."}
       </p>
 
       <div className="prose prose-warm max-w-none space-y-6 text-warm-700 leading-relaxed">

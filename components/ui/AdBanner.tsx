@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export type AdPlacement =
   | "home"
@@ -14,7 +14,7 @@ interface Props {
 }
 
 export default async function AdBanner({ placement, className = "" }: Props) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data: ad } = await supabase
     .from("ads")
     .select("image_url, link_url, title")

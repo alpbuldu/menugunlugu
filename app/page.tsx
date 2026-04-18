@@ -90,11 +90,7 @@ export default async function HomePage() {
       </section>
 
       {/* ── Ad Banner ─────────────────────────────────────────── */}
-      <div className="bg-white">
-        <div className={`${CONTAINER} py-4`}>
-          <AdBanner placement="home" />
-        </div>
-      </div>
+      <AdBanner placement="home" className={`${CONTAINER} pt-4`} />
 
       {/* ── Featured Recipes ──────────────────────────────────── */}
       <section className="bg-warm-100 py-8 sm:py-16">

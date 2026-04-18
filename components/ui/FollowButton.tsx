@@ -7,8 +7,8 @@ interface Props {
   isAdminProfile?: boolean;
   initialFollowing: boolean;
   isLoggedIn: boolean;
-  /** "xs" = ikon (+ / ✓), "sm" = varsayılan mini, "md" = profil sayfası için belirgin */
-  size?: "xs" | "sm" | "md";
+  /** "icon" = sadece ikon (+ / ✓), "xs" = küçük yazılı, "sm" = varsayılan mini, "md" = profil sayfası için belirgin */
+  size?: "icon" | "xs" | "sm" | "md";
 }
 
 const CHANNEL = "follow-state";
@@ -119,12 +119,18 @@ export default function FollowButton({
       onClick={handleClick}
       disabled={isPending}
       className={[
-        size === "xs"
+        size === "icon"
+          ? "w-6 h-6 rounded-full text-sm font-bold transition-all border flex-shrink-0 flex items-center justify-center"
+          : size === "xs"
           ? "px-2 py-0.5 rounded-md text-[11px] font-medium transition-all border flex-shrink-0"
           : size === "md"
           ? "px-5 py-2 rounded-xl text-sm font-semibold transition-all border flex-shrink-0"
           : "px-3 py-1 rounded-lg text-xs font-medium transition-all border flex-shrink-0",
-        size === "xs"
+        size === "icon"
+          ? following
+            ? "bg-warm-100 border-warm-200 text-warm-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
+            : "bg-brand-50 border-brand-200 text-brand-600 hover:bg-brand-600 hover:text-white hover:border-brand-600"
+          : size === "xs"
           ? following
             ? "bg-warm-100 border-warm-200 text-warm-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
             : "bg-brand-50 border-brand-200 text-brand-600 hover:bg-brand-600 hover:text-white hover:border-brand-600"
@@ -138,7 +144,9 @@ export default function FollowButton({
         isPending ? "opacity-50 cursor-not-allowed" : "",
       ].join(" ")}
     >
-      {size === "xs"
+      {size === "icon"
+        ? (isPending ? "…" : following ? "✓" : "+")
+        : size === "xs"
         ? (isPending ? "…" : following ? "✓" : "Takip Et")
         : (isPending ? "…" : following ? "Takip Ediliyor" : "Takip Et")}
     </button>

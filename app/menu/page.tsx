@@ -61,14 +61,14 @@ function RecipeCard({
             {author.name}
           </span>
         </Link>
-        {/* Mobil: sm buton (yazılı), masaüstü: xs ikonu */}
+        {/* Mobil: yuvarlak ikon (+/✓), masaüstü: yazılı buton */}
         <span className="sm:hidden">
           <FollowButton
             targetUserId={author.isAdmin ? undefined : author.userId ?? undefined}
             isAdminProfile={author.isAdmin}
             initialFollowing={initialFollowing}
             isLoggedIn={isLoggedIn}
-            size="sm"
+            size="icon"
           />
         </span>
         <span className="hidden sm:block">
@@ -77,7 +77,7 @@ function RecipeCard({
             isAdminProfile={author.isAdmin}
             initialFollowing={initialFollowing}
             isLoggedIn={isLoggedIn}
-            size="xs"
+            size="sm"
           />
         </span>
       </div>

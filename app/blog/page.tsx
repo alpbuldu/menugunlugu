@@ -249,8 +249,8 @@ export default async function BlogPage({ searchParams }: Props) {
                       </span>
                     )}
                     <div className="flex flex-col min-w-0">
-                      <span className="text-[9px] text-warm-300 leading-none">Yazar</span>
-                      <span className="text-[10px] font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate leading-snug">{post.authorName}</span>
+                      <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
+                      <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{post.authorName}</span>
                     </div>
                   </Link>
                   <FollowButton

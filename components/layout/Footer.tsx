@@ -68,36 +68,11 @@ export default function Footer() {
               Sayfalar
             </h3>
             <ul className="space-y-2 text-sm text-warm-300">
-              <li>
-                <Link href="/menu" className="hover:text-white transition-colors">
-                  Günün Menüsü
-                </Link>
-              </li>
-              <li>
-                <Link href="/archive" className="hover:text-white transition-colors">
-                  Dünün Menüsü
-                </Link>
-              </li>
-              <li>
-                <Link href="/recipes" className="hover:text-white transition-colors">
-                  Tarifler
-                </Link>
-              </li>
-              <li>
-                <Link href="/blog" className="hover:text-white transition-colors">
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link href="/hakkimizda" className="hover:text-white transition-colors">
-                  Hakkımızda
-                </Link>
-              </li>
-              <li>
-                <Link href="/iletisim" className="hover:text-white transition-colors">
-                  İletişim
-                </Link>
-              </li>
+              <li><Link href="/menu" className="hover:text-white transition-colors">Günün Menüsü</Link></li>
+              <li><Link href="/recipes" className="hover:text-white transition-colors">Tarifler</Link></li>
+              <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
+              <li><Link href="/hakkimizda" className="hover:text-white transition-colors">Hakkımızda</Link></li>
+              <li><Link href="/iletisim" className="hover:text-white transition-colors">İletişim</Link></li>
             </ul>
           </div>
 

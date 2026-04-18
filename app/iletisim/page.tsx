@@ -19,9 +19,9 @@ export default function IletisimPage() {
           <span className="text-2xl">✉️</span>
           <div>
             <p className="font-semibold text-warm-900 mb-1">E-posta</p>
-            <a href="mailto:iletisim@menugunlugu.com"
+            <a href="mailto:hikayeliyemekler@hotmail.com"
               className="text-brand-600 hover:text-brand-700 font-medium transition-colors">
-              iletisim@menugunlugu.com
+              hikayeliyemekler@hotmail.com
             </a>
           </div>
         </div>

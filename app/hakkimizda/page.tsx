@@ -11,7 +11,13 @@ export default function HakkimizdaPage() {
     <div className="max-w-[720px] mx-auto px-4 sm:px-6 py-12 sm:py-16">
 
       <h1 className="text-3xl sm:text-4xl font-bold text-warm-900 mb-2">Hakkımızda</h1>
-      <p className="text-brand-600 font-medium mb-10">Bir Hikayeli Yemekler Girişimi</p>
+      <p className="text-warm-500 mb-10">
+        <a href="https://www.instagram.com/hikayeliyemekler/" target="_blank" rel="noopener noreferrer"
+          className="text-brand-600 font-medium hover:text-brand-700 transition-colors">
+          Hikayeli Yemekler
+        </a>
+        {"'in günlük menü defteri"}
+      </p>
 
       <div className="prose prose-warm max-w-none space-y-6 text-warm-700 leading-relaxed">
         <p>

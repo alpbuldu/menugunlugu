@@ -120,12 +120,12 @@ export default function FollowButton({
       disabled={isPending}
       className={[
         size === "icon"
-          ? "w-6 h-6 rounded-full text-sm font-bold transition-all border flex-shrink-0 flex items-center justify-center"
+          ? "w-7 h-7 rounded-full text-sm font-bold transition-all border flex-shrink-0 flex items-center justify-center"
           : size === "xs"
           ? "px-2 py-0.5 rounded-md text-[11px] font-medium transition-all border flex-shrink-0"
           : size === "md"
           ? "px-5 py-2 rounded-xl text-sm font-semibold transition-all border flex-shrink-0"
-          : "px-3 py-1 rounded-lg text-xs font-medium transition-all border flex-shrink-0",
+          : "px-3 py-2 rounded-xl text-sm font-medium transition-all border flex-shrink-0",
         size === "icon"
           ? following
             ? "bg-warm-100 border-warm-200 text-warm-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500"

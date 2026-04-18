@@ -70,11 +70,11 @@ export default function Footer() {
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-warm-300">
               <Link href="/recipes" className="hover:text-white transition-colors">Tarifler</Link>
               <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
-              <Link href="/menu" className="hover:text-white transition-colors">Günün Menüsü</Link>
-              <Link href="/iletisim" className="hover:text-white transition-colors">İletişim</Link>
-              <Link href="/archive" className="hover:text-white transition-colors">Dünün Menüsü</Link>
-              <Link href="/uye/panel" className="hover:text-white transition-colors">Hesabım</Link>
               <Link href="/menu-olustur" className="hover:text-white transition-colors">Menü Oluştur</Link>
+              <Link href="/iletisim" className="hover:text-white transition-colors">İletişim</Link>
+              <Link href="/menu" className="hover:text-white transition-colors">Günün Menüsü</Link>
+              <Link href="/uye/panel" className="hover:text-white transition-colors">Hesabım</Link>
+              <Link href="/archive" className="hover:text-white transition-colors">Dünün Menüsü</Link>
               <Link href="/hakkimizda" className="hover:text-white transition-colors">Hakkımızda</Link>
             </div>
           </div>

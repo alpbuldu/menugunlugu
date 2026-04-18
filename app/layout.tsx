@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/ui/ScrollToTop";
+import CookieBanner from "@/components/ui/CookieBanner";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.menugunlugu.com"),
@@ -45,6 +46,7 @@ export default function RootLayout({
         <main className="flex-1">{children}</main>
         <Footer />
         <ScrollToTop />
+        <CookieBanner />
       </body>
     </html>
   );

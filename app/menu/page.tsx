@@ -32,7 +32,7 @@ function RecipeCard({
   return (
     <div className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
       <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
-        <div className="relative h-28 sm:h-52 bg-warm-100 shrink-0">
+        <div className="relative h-28 sm:h-44 bg-warm-100 shrink-0">
           {recipe.image_url ? (
             <Image src={recipe.image_url} alt={recipe.title} fill
               className="object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -42,7 +42,7 @@ function RecipeCard({
         </div>
         <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
           <Badge category={category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
-          <h2 className="text-sm sm:text-lg font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors leading-snug">
+          <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors leading-snug">
             {recipe.title}
           </h2>
         </div>
@@ -146,7 +146,7 @@ export default async function MenuPage() {
           <p className="text-sm text-warm-400 mt-2">Lütfen daha sonra tekrar kontrol edin.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {categoryOrder.map(({ field, category }) => {
             const recipe = menu[field];
             const author = recipe.submitted_by

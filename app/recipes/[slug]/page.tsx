@@ -245,11 +245,25 @@ export default async function RecipeDetailPage({ params }: Props) {
                   </span>
                 )}
               </div>
-              {/* Mobilde compact (sadece ikon), masaüstünde tam buton */}
-              <div className="flex-shrink-0 sm:hidden">
+              {/* Mobilde ikon, masaüstünde yazılı butonlar */}
+              <div className="flex items-center gap-2 flex-shrink-0 sm:hidden">
+                <FollowButton
+                  targetUserId={isAdminAuthor ? undefined : authorUserId ?? undefined}
+                  isAdminProfile={isAdminAuthor}
+                  initialFollowing={initialFollowing}
+                  isLoggedIn={!!currentUserId}
+                  size="icon"
+                />
                 <FavoriteButton recipeId={recipe.id} compact />
               </div>
-              <div className="flex-shrink-0 hidden sm:block">
+              <div className="flex items-center gap-2 flex-shrink-0 hidden sm:flex">
+                <FollowButton
+                  targetUserId={isAdminAuthor ? undefined : authorUserId ?? undefined}
+                  isAdminProfile={isAdminAuthor}
+                  initialFollowing={initialFollowing}
+                  isLoggedIn={!!currentUserId}
+                  size="sm"
+                />
                 <FavoriteButton recipeId={recipe.id} />
               </div>
             </div>

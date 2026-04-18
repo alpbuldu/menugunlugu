@@ -345,15 +345,15 @@ export default function Calendar() {
                           className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author"
                         >
                           {author.avatar ? (
-                            <img src={author.avatar} alt={author.name} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                            <img src={author.avatar} alt={author.name} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
                           ) : (
-                            <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                            <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
                               {author.name.charAt(0).toUpperCase()}
                             </span>
                           )}
                           <div className="flex flex-col min-w-0">
-                            <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
-                            <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
+                            <span className="text-[9px] text-warm-300 leading-none">Yazar</span>
+                            <span className="text-[10px] font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
                               {author.name}
                             </span>
                           </div>

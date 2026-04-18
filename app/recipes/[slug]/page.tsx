@@ -11,6 +11,7 @@ import RatingStars from "@/components/recipe/RatingStars";
 import FavoriteButton from "@/components/recipe/FavoriteButton";
 import FollowButton from "@/components/ui/FollowButton";
 import RecipeSlider from "@/components/ui/RecipeSlider";
+import AdBanner from "@/components/ui/AdBanner";
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 
@@ -319,8 +320,10 @@ export default async function RecipeDetailPage({ params }: Props) {
         </div>
       </div>
 
+      <AdBanner placement="recipe_detail" className="mt-6" />
+
       {/* Yazar kartı */}
-      <div className="mt-6 flex items-center gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm px-6 py-4">
+      <div className="mt-4 flex items-center gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm px-6 py-4">
         <Link href={`/uye/${authorUsername}`} className="flex items-center gap-4 flex-1 min-w-0 group">
           {authorAvatar ? (
             <img src={authorAvatar} alt={authorFullName || authorName}

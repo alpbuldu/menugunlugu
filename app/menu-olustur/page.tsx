@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
 import MenuBuilder from "./MenuBuilder";
+import AdBanner from "@/components/ui/AdBanner";
 
 export const metadata: Metadata = {
   title: "Menü Oluştur",
@@ -60,7 +61,7 @@ export default async function MenuOlusturPage() {
   };
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
+    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-10">
       <div className="mb-4 sm:mb-8">
         <h1 className="text-3xl font-bold text-warm-900 mb-1 sm:mb-2">Menü Oluştur</h1>
         <p className="text-warm-500 text-sm">
@@ -68,6 +69,7 @@ export default async function MenuOlusturPage() {
         </p>
       </div>
       <MenuBuilder grouped={grouped} />
+      <AdBanner placement="menu_builder" className="mt-6" />
     </div>
   );
 }

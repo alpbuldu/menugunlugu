@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import ShareButton from "@/components/ui/ShareButton";
 import FollowButton from "@/components/ui/FollowButton";
 import RecipeSlider from "@/components/ui/RecipeSlider";
+import AdBanner from "@/components/ui/AdBanner";
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 
@@ -104,7 +105,7 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
       <Link href="/blog"
         className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-4 sm:mb-6">
         ← Blog
@@ -161,6 +162,8 @@ export default async function BlogPostPage({ params }: Props) {
           )}
         </div>
       </div>
+
+      <AdBanner placement="blog_post" className="mt-4" />
 
       {/* Yazar kartı */}
       <div className="mt-4 flex items-center gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-4">

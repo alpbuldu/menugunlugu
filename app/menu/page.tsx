@@ -6,6 +6,7 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 import type { Recipe, Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 import FollowButton from "@/components/ui/FollowButton";
+import AdBanner from "@/components/ui/AdBanner";
 
 export const metadata: Metadata = {
   title: "Günün Menüsü",
@@ -138,7 +139,7 @@ export default async function MenuPage() {
   });
 
   return (
-    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-1">Günün Menüsü</h1>
       <p className="text-warm-500 mb-4 sm:mb-10 capitalize">{today}</p>
 
@@ -172,7 +173,9 @@ export default async function MenuPage() {
         </div>
       )}
 
-      <div className="mt-6 sm:mt-12 sm:text-center">
+      <AdBanner placement="menu" className="mt-6 sm:mt-10" />
+
+      <div className="mt-6 sm:mt-6 sm:text-center">
         <Link href="/recipes"
           className="flex sm:inline-flex items-center justify-center gap-1.5 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors border border-warm-200 rounded-xl px-4 py-3 hover:bg-warm-50">
           Tüm tarifleri gör →

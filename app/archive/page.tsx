@@ -17,10 +17,10 @@ export default function ArchivePage() {
       <Calendar />
 
       {/* CTA */}
-      <div className="mt-12 text-center">
+      <div className="mt-6 sm:mt-12 sm:text-center">
         <Link
           href="/recipes"
-          className="inline-flex items-center gap-1.5 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors"
+          className="flex sm:inline-flex items-center justify-center gap-1.5 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors border border-warm-200 sm:border-0 rounded-xl px-4 py-3 sm:px-0 sm:py-0 hover:bg-warm-50 sm:hover:bg-transparent"
         >
           Tüm tarifleri gör →
         </Link>

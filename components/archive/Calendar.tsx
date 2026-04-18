@@ -289,11 +289,11 @@ export default function Calendar() {
             </h3>
 
             {menuLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
-                    <div className="h-40 bg-warm-100 animate-pulse" />
-                    <div className="p-4 space-y-2">
+                  <div key={i} className="bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
+                    <div className="h-28 sm:h-40 bg-warm-100 animate-pulse" />
+                    <div className="p-3 sm:p-4 space-y-2">
                       <div className="h-3 w-16 bg-warm-100 rounded animate-pulse" />
                       <div className="h-4 w-2/3 bg-warm-200 rounded animate-pulse" />
                     </div>
@@ -301,7 +301,7 @@ export default function Calendar() {
                 ))}
               </div>
             ) : selectedMenu ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {COURSE_FIELDS.map(({ field, category }) => {
                   const recipe = selectedMenu[field];
                   const ap = adminProfile ?? { username: "Menü Günlüğü", avatar_url: null };
@@ -313,10 +313,10 @@ export default function Calendar() {
                   return (
                     <div
                       key={field}
-                      className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
+                      className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
                     >
                       <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
-                        <div className="relative h-40 bg-warm-100 shrink-0">
+                        <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
                           {recipe.image_url ? (
                             <Image
                               src={recipe.image_url}
@@ -330,40 +330,50 @@ export default function Calendar() {
                             </div>
                           )}
                         </div>
-                        <div className="p-4 flex flex-col">
-                          <Badge category={category} />
-                          <h4 className="font-semibold text-warm-800 mt-1.5 group-hover:text-brand-700 transition-colors line-clamp-2">
+                        <div className="px-3 pt-3 pb-2 sm:px-4 sm:pt-4 sm:pb-3 flex flex-col">
+                          <Badge category={category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
+                          <h4 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
                             {recipe.title}
                           </h4>
                         </div>
                       </Link>
 
                       {/* Author */}
-                      <div className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-warm-100">
+                      <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
                         <Link
                           href={`/uye/${author.username}`}
-                          className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author"
+                          className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author"
                         >
                           {author.avatar ? (
-                            <img src={author.avatar} alt={author.name} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                            <img src={author.avatar} alt={author.name} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
                           ) : (
-                            <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                            <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
                               {author.name.charAt(0).toUpperCase()}
                             </span>
                           )}
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-[9px] text-warm-300 leading-none mb-0.5">Yazar</span>
-                            <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
-                              {author.name}
-                            </span>
-                          </div>
+                          <span className="text-[10px] font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
+                            {author.name}
+                          </span>
                         </Link>
-                        <FollowButton
-                          targetUserId={recipe.submitted_by ?? undefined}
-                          isAdminProfile={!recipe.submitted_by}
-                          initialFollowing={recipe.submitted_by ? (followMap[recipe.submitted_by] ?? false) : followsAdmin}
-                          isLoggedIn={isLoggedIn}
-                        />
+                        {/* Mobil: ikon, masaüstü: yazılı */}
+                        <span className="sm:hidden">
+                          <FollowButton
+                            targetUserId={recipe.submitted_by ?? undefined}
+                            isAdminProfile={!recipe.submitted_by}
+                            initialFollowing={recipe.submitted_by ? (followMap[recipe.submitted_by] ?? false) : followsAdmin}
+                            isLoggedIn={isLoggedIn}
+                            size="icon"
+                          />
+                        </span>
+                        <span className="hidden sm:block">
+                          <FollowButton
+                            targetUserId={recipe.submitted_by ?? undefined}
+                            isAdminProfile={!recipe.submitted_by}
+                            initialFollowing={recipe.submitted_by ? (followMap[recipe.submitted_by] ?? false) : followsAdmin}
+                            isLoggedIn={isLoggedIn}
+                            size="sm"
+                          />
+                        </span>
                       </div>
                     </div>
                   );

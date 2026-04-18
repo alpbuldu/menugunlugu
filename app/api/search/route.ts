@@ -36,11 +36,27 @@ export async function GET() {
     authors.push({ username: ap.username, displayName: ap.username, avatar: ap.avatar_url ?? null, isAdmin: true });
   }
 
-  // Üye profilleri
-  const { data: memberProfiles } = await supabase
-    .from("profiles")
-    .select("username, avatar_url, full_name")
-    .order("username");
+  // Onaylanmış blog yazısı olan üye ID'leri
+  const { data: approvedPostAuthors } = await supabase
+    .from("member_posts")
+    .select("submitted_by")
+    .eq("approval_status", "approved");
+
+  const approvedPostAuthorIds = new Set(
+    (approvedPostAuthors ?? []).map((p) => p.submitted_by).filter(Boolean) as string[]
+  );
+
+  // Onaylanmış tarifi olan üye ID'leri (memberIds zaten yukarıda hesaplandı)
+  const eligibleIds = [...new Set([...memberIds, ...approvedPostAuthorIds])];
+
+  // Sadece en az 1 onaylanmış tarifi veya blog yazısı olan üyeler
+  const { data: memberProfiles } = eligibleIds.length > 0
+    ? await supabase
+        .from("profiles")
+        .select("id, username, avatar_url, full_name")
+        .in("id", eligibleIds)
+        .order("username")
+    : { data: [] };
 
   for (const p of memberProfiles ?? []) {
     authors.push({

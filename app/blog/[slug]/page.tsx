@@ -8,6 +8,7 @@ import ShareButton from "@/components/ui/ShareButton";
 import FollowButton from "@/components/ui/FollowButton";
 import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdBanner from "@/components/ui/AdBanner";
+import SidebarLayout from "@/components/ui/SidebarLayout";
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 
@@ -105,6 +106,7 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   return (
+    <SidebarLayout>
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
       <Link href="/blog"
         className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-4 sm:mb-6">
@@ -163,7 +165,7 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
       </div>
 
-      <AdBanner placement="blog_post" className="mt-4" />
+      <AdBanner placement="blog_post" className="mt-4 2xl:hidden" />
 
       {/* Yazar kartı */}
       <div className="mt-4 flex items-center gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-4">
@@ -221,5 +223,6 @@ export default async function BlogPostPage({ params }: Props) {
         <ShareButton title={post.title} />
       </div>
     </div>
+    </SidebarLayout>
   );
 }

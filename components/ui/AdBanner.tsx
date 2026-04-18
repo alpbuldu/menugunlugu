@@ -6,7 +6,8 @@ export type AdPlacement =
   | "archive"
   | "blog_post"
   | "recipe_detail"
-  | "menu_builder";
+  | "menu_builder"
+  | "sidebar";
 
 interface Props {
   placement: AdPlacement;

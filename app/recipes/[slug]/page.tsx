@@ -12,6 +12,7 @@ import FavoriteButton from "@/components/recipe/FavoriteButton";
 import FollowButton from "@/components/ui/FollowButton";
 import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdBanner from "@/components/ui/AdBanner";
+import SidebarLayout from "@/components/ui/SidebarLayout";
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 
@@ -205,6 +206,7 @@ export default async function RecipeDetailPage({ params }: Props) {
   const hasImage = recipe.image_url && recipe.image_url.trim() !== "";
 
   return (
+    <SidebarLayout>
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Link href="/recipes"
         className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-6">
@@ -320,7 +322,7 @@ export default async function RecipeDetailPage({ params }: Props) {
         </div>
       </div>
 
-      <AdBanner placement="recipe_detail" className="mt-6" />
+      <AdBanner placement="recipe_detail" className="mt-6 2xl:hidden" />
 
       {/* Yazar kartı */}
       <div className="mt-4 flex items-center gap-4 bg-white rounded-2xl border border-warm-100 shadow-sm px-6 py-4">
@@ -386,5 +388,6 @@ export default async function RecipeDetailPage({ params }: Props) {
         <ShareButton title={recipe.title} />
       </div>
     </div>
+    </SidebarLayout>
   );
 }

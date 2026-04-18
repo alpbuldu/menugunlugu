@@ -148,15 +148,15 @@ export default async function BlogPage({ searchParams }: Props) {
   }
 
   return (
-    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-3xl font-bold text-warm-900 mb-8">Blog</h1>
+    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+      <h1 className="text-3xl font-bold text-warm-900 mb-3 sm:mb-6">Blog</h1>
 
       {/* Kategori filtreleri */}
       {categories.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-10">
+        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-8">
           <Link
             href={href({ kategori: undefined, page: 1 })}
-            className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium border transition-colors ${
               !kategori
                 ? "bg-brand-600 border-brand-600 text-white"
                 : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
@@ -168,7 +168,7 @@ export default async function BlogPage({ searchParams }: Props) {
             <Link
               key={cat.id}
               href={href({ kategori: cat.slug, page: 1 })}
-              className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium border transition-colors ${
                 kategori === cat.slug
                   ? "bg-brand-600 border-brand-600 text-white"
                   : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"

@@ -30,9 +30,9 @@ function RecipeCard({
   initialFollowing: boolean; isLoggedIn: boolean;
 }) {
   return (
-    <div className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+    <div className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
       <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
-        <div className="relative h-52 bg-warm-100 shrink-0">
+        <div className="relative h-28 sm:h-52 bg-warm-100 shrink-0">
           {recipe.image_url ? (
             <Image src={recipe.image_url} alt={recipe.title} fill
               className="object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -40,35 +40,33 @@ function RecipeCard({
             <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍽️</div>
           )}
         </div>
-        <div className="px-5 pt-5 pb-3">
+        <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
           <Badge category={category} />
-          <h2 className="text-lg font-semibold text-warm-800 mt-2 group-hover:text-brand-700 transition-colors">
+          <h2 className="text-xs sm:text-lg font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors leading-snug">
             {recipe.title}
           </h2>
         </div>
       </Link>
 
-      <div className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-warm-100">
-        <Link href={`/uye/${author.username}`} className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+      <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
+        <Link href={`/uye/${author.username}`} className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
           {author.avatar ? (
-            <img src={author.avatar} alt={author.name} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+            <img src={author.avatar} alt={author.name} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
           ) : (
-            <span className="w-6 h-6 rounded-full bg-brand-100 text-brand-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+            <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
               {author.name.charAt(0).toUpperCase()}
             </span>
           )}
-          <div className="flex flex-col min-w-0">
-            <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
-            <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
-              {author.name}
-            </span>
-          </div>
+          <span className="text-[10px] font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
+            {author.name}
+          </span>
         </Link>
         <FollowButton
           targetUserId={author.isAdmin ? undefined : author.userId ?? undefined}
           isAdminProfile={author.isAdmin}
           initialFollowing={initialFollowing}
           isLoggedIn={isLoggedIn}
+          compact
         />
       </div>
     </div>
@@ -125,7 +123,7 @@ export default async function MenuPage() {
   });
 
   return (
-    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-[1100px] mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-1">Günün Menüsü</h1>
       <p className="text-warm-500 mb-10 capitalize">{today}</p>
 
@@ -136,7 +134,7 @@ export default async function MenuPage() {
           <p className="text-sm text-warm-400 mt-2">Lütfen daha sonra tekrar kontrol edin.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-3 sm:gap-6">
           {categoryOrder.map(({ field, category }) => {
             const recipe = menu[field];
             const author = recipe.submitted_by

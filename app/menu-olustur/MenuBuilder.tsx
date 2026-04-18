@@ -191,6 +191,16 @@ function RecipeCard({ recipe, isSelected, onSelect }: RecipeCardProps) {
             </div>
           </div>
         )}
+
+        {/* Author overlay — bottom-left inside image */}
+        {!isSelected && recipe.author && (
+          <>
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+            <span className="absolute bottom-1.5 left-2 right-2 text-[10px] text-white/90 truncate leading-none pointer-events-none">
+              {recipe.author}
+            </span>
+          </>
+        )}
       </div>
 
       {/* Title — fixed height, 2 lines always */}

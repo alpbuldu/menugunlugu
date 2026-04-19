@@ -28,7 +28,7 @@ function SidebarAd({ ad, side }: { ad: Ad; side: "left" | "right" }) {
   );
 }
 
-const OUTER = "[@media(min-width:1440px)]:grid [@media(min-width:1440px)]:grid-cols-[155px_1fr_155px] [@media(min-width:1440px)]:gap-4";
+const OUTER = "[@media(min-width:1440px)]:grid [@media(min-width:1440px)]:grid-cols-[120px_1fr_120px] [@media(min-width:1440px)]:gap-3";
 const SIDE  = "hidden [@media(min-width:1440px)]:block pt-10 pb-16";
 
 export default async function SidebarLayout({

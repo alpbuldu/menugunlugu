@@ -23,13 +23,13 @@ const PLACEMENT_LABELS: Record<string, string> = {
 };
 
 const PLACEMENT_SIZES: Record<string, string> = {
-  sidebar_menu:          "160 × 600 px (dikey)",
-  sidebar_archive:       "160 × 600 px (dikey)",
-  sidebar_recipes:       "160 × 600 px (dikey)",
-  sidebar_recipe_detail: "160 × 600 px (dikey)",
-  sidebar_blog:          "160 × 600 px (dikey)",
-  sidebar_blog_post:     "160 × 600 px (dikey)",
-  sidebar_menu_builder:  "160 × 600 px (dikey)",
+  sidebar_menu:          "120 × 600 px (dikey)",
+  sidebar_archive:       "120 × 600 px (dikey)",
+  sidebar_recipes:       "120 × 600 px (dikey)",
+  sidebar_recipe_detail: "120 × 600 px (dikey)",
+  sidebar_blog:          "120 × 600 px (dikey)",
+  sidebar_blog_post:     "120 × 600 px (dikey)",
+  sidebar_menu_builder:  "120 × 600 px (dikey)",
 };
 
 const PLACEMENTS = Object.keys(PLACEMENT_LABELS);

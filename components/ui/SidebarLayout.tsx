@@ -8,20 +8,20 @@ interface Ad {
 
 function SidebarAd({ ad, side }: { ad: Ad; side: "left" | "right" }) {
   return (
-    <div>
-      <p className={`text-[10px] text-warm-300 mb-1 tracking-wide ${side === "right" ? "text-left" : "text-right"}`}>
+    <div className="flex flex-col" style={{ height: "calc(100vh - 5rem)" }}>
+      <p className={`text-[10px] text-warm-300 mb-1 tracking-wide flex-shrink-0 ${side === "right" ? "text-left" : "text-right"}`}>
         Reklam
       </p>
       <a
         href={ad.link_url}
         target="_blank"
         rel="noopener noreferrer sponsored"
-        className="block rounded-xl overflow-hidden border border-warm-100 hover:opacity-90 transition-opacity"
+        className="block flex-1 rounded-xl overflow-hidden border border-warm-100 hover:opacity-90 transition-opacity min-h-0"
       >
         <img
           src={ad.image_url}
           alt={ad.title ?? "Reklam"}
-          className="w-full object-cover"
+          className="w-full h-full object-cover"
         />
       </a>
     </div>

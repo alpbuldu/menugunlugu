@@ -6,8 +6,6 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 import type { Recipe, Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 import FollowButton from "@/components/ui/FollowButton";
-import AdBanner from "@/components/ui/AdBanner";
-import SidebarLayout from "@/components/ui/SidebarLayout";
 
 export const metadata: Metadata = {
   title: "Günün Menüsü",
@@ -140,7 +138,6 @@ export default async function MenuPage() {
   });
 
   return (
-    <SidebarLayout placement="sidebar_menu">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-1">Günün Menüsü</h1>
       <p className="text-warm-500 mb-4 sm:mb-10 capitalize">{today}</p>
@@ -182,6 +179,5 @@ export default async function MenuPage() {
         </Link>
       </div>
     </div>
-    </SidebarLayout>
   );
 }

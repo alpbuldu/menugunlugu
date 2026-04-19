@@ -148,10 +148,10 @@ export default function Calendar() {
 
   /* ── Render ────────────────────────────────────────────────── */
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8 items-stretch">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8 items-start">
 
       {/* ── Left: calendar ──────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-5 flex flex-col h-full">
+      <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-5 flex flex-col">
 
         {/* Month header */}
         <div className="flex items-center justify-between mb-5">

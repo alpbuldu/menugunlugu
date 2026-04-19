@@ -149,7 +149,7 @@ export default async function BlogPage({ searchParams }: Props) {
   }
 
   return (
-    <SidebarLayout placement="sidebar_blog" contentWidth="wide">
+    <SidebarLayout placement="sidebar_blog">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-3 sm:mb-6">Blog</h1>
 

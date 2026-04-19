@@ -206,7 +206,7 @@ export default async function RecipeDetailPage({ params }: Props) {
   const hasImage = recipe.image_url && recipe.image_url.trim() !== "";
 
   return (
-    <SidebarLayout placement="sidebar_recipe_detail" contentWidth="narrow">
+    <SidebarLayout placement="sidebar_recipe_detail">
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <Link href="/recipes"
         className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-6">

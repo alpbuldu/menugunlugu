@@ -28,36 +28,15 @@ function SidebarAd({ ad, side }: { ad: Ad; side: "left" | "right" }) {
   );
 }
 
-// contentWidth'e göre grid breakpoint ve sütun genişlikleri:
-// narrow → max-w-3xl (768px)   → xl / 1280px
-// wide   → max-w-[1100px]      → 1440px
-// wider  → max-w-[1200px]      → 1520px
-
-type ContentWidth = "narrow" | "wide" | "wider";
-
-const CONFIG: Record<ContentWidth, { outerClass: string; sideClass: string }> = {
-  narrow: {
-    outerClass: "xl:grid xl:grid-cols-[160px_1fr_160px] xl:gap-4",
-    sideClass:  "hidden xl:block",
-  },
-  wide: {
-    outerClass: "[@media(min-width:1440px)]:grid [@media(min-width:1440px)]:grid-cols-[155px_1fr_155px] [@media(min-width:1440px)]:gap-4",
-    sideClass:  "hidden [@media(min-width:1440px)]:block",
-  },
-  wider: {
-    outerClass: "[@media(min-width:1520px)]:grid [@media(min-width:1520px)]:grid-cols-[150px_1fr_150px] [@media(min-width:1520px)]:gap-3",
-    sideClass:  "hidden [@media(min-width:1520px)]:block",
-  },
-};
+const OUTER = "[@media(min-width:1440px)]:grid [@media(min-width:1440px)]:grid-cols-[155px_1fr_155px] [@media(min-width:1440px)]:gap-4";
+const SIDE  = "hidden [@media(min-width:1440px)]:block pb-16";
 
 export default async function SidebarLayout({
   children,
   placement,
-  contentWidth = "wide",
 }: {
   children: React.ReactNode;
   placement: string;
-  contentWidth?: ContentWidth;
 }) {
   const supabase = createAdminClient();
   const { data: ad } = await supabase
@@ -69,15 +48,12 @@ export default async function SidebarLayout({
     .limit(1)
     .maybeSingle();
 
-  // Reklam yoksa layout'u hiç değiştirme
   if (!ad) return <>{children}</>;
 
-  const cfg = CONFIG[contentWidth];
-
   return (
-    <div className={cfg.outerClass}>
+    <div className={OUTER}>
       {/* Sol sidebar */}
-      <div className={`${cfg.sideClass} pb-16`}>
+      <div className={SIDE}>
         <div className="sticky top-20">
           <SidebarAd ad={ad} side="left" />
         </div>
@@ -87,7 +63,7 @@ export default async function SidebarLayout({
       {children}
 
       {/* Sağ sidebar */}
-      <div className={`${cfg.sideClass} pb-16`}>
+      <div className={SIDE}>
         <div className="sticky top-20">
           <SidebarAd ad={ad} side="right" />
         </div>

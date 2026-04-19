@@ -148,10 +148,10 @@ export default function Calendar() {
 
   /* ── Render ────────────────────────────────────────────────── */
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8">
 
       {/* ── Left: calendar ──────────────────────────────────── */}
-      <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-5 flex flex-col">
+      <div className="h-full bg-white rounded-2xl border border-warm-100 shadow-sm p-5 flex flex-col">
 
         {/* Month header */}
         <div className="flex items-center justify-between mb-5">
@@ -263,7 +263,7 @@ export default function Calendar() {
                       <span className="text-brand-400 leading-5 text-base select-none">•</span>
                       <Link
                         href={`/recipes/${recipe.slug}`}
-                        className="text-sm text-warm-600 leading-5 hover:text-brand-600 transition-colors"
+                        className="text-sm text-warm-600 leading-5 hover:text-brand-600 transition-colors line-clamp-1"
                       >
                         {recipe.title}
                       </Link>

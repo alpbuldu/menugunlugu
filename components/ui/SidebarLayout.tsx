@@ -8,7 +8,7 @@ interface Ad {
 
 function SidebarAd({ ad, side }: { ad: Ad; side: "left" | "right" }) {
   return (
-    <div className="flex flex-col" style={{ height: "calc(100vh - 9rem)" }}>
+    <div className="flex flex-col h-full">
       <p className={`text-[10px] text-warm-300 mb-1 tracking-wide flex-shrink-0 ${side === "right" ? "text-left" : "text-right"}`}>
         Reklam
       </p>
@@ -28,7 +28,7 @@ function SidebarAd({ ad, side }: { ad: Ad; side: "left" | "right" }) {
   );
 }
 
-const OUTER = "[@media(min-width:1440px)]:grid [@media(min-width:1440px)]:grid-cols-[120px_1fr_120px] [@media(min-width:1440px)]:gap-3";
+const OUTER = "[@media(min-width:1440px)]:grid [@media(min-width:1440px)]:grid-cols-[120px_1fr_120px] [@media(min-width:1440px)]:gap-3 [@media(min-width:1440px)]:items-start";
 const SIDE  = "hidden [@media(min-width:1440px)]:block pt-10 pb-16";
 
 export default async function SidebarLayout({
@@ -54,7 +54,7 @@ export default async function SidebarLayout({
     <div className={OUTER}>
       {/* Sol sidebar */}
       <div className={SIDE}>
-        <div className="sticky top-20">
+        <div className="sticky top-20 h-[calc(100vh-9rem)]">
           <SidebarAd ad={ad} side="left" />
         </div>
       </div>
@@ -64,7 +64,7 @@ export default async function SidebarLayout({
 
       {/* Sağ sidebar */}
       <div className={SIDE}>
-        <div className="sticky top-20">
+        <div className="sticky top-20 h-[calc(100vh-9rem)]">
           <SidebarAd ad={ad} side="right" />
         </div>
       </div>

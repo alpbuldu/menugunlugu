@@ -29,7 +29,7 @@ function SidebarAd({ ad, side }: { ad: Ad; side: "left" | "right" }) {
 }
 
 const OUTER = "[@media(min-width:1440px)]:grid [@media(min-width:1440px)]:grid-cols-[155px_1fr_155px] [@media(min-width:1440px)]:gap-4";
-const SIDE  = "hidden [@media(min-width:1440px)]:block pb-16";
+const SIDE  = "hidden [@media(min-width:1440px)]:block pt-10 pb-16";
 
 export default async function SidebarLayout({
   children,

@@ -77,7 +77,7 @@ export default async function SidebarLayout({
   return (
     <div className={cfg.outerClass}>
       {/* Sol sidebar */}
-      <div className={cfg.sideClass}>
+      <div className={`${cfg.sideClass} pb-16`}>
         <div className="sticky top-20">
           <SidebarAd ad={ad} side="left" />
         </div>
@@ -87,7 +87,7 @@ export default async function SidebarLayout({
       {children}
 
       {/* Sağ sidebar */}
-      <div className={cfg.sideClass}>
+      <div className={`${cfg.sideClass} pb-16`}>
         <div className="sticky top-20">
           <SidebarAd ad={ad} side="right" />
         </div>

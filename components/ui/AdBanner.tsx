@@ -1,13 +1,11 @@
 import { createAdminClient } from "@/lib/supabase/server";
 
 export type AdPlacement =
-  | "sidebar_menu"
-  | "sidebar_archive"
+  | "home_banner"
   | "sidebar_recipes"
   | "sidebar_recipe_detail"
   | "sidebar_blog"
-  | "sidebar_blog_post"
-  | "sidebar_menu_builder";
+  | "sidebar_blog_post";
 
 interface Props {
   placement: AdPlacement;

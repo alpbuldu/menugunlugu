@@ -21,7 +21,7 @@ const PLACEMENT_LABELS: Record<string, string> = {
 };
 
 const PLACEMENT_SIZES: Record<string, string> = {
-  home:                  "1100 × 200 px (yatay)",
+  home:                  "900 × 90 px (yatay — leaderboard)",
   sidebar_recipes:       "160 × 600 px (dikey)",
   sidebar_recipe_detail: "160 × 600 px (dikey)",
   sidebar_blog:          "160 × 600 px (dikey)",

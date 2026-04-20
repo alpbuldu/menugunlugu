@@ -10,9 +10,16 @@ export type AdPlacement =
 interface Props {
   placement: AdPlacement;
   className?: string;
+  imageHeight?: string; // ör: "h-[90px]"
+  maxWidth?: string;    // ör: "max-w-[900px]"
 }
 
-export default async function AdBanner({ placement, className = "" }: Props) {
+export default async function AdBanner({
+  placement,
+  className = "",
+  imageHeight = "",
+  maxWidth = "",
+}: Props) {
   const supabase = createAdminClient();
   const { data: ad } = await supabase
     .from("ads")
@@ -27,21 +34,23 @@ export default async function AdBanner({ placement, className = "" }: Props) {
 
   return (
     <div className={`${className}`}>
-      <p className="text-[10px] text-warm-300 mb-1 text-right tracking-wide">
-        Reklam
-      </p>
-      <a
-        href={ad.link_url}
-        target="_blank"
-        rel="noopener noreferrer sponsored"
-        className="block rounded-xl overflow-hidden border border-warm-100 hover:opacity-90 transition-opacity"
-      >
-        <img
-          src={ad.image_url}
-          alt={ad.title ?? "Reklam"}
-          className="w-full object-cover"
-        />
-      </a>
+      <div className={`mx-auto ${maxWidth}`}>
+        <p className="text-[10px] text-warm-300 mb-1 text-right tracking-wide">
+          Reklam
+        </p>
+        <a
+          href={ad.link_url}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+          className={`block rounded-xl overflow-hidden border border-warm-100 hover:opacity-90 transition-opacity ${imageHeight}`}
+        >
+          <img
+            src={ad.image_url}
+            alt={ad.title ?? "Reklam"}
+            className="w-full h-full object-cover"
+          />
+        </a>
+      </div>
     </div>
   );
 }

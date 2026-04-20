@@ -293,9 +293,17 @@ export default function Calendar() {
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
                     <div className="h-28 sm:h-40 bg-warm-100 animate-pulse" />
-                    <div className="p-3 sm:p-4 space-y-2">
-                      <div className="h-3 w-16 bg-warm-100 rounded animate-pulse" />
-                      <div className="h-4 w-2/3 bg-warm-200 rounded animate-pulse" />
+                    <div className="px-3 pt-3 pb-2 sm:px-4 sm:pt-4 sm:pb-3 space-y-1.5">
+                      <div className="h-3 w-14 bg-warm-100 rounded animate-pulse" />
+                      {/* Başlık alanı — yüklü kart ile aynı yükseklik */}
+                      <div className="min-h-[2.5rem] space-y-1.5 pt-0.5">
+                        <div className="h-3.5 w-full bg-warm-200 rounded animate-pulse" />
+                        <div className="h-3.5 w-2/3 bg-warm-200 rounded animate-pulse" />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
+                      <div className="w-5 h-5 rounded-full bg-warm-100 animate-pulse" />
+                      <div className="h-3 w-20 bg-warm-100 rounded animate-pulse" />
                     </div>
                   </div>
                 ))}
@@ -332,7 +340,7 @@ export default function Calendar() {
                         </div>
                         <div className="px-3 pt-3 pb-2 sm:px-4 sm:pt-4 sm:pb-3 flex flex-col">
                           <Badge category={category} compact className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
-                          <h4 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
+                          <h4 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug min-h-[2.5rem]">
                             {recipe.title}
                           </h4>
                         </div>

@@ -111,13 +111,13 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Leaderboard Banner ────────────────────────────────── */}
-      <section className="bg-warm-100 pt-5 sm:pt-8 pb-0">
-        <div className={CONTAINER}>
-          <div className="flex justify-center">
-            <div className="relative">
-              <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
-              {homeBanner ? (
+      {/* ── Leaderboard Banner — sadece aktif reklam varsa göster */}
+      {homeBanner && (
+        <section className="bg-warm-100 pt-5 sm:pt-8 pb-0">
+          <div className={CONTAINER}>
+            <div className="flex justify-center">
+              <div className="relative">
+                <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
                 <a
                   href={homeBanner.link_url}
                   target="_blank"
@@ -129,16 +129,11 @@ export default async function HomePage() {
                   <img src={homeBanner.image_url} alt={homeBanner.title ?? "Reklam"}
                     className="hidden sm:block w-[728px] h-[160px] object-cover" />
                 </a>
-              ) : (
-                <>
-                  <div className="sm:hidden w-[320px] h-[80px] bg-warm-200 rounded-lg" />
-                  <div className="hidden sm:block w-[728px] h-[160px] bg-warm-200 rounded-lg" />
-                </>
-              )}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ── Featured Recipes ──────────────────────────────────── */}
       <section className="bg-warm-100 py-5 sm:py-8">

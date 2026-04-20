@@ -82,23 +82,30 @@ interface SponsoredAd { image_url: string; link_url: string; title: string | nul
 
 function SponsoredCard({ ad, imgClass, compact }: { ad: SponsoredAd; imgClass: string; compact: boolean }) {
   return (
-    <div className="flex flex-col bg-white rounded-2xl shadow-sm border border-warm-200 overflow-hidden group relative">
-      <a href={ad.link_url} target="_blank" rel="noopener noreferrer sponsored" className="flex flex-col flex-1">
-        <div className={`relative ${imgClass} bg-warm-100 shrink-0 overflow-hidden`}>
-          <img src={ad.image_url} alt={ad.title ?? "Sponsorlu"} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-        </div>
-        <div className={compact ? "px-4 pt-3 pb-3" : "px-5 pt-4 pb-4"}>
-          {ad.title && (
-            <p className="text-sm font-semibold text-warm-800 line-clamp-2 group-hover:text-brand-700 transition-colors">
-              {ad.title}
-            </p>
-          )}
-        </div>
-      </a>
-      <span className="absolute top-2 left-2 text-[10px] font-medium bg-black/40 text-white/90 px-2 py-0.5 rounded-full backdrop-blur-sm">
+    <a
+      href={ad.link_url}
+      target="_blank"
+      rel="noopener noreferrer sponsored"
+      className="relative block w-full h-full rounded-2xl shadow-sm border border-warm-200 overflow-hidden group"
+    >
+      <img
+        src={ad.image_url}
+        alt={ad.title ?? "Sponsorlu"}
+        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 absolute inset-0"
+      />
+      {/* Sponsorlu etiketi */}
+      <span className="absolute top-2 left-2 text-[10px] font-medium bg-black/40 text-white/90 px-2 py-0.5 rounded-full backdrop-blur-sm z-10">
         Sponsorlu
       </span>
-    </div>
+      {/* Başlık overlay */}
+      {ad.title && (
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-4 py-3 z-10">
+          <p className="text-sm font-semibold text-white line-clamp-2 leading-snug">
+            {ad.title}
+          </p>
+        </div>
+      )}
+    </a>
   );
 }
 
@@ -233,7 +240,11 @@ export default function RecipeSlider({
               {panel.map((recipe, ri) => {
                 // Orta karta (index 1) sponsored card — sadece masaüstünde
                 if (sponsoredAd && !isMobile && ri === 1) {
-                  return <SponsoredCard key={`sponsored-${pi}`} ad={sponsoredAd} imgClass={imgClass} compact={compact} />;
+                  return (
+                    <div key={`sponsored-${pi}`} className="h-full">
+                      <SponsoredCard ad={sponsoredAd} imgClass={imgClass} compact={compact} />
+                    </div>
+                  );
                 }
 
                 const a = recipe.submitted_by

@@ -112,9 +112,9 @@ export default async function HomePage() {
       </section>
 
       {/* ── Featured Recipes ──────────────────────────────────── */}
-      <section className="bg-warm-100 py-8 sm:py-16">
+      <section className="bg-warm-100 py-5 sm:py-8">
         <div className={CONTAINER}>
-          <div className="flex items-center justify-between mb-5 sm:mb-8">
+          <div className="flex items-center justify-between mb-4 sm:mb-6">
             <h2 className="text-xl sm:text-2xl font-bold text-warm-900">Öne Çıkan Tarifler</h2>
             <Link href="/recipes" className="text-brand-600 hover:text-brand-700 font-medium text-sm">
               Tümünü gör →
@@ -143,10 +143,10 @@ export default async function HomePage() {
       {/* ── Leaderboard Banner ────────────────────────────────── */}
       <section className="bg-warm-50 border-t border-warm-100 py-4 sm:py-5">
         <div className={CONTAINER}>
-          <div className="flex flex-col items-center">
-            <p className="text-[10px] text-warm-300 mb-1.5 tracking-wide self-end pr-1">Reklam</p>
-            {/* Sabit boyutlu kap — AdSense için her zaman render olur */}
-            <div className="w-full flex justify-center">
+          {/* Sabit boyutlu kap — AdSense için her zaman render olur */}
+          <div className="flex justify-center">
+            <div className="relative">
+              <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
               {homeBanner ? (
                 <a
                   href={homeBanner.link_url}
@@ -154,7 +154,6 @@ export default async function HomePage() {
                   rel="noopener noreferrer sponsored"
                   className="block hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
                 >
-                  {/* Mobil: 320×50 — Masaüstü: 728×90 */}
                   <img
                     src={homeBanner.image_url}
                     alt={homeBanner.title ?? "Reklam"}
@@ -167,11 +166,10 @@ export default async function HomePage() {
                   />
                 </a>
               ) : (
-                /* AdSense kodu buraya gelecek — şimdilik placeholder */
-                <div className="sm:hidden w-[320px] h-[50px] bg-warm-100 rounded-lg" />
-              )}
-              {!homeBanner && (
-                <div className="hidden sm:block w-[728px] h-[90px] bg-warm-100 rounded-lg" />
+                <>
+                  <div className="sm:hidden w-[320px] h-[50px] bg-warm-100 rounded-lg" />
+                  <div className="hidden sm:block w-[728px] h-[90px] bg-warm-100 rounded-lg" />
+                </>
               )}
             </div>
           </div>

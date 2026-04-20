@@ -23,7 +23,7 @@ const PLACEMENT_LABELS: Record<string, string> = {
 
 const PLACEMENT_SIZES: Record<string, string> = {
   home:                  "Kare/dikey görsel (tarif kartı boyutunda)",
-  home_banner:           "728 × 90 px (leaderboard) veya 320 × 50 px (mobil)",
+  home_banner:           "728 × 160 px (masaüstü) / 320 × 80 px (mobil)",
   sidebar_recipes:       "160 × 600 px (dikey)",
   sidebar_recipe_detail: "160 × 600 px (dikey)",
   sidebar_blog:          "160 × 600 px (dikey)",

@@ -125,14 +125,14 @@ export default async function HomePage() {
                   className="block hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
                 >
                   <img src={homeBanner.image_url} alt={homeBanner.title ?? "Reklam"}
-                    className="block sm:hidden w-[320px] h-[50px] object-cover" />
+                    className="block sm:hidden w-[320px] h-[80px] object-cover" />
                   <img src={homeBanner.image_url} alt={homeBanner.title ?? "Reklam"}
-                    className="hidden sm:block w-[728px] h-[90px] object-cover" />
+                    className="hidden sm:block w-[728px] h-[160px] object-cover" />
                 </a>
               ) : (
                 <>
-                  <div className="sm:hidden w-[320px] h-[50px] bg-warm-200 rounded-lg" />
-                  <div className="hidden sm:block w-[728px] h-[90px] bg-warm-200 rounded-lg" />
+                  <div className="sm:hidden w-[320px] h-[80px] bg-warm-200 rounded-lg" />
+                  <div className="hidden sm:block w-[728px] h-[160px] bg-warm-200 rounded-lg" />
                 </>
               )}
             </div>

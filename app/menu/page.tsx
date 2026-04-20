@@ -137,6 +137,15 @@ export default async function MenuPage() {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
 
+  const { data: menuBanner } = await supabase
+    .from("ads")
+    .select("image_url, link_url, title")
+    .eq("placement", "menu_banner")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   return (
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-1">Günün Menüsü</h1>
@@ -172,7 +181,26 @@ export default async function MenuPage() {
         </div>
       )}
 
-      <div className="mt-6 sm:mt-12 sm:text-center">
+      {/* Banner — sadece aktifken görünür, düzeni bozmaz */}
+      {menuBanner && (
+        <div className="mt-6 sm:mt-8 relative">
+          <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
+          <a
+            href={menuBanner.link_url}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            className="block rounded-xl overflow-hidden border border-warm-100 hover:opacity-90 transition-opacity"
+          >
+            <img
+              src={menuBanner.image_url}
+              alt={menuBanner.title ?? "Reklam"}
+              className="w-full h-[70px] sm:h-[100px] object-cover"
+            />
+          </a>
+        </div>
+      )}
+
+      <div className="mt-6 sm:mt-8 sm:text-center">
         <Link href="/recipes"
           className="flex sm:inline-flex items-center justify-center gap-1.5 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors border border-warm-200 rounded-xl px-4 py-3 hover:bg-warm-50">
           Tüm tarifleri gör →

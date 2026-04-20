@@ -208,7 +208,7 @@ export default async function RecipeDetailPage({ params }: Props) {
 
   return (
     <SidebarLayout placement="sidebar_recipe_detail">
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <Link href="/recipes"
         className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-6">
         ← Tariflere dön
@@ -361,6 +361,9 @@ export default async function RecipeDetailPage({ params }: Props) {
       <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
         <CommentSection recipeId={recipe.id} currentUserId={currentUserId} />
       </div>
+
+      {/* Yatay reklam banneri */}
+      <AdBanner placement="recipe_detail_banner" imageHeight="h-[70px] sm:h-[100px]" className="mt-4" />
 
       {/* Öne Çıkan Tarifler slider */}
       {featured.length > 0 && (

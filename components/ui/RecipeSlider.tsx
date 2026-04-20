@@ -325,6 +325,13 @@ export default function RecipeSlider({
       {/* Arrows */}
       <Arrow dir="prev" onClick={() => manualGo("prev")} overlay={useOverlay} imgHalf={imgHalf} />
       <Arrow dir="next" onClick={() => manualGo("next")} overlay={useOverlay} imgHalf={imgHalf} />
+
+      {/* Mobile sponsored card — sadece mobilde slider altında göster */}
+      {sponsoredAd && (
+        <div className="mt-4 sm:hidden h-48">
+          <SponsoredCard ad={sponsoredAd} imgClass="h-48" compact={false} />
+        </div>
+      )}
     </div>
   );
 }

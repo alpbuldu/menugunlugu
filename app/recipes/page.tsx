@@ -7,6 +7,7 @@ import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
+import AdBanner from "@/components/ui/AdBanner";
 
 export const metadata: Metadata = {
   title: "Tarifler",
@@ -92,8 +93,9 @@ export default async function RecipesPage({ searchParams }: Props) {
 
   return (
     <SidebarLayout placement="sidebar_recipes">
-    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-      <h1 className="text-3xl font-bold text-warm-900 mb-3 sm:mb-6">Tarifler</h1>
+    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+      <h1 className="text-3xl font-bold text-warm-900 mb-1">Tarifler</h1>
+      <p className="text-sm sm:text-base text-warm-500 mb-4">Kategorilere göre tarifleri keşfedin.</p>
 
       {/* Category Filter */}
       <div className="flex gap-1 sm:flex-wrap sm:gap-2 mb-4 sm:mb-8">
@@ -115,6 +117,9 @@ export default async function RecipesPage({ searchParams }: Props) {
           );
         })}
       </div>
+
+      {/* Yatay reklam banneri */}
+      <AdBanner placement="recipes_banner" imageHeight="h-[70px] sm:h-[100px]" className="mb-4 sm:mb-8" />
 
       {/* Recipe Grid */}
       {recipes.length === 0 ? (

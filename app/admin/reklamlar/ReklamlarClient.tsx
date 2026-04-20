@@ -20,10 +20,14 @@ const PLACEMENT_LABELS: Record<string, string> = {
   sidebar_menu:          "Günün Menüsü — Dikey Kenar",
   archive_banner:        "Dünün Menüsü — Yatay Banner",
   sidebar_archive:       "Dünün Menüsü — Dikey Kenar",
-  sidebar_recipes:       "Tarifler Listesi — Kenar",
-  sidebar_recipe_detail: "Tarif Detayı — Kenar",
-  sidebar_blog:          "Blog Listesi — Kenar",
-  sidebar_blog_post:     "Blog Yazısı — Kenar",
+  recipes_banner:        "Tarifler Listesi — Yatay Banner",
+  sidebar_recipes:       "Tarifler Listesi — Dikey Kenar",
+  recipe_detail_banner:  "Tarif Detayı — Yatay Banner",
+  sidebar_recipe_detail: "Tarif Detayı — Dikey Kenar",
+  blog_banner:           "Blog Listesi — Yatay Banner",
+  sidebar_blog:          "Blog Listesi — Dikey Kenar",
+  blog_post_banner:      "Blog Yazısı — Yatay Banner",
+  sidebar_blog_post:     "Blog Yazısı — Dikey Kenar",
 };
 
 const PLACEMENT_SIZES: Record<string, string> = {
@@ -34,9 +38,13 @@ const PLACEMENT_SIZES: Record<string, string> = {
   sidebar_menu:          "200 × 600 px (dikey)",
   archive_banner:        "1100 × 100 px (tam genişlik yatay)",
   sidebar_archive:       "200 × 600 px (dikey)",
+  recipes_banner:        "1100 × 100 px (tam genişlik yatay)",
   sidebar_recipes:       "200 × 600 px (dikey)",
+  recipe_detail_banner:  "700 × 100 px (tam genişlik yatay)",
   sidebar_recipe_detail: "200 × 600 px (dikey)",
+  blog_banner:           "1100 × 100 px (tam genişlik yatay)",
   sidebar_blog:          "200 × 600 px (dikey)",
+  blog_post_banner:      "700 × 100 px (tam genişlik yatay)",
   sidebar_blog_post:     "200 × 600 px (dikey)",
 };
 

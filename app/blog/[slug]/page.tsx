@@ -107,7 +107,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   return (
     <SidebarLayout placement="sidebar_blog_post">
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <Link href="/blog"
         className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-4 sm:mb-6">
         ← Blog
@@ -190,6 +190,9 @@ export default async function BlogPostPage({ params }: Props) {
           size="xs"
         />
       </div>
+
+      {/* Yatay reklam banneri */}
+      <AdBanner placement="blog_post_banner" imageHeight="h-[70px] sm:h-[100px]" className="mt-4" />
 
       {/* Öne Çıkan Tarifler slider */}
       {featured.length > 0 && (

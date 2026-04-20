@@ -24,14 +24,13 @@ export default async function ArchivePage() {
   return (
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-1">Dünün Menüsü</h1>
-      <p className="text-sm sm:text-base text-warm-500 mb-4 sm:mb-10">
+      <p className="text-sm sm:text-base text-warm-500 mb-4">
         Geçmiş günlerin menülerini takvimden seçerek inceleyin.
       </p>
-      <Calendar />
 
-      {/* Yatay banner — sadece aktifken render edilir */}
+      {/* Yatay banner — açıklama altında, takvim üstünde */}
       {archiveBanner && (
-        <div className="mt-6 sm:mt-8 relative">
+        <div className="mb-6 sm:mb-8 relative">
           <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
           <a
             href={archiveBanner.link_url}
@@ -47,6 +46,8 @@ export default async function ArchivePage() {
           </a>
         </div>
       )}
+
+      <Calendar />
 
       {/* CTA */}
       <div className="mt-6 sm:mt-8 sm:text-center">

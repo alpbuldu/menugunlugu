@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
+import AdBanner from "@/components/ui/AdBanner";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -150,8 +151,9 @@ export default async function BlogPage({ searchParams }: Props) {
 
   return (
     <SidebarLayout placement="sidebar_blog">
-    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
-      <h1 className="text-3xl font-bold text-warm-900 mb-3 sm:mb-6">Blog</h1>
+    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+      <h1 className="text-3xl font-bold text-warm-900 mb-1">Blog</h1>
+      <p className="text-sm sm:text-base text-warm-500 mb-4">Yemek kültürü, tarifler ve mutfak hikayeleri.</p>
 
       {/* Kategori filtreleri */}
       {categories.length > 0 && (
@@ -181,6 +183,9 @@ export default async function BlogPage({ searchParams }: Props) {
           ))}
         </div>
       )}
+
+      {/* Yatay reklam banneri */}
+      <AdBanner placement="blog_banner" imageHeight="h-[70px] sm:h-[100px]" className="mb-4 sm:mb-8" />
 
       {/* Yazı ızgarası */}
       {posts.length === 0 ? (

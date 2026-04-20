@@ -149,9 +149,28 @@ export default async function MenuPage() {
 
   return (
     <SidebarLayout placement="sidebar_menu">
-    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-1">Günün Menüsü</h1>
-      <p className="text-warm-500 mb-4 sm:mb-10 capitalize">{today}</p>
+      <p className="text-sm sm:text-base text-warm-500 mb-4 capitalize">{today}</p>
+
+      {/* Banner — açıklama altında, kartlar üstünde */}
+      {menuBanner && (
+        <div className="mb-6 sm:mb-8 relative">
+          <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
+          <a
+            href={menuBanner.link_url}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            className="block rounded-xl overflow-hidden border border-warm-100 hover:opacity-90 transition-opacity"
+          >
+            <img
+              src={menuBanner.image_url}
+              alt={menuBanner.title ?? "Reklam"}
+              className="w-full h-[70px] sm:h-[100px] object-cover"
+            />
+          </a>
+        </div>
+      )}
 
       {!menu ? (
         <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-12 text-center">
@@ -180,25 +199,6 @@ export default async function MenuPage() {
               />
             );
           })}
-        </div>
-      )}
-
-      {/* Banner — sadece aktifken görünür, düzeni bozmaz */}
-      {menuBanner && (
-        <div className="mt-6 sm:mt-8 relative">
-          <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
-          <a
-            href={menuBanner.link_url}
-            target="_blank"
-            rel="noopener noreferrer sponsored"
-            className="block rounded-xl overflow-hidden border border-warm-100 hover:opacity-90 transition-opacity"
-          >
-            <img
-              src={menuBanner.image_url}
-              alt={menuBanner.title ?? "Reklam"}
-              className="w-full h-[70px] sm:h-[100px] object-cover"
-            />
-          </a>
         </div>
       )}
 

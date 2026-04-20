@@ -4,6 +4,8 @@ import Calendar from "@/components/archive/Calendar";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import { createAdminClient } from "@/lib/supabase/server";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Dünün Menüsü",
   description: "Geçmiş günlerin menülerini takvimden seçerek inceleyin.",

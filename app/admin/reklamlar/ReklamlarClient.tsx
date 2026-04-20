@@ -13,23 +13,17 @@ interface Ad {
 }
 
 const PLACEMENT_LABELS: Record<string, string> = {
-  sidebar_menu:          "Günün Menüsü — Kenar",
-  sidebar_archive:       "Dünün Menüsü — Kenar",
   sidebar_recipes:       "Tarifler Listesi — Kenar",
   sidebar_recipe_detail: "Tarif Detayı — Kenar",
   sidebar_blog:          "Blog Listesi — Kenar",
   sidebar_blog_post:     "Blog Yazısı — Kenar",
-  sidebar_menu_builder:  "Menü Oluştur — Kenar",
 };
 
 const PLACEMENT_SIZES: Record<string, string> = {
-  sidebar_menu:          "120 × 600 px (dikey)",
-  sidebar_archive:       "120 × 600 px (dikey)",
-  sidebar_recipes:       "120 × 600 px (dikey)",
-  sidebar_recipe_detail: "120 × 600 px (dikey)",
-  sidebar_blog:          "120 × 600 px (dikey)",
-  sidebar_blog_post:     "120 × 600 px (dikey)",
-  sidebar_menu_builder:  "120 × 600 px (dikey)",
+  sidebar_recipes:       "160 × 600 px (dikey)",
+  sidebar_recipe_detail: "160 × 600 px (dikey)",
+  sidebar_blog:          "160 × 600 px (dikey)",
+  sidebar_blog_post:     "160 × 600 px (dikey)",
 };
 
 const PLACEMENTS = Object.keys(PLACEMENT_LABELS);

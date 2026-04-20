@@ -28,8 +28,10 @@ function SidebarAd({ ad, side }: { ad: Ad; side: "left" | "right" }) {
   );
 }
 
-const OUTER = "[@media(min-width:1440px)]:grid [@media(min-width:1440px)]:grid-cols-[120px_1fr_120px] [@media(min-width:1440px)]:gap-3 [@media(min-width:1440px)]:items-start";
+const OUTER = "[@media(min-width:1440px)]:grid [@media(min-width:1440px)]:grid-cols-[160px_1fr_160px] [@media(min-width:1440px)]:gap-4 [@media(min-width:1440px)]:items-start";
 const SIDE  = "hidden [@media(min-width:1440px)]:block pt-10 pb-16";
+const LEFT_PAD  = "[@media(min-width:1440px)]:pl-3";
+const RIGHT_PAD = "[@media(min-width:1440px)]:pr-3";
 
 export default async function SidebarLayout({
   children,
@@ -53,7 +55,7 @@ export default async function SidebarLayout({
   return (
     <div className={OUTER}>
       {/* Sol sidebar */}
-      <div className={SIDE}>
+      <div className={`${SIDE} ${LEFT_PAD}`}>
         <div className="sticky top-20 h-[calc(100vh-9rem)]">
           <SidebarAd ad={ad} side="left" />
         </div>
@@ -63,7 +65,7 @@ export default async function SidebarLayout({
       {children}
 
       {/* Sağ sidebar */}
-      <div className={SIDE}>
+      <div className={`${SIDE} ${RIGHT_PAD}`}>
         <div className="sticky top-20 h-[calc(100vh-9rem)]">
           <SidebarAd ad={ad} side="right" />
         </div>

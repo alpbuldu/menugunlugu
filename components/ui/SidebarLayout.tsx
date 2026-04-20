@@ -28,7 +28,7 @@ function SidebarAd({ ad, side }: { ad: Ad; side: "left" | "right" }) {
   );
 }
 
-const OUTER = "[@media(min-width:1440px)]:grid [@media(min-width:1440px)]:grid-cols-[160px_1fr_160px] [@media(min-width:1440px)]:gap-4";
+const OUTER = "[@media(min-width:1440px)]:grid [@media(min-width:1440px)]:grid-cols-[200px_1fr_200px] [@media(min-width:1440px)]:gap-4";
 const SIDE  = "hidden [@media(min-width:1440px)]:block pt-10 pb-16";
 const LEFT_PAD  = "[@media(min-width:1440px)]:pl-3";
 const RIGHT_PAD = "[@media(min-width:1440px)]:pr-3";

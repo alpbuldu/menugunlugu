@@ -29,13 +29,13 @@ const PLACEMENT_SIZES: Record<string, string> = {
   home:                  "Kare/dikey görsel (tarif kartı boyutunda)",
   home_banner:           "728 × 160 px (masaüstü) / 320 × 80 px (mobil)",
   menu_banner:           "1100 × 100 px (tam genişlik yatay)",
-  sidebar_menu:          "160 × 600 px (dikey)",
+  sidebar_menu:          "200 × 600 px (dikey)",
   archive_banner:        "1100 × 100 px (tam genişlik yatay)",
-  sidebar_archive:       "160 × 600 px (dikey)",
-  sidebar_recipes:       "160 × 600 px (dikey)",
-  sidebar_recipe_detail: "160 × 600 px (dikey)",
-  sidebar_blog:          "160 × 600 px (dikey)",
-  sidebar_blog_post:     "160 × 600 px (dikey)",
+  sidebar_archive:       "200 × 600 px (dikey)",
+  sidebar_recipes:       "200 × 600 px (dikey)",
+  sidebar_recipe_detail: "200 × 600 px (dikey)",
+  sidebar_blog:          "200 × 600 px (dikey)",
+  sidebar_blog_post:     "200 × 600 px (dikey)",
 };
 
 const PLACEMENTS = Object.keys(PLACEMENT_LABELS);

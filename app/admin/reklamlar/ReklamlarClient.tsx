@@ -13,6 +13,7 @@ interface Ad {
 }
 
 const PLACEMENT_LABELS: Record<string, string> = {
+  home_popup:            "Ana Sayfa — Popup",
   home:                  "Ana Sayfa — Sponsorlu Kart (slider ortası)",
   home_banner:           "Ana Sayfa — Yatay Banner (tarifler altı)",
   menu_banner:           "Günün Menüsü — Yatay Banner",
@@ -26,6 +27,7 @@ const PLACEMENT_LABELS: Record<string, string> = {
 };
 
 const PLACEMENT_SIZES: Record<string, string> = {
+  home_popup:            "600 × 600 px (kare) veya 600 × 800 px (dikey)",
   home:                  "Kare/dikey görsel (tarif kartı boyutunda)",
   home_banner:           "728 × 160 px (masaüstü) / 320 × 80 px (mobil)",
   menu_banner:           "1100 × 100 px (tam genişlik yatay)",

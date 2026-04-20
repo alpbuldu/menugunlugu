@@ -3,6 +3,7 @@ import { getRandomRecipes } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import RecipeSlider from "@/components/ui/RecipeSlider";
+import AdPopup from "@/components/ui/AdPopup";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,16 @@ export default async function HomePage() {
   const featured = await getRandomRecipes();
 
   const adminSb = createAdminClient();
+
+  // Ana sayfa popup
+  const { data: homePopup } = await adminSb
+    .from("ads")
+    .select("image_url, link_url, title")
+    .eq("placement", "home_popup")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
   // Ana sayfa sponsorlu kart (slider ortası)
   const { data: homeAd } = await adminSb
@@ -65,6 +76,7 @@ export default async function HomePage() {
 
   return (
     <div>
+      {homePopup && <AdPopup ad={homePopup} />}
       {/* ── Hero ──────────────────────────────────────────────── */}
       <section className="bg-gradient-to-b from-brand-600 to-warm-700 text-white">
         <div className={`${CONTAINER} py-6 sm:py-10 text-center`}>

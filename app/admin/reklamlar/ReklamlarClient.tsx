@@ -13,7 +13,7 @@ interface Ad {
 }
 
 const PLACEMENT_LABELS: Record<string, string> = {
-  home_banner:           "Ana Sayfa — Yatay Banner",
+  home:                  "Ana Sayfa — Yatay Banner",
   sidebar_recipes:       "Tarifler Listesi — Kenar",
   sidebar_recipe_detail: "Tarif Detayı — Kenar",
   sidebar_blog:          "Blog Listesi — Kenar",
@@ -21,7 +21,7 @@ const PLACEMENT_LABELS: Record<string, string> = {
 };
 
 const PLACEMENT_SIZES: Record<string, string> = {
-  home_banner:           "1100 × 200 px (yatay)",
+  home:                  "1100 × 200 px (yatay)",
   sidebar_recipes:       "160 × 600 px (dikey)",
   sidebar_recipe_detail: "160 × 600 px (dikey)",
   sidebar_blog:          "160 × 600 px (dikey)",

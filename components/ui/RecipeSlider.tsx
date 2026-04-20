@@ -97,10 +97,10 @@ function SponsoredCard({ ad, imgClass, compact }: { ad: SponsoredAd; imgClass: s
       <span className="absolute top-2 left-2 text-[10px] font-medium bg-black/40 text-white/90 px-2 py-0.5 rounded-full backdrop-blur-sm z-10">
         Sponsorlu
       </span>
-      {/* Başlık overlay */}
+      {/* Başlık overlay — sağ alt */}
       {ad.title && (
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent px-4 py-3 z-10">
-          <p className="text-sm font-semibold text-white line-clamp-2 leading-snug">
+        <div className="absolute bottom-0 right-0 bg-gradient-to-l from-black/55 to-transparent pl-8 pr-3 py-2.5 z-10">
+          <p className="text-xs font-medium text-white/90 text-right leading-snug tracking-wide">
             {ad.title}
           </p>
         </div>

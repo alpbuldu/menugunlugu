@@ -13,6 +13,7 @@ import FollowButton from "@/components/ui/FollowButton";
 import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdBanner from "@/components/ui/AdBanner";
 import SidebarLayout from "@/components/ui/SidebarLayout";
+import CommentSection from "@/components/recipe/CommentSection";
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 
@@ -354,6 +355,11 @@ export default async function RecipeDetailPage({ params }: Props) {
       <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <RatingStars recipeId={recipe.id} />
         <FavoriteButton recipeId={recipe.id} />
+      </div>
+
+      {/* Yorumlar */}
+      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
+        <CommentSection recipeId={recipe.id} currentUserId={currentUserId} />
       </div>
 
       {/* Öne Çıkan Tarifler slider */}

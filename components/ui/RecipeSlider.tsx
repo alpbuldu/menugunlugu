@@ -76,6 +76,32 @@ function Arrow({
   );
 }
 
+/* ── Sponsored card ───────────────────────────────────────────── */
+
+interface SponsoredAd { image_url: string; link_url: string; title: string | null; }
+
+function SponsoredCard({ ad, imgClass, compact }: { ad: SponsoredAd; imgClass: string; compact: boolean }) {
+  return (
+    <div className="flex flex-col bg-white rounded-2xl shadow-sm border border-warm-200 overflow-hidden group relative">
+      <a href={ad.link_url} target="_blank" rel="noopener noreferrer sponsored" className="flex flex-col flex-1">
+        <div className={`relative ${imgClass} bg-warm-100 shrink-0 overflow-hidden`}>
+          <img src={ad.image_url} alt={ad.title ?? "Sponsorlu"} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        </div>
+        <div className={compact ? "px-4 pt-3 pb-3" : "px-5 pt-4 pb-4"}>
+          {ad.title && (
+            <p className="text-sm font-semibold text-warm-800 line-clamp-2 group-hover:text-brand-700 transition-colors">
+              {ad.title}
+            </p>
+          )}
+        </div>
+      </a>
+      <span className="absolute top-2 left-2 text-[10px] font-medium bg-black/40 text-white/90 px-2 py-0.5 rounded-full backdrop-blur-sm">
+        Sponsorlu
+      </span>
+    </div>
+  );
+}
+
 /* ── Slider ───────────────────────────────────────────────────── */
 
 interface AuthorInfo { name: string; avatar: string; username: string; }
@@ -88,6 +114,7 @@ export default function RecipeSlider({
   isLoggedIn = false,
   followMap = {},
   followsAdmin = false,
+  sponsoredAd,
 }: {
   recipes: Recipe[];
   adminAuthor: AuthorInfo;
@@ -97,6 +124,7 @@ export default function RecipeSlider({
   isLoggedIn?: boolean;
   followMap?: Record<string, boolean>;
   followsAdmin?: boolean;
+  sponsoredAd?: SponsoredAd;
 }) {
   const [perPage, setPerPage] = useState(3);
   const [pageIdx, setPageIdx] = useState(0);
@@ -203,6 +231,11 @@ export default function RecipeSlider({
           {panels.map((panel, pi) => (
             <div key={pi} className={`shrink-0 w-full grid ${panelGrid} gap-4`}>
               {panel.map((recipe, ri) => {
+                // Orta karta (index 1) sponsored card — sadece masaüstünde
+                if (sponsoredAd && !isMobile && ri === 1) {
+                  return <SponsoredCard key={`sponsored-${pi}`} ad={sponsoredAd} imgClass={imgClass} compact={compact} />;
+                }
+
                 const a = recipe.submitted_by
                   ? (profileMap[recipe.submitted_by] ?? adminAuthor)
                   : adminAuthor;

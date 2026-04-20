@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getRandomRecipes } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import RecipeSlider from "@/components/ui/RecipeSlider";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,17 @@ export default async function HomePage() {
   const currentUserId = user?.id ?? null;
 
   const featured = await getRandomRecipes();
+
+  // Ana sayfa sponsorlu kart
+  const adminSb = createAdminClient();
+  const { data: homeAd } = await adminSb
+    .from("ads")
+    .select("image_url, link_url, title")
+    .eq("placement", "home")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
   // Admin profili
   const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();
@@ -111,6 +123,7 @@ export default async function HomePage() {
               isLoggedIn={!!currentUserId}
               followMap={followMap}
               followsAdmin={followsAdmin}
+              sponsoredAd={homeAd ?? undefined}
             />
           )}
         </div>

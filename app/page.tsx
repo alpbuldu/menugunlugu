@@ -111,6 +111,35 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ── Leaderboard Banner ────────────────────────────────── */}
+      <section className="bg-warm-100 pt-5 sm:pt-8 pb-0">
+        <div className={CONTAINER}>
+          <div className="flex justify-center">
+            <div className="relative">
+              <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
+              {homeBanner ? (
+                <a
+                  href={homeBanner.link_url}
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  className="block hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
+                >
+                  <img src={homeBanner.image_url} alt={homeBanner.title ?? "Reklam"}
+                    className="block sm:hidden w-[320px] h-[50px] object-cover" />
+                  <img src={homeBanner.image_url} alt={homeBanner.title ?? "Reklam"}
+                    className="hidden sm:block w-[728px] h-[90px] object-cover" />
+                </a>
+              ) : (
+                <>
+                  <div className="sm:hidden w-[320px] h-[50px] bg-warm-200 rounded-lg" />
+                  <div className="hidden sm:block w-[728px] h-[90px] bg-warm-200 rounded-lg" />
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Featured Recipes ──────────────────────────────────── */}
       <section className="bg-warm-100 py-5 sm:py-8">
         <div className={CONTAINER}>
@@ -140,41 +169,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Leaderboard Banner ────────────────────────────────── */}
-      <section className="bg-warm-50 border-t border-warm-100 py-4 sm:py-5">
-        <div className={CONTAINER}>
-          {/* Sabit boyutlu kap — AdSense için her zaman render olur */}
-          <div className="flex justify-center">
-            <div className="relative">
-              <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
-              {homeBanner ? (
-                <a
-                  href={homeBanner.link_url}
-                  target="_blank"
-                  rel="noopener noreferrer sponsored"
-                  className="block hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
-                >
-                  <img
-                    src={homeBanner.image_url}
-                    alt={homeBanner.title ?? "Reklam"}
-                    className="block sm:hidden w-[320px] h-[50px] object-cover"
-                  />
-                  <img
-                    src={homeBanner.image_url}
-                    alt={homeBanner.title ?? "Reklam"}
-                    className="hidden sm:block w-[728px] h-[90px] object-cover"
-                  />
-                </a>
-              ) : (
-                <>
-                  <div className="sm:hidden w-[320px] h-[50px] bg-warm-100 rounded-lg" />
-                  <div className="hidden sm:block w-[728px] h-[90px] bg-warm-100 rounded-lg" />
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

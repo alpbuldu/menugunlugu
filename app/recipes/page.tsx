@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-const PER_PAGE = 12;
+const PER_PAGE = 16;
 
 type CategoryFilter = Category | "all";
 
@@ -123,7 +123,7 @@ export default async function RecipesPage({ searchParams }: Props) {
           <p className="text-lg">Bu kategoride henüz tarif yok.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           {recipes.map((recipe) => {
             const a = getAuthor(recipe.submitted_by ?? null);
             const isAdmin = !recipe.submitted_by;
@@ -134,7 +134,7 @@ export default async function RecipesPage({ searchParams }: Props) {
                 className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
               >
                 <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
-                  <div className="relative h-28 sm:h-48 bg-warm-100 shrink-0">
+                  <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
                     {recipe.image_url ? (
                       <Image
                         src={recipe.image_url}

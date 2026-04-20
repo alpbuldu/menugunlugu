@@ -13,7 +13,8 @@ interface Ad {
 }
 
 const PLACEMENT_LABELS: Record<string, string> = {
-  home:                  "Ana Sayfa — Yatay Banner",
+  home:                  "Ana Sayfa — Sponsorlu Kart (slider ortası)",
+  home_banner:           "Ana Sayfa — Yatay Banner (tarifler altı)",
   sidebar_recipes:       "Tarifler Listesi — Kenar",
   sidebar_recipe_detail: "Tarif Detayı — Kenar",
   sidebar_blog:          "Blog Listesi — Kenar",
@@ -21,7 +22,8 @@ const PLACEMENT_LABELS: Record<string, string> = {
 };
 
 const PLACEMENT_SIZES: Record<string, string> = {
-  home:                  "900 × 90 px (yatay — leaderboard)",
+  home:                  "Kare/dikey görsel (tarif kartı boyutunda)",
+  home_banner:           "728 × 90 px (leaderboard) veya 320 × 50 px (mobil)",
   sidebar_recipes:       "160 × 600 px (dikey)",
   sidebar_recipe_detail: "160 × 600 px (dikey)",
   sidebar_blog:          "160 × 600 px (dikey)",

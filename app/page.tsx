@@ -15,12 +15,23 @@ export default async function HomePage() {
 
   const featured = await getRandomRecipes();
 
-  // Ana sayfa sponsorlu kart
   const adminSb = createAdminClient();
+
+  // Ana sayfa sponsorlu kart (slider ortası)
   const { data: homeAd } = await adminSb
     .from("ads")
     .select("image_url, link_url, title")
     .eq("placement", "home")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  // Ana sayfa yatay banner (tarifler altı)
+  const { data: homeBanner } = await adminSb
+    .from("ads")
+    .select("image_url, link_url, title")
+    .eq("placement", "home_banner")
     .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -126,6 +137,44 @@ export default async function HomePage() {
               sponsoredAd={homeAd ?? undefined}
             />
           )}
+        </div>
+      </section>
+
+      {/* ── Leaderboard Banner ────────────────────────────────── */}
+      <section className="bg-warm-50 border-t border-warm-100 py-4 sm:py-5">
+        <div className={CONTAINER}>
+          <div className="flex flex-col items-center">
+            <p className="text-[10px] text-warm-300 mb-1.5 tracking-wide self-end pr-1">Reklam</p>
+            {/* Sabit boyutlu kap — AdSense için her zaman render olur */}
+            <div className="w-full flex justify-center">
+              {homeBanner ? (
+                <a
+                  href={homeBanner.link_url}
+                  target="_blank"
+                  rel="noopener noreferrer sponsored"
+                  className="block hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
+                >
+                  {/* Mobil: 320×50 — Masaüstü: 728×90 */}
+                  <img
+                    src={homeBanner.image_url}
+                    alt={homeBanner.title ?? "Reklam"}
+                    className="block sm:hidden w-[320px] h-[50px] object-cover"
+                  />
+                  <img
+                    src={homeBanner.image_url}
+                    alt={homeBanner.title ?? "Reklam"}
+                    className="hidden sm:block w-[728px] h-[90px] object-cover"
+                  />
+                </a>
+              ) : (
+                /* AdSense kodu buraya gelecek — şimdilik placeholder */
+                <div className="sm:hidden w-[320px] h-[50px] bg-warm-100 rounded-lg" />
+              )}
+              {!homeBanner && (
+                <div className="hidden sm:block w-[728px] h-[90px] bg-warm-100 rounded-lg" />
+              )}
+            </div>
+          </div>
         </div>
       </section>
     </div>

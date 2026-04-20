@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 
 export type AdPlacement =
   | "home"
+  | "home_banner"
   | "sidebar_recipes"
   | "sidebar_recipe_detail"
   | "sidebar_blog"

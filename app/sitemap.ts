@@ -35,11 +35,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const now = new Date().toISOString();
   const staticPages: MetadataRoute.Sitemap = [
-    { url: BASE,               lastModified: new Date(), changeFrequency: "daily",   priority: 1.0 },
-    { url: `${BASE}/blog`,     lastModified: new Date(), changeFrequency: "daily",   priority: 0.9 },
-    { url: `${BASE}/recipes`,  lastModified: new Date(), changeFrequency: "daily",   priority: 0.9 },
-    { url: `${BASE}/archive`,  lastModified: new Date(), changeFrequency: "daily",   priority: 0.7 },
+    { url: BASE,               lastModified: now, changeFrequency: "daily",   priority: 1.0 },
+    { url: `${BASE}/blog`,     lastModified: now, changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/recipes`,  lastModified: now, changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/archive`,  lastModified: now, changeFrequency: "daily",   priority: 0.7 },
   ];
 
   return [...staticPages, ...recipes, ...blogPosts, ...memberPosts];

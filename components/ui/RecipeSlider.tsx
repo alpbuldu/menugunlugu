@@ -7,32 +7,54 @@ import Badge from "@/components/ui/Badge";
 import FollowButton from "@/components/ui/FollowButton";
 import type { Recipe, Category } from "@/lib/types";
 
+/* ── Types ────────────────────────────────────────────────────── */
+
+interface SponsoredAd { image_url: string; link_url: string; title: string | null; }
+type SliderItem = { kind: "recipe"; recipe: Recipe } | { kind: "ad"; ad: SponsoredAd };
+
 /* ── Helpers ──────────────────────────────────────────────────── */
 
-function fill(arr: Recipe[], min: number): Recipe[] {
+function fillRecipes(arr: Recipe[], min: number): Recipe[] {
   if (!arr.length) return [];
   const out = [...arr];
   while (out.length < min) out.push(...arr);
   return out;
 }
 
-function at(arr: Recipe[], i: number): Recipe {
+/**
+ * Her 2 tariften sonra 1 reklam ekler: [r, r, ad, r, r, ad, ...]
+ * Reklam yoksa sadece tarifleri döndürür.
+ */
+function buildBaseStream(recipes: Recipe[], ad?: SponsoredAd): SliderItem[] {
+  const result: SliderItem[] = [];
+  for (let i = 0; i < recipes.length; i++) {
+    result.push({ kind: "recipe", recipe: recipes[i] });
+    if (ad && (i + 1) % 2 === 0) {
+      result.push({ kind: "ad", ad });
+    }
+  }
+  return result;
+}
+
+function fillStream(base: SliderItem[], min: number): SliderItem[] {
+  if (!base.length) return [];
+  const out = [...base];
+  while (out.length < min) out.push(...base);
+  return out;
+}
+
+function atStream(arr: SliderItem[], i: number): SliderItem {
   return arr[((i % arr.length) + arr.length) % arr.length];
 }
 
 /* ── Arrow button ─────────────────────────────────────────────── */
 
 function Arrow({
-  dir,
-  onClick,
-  overlay,
-  imgHalf,
+  dir, onClick, overlay, imgHalf,
 }: {
   dir: "prev" | "next";
   onClick: () => void;
-  /** true → overlaid on top of cards (mobile or compact) */
   overlay: boolean;
-  /** pixels = half of image height, used for vertical centring when overlay */
   imgHalf: number;
 }) {
   const label = dir === "prev" ? "Önceki" : "Sonraki";
@@ -57,7 +79,6 @@ function Arrow({
     );
   }
 
-  /* Desktop external: sits outside the slider track */
   const side = dir === "prev" ? "-left-6" : "-right-6";
   return (
     <button
@@ -78,9 +99,7 @@ function Arrow({
 
 /* ── Sponsored card ───────────────────────────────────────────── */
 
-interface SponsoredAd { image_url: string; link_url: string; title: string | null; }
-
-function SponsoredCard({ ad, imgClass, compact }: { ad: SponsoredAd; imgClass: string; compact: boolean }) {
+function SponsoredCard({ ad }: { ad: SponsoredAd }) {
   return (
     <a
       href={ad.link_url}
@@ -93,11 +112,9 @@ function SponsoredCard({ ad, imgClass, compact }: { ad: SponsoredAd; imgClass: s
         alt={ad.title ?? "Sponsorlu"}
         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 absolute inset-0"
       />
-      {/* Sponsorlu etiketi */}
       <span className="absolute top-2 left-2 text-[10px] font-medium bg-black/40 text-white/90 px-2 py-0.5 rounded-full backdrop-blur-sm z-10">
         Sponsorlu
       </span>
-      {/* Başlık overlay — sağ alt */}
       {ad.title && (
         <div className="absolute bottom-0 right-0 bg-gradient-to-l from-black/55 to-transparent pl-8 pr-3 py-2.5 z-10">
           <p className="text-xs font-medium text-white/90 text-right leading-snug tracking-wide">
@@ -126,7 +143,6 @@ export default function RecipeSlider({
   recipes: Recipe[];
   adminAuthor: AuthorInfo;
   profileMap?: Record<string, AuthorInfo>;
-  /** compact = overlaid arrows, shorter images (for recipe/blog detail) */
   compact?: boolean;
   isLoggedIn?: boolean;
   followMap?: Record<string, boolean>;
@@ -155,7 +171,6 @@ export default function RecipeSlider({
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  // Otomatik döndürme — 10 saniyede bir, hover'da durur
   useEffect(() => {
     if (hovered) return;
     const id = setInterval(() => {
@@ -165,11 +180,18 @@ export default function RecipeSlider({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hovered, pageIdx]);
 
-  const items = fill(recipes, perPage * 2);
-  const totalPages = Math.ceil(items.length / perPage);
+  /* ── Stream oluştur: [r, r, ad, r, r, ad, ...] ─────────────── */
+  const filledRecipes = fillRecipes(recipes, 6);
+  const baseStream = buildBaseStream(filledRecipes, sponsoredAd);
+  // En az 3 sayfalık (prev/current/next) veri olsun
+  const stream = fillStream(baseStream, perPage * 3);
 
-  function getPage(idx: number): Recipe[] {
-    return Array.from({ length: perPage }, (_, i) => at(items, idx * perPage + i));
+  const totalPages = Math.ceil(stream.length / perPage);
+
+  function getPage(idx: number): SliderItem[] {
+    return Array.from({ length: perPage }, (_, i) =>
+      atStream(stream, idx * perPage + i)
+    );
   }
 
   const prevIdx = (pageIdx - 1 + totalPages) % totalPages;
@@ -205,19 +227,14 @@ export default function RecipeSlider({
     touchX.current = null;
   }
 
-  if (!items.length) return null;
+  if (!stream.length) return null;
 
   const panels = [getPage(prevIdx), getPage(pageIdx), getPage(nextIdx)];
   const isMobile = perPage === 1;
   const panelGrid = isMobile ? "grid-cols-1" : "grid-cols-3";
-
-  // Arrow overlay logic: always overlay in compact mode, overlay on mobile otherwise
   const useOverlay = compact || isMobile;
-  // Image height: compact desktop → h-32 (128px), compact mobile → h-44 (176px), normal → h-48 (192px)
   const imgClass = compact ? (isMobile ? "h-44" : "h-32") : "h-48";
   const imgHalf  = compact ? (isMobile ? 88 : 64) : 96;
-
-  const showFollow = isLoggedIn !== undefined; // always render FollowButton if prop passed
 
   return (
     <div
@@ -237,20 +254,27 @@ export default function RecipeSlider({
         >
           {panels.map((panel, pi) => (
             <div key={pi} className={`shrink-0 w-full grid ${panelGrid} gap-4`}>
-              {panel.map((recipe, ri) => {
-                // Orta karta (index 1) sponsored card — sadece masaüstünde
-                if (sponsoredAd && !isMobile && ri === 1) {
+              {panel.map((item, ri) => {
+
+                /* ── Sponsorlu kart ─────────────────────────────── */
+                if (item.kind === "ad") {
                   return (
-                    <div key={`sponsored-${pi}`} className="h-full">
-                      <SponsoredCard ad={sponsoredAd} imgClass={imgClass} compact={compact} />
+                    <div
+                      key={`ad-${pi}-${ri}`}
+                      // Mobilde tarif kartıyla aynı toplam yükseklik (~288px),
+                      // masaüstünde h-full ile komşu kartlara eşitlenir.
+                      className={isMobile ? "h-72" : "h-full"}
+                    >
+                      <SponsoredCard ad={item.ad} />
                     </div>
                   );
                 }
 
+                /* ── Tarif kartı ────────────────────────────────── */
+                const recipe = item.recipe;
                 const a = recipe.submitted_by
                   ? (profileMap[recipe.submitted_by] ?? adminAuthor)
                   : adminAuthor;
-
                 const authorIsAdmin = !recipe.submitted_by;
                 const authorUserId  = recipe.submitted_by ?? undefined;
                 const initFollowing = authorIsAdmin
@@ -262,7 +286,6 @@ export default function RecipeSlider({
                     key={`${pi}-${ri}-${recipe.id}`}
                     className="flex flex-col bg-white rounded-2xl shadow-sm border border-warm-100 overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
                   >
-                    {/* Tarif linki — görsel + başlık */}
                     <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
                       <div className={`relative ${imgClass} bg-warm-200 shrink-0`}>
                         {recipe.image_url ? (
@@ -286,7 +309,6 @@ export default function RecipeSlider({
                       </div>
                     </Link>
 
-                    {/* Yazar satırı — ayrı tıklanabilir alan + FollowButton */}
                     <div className={`flex items-center gap-2 ${compact ? "px-4" : "px-5"} pb-3 pt-2 border-t border-warm-100`}>
                       <Link
                         href={`/uye/${a.username}`}
@@ -322,16 +344,8 @@ export default function RecipeSlider({
         </div>
       </div>
 
-      {/* Arrows */}
       <Arrow dir="prev" onClick={() => manualGo("prev")} overlay={useOverlay} imgHalf={imgHalf} />
       <Arrow dir="next" onClick={() => manualGo("next")} overlay={useOverlay} imgHalf={imgHalf} />
-
-      {/* Mobile sponsored card — sadece mobilde slider altında göster */}
-      {sponsoredAd && (
-        <div className="mt-4 sm:hidden h-48">
-          <SponsoredCard ad={sponsoredAd} imgClass="h-48" compact={false} />
-        </div>
-      )}
     </div>
   );
 }

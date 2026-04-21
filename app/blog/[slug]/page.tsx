@@ -191,8 +191,10 @@ export default async function BlogPostPage({ params }: Props) {
         />
       </div>
 
-      {/* Yatay reklam banneri */}
-      <AdBanner placement="blog_post_banner" imageHeight="h-[70px] sm:h-[100px]" className="mt-4" />
+      {/* Yatay reklam banneri — masaüstü */}
+      <AdBanner placement="blog_post_banner" imageHeight="h-[100px]" className="mt-4 hidden sm:block" />
+      {/* Yatay reklam banneri — mobil */}
+      <AdBanner placement="blog_post_banner_mobile" imageHeight="h-[70px]" className="mt-4 sm:hidden" />
 
       {/* Öne Çıkan Tarifler slider */}
       {featured.length > 0 && (

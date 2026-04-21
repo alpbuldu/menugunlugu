@@ -362,8 +362,10 @@ export default async function RecipeDetailPage({ params }: Props) {
         <CommentSection recipeId={recipe.id} currentUserId={currentUserId} />
       </div>
 
-      {/* Yatay reklam banneri */}
-      <AdBanner placement="recipe_detail_banner" imageHeight="h-[70px] sm:h-[100px]" className="mt-4" />
+      {/* Yatay reklam banneri — masaüstü */}
+      <AdBanner placement="recipe_detail_banner" imageHeight="h-[100px]" className="mt-4 hidden sm:block" />
+      {/* Yatay reklam banneri — mobil */}
+      <AdBanner placement="recipe_detail_banner_mobile" imageHeight="h-[70px]" className="mt-4 sm:hidden" />
 
       {/* Öne Çıkan Tarifler slider */}
       {featured.length > 0 && (

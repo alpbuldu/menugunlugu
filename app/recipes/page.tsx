@@ -118,8 +118,10 @@ export default async function RecipesPage({ searchParams }: Props) {
         })}
       </div>
 
-      {/* Yatay reklam banneri */}
-      <AdBanner placement="recipes_banner" imageHeight="h-[70px] sm:h-[100px]" className="mb-4 sm:mb-8" />
+      {/* Yatay reklam banneri — masaüstü */}
+      <AdBanner placement="recipes_banner" imageHeight="h-[100px]" className="hidden sm:block mb-8" />
+      {/* Yatay reklam banneri — mobil */}
+      <AdBanner placement="recipes_banner_mobile" imageHeight="h-[70px]" className="sm:hidden mb-4" />
 
       {/* Recipe Grid */}
       {recipes.length === 0 ? (

@@ -13,39 +13,54 @@ interface Ad {
 }
 
 const PLACEMENT_LABELS: Record<string, string> = {
-  home_popup:            "Ana Sayfa — Popup",
-  home:                  "Ana Sayfa — Sponsorlu Kart (slider ortası)",
-  home_banner:           "Ana Sayfa — Yatay Banner (tarifler altı)",
-  menu_banner:           "Günün Menüsü — Yatay Banner",
-  sidebar_menu:          "Günün Menüsü — Dikey Kenar",
-  archive_banner:        "Dünün Menüsü — Yatay Banner",
-  sidebar_archive:       "Dünün Menüsü — Dikey Kenar",
-  recipes_banner:        "Tarifler Listesi — Yatay Banner",
-  sidebar_recipes:       "Tarifler Listesi — Dikey Kenar",
-  recipe_detail_banner:  "Tarif Detayı — Yatay Banner",
-  sidebar_recipe_detail: "Tarif Detayı — Dikey Kenar",
-  blog_banner:           "Blog Listesi — Yatay Banner",
-  sidebar_blog:          "Blog Listesi — Dikey Kenar",
-  blog_post_banner:      "Blog Yazısı — Yatay Banner",
-  sidebar_blog_post:     "Blog Yazısı — Dikey Kenar",
+  // ── Ana Sayfa ──────────────────────────────────────────
+  home_popup:                    "Ana Sayfa — Popup",
+  home:                          "Ana Sayfa — Sponsorlu Kart (Slider)",
+  home_banner:                   "Ana Sayfa — Yatay Banner",
+  // ── Günün Menüsü ──────────────────────────────────────
+  menu_banner:                   "Günün Menüsü — Yatay Banner (Web + Mobil)",
+  sidebar_menu:                  "Günün Menüsü — Dikey Kenar (Masaüstü)",
+  // ── Dünün Menüsü ──────────────────────────────────────
+  archive_banner:                "Dünün Menüsü — Yatay Banner (Web + Mobil)",
+  sidebar_archive:               "Dünün Menüsü — Dikey Kenar (Masaüstü)",
+  // ── Tarifler Listesi ───────────────────────────────────
+  recipes_banner:                "Tarifler — Yatay Banner (Masaüstü)",
+  recipes_banner_mobile:         "Tarifler — Yatay Banner (Mobil)",
+  sidebar_recipes:               "Tarifler — Dikey Kenar (Masaüstü)",
+  // ── Tarif Detayı ──────────────────────────────────────
+  recipe_detail_banner:          "Tarif Detayı — Yatay Banner (Masaüstü)",
+  recipe_detail_banner_mobile:   "Tarif Detayı — Yatay Banner (Mobil)",
+  sidebar_recipe_detail:         "Tarif Detayı — Dikey Kenar (Masaüstü)",
+  // ── Blog Listesi ───────────────────────────────────────
+  blog_banner:                   "Blog — Yatay Banner (Masaüstü)",
+  blog_banner_mobile:            "Blog — Yatay Banner (Mobil)",
+  sidebar_blog:                  "Blog — Dikey Kenar (Masaüstü)",
+  // ── Blog Yazısı ────────────────────────────────────────
+  blog_post_banner:              "Blog Yazısı — Yatay Banner (Masaüstü)",
+  blog_post_banner_mobile:       "Blog Yazısı — Yatay Banner (Mobil)",
+  sidebar_blog_post:             "Blog Yazısı — Dikey Kenar (Masaüstü)",
 };
 
 const PLACEMENT_SIZES: Record<string, string> = {
-  home_popup:            "600 × 600 px (kare) veya 600 × 800 px (dikey)",
-  home:                  "Kare/dikey görsel (tarif kartı boyutunda)",
-  home_banner:           "728 × 160 px (masaüstü) / 320 × 80 px (mobil)",
-  menu_banner:           "1100 × 100 px (tam genişlik yatay)",
-  sidebar_menu:          "200 × 600 px (dikey)",
-  archive_banner:        "1100 × 100 px (tam genişlik yatay)",
-  sidebar_archive:       "200 × 600 px (dikey)",
-  recipes_banner:        "1100 × 100 px (tam genişlik yatay)",
-  sidebar_recipes:       "200 × 600 px (dikey)",
-  recipe_detail_banner:  "700 × 100 px (tam genişlik yatay)",
-  sidebar_recipe_detail: "200 × 600 px (dikey)",
-  blog_banner:           "1100 × 100 px (tam genişlik yatay)",
-  sidebar_blog:          "200 × 600 px (dikey)",
-  blog_post_banner:      "700 × 100 px (tam genişlik yatay)",
-  sidebar_blog_post:     "200 × 600 px (dikey)",
+  home_popup:                    "600 × 600 px (kare) veya 600 × 800 px (dikey)",
+  home:                          "Kare/dikey görsel (tarif kartı boyutunda)",
+  home_banner:                   "728 × 160 px (masaüstü) / 320 × 80 px (mobil)",
+  menu_banner:                   "1100 × 100 px geniş yatay",
+  sidebar_menu:                  "200 × 600 px dikey",
+  archive_banner:                "1100 × 100 px geniş yatay",
+  sidebar_archive:               "200 × 600 px dikey",
+  recipes_banner:                "1100 × 100 px geniş yatay",
+  recipes_banner_mobile:         "390 × 70 px dar yatay (mobil genişlik)",
+  sidebar_recipes:               "200 × 600 px dikey",
+  recipe_detail_banner:          "700 × 100 px yatay",
+  recipe_detail_banner_mobile:   "390 × 70 px dar yatay (mobil genişlik)",
+  sidebar_recipe_detail:         "200 × 600 px dikey",
+  blog_banner:                   "1100 × 100 px geniş yatay",
+  blog_banner_mobile:            "390 × 70 px dar yatay (mobil genişlik)",
+  sidebar_blog:                  "200 × 600 px dikey",
+  blog_post_banner:              "700 × 100 px yatay",
+  blog_post_banner_mobile:       "390 × 70 px dar yatay (mobil genişlik)",
+  sidebar_blog_post:             "200 × 600 px dikey",
 };
 
 const PLACEMENTS = Object.keys(PLACEMENT_LABELS);

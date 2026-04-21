@@ -33,24 +33,30 @@ body {
 
 /* ── Blog HTML içerik stilleri ─────────────────────────────── */
 .prose-content h2 {
-  font-size: 1.4rem; font-weight: 700;
-  margin: 2rem 0 0.65rem;
-  color: var(--color-brand-700);
-  padding-bottom: 0.35rem;
-  border-bottom: 2px solid var(--color-brand-100);
+  font-size: 1.4rem !important; font-weight: 700 !important;
+  margin: 2rem 0 0.65rem !important;
+  color: #b86515 !important;
+  padding-bottom: 0.35rem !important;
+  border-bottom: 2px solid #faefd8 !important;
+  text-decoration: none !important;
 }
 .prose-content h3 {
-  font-size: 1.15rem; font-weight: 700;
-  margin: 1.6rem 0 0.5rem;
-  color: var(--color-brand-600);
+  font-size: 1.15rem !important; font-weight: 700 !important;
+  margin: 1.6rem 0 0.5rem !important;
+  color: #b86515 !important;
+  text-decoration: none !important;
 }
 .prose-content h4 {
-  font-size: 1rem; font-weight: 700;
-  margin: 1.2rem 0 0.4rem;
-  color: var(--color-brand-600);
+  font-size: 1rem !important; font-weight: 700 !important;
+  margin: 1.2rem 0 0.4rem !important;
+  color: #924c12 !important;
+  text-decoration: none !important;
 }
+.prose-content h2 a,
+.prose-content h3 a,
+.prose-content h4 a { color: inherit !important; text-decoration: none !important; }
 .prose-content p  { margin: 0.85rem 0; line-height: 1.9; font-size: 1rem; }
-.prose-content p:first-child { font-size: 1.05rem; color: var(--color-warm-700); }
+.prose-content p:first-of-type { font-size: 1.05rem; }
 .prose-content ul { list-style: disc;    padding-left: 1.6rem; margin: 0.85rem 0; }
 .prose-content ol { list-style: decimal; padding-left: 1.6rem; margin: 0.85rem 0; }
 .prose-content li { margin: 0.4rem 0; line-height: 1.85; }
@@ -64,7 +70,7 @@ body {
   font-style: italic;
 }
 .prose-content hr  { border: none; border-top: 2px solid var(--color-warm-100); margin: 2rem 0; }
-.prose-content strong { font-weight: 700; color: var(--color-warm-800); }
+.prose-content strong { font-weight: 700; }
 .prose-content em     { font-style: italic; }
 .prose-content s      { text-decoration: line-through; }
 .prose-content a  { color: var(--color-brand-600); text-decoration: underline; text-underline-offset: 3px; }

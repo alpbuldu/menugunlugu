@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getBlogPostBySlug, getRandomRecipes, getRelatedBlogPosts } from "@/lib/supabase/queries";
+import { getBlogPostBySlug, getRelatedBlogPosts } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import ShareButton from "@/components/ui/ShareButton";
 import FollowButton from "@/components/ui/FollowButton";
-import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdBanner from "@/components/ui/AdBanner";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import BlogFavoriteButton from "@/components/blog/BlogFavoriteButton";
@@ -85,32 +84,8 @@ export default async function BlogPostPage({ params }: Props) {
     initialFollowing = !!data;
   }
 
-  // Öne çıkan tarifler (slider)
-  const [featured, relatedPosts] = await Promise.all([
-    getRandomRecipes(),
-    post.category_id ? getRelatedBlogPosts(post.category_id, post.slug, 3) : Promise.resolve([]),
-  ]);
-  const adminAuthor = { name: adminProfile?.username ?? "Menü Günlüğü", avatar: adminProfile?.avatar_url ?? "", username: "__admin__" };
-  const memberIds = [...new Set(featured.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
-  const profileMap: Record<string, { name: string; avatar: string; username: string }> = {};
-  if (memberIds.length) {
-    const { data: profiles } = await supabase.from("profiles").select("id, username, avatar_url").in("id", memberIds);
-    profiles?.forEach((p) => { profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "", username: p.username }; });
-  }
-
-  // Slider follow durumu
-  let sliderFollowsAdmin = false;
-  const sliderFollowMap: Record<string, boolean> = {};
-  if (currentUserId && featured.length > 0) {
-    const [adminFollowRes, memberFollowRes] = await Promise.all([
-      supabase.from("admin_follows").select("follower_id").eq("follower_id", currentUserId).maybeSingle(),
-      memberIds.length
-        ? supabase.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", memberIds)
-        : Promise.resolve({ data: [] }),
-    ]);
-    sliderFollowsAdmin = !!adminFollowRes.data;
-    (memberFollowRes.data ?? []).forEach((r: { following_id: string }) => { sliderFollowMap[r.following_id] = true; });
-  }
+  // Benzer blog yazıları
+  const relatedPosts = await (post.category_id ? getRelatedBlogPosts(post.category_id, post.slug, 3) : Promise.resolve([]));
 
   const blogJsonLd = {
     "@context": "https://schema.org",
@@ -274,27 +249,6 @@ export default async function BlogPostPage({ params }: Props) {
       {/* Yatay reklam banneri — masaüstü */}
       <AdBanner placement="blog_post_banner" imageHeight="h-[100px]" className="mt-4 hidden sm:block" />
 
-      {/* Öne Çıkan Tarifler slider */}
-      {featured.length > 0 && (
-        <div className="mt-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-warm-800">Öne Çıkan Tarifler</h2>
-            <Link href="/recipes" className="text-sm text-brand-600 hover:underline">
-              Tüm tarifleri gör →
-            </Link>
-          </div>
-          <RecipeSlider
-            recipes={featured}
-            adminAuthor={adminAuthor}
-            profileMap={profileMap}
-            compact
-            isLoggedIn={!!currentUserId}
-            followMap={sliderFollowMap}
-            followsAdmin={sliderFollowsAdmin}
-          />
-        </div>
-      )}
-
       {/* Benzer Yazılar */}
       {relatedPosts.length > 0 && (
         <div className="mt-10">
@@ -321,7 +275,8 @@ export default async function BlogPostPage({ params }: Props) {
                 </div>
                 <div className="p-3">
                   <p className="text-xs font-semibold text-warm-800 line-clamp-2 leading-snug">{p.title}</p>
-                  <p className="text-[11px] text-warm-400 mt-1">
+                  <p className="text-[11px] text-warm-400 mt-1">Yazar: {authorName}</p>
+                  <p className="text-[11px] text-warm-400">
                     {new Date(p.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long" })}
                   </p>
                 </div>

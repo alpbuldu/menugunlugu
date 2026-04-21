@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getRecipeBySlug, getRandomRecipes, getRelatedRecipes } from "@/lib/supabase/queries";
+import { getRecipeBySlug, getRelatedRecipes } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
@@ -10,7 +10,6 @@ import ShareButton from "@/components/ui/ShareButton";
 import RatingStars from "@/components/recipe/RatingStars";
 import FavoriteButton from "@/components/recipe/FavoriteButton";
 import FollowButton from "@/components/ui/FollowButton";
-import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdBanner from "@/components/ui/AdBanner";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import CommentSection from "@/components/recipe/CommentSection";
@@ -134,33 +133,19 @@ export default async function RecipeDetailPage({ params }: Props) {
     }
   }
 
-  // Öne çıkan tarifler (slider) + ilgili tarifler
-  const [featured, adminProfileForSlider, relatedRecipes] = await Promise.all([
-    getRandomRecipes(),
-    supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single(),
+  // İlgili tarifler + admin profili
+  const [relatedRecipes, adminProfileRes] = await Promise.all([
     getRelatedRecipes(recipe.category, recipe.slug, 4),
+    supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single(),
   ]);
-  const ap = adminProfileForSlider.data;
-  const adminAuthor = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "", username: "__admin__" };
-  const memberIds = [...new Set(featured.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
-  const profileMap: Record<string, { name: string; avatar: string; username: string }> = {};
-  if (memberIds.length) {
-    const { data: profiles } = await supabase.from("profiles").select("id, username, avatar_url").in("id", memberIds);
-    profiles?.forEach((p) => { profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "", username: p.username }; });
-  }
+  const adminDisplayName = adminProfileRes.data?.username ?? "Menü Günlüğü";
 
-  // Slider follow durumu
-  let sliderFollowsAdmin = false;
-  const sliderFollowMap: Record<string, boolean> = {};
-  if (currentUserId && featured.length > 0) {
-    const [adminFollowRes, memberFollowRes] = await Promise.all([
-      supabase.from("admin_follows").select("follower_id").eq("follower_id", currentUserId).maybeSingle(),
-      memberIds.length
-        ? supabase.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", memberIds)
-        : Promise.resolve({ data: [] }),
-    ]);
-    sliderFollowsAdmin = !!adminFollowRes.data;
-    (memberFollowRes.data ?? []).forEach((r: { following_id: string }) => { sliderFollowMap[r.following_id] = true; });
+  // İlgili tarifler için yazar profilleri
+  const relatedMemberIds = [...new Set(relatedRecipes.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
+  const relatedProfileMap: Record<string, string> = {};
+  if (relatedMemberIds.length) {
+    const { data: profiles } = await supabase.from("profiles").select("id, username").in("id", relatedMemberIds);
+    profiles?.forEach((p) => { relatedProfileMap[p.id] = p.username; });
   }
 
   // Malzemeler
@@ -382,10 +367,19 @@ export default async function RecipeDetailPage({ params }: Props) {
         />
       </div>
 
-      {/* Rating + Favorite */}
+      {/* Rating + Favorite + Share */}
       <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <RatingStars recipeId={recipe.id} />
-        <FavoriteButton recipeId={recipe.id} />
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <FavoriteButton recipeId={recipe.id} />
+          {/* Mobil: ikon, masaüstü: yazılı */}
+          <div className="sm:hidden">
+            <ShareButton title={recipe.title} compact />
+          </div>
+          <div className="hidden sm:block">
+            <ShareButton title={recipe.title} />
+          </div>
+        </div>
       </div>
 
       {/* Mobil reklam — yorumun üstünde */}
@@ -399,27 +393,6 @@ export default async function RecipeDetailPage({ params }: Props) {
       {/* Yatay reklam banneri — masaüstü */}
       <AdBanner placement="recipe_detail_banner" imageHeight="h-[100px]" className="mt-4 hidden sm:block" />
 
-      {/* Öne Çıkan Tarifler slider */}
-      {featured.length > 0 && (
-        <div className="mt-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-warm-800">Öne Çıkan Tarifler</h2>
-            <Link href="/recipes" className="text-sm text-brand-600 hover:underline">
-              Tüm tarifleri gör →
-            </Link>
-          </div>
-          <RecipeSlider
-            recipes={featured}
-            adminAuthor={adminAuthor}
-            profileMap={profileMap}
-            compact
-            isLoggedIn={!!currentUserId}
-            followMap={sliderFollowMap}
-            followsAdmin={sliderFollowsAdmin}
-          />
-        </div>
-      )}
-
       {/* İlgili Tarifler */}
       {relatedRecipes.length > 0 && (
         <div className="mt-10">
@@ -430,7 +403,9 @@ export default async function RecipeDetailPage({ params }: Props) {
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {relatedRecipes.map((r) => (
+            {relatedRecipes.map((r) => {
+              const rAuthor = r.submitted_by ? (relatedProfileMap[r.submitted_by] ?? adminDisplayName) : adminDisplayName;
+              return (
               <Link key={r.id} href={`/recipes/${r.slug}`}
                 className="group bg-white rounded-xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                 <div className="relative h-28 bg-warm-100">
@@ -444,9 +419,11 @@ export default async function RecipeDetailPage({ params }: Props) {
                 </div>
                 <div className="p-3">
                   <p className="text-xs font-semibold text-warm-800 line-clamp-2 leading-snug">{r.title}</p>
+                  <p className="text-[10px] text-warm-400 mt-1">Yazar: {rAuthor}</p>
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

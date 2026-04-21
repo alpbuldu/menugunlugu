@@ -145,7 +145,7 @@ export default async function RecipesPage({ searchParams }: Props) {
           <p className="text-lg">Bu kategoride henüz tarif yok.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {recipes.map((recipe) => {
             const a = getAuthor(recipe.submitted_by ?? null);
             const isAdmin = !recipe.submitted_by;
@@ -162,7 +162,7 @@ export default async function RecipesPage({ searchParams }: Props) {
                         src={recipe.image_url}
                         alt={recipe.title}
                         fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        sizes="(max-width: 640px) 50vw, 33vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (

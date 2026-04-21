@@ -39,6 +39,9 @@ const PLACEMENT_LABELS: Record<string, string> = {
   blog_post_banner:              "Blog Yazısı — Yatay Banner (Masaüstü)",
   blog_post_banner_mobile:       "Blog Yazısı — Yatay Banner (Mobil)",
   sidebar_blog_post:             "Blog Yazısı — Dikey Kenar (Masaüstü)",
+  // ── Menü Oluştur ───────────────────────────────────────
+  sidebar_menu_olustur:          "Menü Oluştur — Dikey Kenar (Masaüstü)",
+  menu_olustur_banner_mobile:    "Menü Oluştur — Yatay Banner (Mobil)",
 };
 
 const PLACEMENT_SIZES: Record<string, string> = {
@@ -61,6 +64,8 @@ const PLACEMENT_SIZES: Record<string, string> = {
   blog_post_banner:              "700 × 100 px yatay",
   blog_post_banner_mobile:       "390 × 70 px dar yatay (mobil genişlik)",
   sidebar_blog_post:             "200 × 600 px dikey",
+  sidebar_menu_olustur:          "200 × 600 px dikey",
+  menu_olustur_banner_mobile:    "390 × 70 px dar yatay (mobil genişlik)",
 };
 
 const PLACEMENTS = Object.keys(PLACEMENT_LABELS);

@@ -19,7 +19,9 @@ export type AdPlacement =
   | "sidebar_recipes"
   | "sidebar_recipe_detail"
   | "sidebar_blog"
-  | "sidebar_blog_post";
+  | "sidebar_blog_post"
+  | "sidebar_menu_olustur"
+  | "menu_olustur_banner_mobile";
 
 interface Props {
   placement: AdPlacement;

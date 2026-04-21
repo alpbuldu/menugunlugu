@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
 import MenuBuilder from "./MenuBuilder";
+import SidebarLayout from "@/components/ui/SidebarLayout";
+import AdBanner from "@/components/ui/AdBanner";
 
 export const metadata: Metadata = {
   title: "Menü Oluştur",
@@ -60,14 +62,18 @@ export default async function MenuOlusturPage() {
   };
 
   return (
-    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-10">
-      <div className="mb-4 sm:mb-8">
-        <h1 className="text-3xl font-bold text-warm-900 mb-1 sm:mb-2">Menü Oluştur</h1>
-        <p className="text-warm-500 text-sm">
-          Her kategoriden bir yemek seç ve günün menüsünü oluştur. PDF tarif kartı olarak ya da sosyal medyada paylaşmak için post veya story formatında indir.
-        </p>
-      </div>
+    <SidebarLayout placement="sidebar_menu_olustur">
+    <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+      <h1 className="text-3xl font-bold text-warm-900 mb-1">Menü Oluştur</h1>
+      <p className="text-sm sm:text-base text-warm-500 mb-4">
+        Her kategoriden bir yemek seç ve günün menüsünü oluştur. PDF veya sosyal medya formatında indir.
+      </p>
+
+      {/* Mobil yatay banner */}
+      <AdBanner placement="menu_olustur_banner_mobile" imageHeight="h-[70px]" className="sm:hidden mb-4" />
+
       <MenuBuilder grouped={grouped} />
     </div>
+    </SidebarLayout>
   );
 }

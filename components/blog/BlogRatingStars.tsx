@@ -46,33 +46,33 @@ export default function BlogRatingStars({ postId }: Props) {
   const display = hover || userScore || 0;
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-0.5">
-          {[1, 2, 3, 4, 5].map((star) => (
-            <button
-              key={star}
-              type="button"
-              disabled={saving}
-              onClick={() => handleRate(star)}
-              onMouseEnter={() => setHover(star)}
-              onMouseLeave={() => setHover(0)}
-              className="text-2xl leading-none transition-transform hover:scale-110 disabled:cursor-not-allowed"
-              title={`${star} yıldız`}
-            >
-              <span className={star <= (display || avg) ? "text-yellow-400" : "text-warm-200"}>★</span>
-            </button>
-          ))}
-        </div>
-        <div className="text-sm text-warm-500">
-          {count > 0 && (
-            <span><strong className="text-warm-800">{avg.toFixed(1)}</strong> ({count} değerlendirme)</span>
-          )}
-        </div>
+    <div className="flex flex-col gap-1">
+      {/* Stars */}
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            disabled={saving}
+            onClick={() => handleRate(star)}
+            onMouseEnter={() => setHover(star)}
+            onMouseLeave={() => setHover(0)}
+            className="text-2xl leading-none transition-transform hover:scale-110 disabled:cursor-not-allowed"
+            title={`${star} yıldız`}
+          >
+            <span className={star <= (display || avg) ? "text-yellow-400" : "text-warm-200"}>★</span>
+          </button>
+        ))}
       </div>
+      {/* Score below stars */}
+      {count > 0 && (
+        <p className="text-xs text-warm-500">
+          <strong className="text-warm-800">{avg.toFixed(1)}</strong> ({count} değerlendirme)
+        </p>
+      )}
       {message && <p className="text-xs text-brand-600">{message}</p>}
       {!userScore && !message && (
-        <p className="text-xs text-warm-400">Bu yazıyı puanlamak için bir yıldıza tıklayın</p>
+        <p className="text-xs text-warm-400">Puanlamak için bir yıldıza tıklayın</p>
       )}
     </div>
   );

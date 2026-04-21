@@ -63,16 +63,18 @@ export default async function BlogPostPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
 
-  const [adminProfileRes, postCountRes] = await Promise.all([
+  const [adminProfileRes, postCountRes, followerCountRes] = await Promise.all([
     supabase.from("admin_profile").select("username, avatar_url, full_name").eq("id", 1).single(),
     supabase.from("blog_posts").select("*", { count: "exact", head: true }).eq("published", true),
+    supabase.from("admin_follows").select("follower_id", { count: "exact", head: true }),
   ]);
   const adminProfile    = adminProfileRes.data;
   const authorFullName  = (adminProfile as any)?.full_name ?? "";
   const authorHandle    = adminProfile?.username ?? "hikayeliyemekler";
   const authorName      = authorHandle;
   const authorAvatar    = adminProfile?.avatar_url ?? "";
-  const authorPostCount = postCountRes.count ?? 0;
+  const authorPostCount     = postCountRes.count ?? 0;
+  const authorFollowerCount = followerCountRes.count ?? 0;
   const authorUsername  = "__admin__";
 
   // Takip durumu (admin)
@@ -222,7 +224,8 @@ export default async function BlogPostPage({ params }: Props) {
             <p className="text-[11px] text-warm-400">Bu yazının sahibi</p>
             <p className="font-semibold text-warm-900 text-sm group-hover:text-brand-700 transition-colors leading-tight">{authorName}</p>
             {authorFullName && <p className="text-[11px] text-warm-400">@{authorHandle}</p>}
-            <p className="text-[11px] text-warm-400 mt-0.5">{authorPostCount} yazı · Yazıları gör →</p>
+            <p className="text-[11px] text-warm-400 mt-0.5">{authorPostCount} yazı · {authorFollowerCount} takipçi</p>
+            <p className="text-[11px] text-brand-500 group-hover:underline">Tüm yazıları gör →</p>
           </div>
         </Link>
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -235,7 +238,7 @@ export default async function BlogPostPage({ params }: Props) {
       </div>
 
       {/* Puanlama + Deftere Ekle */}
-      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex items-center justify-between gap-4">
         <BlogRatingStars postId={post.id} />
         <BlogFavoriteButton postId={post.id} />
       </div>

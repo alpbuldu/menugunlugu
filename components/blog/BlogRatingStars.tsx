@@ -35,7 +35,7 @@ export default function BlogRatingStars({ postId }: Props) {
       return;
     }
     setUserScore(score);
-    setMessage("Puanınız kaydedildi ✓");
+    setMessage("Puanınız kaydedildi ✓.");
     fetch(`/api/blog/${postId}/ratings`)
       .then((r) => r.json())
       .then((d) => { setAvg(d.avg); setCount(d.count); });
@@ -72,7 +72,7 @@ export default function BlogRatingStars({ postId }: Props) {
       )}
       {message && <p className="text-xs text-brand-600">{message}</p>}
       {!userScore && !message && (
-        <p className="text-xs text-warm-400">Puanlamak için bir yıldıza tıklayın</p>
+        <p className="text-xs text-warm-400">Bu yazıyı puanlamak için bir yıldıza tıklayın.</p>
       )}
     </div>
   );

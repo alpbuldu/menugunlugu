@@ -36,7 +36,7 @@ export default function RatingStars({ recipeId }: Props) {
     }
     setUserScore(score);
     // Optimistically update avg
-    setMessage("Puanınız kaydedildi ✓");
+    setMessage("Puanınız kaydedildi ✓.");
     // Re-fetch for accurate avg
     fetch(`/api/recipes/${recipeId}/ratings`)
       .then((r) => r.json())
@@ -81,7 +81,7 @@ export default function RatingStars({ recipeId }: Props) {
         <p className="text-xs text-brand-600">{message}</p>
       )}
       {!userScore && !message && (
-        <p className="text-xs text-warm-400">Puanlamak için bir yıldıza tıklayın</p>
+        <p className="text-xs text-warm-400">Bu tarifi puanlamak için bir yıldıza tıklayın.</p>
       )}
     </div>
   );

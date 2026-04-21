@@ -180,10 +180,14 @@ export default function RecipeSlider({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hovered, pageIdx]);
 
-  /* ── Stream oluştur: [r, r, ad, r, r, ad, ...] ─────────────── */
+  /* ── Stream oluştur ─────────────────────────────────────────── */
+  // Mobil: [r, r, ad, r, r, ad, ...] interleaved
+  // Masaüstü: sadece tarifler — reklam render sırasında ortaya eklenir
+  const isMobile = perPage === 1;
   const filledRecipes = fillRecipes(recipes, 6);
-  const baseStream = buildBaseStream(filledRecipes, sponsoredAd);
-  // En az 3 sayfalık (prev/current/next) veri olsun
+  const baseStream = (isMobile && sponsoredAd)
+    ? buildBaseStream(filledRecipes, sponsoredAd)
+    : filledRecipes.map((r) => ({ kind: "recipe" as const, recipe: r }));
   const stream = fillStream(baseStream, perPage * 3);
 
   const totalPages = Math.ceil(stream.length / perPage);
@@ -230,7 +234,6 @@ export default function RecipeSlider({
   if (!stream.length) return null;
 
   const panels = [getPage(prevIdx), getPage(pageIdx), getPage(nextIdx)];
-  const isMobile = perPage === 1;
   const panelGrid = isMobile ? "grid-cols-1" : "grid-cols-3";
   const useOverlay = compact || isMobile;
   const imgClass = compact ? (isMobile ? "h-44" : "h-32") : "h-48";
@@ -256,15 +259,19 @@ export default function RecipeSlider({
             <div key={pi} className={`shrink-0 w-full grid ${panelGrid} gap-4`}>
               {panel.map((item, ri) => {
 
-                /* ── Sponsorlu kart ─────────────────────────────── */
+                /* ── Masaüstü: orta slota (index 1) sabit reklam ── */
+                if (sponsoredAd && !isMobile && ri === 1) {
+                  return (
+                    <div key={`sponsored-${pi}`} className="h-full">
+                      <SponsoredCard ad={sponsoredAd} />
+                    </div>
+                  );
+                }
+
+                /* ── Mobil stream: reklam öğesi ─────────────────── */
                 if (item.kind === "ad") {
                   return (
-                    <div
-                      key={`ad-${pi}-${ri}`}
-                      // Mobilde tarif kartıyla aynı toplam yükseklik (~288px),
-                      // masaüstünde h-full ile komşu kartlara eşitlenir.
-                      className={isMobile ? "h-72" : "h-full"}
-                    >
+                    <div key={`ad-${pi}-${ri}`} className="h-72">
                       <SponsoredCard ad={item.ad} />
                     </div>
                   );

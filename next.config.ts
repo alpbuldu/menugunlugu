@@ -19,11 +19,19 @@ const nextConfig: NextConfig = {
         destination: "/blog/kategori/:kategori",
         permanent: true,
       },
-      // Tarifler: eski ?category=soup/main/side/dessert → Türkçe slug
-      { source: "/recipes", has: [{ type: "query", key: "category", value: "soup"    }], destination: "/recipes/kategori/corbalar",           permanent: true },
-      { source: "/recipes", has: [{ type: "query", key: "category", value: "main"    }], destination: "/recipes/kategori/ana-yemekler",       permanent: true },
-      { source: "/recipes", has: [{ type: "query", key: "category", value: "side"    }], destination: "/recipes/kategori/yardimci-lezzetler", permanent: true },
-      { source: "/recipes", has: [{ type: "query", key: "category", value: "dessert" }], destination: "/recipes/kategori/tatlilar",           permanent: true },
+      // Tarifler liste → /tarifler
+      { source: "/recipes", destination: "/tarifler", permanent: true },
+      // Tarifler kategori eski → yeni
+      { source: "/recipes/kategori/corbalar",           destination: "/tarifler/kategori/corbalar",           permanent: true },
+      { source: "/recipes/kategori/ana-yemekler",       destination: "/tarifler/kategori/ana-yemekler",       permanent: true },
+      { source: "/recipes/kategori/yardimci-lezzetler", destination: "/tarifler/kategori/yardimci-lezzetler", permanent: true },
+      { source: "/recipes/kategori/tatlilar",           destination: "/tarifler/kategori/tatlilar",           permanent: true },
+      // Tarif detay eski slug
+      { source: "/recipes/:slug", destination: "/tarifler/:slug", permanent: true },
+      // Archive → Dünün Menüsü
+      { source: "/archive", destination: "/dunun-menusu", permanent: true },
+      // Menu → Günün Menüsü
+      { source: "/menu", destination: "/gunun-menusu", permanent: true },
     ];
   },
 };

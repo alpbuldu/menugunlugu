@@ -68,13 +68,13 @@ export default function Footer() {
               Sayfalar
             </h3>
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-warm-300">
-              <Link href="/recipes" className="hover:text-white transition-colors">Tarifler</Link>
+              <Link href="/tarifler" className="hover:text-white transition-colors">Tarifler</Link>
               <Link href="/blog" className="hover:text-white transition-colors">Blog</Link>
               <Link href="/menu-olustur" className="hover:text-white transition-colors">Menü Oluştur</Link>
               <Link href="/iletisim" className="hover:text-white transition-colors">İletişim</Link>
-              <Link href="/archive" className="hover:text-white transition-colors">Dünün Menüsü</Link>
+              <Link href="/dunun-menusu" className="hover:text-white transition-colors">Dünün Menüsü</Link>
               <Link href="/uye/panel" className="hover:text-white transition-colors">Hesabım</Link>
-              <Link href="/menu" className="hover:text-white transition-colors">Günün Menüsü</Link>
+              <Link href="/gunun-menusu" className="hover:text-white transition-colors">Günün Menüsü</Link>
               <Link href="/hakkimizda" className="hover:text-white transition-colors">Hakkımızda</Link>
             </div>
           </div>
@@ -86,22 +86,22 @@ export default function Footer() {
             </h3>
             <ul className="space-y-2 text-sm text-warm-300">
               <li>
-                <Link href="/recipes?category=soup" className="hover:text-white transition-colors">
+                <Link href="/tarifler/kategori/corbalar" className="hover:text-white transition-colors">
                   Çorbalar
                 </Link>
               </li>
               <li>
-                <Link href="/recipes?category=main" className="hover:text-white transition-colors">
+                <Link href="/tarifler/kategori/ana-yemekler" className="hover:text-white transition-colors">
                   Ana Yemekler
                 </Link>
               </li>
               <li>
-                <Link href="/recipes?category=side" className="hover:text-white transition-colors">
+                <Link href="/tarifler/kategori/yardimci-lezzetler" className="hover:text-white transition-colors">
                   Yardımcı Lezzetler
                 </Link>
               </li>
               <li>
-                <Link href="/recipes?category=dessert" className="hover:text-white transition-colors">
+                <Link href="/tarifler/kategori/tatlilar" className="hover:text-white transition-colors">
                   Tatlılar
                 </Link>
               </li>

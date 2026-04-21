@@ -44,7 +44,7 @@ export default function HakkimizdaPage() {
       </div>
 
       <div className="mt-12 pt-8 border-t border-warm-200 flex flex-col sm:flex-row gap-4">
-        <Link href="/menu"
+        <Link href="/gunun-menusu"
           className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white rounded-xl font-medium transition-colors">
           🍽️ Günün Menüsünü Gör
         </Link>

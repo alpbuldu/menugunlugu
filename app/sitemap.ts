@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
 
   const recipes = (recipesRes.data ?? []).map((r) => ({
-    url: `${BASE}/recipes/${r.slug}`,
+    url: `${BASE}/tarifler/${r.slug}`,
     lastModified: toW3CDate(r.updated_at),
     changeFrequency: "weekly" as const,
     priority: 0.8,
@@ -48,9 +48,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString();
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE,               lastModified: now, changeFrequency: "daily",   priority: 1.0 },
-    { url: `${BASE}/blog`,     lastModified: now, changeFrequency: "daily",   priority: 0.9 },
-    { url: `${BASE}/recipes`,  lastModified: now, changeFrequency: "daily",   priority: 0.9 },
-    { url: `${BASE}/archive`,  lastModified: now, changeFrequency: "daily",   priority: 0.7 },
+    { url: `${BASE}/gunun-menusu`, lastModified: now, changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/dunun-menusu`, lastModified: now, changeFrequency: "daily",   priority: 0.8 },
+    { url: `${BASE}/blog`,         lastModified: now, changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/tarifler`,     lastModified: now, changeFrequency: "daily",   priority: 0.9 },
   ];
 
   return [...staticPages, ...recipes, ...blogPosts, ...memberPosts];

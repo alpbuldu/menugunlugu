@@ -97,13 +97,13 @@ export default async function HomePage() {
           </p>
           {/* Mobile: 2×2 grid */}
           <div className="grid sm:hidden grid-cols-2 gap-2.5 max-w-xs mx-auto">
-            <Link href="/menu" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+            <Link href="/gunun-menusu" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
               🍽️ Bugünün Menüsü
             </Link>
-            <Link href="/archive" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+            <Link href="/dunun-menusu" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
               📅 Dünün Menüsü
             </Link>
-            <Link href="/recipes" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+            <Link href="/tarifler" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
               🥘 Tariflere Göz At
             </Link>
             <Link href="/menu-olustur" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
@@ -112,13 +112,13 @@ export default async function HomePage() {
           </div>
           {/* Desktop: all 4 in a single row */}
           <div className="hidden sm:flex flex-row gap-3 justify-center">
-            <Link href="/menu" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+            <Link href="/gunun-menusu" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               🍽️ Bugünün Menüsü
             </Link>
-            <Link href="/archive" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+            <Link href="/dunun-menusu" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               📅 Dünün Menüsü
             </Link>
-            <Link href="/recipes" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+            <Link href="/tarifler" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               🥘 Tariflere Göz At
             </Link>
             <Link href="/menu-olustur" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
@@ -157,7 +157,7 @@ export default async function HomePage() {
         <div className={CONTAINER}>
           <div className="flex items-center justify-between mb-4 sm:mb-6">
             <h2 className="text-xl sm:text-2xl font-bold text-warm-900">Öne Çıkan Tarifler</h2>
-            <Link href="/recipes" className="text-brand-600 hover:text-brand-700 font-medium text-sm">
+            <Link href="/tarifler" className="text-brand-600 hover:text-brand-700 font-medium text-sm">
               Tümünü gör →
             </Link>
           </div>

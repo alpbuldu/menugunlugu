@@ -14,7 +14,30 @@
       "Bash(kill 77171)",
       "Bash(find /Users/hikayeliyemekler/menugunlugu/components/admin -name BlogPostForm*)",
       "Bash(npx tsc:*)",
-      "Bash(npm list:*)"
+      "Bash(npm list:*)",
+      "Bash(curl -sL \"https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf\" -o /Users/hikayeliyemekler/menugunlugu/public/fonts/Roboto-Regular.ttf)",
+      "Bash(curl -sL \"https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Bold.ttf\" -o /Users/hikayeliyemekler/menugunlugu/public/fonts/Roboto-Bold.ttf)",
+      "Bash(curl -sL \"https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf\" -o /Users/hikayeliyemekler/menugunlugu/public/fonts/Roboto-Medium.ttf)",
+      "Bash(curl -sL \"https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmWUlfBBc9.ttf\" -o /Users/hikayeliyemekler/menugunlugu/public/fonts/Roboto-Bold.ttf)",
+      "Bash(file /Users/hikayeliyemekler/menugunlugu/public/fonts/*.ttf)",
+      "Bash(curl -sL \"https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Bold.ttf\" -o /Users/hikayeliyemekler/menugunlugu/public/fonts/Roboto-Bold.ttf)",
+      "WebFetch(domain:www.menugunlugu.com)",
+      "Bash(grep -n \"max-w-\\\\|px-\\\\|py-\\\\|mb-\\\\|h1\" /Users/hikayeliyemekler/menugunlugu/app/blog/[slug]/page.tsx)",
+      "Bash(sed -i '' 's/py-6 sm:py-12/py-10 sm:py-12/g' /Users/hikayeliyemekler/menugunlugu/app/menu/page.tsx /Users/hikayeliyemekler/menugunlugu/app/archive/page.tsx /Users/hikayeliyemekler/menugunlugu/app/recipes/page.tsx /Users/hikayeliyemekler/menugunlugu/app/blog/page.tsx '/Users/hikayeliyemekler/menugunlugu/app/blog/[slug]/page.tsx')",
+      "Bash(sed -i '' 's/py-6 sm:py-10/py-10 sm:py-10/g' /Users/hikayeliyemekler/menugunlugu/app/menu-olustur/page.tsx)",
+      "Bash(node -e ':*)",
+      "Bash(curl -s 'https://sgisjvvfhwzvhtumrrnk.supabase.co/rest/v1/ads?select=id,placement,is_active,title' -H 'apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnaXNqdnZmaHd6dmh0dW1ycm5rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTIzMDcxMSwiZXhwIjoyMDkwODA2NzExfQ.WMnBMmW7uZaxauH2sMaJlyC4ZNMVAaunm664zv53DaU' -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNnaXNqdnZmaHd6dmh0dW1ycm5rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTIzMDcxMSwiZXhwIjoyMDkwODA2NzExfQ.WMnBMmW7uZaxauH2sMaJlyC4ZNMVAaunm664zv53DaU')",
+      "Bash(npm i *)",
+      "Bash(cp -r app/recipes app/tarifler)",
+      "Bash(cp -r app/archive app/dunun-menusu)",
+      "Bash(cp -r app/menu app/gunun-menusu)",
+      "Bash(sed -i '' 's|href=\"/recipes|href=\"/tarifler|g; s|href={`/recipes|href={`/tarifler|g; s|/recipes/${|/tarifler/${|g; s|/recipes/\\\\${|/tarifler/\\\\${|g; s|canonical: \"/recipes|canonical: \"/tarifler|g; s|menugunlugu.com/recipes/|menugunlugu.com/tarifler/|g; s|menugunlugu.com/recipes\"|menugunlugu.com/tarifler\"|g' app/tarifler/page.tsx app/tarifler/[slug]/page.tsx app/tarifler/kategori/[slug]/page.tsx)",
+      "Bash(sed -i '' 's|href=\"/archive|href=\"/dunun-menusu|g; s|canonical: \"/archive|canonical: \"/dunun-menusu|g' app/dunun-menusu/page.tsx)",
+      "Bash(sed -i '' 's|href=\"/recipes|href=\"/tarifler|g; s|href={`/recipes|href={`/tarifler|g' \"app/tarifler/[slug]/page.tsx\")",
+      "Bash(sed -i '' 's|/recipes/${|/tarifler/${|g; s|/recipes/\\\\${|/tarifler/\\\\${|g' \"app/tarifler/[slug]/page.tsx\")",
+      "Bash(sed -i '' 's|canonical: \"/recipes|canonical: \"/tarifler|g' \"app/tarifler/[slug]/page.tsx\")",
+      "Bash(sed -i '' 's|menugunlugu.com/recipes/|menugunlugu.com/tarifler/|g' \"app/tarifler/[slug]/page.tsx\")",
+      "Bash(sed -i '' 's|href=\"/recipes|href=\"/tarifler|g' \"app/tarifler/kategori/[slug]/page.tsx\")"
     ]
   }
 }

@@ -74,6 +74,7 @@ export interface BlogPost {
   image_url: string | null;
   category_id: string | null;
   published: boolean;
+  is_featured: boolean;
   seo_title: string | null;
   seo_keywords: string | null;
   created_at: string;

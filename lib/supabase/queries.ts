@@ -235,7 +235,7 @@ export async function getBlogCategories(): Promise<BlogCategory[]> {
   } catch { return []; }
 }
 
-const BLOG_POST_SELECT = "id, title, slug, excerpt, content, image_url, category_id, published, seo_title, seo_keywords, created_at, updated_at, category:category_id(id, name, slug, created_at)";
+const BLOG_POST_SELECT = "id, title, slug, excerpt, content, image_url, category_id, published, is_featured, seo_title, seo_keywords, created_at, updated_at, category:category_id(id, name, slug, created_at)";
 
 export async function getBlogPosts(categorySlug?: string): Promise<BlogPost[]> {
   if (!isSupabaseConfigured()) return [];

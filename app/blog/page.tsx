@@ -35,6 +35,7 @@ interface UnifiedPost {
   authorUsername: string;
   authorId: string | null;   // null = admin
   isAdminAuthor: boolean;
+  isFeatured: boolean;
 }
 
 export default async function BlogPage({ searchParams }: Props) {
@@ -85,6 +86,7 @@ export default async function BlogPage({ searchParams }: Props) {
     authorUsername: "__admin__",
     authorId:     null,
     isAdminAuthor: true,
+    isFeatured:   p.is_featured ?? false,
   }));
 
   // Üye yazılarını birleştir (kategori filtresi varsa uygula)
@@ -112,6 +114,7 @@ export default async function BlogPage({ searchParams }: Props) {
         authorUsername: profile?.username ?? "Üye",
         authorId:     p.submitted_by as string,
         isAdminAuthor: false,
+        isFeatured:   false,
       };
     });
 
@@ -202,6 +205,89 @@ export default async function BlogPage({ searchParams }: Props) {
       <AdBanner placement="blog_banner" imageHeight="h-[100px]" className="hidden sm:block mb-8" />
       {/* Yatay reklam banneri — mobil */}
       <AdBanner placement="blog_banner_mobile" imageHeight="h-[70px]" className="sm:hidden mb-4" />
+
+      {/* ── Seçtiklerimiz bölümü (sadece kategori filtresi yokken göster) ── */}
+      {!kategori && (() => {
+        const featured = allPosts.filter(p => p.isFeatured);
+        if (!featured.length) return null;
+        return (
+          <div className="mb-10">
+            <h2 className="text-lg sm:text-xl font-bold text-brand-600 mb-4 flex items-center gap-2">
+              <span className="text-brand-400">⭐</span> Seçtiklerimiz
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featured.map((post) => {
+                const initialFollowing = post.isAdminAuthor
+                  ? followsAdmin
+                  : post.authorId ? followedMemberIds.has(post.authorId) : false;
+                return (
+                  <div key={`f-${post.id}`}
+                    className="flex flex-col bg-white rounded-2xl border border-brand-200 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-400 transition-all group">
+                    <Link href={post.href} className="flex flex-col flex-1">
+                      <div className="relative h-48 bg-warm-100 shrink-0">
+                        {post.image_url ? (
+                          <Image src={post.image_url} alt={post.title} fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <div className="flex items-center justify-center h-full text-5xl text-warm-300">✍️</div>
+                        )}
+                        <span className="absolute top-2 left-2 text-[10px] font-semibold bg-brand-600/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm">
+                          ⭐ Seçtiklerimiz
+                        </span>
+                      </div>
+                      <div className="p-5 flex flex-col flex-1">
+                        {post.categoryName && (
+                          <span className="inline-block self-start w-fit mb-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-100 text-brand-700">
+                            {post.categoryName}
+                          </span>
+                        )}
+                        <h3 className="text-base font-semibold text-brand-700 group-hover:text-brand-800 transition-colors line-clamp-2">
+                          {post.title}
+                        </h3>
+                        {post.excerpt && (
+                          <p className="text-sm text-warm-400 mt-1.5 line-clamp-2 leading-relaxed">
+                            {post.excerpt}
+                          </p>
+                        )}
+                        <p className="text-xs text-warm-300 mt-auto pt-3 flex-shrink-0">
+                          {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })}
+                        </p>
+                      </div>
+                    </Link>
+                    <div className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-brand-100">
+                      <Link href={`/uye/${post.authorUsername}`} className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+                        {post.authorAvatar ? (
+                          <img src={post.authorAvatar} alt={post.authorName} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                        ) : (
+                          <span className="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-[9px] font-bold text-brand-600 flex-shrink-0">
+                            {post.authorName.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
+                          <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{post.authorName}</span>
+                        </div>
+                      </Link>
+                      <FollowButton
+                        targetUserId={post.isAdminAuthor ? undefined : post.authorId ?? undefined}
+                        isAdminProfile={post.isAdminAuthor}
+                        initialFollowing={initialFollowing}
+                        isLoggedIn={!!currentUserId}
+                        size="xs"
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Tüm Yazılar başlığı — seçtiklerimiz varsa göster */}
+      {!kategori && allPosts.some(p => p.isFeatured) && posts.length > 0 && (
+        <h2 className="text-lg sm:text-xl font-bold text-warm-800 mb-4">Tüm Yazılar</h2>
+      )}
 
       {/* Yazı ızgarası */}
       {posts.length === 0 ? (

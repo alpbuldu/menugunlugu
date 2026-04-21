@@ -112,7 +112,7 @@ export async function adminGetAllBlogPosts(): Promise<BlogPost[]> {
     const supabase = createAdminClient();
     const { data, error } = await supabase
       .from("blog_posts")
-      .select("id, title, slug, excerpt, content, image_url, category_id, published, seo_title, seo_keywords, created_at, category:category_id(id, name, slug, created_at)")
+      .select("id, title, slug, excerpt, content, image_url, category_id, published, is_featured, seo_title, seo_keywords, created_at, category:category_id(id, name, slug, created_at)")
       .order("created_at", { ascending: false });
     if (error) { console.error("[adminGetAllBlogPosts]", error.message); return []; }
     return (data ?? []) as unknown as BlogPost[];
@@ -125,7 +125,7 @@ export async function adminGetBlogPostById(id: string): Promise<BlogPost | null>
     const supabase = createAdminClient();
     const { data, error } = await supabase
       .from("blog_posts")
-      .select("id, title, slug, excerpt, content, image_url, category_id, published, seo_title, seo_keywords, created_at, category:category_id(id, name, slug, created_at)")
+      .select("id, title, slug, excerpt, content, image_url, category_id, published, is_featured, seo_title, seo_keywords, created_at, category:category_id(id, name, slug, created_at)")
       .eq("id", id)
       .single();
     if (error) { console.error("[adminGetBlogPostById]", error.message); return null; }

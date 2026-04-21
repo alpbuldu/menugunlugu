@@ -37,6 +37,7 @@ export default function BlogPostForm({ categories, post, apiEndpoint }: Props) {
   const [imageUrl,    setImageUrl]    = useState(post?.image_url ?? "");
   const [categoryId,  setCategoryId]  = useState(post?.category_id ?? "");
   const [published,   setPublished]   = useState(post?.published ?? true);
+  const [isFeatured,  setIsFeatured]  = useState(post?.is_featured ?? false);
   const [seoTitle,    setSeoTitle]    = useState(post?.seo_title ?? "");
   const [seoKeywords, setSeoKeywords] = useState(post?.seo_keywords ?? "");
   const [slugEdited,  setSlugEdited]  = useState(isEdit);
@@ -84,6 +85,7 @@ export default function BlogPostForm({ categories, post, apiEndpoint }: Props) {
         published,
         seo_title:    seoTitle.trim() || null,
         seo_keywords: seoKeywords.trim() || null,
+        is_featured:  isFeatured,
       };
       const defaultEndpoint = isEdit ? `/api/blog/posts/${post!.id}` : "/api/blog/posts";
       const res  = await fetch(
@@ -160,22 +162,40 @@ export default function BlogPostForm({ categories, post, apiEndpoint }: Props) {
         <p className="text-xs text-warm-400 mt-1 text-right">{excerpt.length}/160</p>
       </div>
 
-      {/* Yayın durumu */}
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          role="switch"
-          aria-checked={published}
-          onClick={() => setPublished(v => !v)}
-          className={["relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none",
-            published ? "bg-brand-600" : "bg-warm-300"].join(" ")}
-        >
-          <span className={["inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform",
-            published ? "translate-x-6" : "translate-x-1"].join(" ")} />
-        </button>
-        <span className="text-sm font-medium text-warm-700">
-          {published ? "Yayınlı" : "Taslak"}
-        </span>
+      {/* Yayın durumu + Öne çıkar */}
+      <div className="flex items-center gap-6 flex-wrap">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={published}
+            onClick={() => setPublished(v => !v)}
+            className={["relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none",
+              published ? "bg-brand-600" : "bg-warm-300"].join(" ")}
+          >
+            <span className={["inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform",
+              published ? "translate-x-6" : "translate-x-1"].join(" ")} />
+          </button>
+          <span className="text-sm font-medium text-warm-700">
+            {published ? "Yayınlı" : "Taslak"}
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isFeatured}
+            onClick={() => setIsFeatured(v => !v)}
+            className={["relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none",
+              isFeatured ? "bg-amber-500" : "bg-warm-300"].join(" ")}
+          >
+            <span className={["inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform",
+              isFeatured ? "translate-x-6" : "translate-x-1"].join(" ")} />
+          </button>
+          <span className="text-sm font-medium text-warm-700">
+            {isFeatured ? "⭐ Seçtiklerimizde" : "Seçtiklerimize ekle"}
+          </span>
+        </div>
       </div>
 
       {/* Kapak Görseli */}

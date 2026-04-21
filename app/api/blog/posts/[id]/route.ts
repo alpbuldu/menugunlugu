@@ -33,7 +33,7 @@ export async function PUT(request: NextRequest, { params }: Ctx) {
   try {
     const { id } = await params;
     const body = await request.json();
-    const { title, slug: rawSlug, excerpt, content, image_url, category_id, published, seo_title, seo_keywords } = body;
+    const { title, slug: rawSlug, excerpt, content, image_url, category_id, published, is_featured, seo_title, seo_keywords } = body;
 
     if (!title?.trim() || !content?.trim()) {
       return NextResponse.json({ error: "Başlık ve içerik zorunlu" }, { status: 400 });
@@ -59,6 +59,7 @@ export async function PUT(request: NextRequest, { params }: Ctx) {
         image_url:    image_url ?? null,
         category_id:  category_id || null,
         published:    published ?? true,
+        is_featured:  is_featured ?? false,
         seo_title:    seo_title?.trim() || null,
         seo_keywords: seo_keywords?.trim() || null,
         updated_at:   new Date().toISOString(),

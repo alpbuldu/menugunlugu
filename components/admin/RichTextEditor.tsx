@@ -219,18 +219,33 @@ export default function RichTextEditor({
           float: left;
           height: 0;
         }
-        .tiptap-editor h2 { font-size: 1.35rem; font-weight: 700; margin: 1rem 0 0.4rem; color: #2d2926; }
-        .tiptap-editor h3 { font-size: 1.1rem;  font-weight: 700; margin: 0.9rem 0 0.35rem; color: #2d2926; }
-        .tiptap-editor h4 { font-size: 0.95rem; font-weight: 700; margin: 0.7rem 0 0.3rem;  color: #2d2926; }
-        .tiptap-editor p  { margin: 0.4rem 0; line-height: 1.75; }
-        .tiptap-editor ul { list-style: disc;    padding-left: 1.4rem; margin: 0.5rem 0; }
-        .tiptap-editor ol { list-style: decimal; padding-left: 1.4rem; margin: 0.5rem 0; }
-        .tiptap-editor li { margin: 0.2rem 0; }
-        .tiptap-editor blockquote { border-left: 3px solid #d4c9be; padding-left: 1rem; color: #7a6f68; margin: 0.75rem 0; font-style: italic; }
-        .tiptap-editor hr { display: none; }
+        .tiptap-editor h2 {
+          font-size: 1.4rem; font-weight: 700;
+          margin: 1.4rem 0 0.5rem;
+          color: #924c12;
+          padding-bottom: 0.3rem;
+          border-bottom: 2px solid #faefd8;
+        }
+        .tiptap-editor h3 { font-size: 1.15rem; font-weight: 700; margin: 1.1rem 0 0.4rem; color: #b86515; }
+        .tiptap-editor h4 { font-size: 1rem;    font-weight: 700; margin: 0.9rem 0 0.35rem; color: #b86515; }
+        .tiptap-editor p  { margin: 0.65rem 0; line-height: 1.85; }
+        .tiptap-editor ul { list-style: disc;    padding-left: 1.5rem; margin: 0.65rem 0; }
+        .tiptap-editor ol { list-style: decimal; padding-left: 1.5rem; margin: 0.65rem 0; }
+        .tiptap-editor li { margin: 0.25rem 0; line-height: 1.8; }
+        .tiptap-editor blockquote {
+          border-left: 4px solid #ecc070;
+          padding: 0.5rem 1rem;
+          background: #fdf8f0;
+          border-radius: 0 0.4rem 0.4rem 0;
+          color: #a85e30;
+          margin: 0.85rem 0;
+          font-style: italic;
+        }
+        .tiptap-editor hr { border: none; border-top: 2px solid #edd8bc; margin: 1.5rem 0; }
         .tiptap-editor strong { font-weight: 700; }
         .tiptap-editor em { font-style: italic; }
         .tiptap-editor s  { text-decoration: line-through; }
+        .tiptap-editor a  { color: #b86515; text-decoration: underline; text-underline-offset: 3px; }
       `}</style>
       <EditorContent
         editor={editor}

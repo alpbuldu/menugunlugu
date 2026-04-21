@@ -10,6 +10,17 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      // Eski ?kategori=X URL'lerini /blog/kategori/X'e yönlendir (301)
+      {
+        source: "/blog",
+        has: [{ type: "query", key: "kategori" }],
+        destination: "/blog/kategori/:kategori",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

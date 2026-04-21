@@ -12,6 +12,7 @@ import BlogFavoriteButton from "@/components/blog/BlogFavoriteButton";
 import BlogRatingStars from "@/components/blog/BlogRatingStars";
 import BlogCommentSection from "@/components/blog/BlogCommentSection";
 import ProseContent from "@/components/blog/ProseContent";
+import LazySection from "@/components/ui/LazySection";
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 
@@ -242,48 +243,58 @@ export default async function BlogPostPage({ params }: Props) {
       {/* Mobil reklam — yorumun üstünde */}
       <AdBanner placement="blog_post_banner_mobile" imageHeight="h-[70px]" className="mt-4 sm:hidden" />
 
-      {/* Yorumlar */}
-      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
-        <BlogCommentSection postId={post.id} currentUserId={currentUserId} />
-      </div>
+      {/* Yorumlar — viewport'a girince yükle */}
+      <LazySection
+        className="mt-4"
+        fallback={<div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-6 h-32 animate-pulse" />}
+      >
+        <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
+          <BlogCommentSection postId={post.id} currentUserId={currentUserId} />
+        </div>
+      </LazySection>
 
       {/* Yatay reklam banneri — masaüstü */}
       <AdBanner placement="blog_post_banner" imageHeight="h-[100px]" className="mt-4 hidden sm:block" />
 
-      {/* Benzer Yazılar */}
+      {/* Benzer Yazılar — viewport'a girince göster */}
       {relatedPosts.length > 0 && (
-        <div className="mt-10">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-warm-800">Benzer Yazılar</h2>
-            {post.category && (
-              <Link href={`/blog?kategori=${post.category.slug}`} className="text-sm text-brand-600 hover:underline">
-                Tümünü gör →
-              </Link>
-            )}
+        <LazySection
+          className="mt-10"
+          fallback={<div className="h-40 animate-pulse rounded-2xl bg-warm-50" />}
+        >
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-warm-800">Benzer Yazılar</h2>
+              {post.category && (
+                <Link href={`/blog/kategori/${post.category.slug}`} className="text-sm text-brand-600 hover:underline">
+                  Tümünü gör →
+                </Link>
+              )}
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {relatedPosts.map((p) => (
+                <Link key={p.id} href={`/blog/${p.slug}`}
+                  className="group bg-white rounded-xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                  <div className="relative h-36 bg-warm-100">
+                    {p.image_url ? (
+                      <Image src={p.image_url} alt={p.title} fill
+                        sizes="(max-width: 640px) 100vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-4xl text-warm-300">✍️</div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <p className="text-xs font-semibold text-warm-800 line-clamp-2 leading-snug">{p.title}</p>
+                    <p className="text-[11px] text-warm-400 mt-1">
+                      {new Date(p.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long" })}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {relatedPosts.map((p) => (
-              <Link key={p.id} href={`/blog/${p.slug}`}
-                className="group bg-white rounded-xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                <div className="relative h-36 bg-warm-100">
-                  {p.image_url ? (
-                    <Image src={p.image_url} alt={p.title} fill
-                      sizes="(max-width: 640px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-4xl text-warm-300">✍️</div>
-                  )}
-                </div>
-                <div className="p-3">
-                  <p className="text-xs font-semibold text-warm-800 line-clamp-2 leading-snug">{p.title}</p>
-                  <p className="text-[11px] text-warm-400 mt-1">
-                    {new Date(p.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long" })}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
+        </LazySection>
       )}
 
       {/* Bottom nav */}

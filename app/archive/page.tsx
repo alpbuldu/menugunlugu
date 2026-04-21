@@ -8,6 +8,7 @@ export const revalidate = 1800; // 30 dakikada bir yenile
 export const metadata: Metadata = {
   title: "Dünün Menüsü",
   description: "Geçmiş günlerin menülerini takvimden seçerek inceleyin.",
+  alternates: { canonical: "/archive" },
 };
 
 export default async function ArchivePage() {

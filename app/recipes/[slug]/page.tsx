@@ -37,6 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title:    metaTitle,
     description,
     keywords,
+    alternates: { canonical: `/recipes/${recipe.slug}` },
     openGraph: {
       title:       metaTitle,
       description,
@@ -133,20 +134,8 @@ export default async function RecipeDetailPage({ params }: Props) {
     }
   }
 
-  // İlgili tarifler + admin profili
-  const [relatedRecipes, adminProfileRes] = await Promise.all([
-    getRelatedRecipes(recipe.category, recipe.slug, 4),
-    supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single(),
-  ]);
-  const adminDisplayName = adminProfileRes.data?.username ?? "Menü Günlüğü";
-
-  // İlgili tarifler için yazar profilleri
-  const relatedMemberIds = [...new Set(relatedRecipes.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
-  const relatedProfileMap: Record<string, string> = {};
-  if (relatedMemberIds.length) {
-    const { data: profiles } = await supabase.from("profiles").select("id, username").in("id", relatedMemberIds);
-    profiles?.forEach((p) => { relatedProfileMap[p.id] = p.username; });
-  }
+  // İlgili tarifler
+  const relatedRecipes = await getRelatedRecipes(recipe.category, recipe.slug, 4);
 
   // Malzemeler
   const ingredientsIsHtml = recipe.ingredients.trim().startsWith("<");
@@ -396,9 +385,7 @@ export default async function RecipeDetailPage({ params }: Props) {
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {relatedRecipes.map((r) => {
-              const rAuthor = r.submitted_by ? (relatedProfileMap[r.submitted_by] ?? adminDisplayName) : adminDisplayName;
-              return (
+            {relatedRecipes.map((r) => (
               <Link key={r.id} href={`/recipes/${r.slug}`}
                 className="group bg-white rounded-xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                 <div className="relative h-28 bg-warm-100">
@@ -412,11 +399,9 @@ export default async function RecipeDetailPage({ params }: Props) {
                 </div>
                 <div className="p-3">
                   <p className="text-xs font-semibold text-warm-800 line-clamp-2 leading-snug">{r.title}</p>
-                  <p className="text-[10px] text-warm-400 mt-1">Yazar: {rAuthor}</p>
                 </div>
               </Link>
-              );
-            })}
+            ))}
           </div>
         </div>
       )}

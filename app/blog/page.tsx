@@ -11,6 +11,7 @@ import AdBanner from "@/components/ui/AdBanner";
 export const metadata: Metadata = {
   title: "Blog",
   description: "Yemek kültürü, tarifler ve mutfak hikayeleri.",
+  alternates: { canonical: "/blog" },
 };
 
 export const dynamic = "force-dynamic";

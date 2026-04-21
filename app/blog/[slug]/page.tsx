@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title:    metaTitle,
     description,
     keywords,
+    alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       title:         metaTitle,
       description,
@@ -275,8 +276,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </div>
                 <div className="p-3">
                   <p className="text-xs font-semibold text-warm-800 line-clamp-2 leading-snug">{p.title}</p>
-                  <p className="text-[11px] text-warm-400 mt-1">Yazar: {authorName}</p>
-                  <p className="text-[11px] text-warm-400">
+                  <p className="text-[11px] text-warm-400 mt-1">
                     {new Date(p.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long" })}
                   </p>
                 </div>

@@ -12,6 +12,7 @@ import AdBanner from "@/components/ui/AdBanner";
 export const metadata: Metadata = {
   title: "Tarifler",
   description: "Tüm tarifleri kategorilere göre keşfedin.",
+  alternates: { canonical: "/recipes" },
 };
 
 export const dynamic = "force-dynamic";

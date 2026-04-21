@@ -80,6 +80,19 @@ export default async function RecipesPage({ searchParams }: Props) {
     (memberFollowRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
   }
 
+  /** 7 veya daha az sayfa → hepsini göster. Daha fazlası → 1, mevcut±1, son, araya … */
+  function buildPages(current: number, total: number): (number | "…")[] {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+    const pages: (number | "…")[] = [1];
+    const lo = Math.max(2, current - 1);
+    const hi = Math.min(total - 1, current + 1);
+    if (lo > 2) pages.push("…");
+    for (let p = lo; p <= hi; p++) pages.push(p);
+    if (hi < total - 1) pages.push("…");
+    pages.push(total);
+    return pages;
+  }
+
   /** Build ?category=X&page=Y preserving current filters */
   function href(overrides: { category?: string; page?: number }) {
     const p = new URLSearchParams();
@@ -204,72 +217,36 @@ export default async function RecipesPage({ searchParams }: Props) {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-1.5 mt-12 flex-wrap">
-          {/* Prev */}
           {currentPage > 1 ? (
-            <Link
-              href={href({ page: currentPage - 1 })}
+            <Link href={href({ page: currentPage - 1 })}
               className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors"
-              aria-label="Önceki sayfa"
-            >
-              ‹
-            </Link>
+              aria-label="Önceki sayfa">‹</Link>
           ) : (
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">
-              ‹
-            </span>
+            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">‹</span>
           )}
 
-          {/* Page numbers */}
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
-            const isCurrent = p === currentPage;
-            // Show first, last, current ±1, and ellipsis in between
-            const show =
-              p === 1 ||
-              p === totalPages ||
-              Math.abs(p - currentPage) <= 1;
-            const showEllipsisBefore =
-              p === currentPage - 2 && currentPage - 2 > 1;
-            const showEllipsisAfter =
-              p === currentPage + 2 && currentPage + 2 < totalPages;
+          {buildPages(currentPage, totalPages).map((p, i) =>
+            p === "…" ? (
+              <span key={`dots-${i}`} className="text-warm-400 text-sm px-1">…</span>
+            ) : (
+              <Link key={p} href={href({ page: p })}
+                aria-current={p === currentPage ? "page" : undefined}
+                className={`inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-colors border ${
+                  p === currentPage
+                    ? "bg-brand-600 border-brand-600 text-white"
+                    : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"
+                }`}>
+                {p}
+              </Link>
+            )
+          )}
 
-            if (!show) return null;
-
-            return (
-              <span key={p} className="flex items-center gap-1.5">
-                {showEllipsisBefore && (
-                  <span className="text-warm-400 text-sm px-1">…</span>
-                )}
-                <Link
-                  href={href({ page: p })}
-                  className={`inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-colors border ${
-                    isCurrent
-                      ? "bg-brand-600 border-brand-600 text-white"
-                      : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"
-                  }`}
-                  aria-current={isCurrent ? "page" : undefined}
-                >
-                  {p}
-                </Link>
-                {showEllipsisAfter && (
-                  <span className="text-warm-400 text-sm px-1">…</span>
-                )}
-              </span>
-            );
-          })}
-
-          {/* Next */}
           {currentPage < totalPages ? (
-            <Link
-              href={href({ page: currentPage + 1 })}
+            <Link href={href({ page: currentPage + 1 })}
               className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors"
-              aria-label="Sonraki sayfa"
-            >
-              ›
-            </Link>
+              aria-label="Sonraki sayfa">›</Link>
           ) : (
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">
-              ›
-            </span>
+            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">›</span>
           )}
         </div>
       )}

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getBlogPostBySlug, getRandomRecipes } from "@/lib/supabase/queries";
+import { getBlogPostBySlug, getRandomRecipes, getRelatedBlogPosts } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import ShareButton from "@/components/ui/ShareButton";
 import FollowButton from "@/components/ui/FollowButton";
@@ -86,7 +86,10 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   // Öne çıkan tarifler (slider)
-  const featured = await getRandomRecipes();
+  const [featured, relatedPosts] = await Promise.all([
+    getRandomRecipes(),
+    post.category_id ? getRelatedBlogPosts(post.category_id, post.slug, 3) : Promise.resolve([]),
+  ]);
   const adminAuthor = { name: adminProfile?.username ?? "Menü Günlüğü", avatar: adminProfile?.avatar_url ?? "", username: "__admin__" };
   const memberIds = [...new Set(featured.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
   const profileMap: Record<string, { name: string; avatar: string; username: string }> = {};
@@ -289,6 +292,42 @@ export default async function BlogPostPage({ params }: Props) {
             followMap={sliderFollowMap}
             followsAdmin={sliderFollowsAdmin}
           />
+        </div>
+      )}
+
+      {/* Benzer Yazılar */}
+      {relatedPosts.length > 0 && (
+        <div className="mt-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-warm-800">Benzer Yazılar</h2>
+            {post.category && (
+              <Link href={`/blog?kategori=${post.category.slug}`} className="text-sm text-brand-600 hover:underline">
+                Tümünü gör →
+              </Link>
+            )}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {relatedPosts.map((p) => (
+              <Link key={p.id} href={`/blog/${p.slug}`}
+                className="group bg-white rounded-xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                <div className="relative h-36 bg-warm-100">
+                  {p.image_url ? (
+                    <Image src={p.image_url} alt={p.title} fill
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-4xl text-warm-300">✍️</div>
+                  )}
+                </div>
+                <div className="p-3">
+                  <p className="text-xs font-semibold text-warm-800 line-clamp-2 leading-snug">{p.title}</p>
+                  <p className="text-[11px] text-warm-400 mt-1">
+                    {new Date(p.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long" })}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 

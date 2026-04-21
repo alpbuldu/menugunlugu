@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getRecipeBySlug, getRandomRecipes } from "@/lib/supabase/queries";
+import { getRecipeBySlug, getRandomRecipes, getRelatedRecipes } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
@@ -134,10 +134,11 @@ export default async function RecipeDetailPage({ params }: Props) {
     }
   }
 
-  // Öne çıkan tarifler (slider)
-  const [featured, adminProfileForSlider] = await Promise.all([
+  // Öne çıkan tarifler (slider) + ilgili tarifler
+  const [featured, adminProfileForSlider, relatedRecipes] = await Promise.all([
     getRandomRecipes(),
     supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single(),
+    getRelatedRecipes(recipe.category, recipe.slug, 4),
   ]);
   const ap = adminProfileForSlider.data;
   const adminAuthor = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "", username: "__admin__" };
@@ -416,6 +417,37 @@ export default async function RecipeDetailPage({ params }: Props) {
             followMap={sliderFollowMap}
             followsAdmin={sliderFollowsAdmin}
           />
+        </div>
+      )}
+
+      {/* İlgili Tarifler */}
+      {relatedRecipes.length > 0 && (
+        <div className="mt-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-warm-800">Benzer Tarifler</h2>
+            <Link href={`/recipes?category=${recipe.category}`} className="text-sm text-brand-600 hover:underline">
+              Tümünü gör →
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {relatedRecipes.map((r) => (
+              <Link key={r.id} href={`/recipes/${r.slug}`}
+                className="group bg-white rounded-xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                <div className="relative h-28 bg-warm-100">
+                  {r.image_url ? (
+                    <Image src={r.image_url} alt={r.title} fill
+                      sizes="(max-width: 640px) 50vw, 200px"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-3xl text-warm-300">🍽️</div>
+                  )}
+                </div>
+                <div className="p-3">
+                  <p className="text-xs font-semibold text-warm-800 line-clamp-2 leading-snug">{r.title}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 

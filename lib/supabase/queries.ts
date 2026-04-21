@@ -246,11 +246,60 @@ export async function getBlogPosts(categorySlug?: string): Promise<BlogPost[]> {
       .select(BLOG_POST_SELECT)
       .eq("published", true)
       .order("created_at", { ascending: false });
+    if (categorySlug) {
+      // Kategoriyi DB'de filtrele (JS'de değil)
+      const { data: cat } = await supabase
+        .from("blog_categories")
+        .select("id")
+        .eq("slug", categorySlug)
+        .maybeSingle();
+      if (cat?.id) query = query.eq("category_id", cat.id);
+    }
     const { data, error } = await query;
     if (error || !data) return [];
-    const posts = data as unknown as BlogPost[];
-    if (categorySlug) return posts.filter(p => p.category?.slug === categorySlug);
-    return posts;
+    return data as unknown as BlogPost[];
+  } catch { return []; }
+}
+
+export async function getRelatedRecipes(
+  category: string,
+  excludeSlug: string,
+  limit = 4,
+): Promise<Recipe[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("recipes")
+      .select(RECIPE_FIELDS)
+      .eq("category", category)
+      .neq("slug", excludeSlug)
+      .or("approval_status.eq.approved,approval_status.is.null")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (error || !data) return [];
+    return data as Recipe[];
+  } catch { return []; }
+}
+
+export async function getRelatedBlogPosts(
+  categoryId: string,
+  excludeSlug: string,
+  limit = 3,
+): Promise<BlogPost[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("blog_posts")
+      .select(BLOG_POST_SELECT)
+      .eq("published", true)
+      .eq("category_id", categoryId)
+      .neq("slug", excludeSlug)
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (error || !data) return [];
+    return data as unknown as BlogPost[];
   } catch { return []; }
 }
 

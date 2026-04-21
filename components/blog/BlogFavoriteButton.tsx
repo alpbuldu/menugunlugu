@@ -83,14 +83,14 @@ export default function BlogFavoriteButton({ postId, compact = false }: Props) {
         disabled={saving}
         title={favorited ? "Tarif Defterinden çıkar" : "Tarif Defterine ekle"}
         className={[
-          "flex items-center gap-1.5 px-3 py-2 rounded-xl border text-sm font-medium transition-all",
+          "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[13px] font-medium transition-all",
           favorited
             ? "bg-red-50 border-red-200 text-red-500 hover:bg-red-100"
             : "bg-white border-warm-200 text-warm-500 hover:bg-warm-50 hover:text-red-400 hover:border-red-200",
           saving ? "opacity-60 cursor-not-allowed" : "",
         ].join(" ")}
       >
-        <span className="text-base leading-none">{favorited ? "❤️" : "🤍"}</span>
+        <span className="text-sm leading-none">{favorited ? "❤️" : "🤍"}</span>
         <span>{favorited ? "Defterinde" : "Deftere Ekle"}</span>
       </button>
       {errMsg && <p className="text-[10px] text-red-500 leading-snug max-w-[180px]">{errMsg}</p>}

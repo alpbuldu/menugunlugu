@@ -55,13 +55,13 @@ export default function ShareButton({ title, url, compact = false }: Props) {
     <button
       type="button"
       onClick={handleShare}
-      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-warm-200 bg-white text-warm-500 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-warm-200 bg-white text-warm-500 text-[13px] hover:border-brand-300 hover:text-brand-600 transition-colors"
     >
       {/* Paylaş ikonu */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="15"
-        height="15"
+        width="13"
+        height="13"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"

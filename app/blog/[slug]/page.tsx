@@ -222,17 +222,19 @@ export default async function BlogPostPage({ params }: Props) {
             <p className="text-[11px] text-warm-400 mt-0.5">{authorPostCount} yazı · Yazıları gör →</p>
           </div>
         </Link>
-        <FollowButton
-          isAdminProfile={true}
-          initialFollowing={initialFollowing}
-          isLoggedIn={!!currentUserId}
-        />
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <FollowButton
+            isAdminProfile={true}
+            initialFollowing={initialFollowing}
+            isLoggedIn={!!currentUserId}
+          />
+          <BlogFavoriteButton postId={post.id} />
+        </div>
       </div>
 
-      {/* Puanlama + Deftere Ekle */}
-      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Puanlama */}
+      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
         <BlogRatingStars postId={post.id} />
-        <BlogFavoriteButton postId={post.id} />
       </div>
 
       {/* Mobil reklam — yorumun üstünde */}

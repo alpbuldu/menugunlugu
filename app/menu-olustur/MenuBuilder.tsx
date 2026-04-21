@@ -409,11 +409,15 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                 </button>
               </div>
 
-              {!allFilled && (
-                <p className="text-center text-[11px] text-warm-400 pt-0.5">
-                  4 yemek seç → kartı oluştur
-                </p>
-              )}
+              <p className={`text-center text-[11px] pt-0.5 transition-colors ${
+                allFilled
+                  ? "text-brand-600 font-medium"
+                  : "text-warm-400"
+              }`}>
+                {allFilled
+                  ? "🎉 Menü hazır — indir ve paylaş!"
+                  : `${4 - filledCount} yemek daha seç → kartı oluştur`}
+              </p>
             </div>
           </div>
         </div>

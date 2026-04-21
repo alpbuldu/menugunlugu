@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${meta.label} Tarifleri`,
     description: meta.description,
-    alternates: { canonical: `/recipes/kategori/${slug}` },
+    alternates: { canonical: `/tarifler/kategori/${slug}` },
   };
 }
 
@@ -96,20 +96,24 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
 
   function buildPages(current: number, total: number): (number | "…")[] {
     if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
+    const pages = new Set<number>();
+    pages.add(1);
+    pages.add(total);
+    pages.add(Math.max(1, current - 1));
+    pages.add(current);
+    pages.add(Math.min(total, current + 1));
+    const sorted = Array.from(pages).sort((a, b) => a - b);
     const result: (number | "…")[] = [];
-    result.push(1);
-    const winStart = Math.max(2, current - 1);
-    const winEnd   = Math.min(total - 1, current + 1);
-    if (winStart > 2) result.push("…");
-    for (let p = winStart; p <= winEnd; p++) result.push(p);
-    if (winEnd < total - 1) result.push("…");
-    result.push(total);
+    for (let i = 0; i < sorted.length; i++) {
+      if (i > 0 && sorted[i] - sorted[i - 1] > 1) result.push("…");
+      result.push(sorted[i]);
+    }
     return result;
   }
 
   function pageHref(page: number) {
-    if (page === 1) return `/recipes/kategori/${slug}`;
-    return `/recipes/kategori/${slug}?page=${page}`;
+    if (page === 1) return `/tarifler/kategori/${slug}`;
+    return `/tarifler/kategori/${slug}?page=${page}`;
   }
 
   return (
@@ -136,7 +140,7 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
           return (
             <Link
               key={s}
-              href={`/recipes/kategori/${s}`}
+              href={`/tarifler/kategori/${s}`}
               className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
                 s === slug
                   ? "bg-brand-600 border-brand-600 text-white"
@@ -169,7 +173,7 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
                 key={recipe.id}
                 className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
               >
-                <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
+                <Link href={`/tarifler/${recipe.slug}`} className="flex flex-col flex-1">
                   <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
                     {recipe.image_url ? (
                       <Image src={recipe.image_url} alt={recipe.title} fill

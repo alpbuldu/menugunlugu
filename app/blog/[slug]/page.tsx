@@ -235,7 +235,7 @@ export default async function BlogPostPage({ params }: Props) {
       </div>
 
       {/* Puanlama + Deftere Ekle */}
-      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex items-center justify-between gap-4">
+      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <BlogRatingStars postId={post.id} />
         <BlogFavoriteButton postId={post.id} />
       </div>

@@ -360,7 +360,7 @@ export default async function RecipeDetailPage({ params }: Props) {
       </div>
 
       {/* Rating + Favorite */}
-      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex items-center justify-between gap-4">
+      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <RatingStars recipeId={recipe.id} />
         <FavoriteButton recipeId={recipe.id} />
       </div>

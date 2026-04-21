@@ -64,6 +64,12 @@ const quickActions = [
     icon: "🖊️",
     desc: "Yeni içerik oluştur",
   },
+  {
+    href: "/admin/yorumlar",
+    label: "Yorumlar",
+    icon: "💬",
+    desc: "Tarif ve blog yorumlarını görüntüle ve sil",
+  },
 ];
 
 export default function AdminDashboard() {

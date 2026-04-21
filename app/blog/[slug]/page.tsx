@@ -109,9 +109,12 @@ export default async function BlogPostPage({ params }: Props) {
     <SidebarLayout placement="sidebar_blog_post">
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <Link href="/blog"
-        className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-4 sm:mb-6">
+        className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-4">
         ← Blog
       </Link>
+
+      {/* Mobil üst banner */}
+      <AdBanner placement="blog_post_banner_mobile" imageHeight="h-[70px]" className="sm:hidden mb-4" />
 
       <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
         <div className="relative h-72 bg-warm-100">

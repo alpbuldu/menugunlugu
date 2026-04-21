@@ -210,9 +210,12 @@ export default async function RecipeDetailPage({ params }: Props) {
     <SidebarLayout placement="sidebar_recipe_detail">
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <Link href="/recipes"
-        className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-6">
+        className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-4">
         ← Tariflere dön
       </Link>
+
+      {/* Mobil üst banner */}
+      <AdBanner placement="recipe_detail_banner_mobile" imageHeight="h-[70px]" className="sm:hidden mb-4" />
 
       <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
         {/* Hero image */}

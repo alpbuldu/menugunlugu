@@ -39,10 +39,12 @@ export async function POST(_req: NextRequest, { params }: Params) {
     .maybeSingle();
 
   if (existing) {
-    await admin.from("blog_favorites").delete().eq("post_id", id).eq("user_id", user.id);
+    const { error } = await admin.from("blog_favorites").delete().eq("post_id", id).eq("user_id", user.id);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ favorited: false });
   } else {
-    await admin.from("blog_favorites").insert({ post_id: id, user_id: user.id });
+    const { error } = await admin.from("blog_favorites").insert({ post_id: id, user_id: user.id });
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ favorited: true });
   }
 }

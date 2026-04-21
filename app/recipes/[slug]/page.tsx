@@ -360,6 +360,9 @@ export default async function RecipeDetailPage({ params }: Props) {
         <FavoriteButton recipeId={recipe.id} />
       </div>
 
+      {/* Mobil reklam — yorumun üstünde */}
+      <AdBanner placement="recipe_detail_banner_mobile" imageHeight="h-[70px]" className="mt-4 sm:hidden" />
+
       {/* Yorumlar */}
       <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
         <CommentSection recipeId={recipe.id} currentUserId={currentUserId} />
@@ -367,8 +370,6 @@ export default async function RecipeDetailPage({ params }: Props) {
 
       {/* Yatay reklam banneri — masaüstü */}
       <AdBanner placement="recipe_detail_banner" imageHeight="h-[100px]" className="mt-4 hidden sm:block" />
-      {/* Yatay reklam banneri — mobil */}
-      <AdBanner placement="recipe_detail_banner_mobile" imageHeight="h-[70px]" className="mt-4 sm:hidden" />
 
       {/* Öne Çıkan Tarifler slider */}
       {featured.length > 0 && (

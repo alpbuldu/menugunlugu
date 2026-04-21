@@ -146,7 +146,7 @@ export default async function BlogPostPage({ params }: Props) {
 
         <div className="p-8">
           <div className="mb-8">
-            {/* Üst satır: kategori + tarih SOL, butonlar SAĞ */}
+            {/* Üst satır: kategori SOL, butonlar SAĞ */}
             <div className="flex items-center justify-between gap-2 mb-3">
               <div className="flex items-center gap-2 flex-wrap">
                 {post.category && (
@@ -154,9 +154,6 @@ export default async function BlogPostPage({ params }: Props) {
                     {post.category.name}
                   </span>
                 )}
-                <span className="text-xs text-warm-400">
-                  {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
-                </span>
               </div>
 
               {/* Mobil: ikon butonlar */}
@@ -185,6 +182,9 @@ export default async function BlogPostPage({ params }: Props) {
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-bold text-warm-900 leading-snug">{post.title}</h1>
+            <p className="text-sm text-warm-400 mt-2">
+              {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
+            </p>
           </div>
 
           {post.excerpt && (
@@ -226,7 +226,6 @@ export default async function BlogPostPage({ params }: Props) {
           isAdminProfile={true}
           initialFollowing={initialFollowing}
           isLoggedIn={!!currentUserId}
-          size="xs"
         />
       </div>
 
@@ -236,6 +235,9 @@ export default async function BlogPostPage({ params }: Props) {
         <BlogFavoriteButton postId={post.id} />
       </div>
 
+      {/* Mobil reklam — yorumun üstünde */}
+      <AdBanner placement="blog_post_banner_mobile" imageHeight="h-[70px]" className="mt-4 sm:hidden" />
+
       {/* Yorumlar */}
       <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
         <BlogCommentSection postId={post.id} currentUserId={currentUserId} />
@@ -243,8 +245,6 @@ export default async function BlogPostPage({ params }: Props) {
 
       {/* Yatay reklam banneri — masaüstü */}
       <AdBanner placement="blog_post_banner" imageHeight="h-[100px]" className="mt-4 hidden sm:block" />
-      {/* Yatay reklam banneri — mobil */}
-      <AdBanner placement="blog_post_banner_mobile" imageHeight="h-[70px]" className="mt-4 sm:hidden" />
 
       {/* Öne Çıkan Tarifler slider */}
       {featured.length > 0 && (

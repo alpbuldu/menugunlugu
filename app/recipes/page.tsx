@@ -80,17 +80,19 @@ export default async function RecipesPage({ searchParams }: Props) {
     (memberFollowRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
   }
 
-  /** 7 veya daha az sayfa → hepsini göster. Daha fazlası → 1, mevcut±1, son, araya … */
+  /** Her zaman ilk 2 + son 2 + mevcut±1 göster; araya … ekle */
   function buildPages(current: number, total: number): (number | "…")[] {
-    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-    const pages: (number | "…")[] = [1];
-    const lo = Math.max(2, current - 1);
-    const hi = Math.min(total - 1, current + 1);
-    if (lo > 2) pages.push("…");
-    for (let p = lo; p <= hi; p++) pages.push(p);
-    if (hi < total - 1) pages.push("…");
-    pages.push(total);
-    return pages;
+    const pagesSet = new Set<number>();
+    pagesSet.add(1); pagesSet.add(2);
+    pagesSet.add(total - 1); pagesSet.add(total);
+    for (let p = Math.max(1, current - 1); p <= Math.min(total, current + 1); p++) pagesSet.add(p);
+    const sorted = Array.from(pagesSet).filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+    const result: (number | "…")[] = [];
+    for (let i = 0; i < sorted.length; i++) {
+      result.push(sorted[i]);
+      if (i < sorted.length - 1 && sorted[i + 1] - sorted[i] > 1) result.push("…");
+    }
+    return result;
   }
 
   /** Build ?category=X&page=Y preserving current filters */

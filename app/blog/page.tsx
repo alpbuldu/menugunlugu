@@ -140,15 +140,17 @@ export default async function BlogPage({ searchParams }: Props) {
   }
 
   function buildPages(current: number, total: number): (number | "…")[] {
-    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
-    const pages: (number | "…")[] = [1];
-    const lo = Math.max(2, current - 1);
-    const hi = Math.min(total - 1, current + 1);
-    if (lo > 2) pages.push("…");
-    for (let p = lo; p <= hi; p++) pages.push(p);
-    if (hi < total - 1) pages.push("…");
-    pages.push(total);
-    return pages;
+    const pagesSet = new Set<number>();
+    pagesSet.add(1); pagesSet.add(2);
+    pagesSet.add(total - 1); pagesSet.add(total);
+    for (let p = Math.max(1, current - 1); p <= Math.min(total, current + 1); p++) pagesSet.add(p);
+    const sorted = Array.from(pagesSet).filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+    const result: (number | "…")[] = [];
+    for (let i = 0; i < sorted.length; i++) {
+      result.push(sorted[i]);
+      if (i < sorted.length - 1 && sorted[i + 1] - sorted[i] > 1) result.push("…");
+    }
+    return result;
   }
 
   function href(overrides: { kategori?: string; page?: number }) {
@@ -169,10 +171,10 @@ export default async function BlogPage({ searchParams }: Props) {
 
       {/* Kategori filtreleri */}
       {categories.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4 sm:mb-8">
+        <div className="flex gap-1 sm:flex-wrap sm:gap-2 mb-4 sm:mb-8">
           <Link
             href={href({ kategori: undefined, page: 1 })}
-            className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium border transition-colors ${
+            className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
               !kategori
                 ? "bg-brand-600 border-brand-600 text-white"
                 : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
@@ -184,7 +186,7 @@ export default async function BlogPage({ searchParams }: Props) {
             <Link
               key={cat.id}
               href={href({ kategori: cat.slug, page: 1 })}
-              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium border transition-colors ${
+              className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
                 kategori === cat.slug
                   ? "bg-brand-600 border-brand-600 text-white"
                   : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"

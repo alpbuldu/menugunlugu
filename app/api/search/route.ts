@@ -1,25 +1,43 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { getRecipes } from "@/lib/supabase/queries";
 
 export const dynamic = "force-dynamic";
+
+const RECIPE_FIELDS = "id, title, slug, category, submitted_by";
+const BLOG_FIELDS   = "id, title, slug, image_url";
 
 export async function GET() {
   const supabase = createAdminClient();
 
-  // Tarifler
-  const recipesRaw = await getRecipes();
+  const [recipesRes, blogRes, apRes, memberPostsRes] = await Promise.all([
+    supabase.from("recipes").select(RECIPE_FIELDS)
+      .or("approval_status.eq.approved,approval_status.is.null"),
+    supabase.from("blog_posts").select(BLOG_FIELDS).eq("published", true),
+    supabase.from("admin_profile").select("username, avatar_url").single(),
+    supabase.from("member_posts").select("submitted_by").eq("approval_status", "approved"),
+  ]);
+
+  const recipesRaw = recipesRes.data ?? [];
+  const ap         = apRes.data;
+  const adminName  = ap?.username ?? "Menü Günlüğü";
+
+  // Üye profilleri
   const memberIds = [...new Set(recipesRaw.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
+  const approvedPostAuthorIds = new Set(
+    (memberPostsRes.data ?? []).map((p) => p.submitted_by).filter(Boolean) as string[]
+  );
+  const eligibleIds = [...new Set([...memberIds, ...approvedPostAuthorIds])];
+
+  const [profilesRes] = await Promise.all([
+    eligibleIds.length > 0
+      ? supabase.from("profiles").select("id, username, avatar_url, full_name").in("id", eligibleIds).order("username")
+      : { data: [] },
+  ]);
 
   const profileMap: Record<string, string> = {};
-  if (memberIds.length > 0) {
-    const { data: profiles } = await supabase.from("profiles").select("id, username").in("id", memberIds);
-    for (const p of profiles ?? []) profileMap[p.id] = p.username;
-  }
+  for (const p of profilesRes.data ?? []) profileMap[p.id] = p.username;
 
-  const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").single();
-  const adminName = ap?.username ?? "Menü Günlüğü";
-
+  // Tarifler
   const recipes = recipesRaw.map((r) => ({
     id: r.id,
     title: r.title,
@@ -28,37 +46,20 @@ export async function GET() {
     author: r.submitted_by ? (profileMap[r.submitted_by] ?? "") : adminName,
   }));
 
-  // Yazarlar: üyeler + admin
-  const authors: { username: string; displayName: string; avatar: string | null; isAdmin: boolean }[] = [];
+  // Blog yazıları
+  const blogPosts = (blogRes.data ?? []).map((p) => ({
+    id: p.id,
+    title: p.title,
+    slug: p.slug,
+    image_url: p.image_url,
+  }));
 
-  // Admin
+  // Yazarlar: admin + üyeler
+  const authors: { username: string; displayName: string; avatar: string | null; isAdmin: boolean }[] = [];
   if (ap?.username) {
     authors.push({ username: ap.username, displayName: ap.username, avatar: ap.avatar_url ?? null, isAdmin: true });
   }
-
-  // Onaylanmış blog yazısı olan üye ID'leri
-  const { data: approvedPostAuthors } = await supabase
-    .from("member_posts")
-    .select("submitted_by")
-    .eq("approval_status", "approved");
-
-  const approvedPostAuthorIds = new Set(
-    (approvedPostAuthors ?? []).map((p) => p.submitted_by).filter(Boolean) as string[]
-  );
-
-  // Onaylanmış tarifi olan üye ID'leri (memberIds zaten yukarıda hesaplandı)
-  const eligibleIds = [...new Set([...memberIds, ...approvedPostAuthorIds])];
-
-  // Sadece en az 1 onaylanmış tarifi veya blog yazısı olan üyeler
-  const { data: memberProfiles } = eligibleIds.length > 0
-    ? await supabase
-        .from("profiles")
-        .select("id, username, avatar_url, full_name")
-        .in("id", eligibleIds)
-        .order("username")
-    : { data: [] };
-
-  for (const p of memberProfiles ?? []) {
+  for (const p of profilesRes.data ?? []) {
     authors.push({
       username: p.username,
       displayName: p.full_name || p.username,
@@ -67,5 +68,5 @@ export async function GET() {
     });
   }
 
-  return NextResponse.json({ recipes, authors });
+  return NextResponse.json({ recipes, blogPosts, authors });
 }

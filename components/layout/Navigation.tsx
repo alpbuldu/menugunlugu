@@ -22,8 +22,9 @@ const CATEGORY_LABELS: Record<Category, string> = {
   soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı",
 };
 
-interface SearchRecipe { id: string; title: string; slug: string; category: Category; author: string; }
-interface SearchAuthor { username: string; displayName: string; avatar: string | null; isAdmin: boolean; }
+interface SearchRecipe  { id: string; title: string; slug: string; category: Category; author: string; }
+interface SearchBlog    { id: string; title: string; slug: string; image_url: string | null; }
+interface SearchAuthor  { username: string; displayName: string; avatar: string | null; isAdmin: boolean; }
 interface ProfileData  { username: string; avatar_url: string | null; }
 
 function SearchIcon({ className }: { className?: string }) {
@@ -40,8 +41,10 @@ function SearchIcon({ className }: { className?: string }) {
 function useSearch() {
   const [query,         setQuery]         = useState("");
   const [recipes,       setRecipes]       = useState<SearchRecipe[]>([]);
+  const [blogPosts,     setBlogPosts]     = useState<SearchBlog[]>([]);
   const [authors,       setAuthors]       = useState<SearchAuthor[]>([]);
   const [recipeResults, setRecipeResults] = useState<SearchRecipe[]>([]);
+  const [blogResults,   setBlogResults]   = useState<SearchBlog[]>([]);
   const [authorResults, setAuthorResults] = useState<SearchAuthor[]>([]);
   const [fetched,       setFetched]       = useState(false);
   const [fetching,      setFetching]      = useState(false);
@@ -52,8 +55,9 @@ function useSearch() {
     try {
       const res  = await fetch("/api/search");
       const json = await res.json();
-      setRecipes((json.recipes ?? []) as SearchRecipe[]);
-      setAuthors((json.authors ?? []) as SearchAuthor[]);
+      setRecipes((json.recipes   ?? []) as SearchRecipe[]);
+      setBlogPosts((json.blogPosts ?? []) as SearchBlog[]);
+      setAuthors((json.authors   ?? []) as SearchAuthor[]);
     } catch { /* silently fail */ } finally {
       setFetched(true);
       setFetching(false);
@@ -62,12 +66,15 @@ function useSearch() {
 
   useEffect(() => {
     const q = query.trim().toLocaleLowerCase("tr");
-    if (!q) { setRecipeResults([]); setAuthorResults([]); return; }
+    if (!q) { setRecipeResults([]); setBlogResults([]); setAuthorResults([]); return; }
     setRecipeResults(
       recipes.filter(r =>
         r.title.toLocaleLowerCase("tr").includes(q) ||
         (r.author ?? "").toLocaleLowerCase("tr").includes(q)
       ).slice(0, 4)
+    );
+    setBlogResults(
+      blogPosts.filter(p => p.title.toLocaleLowerCase("tr").includes(q)).slice(0, 3)
     );
     setAuthorResults(
       authors.filter(a =>
@@ -75,22 +82,23 @@ function useSearch() {
         a.displayName.toLocaleLowerCase("tr").includes(q)
       ).slice(0, 3)
     );
-  }, [query, recipes, authors]);
+  }, [query, recipes, blogPosts, authors]);
 
-  function clearSearch() { setQuery(""); setRecipeResults([]); setAuthorResults([]); }
-  return { query, setQuery, recipeResults, authorResults, fetching, ensureData, clearSearch };
+  function clearSearch() { setQuery(""); setRecipeResults([]); setBlogResults([]); setAuthorResults([]); }
+  return { query, setQuery, recipeResults, blogResults, authorResults, fetching, ensureData, clearSearch };
 }
 
 /* Shared dropdown content */
 function SearchDropdown({
-  fetching, recipeResults, authorResults, clearSearch,
+  fetching, recipeResults, blogResults, authorResults, clearSearch,
 }: {
   fetching: boolean;
   recipeResults: SearchRecipe[];
+  blogResults: SearchBlog[];
   authorResults: SearchAuthor[];
   clearSearch: () => void;
 }) {
-  const hasResults = recipeResults.length > 0 || authorResults.length > 0;
+  const hasResults = recipeResults.length > 0 || blogResults.length > 0 || authorResults.length > 0;
   return (
     <div className="bg-white border border-warm-200 rounded-2xl shadow-lg overflow-hidden z-50">
       {fetching ? (
@@ -108,7 +116,7 @@ function SearchDropdown({
                   <li key={author.username}>
                     <Link href={`/uye/${author.username}`} onClick={clearSearch}
                       className={clsx("flex items-center gap-3 px-4 py-2.5 hover:bg-warm-50 transition-colors",
-                        (i !== authorResults.length - 1 || recipeResults.length > 0) && "border-b border-warm-100")}>
+                        (i !== authorResults.length - 1 || recipeResults.length > 0 || blogResults.length > 0) && "border-b border-warm-100")}>
                       {author.avatar ? (
                         <img src={author.avatar} alt={author.displayName} className="w-7 h-7 rounded-full object-cover flex-shrink-0" />
                       ) : (
@@ -135,7 +143,7 @@ function SearchDropdown({
                   <li key={recipe.id}>
                     <Link href={`/recipes/${recipe.slug}`} onClick={clearSearch}
                       className={clsx("flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-warm-50 transition-colors",
-                        i !== recipeResults.length - 1 && "border-b border-warm-100")}>
+                        (i !== recipeResults.length - 1 || blogResults.length > 0) && "border-b border-warm-100")}>
                       <div className="flex flex-col min-w-0">
                         <span className="text-sm font-medium text-warm-800 truncate">{recipe.title}</span>
                         {recipe.author && (
@@ -143,6 +151,24 @@ function SearchDropdown({
                         )}
                       </div>
                       <span className="text-xs text-warm-400 flex-shrink-0">{CATEGORY_LABELS[recipe.category]}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {/* Blog yazıları */}
+          {blogResults.length > 0 && (
+            <div>
+              <div className="px-4 pt-2.5 pb-1 text-[10px] font-semibold text-warm-400 uppercase tracking-wider">Blog</div>
+              <ul>
+                {blogResults.map((post, i) => (
+                  <li key={post.id}>
+                    <Link href={`/blog/${post.slug}`} onClick={clearSearch}
+                      className={clsx("flex items-center gap-3 px-4 py-2.5 hover:bg-warm-50 transition-colors",
+                        i !== blogResults.length - 1 && "border-b border-warm-100")}>
+                      <span className="text-base flex-shrink-0">✍️</span>
+                      <span className="text-sm font-medium text-warm-800 truncate">{post.title}</span>
                     </Link>
                   </li>
                 ))}
@@ -189,7 +215,7 @@ function useAuthUser() {
 }
 
 function DesktopSearch() {
-  const { query, setQuery, recipeResults, authorResults, fetching, ensureData, clearSearch } = useSearch();
+  const { query, setQuery, recipeResults, blogResults, authorResults, fetching, ensureData, clearSearch } = useSearch();
   const containerRef = useRef<HTMLDivElement>(null);
   const showDropdown = query.trim().length > 0;
 
@@ -212,7 +238,7 @@ function DesktopSearch() {
       </div>
       {showDropdown && (
         <div className="absolute top-full mt-2 right-0 w-[300px] z-[100]">
-          <SearchDropdown fetching={fetching} recipeResults={recipeResults} authorResults={authorResults} clearSearch={clearSearch} />
+          <SearchDropdown fetching={fetching} recipeResults={recipeResults} blogResults={blogResults} authorResults={authorResults} clearSearch={clearSearch} />
         </div>
       )}
     </div>
@@ -304,7 +330,7 @@ function DesktopUserMenu() {
 }
 
 function MobileSearchPanel({ onClose }: { onClose: () => void }) {
-  const { query, setQuery, recipeResults, authorResults, fetching, ensureData, clearSearch } = useSearch();
+  const { query, setQuery, recipeResults, blogResults, authorResults, fetching, ensureData, clearSearch } = useSearch();
   const showDropdown = query.trim().length > 0;
   function handleSelect() { clearSearch(); onClose(); }
 
@@ -323,6 +349,7 @@ function MobileSearchPanel({ onClose }: { onClose: () => void }) {
           <SearchDropdown
             fetching={fetching}
             recipeResults={recipeResults}
+            blogResults={blogResults}
             authorResults={authorResults}
             clearSearch={handleSelect}
           />

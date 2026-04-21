@@ -83,7 +83,7 @@ export default function BlogFavoriteButton({ postId, compact = false }: Props) {
         disabled={saving}
         title={favorited ? "Tarif Defterinden çıkar" : "Tarif Defterine ekle"}
         className={[
-          "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-[13px] font-medium transition-all",
+          "flex items-center gap-1.5 px-3 py-2 sm:px-2.5 sm:py-1.5 rounded-xl sm:rounded-lg border text-sm sm:text-[13px] font-medium transition-all whitespace-nowrap",
           favorited
             ? "bg-red-50 border-red-200 text-red-500 hover:bg-red-100"
             : "bg-white border-warm-200 text-warm-500 hover:bg-warm-50 hover:text-red-400 hover:border-red-200",
@@ -91,7 +91,7 @@ export default function BlogFavoriteButton({ postId, compact = false }: Props) {
         ].join(" ")}
       >
         <span className="text-sm leading-none">{favorited ? "❤️" : "🤍"}</span>
-        <span>{favorited ? "Defterinde" : "Deftere Ekle"}</span>
+        <span>{favorited ? "Defterde" : "Deftere Ekle"}</span>
       </button>
       {errMsg && <p className="text-[10px] text-red-500 leading-snug max-w-[180px]">{errMsg}</p>}
     </div>

@@ -125,7 +125,7 @@ export default function FollowButton({
           ? "px-2.5 sm:px-2 py-1 sm:py-0.5 rounded-lg sm:rounded-md text-xs sm:text-[11px] font-medium transition-all border flex-shrink-0"
           : size === "md"
           ? "px-5 py-2 rounded-xl text-sm font-semibold transition-all border flex-shrink-0"
-          : "px-2.5 py-1.5 rounded-lg text-[13px] font-medium transition-all border flex-shrink-0",
+          : "px-3 py-2 sm:px-2.5 sm:py-1.5 rounded-xl sm:rounded-lg text-sm sm:text-[13px] font-medium transition-all border flex-shrink-0 whitespace-nowrap",
         size === "icon"
           ? following
             ? "bg-warm-100 border-warm-200 text-warm-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500"

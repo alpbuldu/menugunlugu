@@ -146,16 +146,15 @@ export default async function BlogKategoriPage({ params, searchParams }: Props) 
   }
 
   function buildPages(current: number, total: number): (number | "…")[] {
-    const pagesSet = new Set<number>();
-    pagesSet.add(1); pagesSet.add(2);
-    pagesSet.add(total - 1); pagesSet.add(total);
-    for (let p = Math.max(1, current - 1); p <= Math.min(total, current + 1); p++) pagesSet.add(p);
-    const sorted = Array.from(pagesSet).filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+    if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
     const result: (number | "…")[] = [];
-    for (let i = 0; i < sorted.length; i++) {
-      result.push(sorted[i]);
-      if (i < sorted.length - 1 && sorted[i + 1] - sorted[i] > 1) result.push("…");
-    }
+    result.push(1);
+    const winStart = Math.max(2, current - 1);
+    const winEnd   = Math.min(total - 1, current + 1);
+    if (winStart > 2) result.push("…");
+    for (let p = winStart; p <= winEnd; p++) result.push(p);
+    if (winEnd < total - 1) result.push("…");
+    result.push(total);
     return result;
   }
 

@@ -228,13 +228,13 @@ export default async function BlogPostPage({ params }: Props) {
             initialFollowing={initialFollowing}
             isLoggedIn={!!currentUserId}
           />
-          <BlogFavoriteButton postId={post.id} />
         </div>
       </div>
 
-      {/* Puanlama */}
-      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
+      {/* Puanlama + Deftere Ekle */}
+      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex items-center justify-between gap-4">
         <BlogRatingStars postId={post.id} />
+        <BlogFavoriteButton postId={post.id} />
       </div>
 
       {/* Mobil reklam — yorumun üstünde */}

@@ -1,0 +1,46 @@
+import type { MetadataRoute } from "next";
+import { createAdminClient } from "@/lib/supabase/server";
+
+const BASE = "https://www.menugunlugu.com";
+
+export const revalidate = 3600; // 1 saatte bir güncelle
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const supabase = createAdminClient();
+
+  const [recipesRes, blogRes, memberPostsRes] = await Promise.all([
+    supabase.from("recipes").select("slug, updated_at").eq("published", true),
+    supabase.from("blog_posts").select("slug, created_at").eq("published", true),
+    supabase.from("member_posts").select("slug, created_at").eq("status", "published"),
+  ]);
+
+  const recipes = (recipesRes.data ?? []).map((r) => ({
+    url: `${BASE}/recipes/${r.slug}`,
+    lastModified: r.updated_at ?? new Date().toISOString(),
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
+
+  const blogPosts = (blogRes.data ?? []).map((p) => ({
+    url: `${BASE}/blog/${p.slug}`,
+    lastModified: p.created_at,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  const memberPosts = (memberPostsRes.data ?? []).map((p) => ({
+    url: `${BASE}/yazi/${p.slug}`,
+    lastModified: p.created_at,
+    changeFrequency: "monthly" as const,
+    priority: 0.6,
+  }));
+
+  const staticPages: MetadataRoute.Sitemap = [
+    { url: BASE,               lastModified: new Date(), changeFrequency: "daily",   priority: 1.0 },
+    { url: `${BASE}/blog`,     lastModified: new Date(), changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/recipes`,  lastModified: new Date(), changeFrequency: "daily",   priority: 0.9 },
+    { url: `${BASE}/archive`,  lastModified: new Date(), changeFrequency: "daily",   priority: 0.7 },
+  ];
+
+  return [...staticPages, ...recipes, ...blogPosts, ...memberPosts];
+}

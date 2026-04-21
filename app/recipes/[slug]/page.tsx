@@ -206,8 +206,35 @@ export default async function RecipeDetailPage({ params }: Props) {
 
   const hasImage = recipe.image_url && recipe.image_url.trim() !== "";
 
+  const ingredientLines = recipe.ingredients
+    .split("\n").map((s) => s.trim()).filter(Boolean);
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Recipe",
+    name: recipe.title,
+    description: recipe.description ?? `${recipe.title} tarifi — malzemeler ve yapılışı.`,
+    image: recipe.image_url ? [recipe.image_url] : undefined,
+    author: { "@type": "Person", name: authorName },
+    datePublished: recipe.created_at,
+    recipeCategory: recipe.category,
+    recipeYield: recipe.servings ? `${recipe.servings} kişilik` : undefined,
+    recipeIngredient: ingredientLines,
+    recipeInstructions: steps.map((step, i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      text: step,
+    })),
+    aggregateRating: undefined as undefined,
+    url: `https://www.menugunlugu.com/recipes/${recipe.slug}`,
+  };
+
   return (
     <SidebarLayout placement="sidebar_recipe_detail">
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <Link href="/recipes"
         className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-4">

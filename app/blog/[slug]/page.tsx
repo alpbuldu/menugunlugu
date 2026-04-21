@@ -109,8 +109,31 @@ export default async function BlogPostPage({ params }: Props) {
     (memberFollowRes.data ?? []).forEach((r: { following_id: string }) => { sliderFollowMap[r.following_id] = true; });
   }
 
+  const blogJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    description: post.excerpt ?? post.content.replace(/<[^>]+>/g, "").slice(0, 155),
+    image: post.image_url ? [post.image_url] : undefined,
+    author: { "@type": "Person", name: authorName, url: `https://www.menugunlugu.com/uye/${authorUsername}` },
+    publisher: {
+      "@type": "Organization",
+      name: "Menü Günlüğü",
+      logo: { "@type": "ImageObject", url: "https://www.menugunlugu.com/logo.png" },
+    },
+    datePublished: post.created_at,
+    dateModified: post.created_at,
+    mainEntityOfPage: `https://www.menugunlugu.com/blog/${post.slug}`,
+    articleSection: post.category?.name,
+    url: `https://www.menugunlugu.com/blog/${post.slug}`,
+  };
+
   return (
     <SidebarLayout placement="sidebar_blog_post">
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
+    />
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <Link href="/blog"
         className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-4">

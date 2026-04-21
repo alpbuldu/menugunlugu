@@ -15,13 +15,16 @@ function toW3CDate(dateStr: string | null | undefined): string {
   }
 }
 
+const RECIPE_CATEGORY_SLUGS = ["corbalar", "ana-yemekler", "yardimci-lezzetler", "tatlilar"];
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createAdminClient();
 
-  const [recipesRes, blogRes, memberPostsRes] = await Promise.all([
-    supabase.from("recipes").select("slug, updated_at").eq("published", true),
+  const [recipesRes, blogRes, memberPostsRes, blogCatsRes] = await Promise.all([
+    supabase.from("recipes").select("slug, updated_at").or("approval_status.eq.approved,approval_status.is.null"),
     supabase.from("blog_posts").select("slug, created_at").eq("published", true),
-    supabase.from("member_posts").select("slug, created_at").eq("status", "published"),
+    supabase.from("member_posts").select("slug, created_at").eq("approval_status", "approved"),
+    supabase.from("blog_categories").select("slug, created_at"),
   ]);
 
   const recipes = (recipesRes.data ?? []).map((r) => ({
@@ -45,14 +48,37 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  const now = new Date().toISOString();
+  // Blog kategori sayfaları
+  const blogCategories: MetadataRoute.Sitemap = (blogCatsRes.data ?? []).map((c) => ({
+    url: `${BASE}/blog/kategori/${c.slug}`,
+    lastModified: toW3CDate(c.created_at),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
+  // Tarif kategori sayfaları
+  const recipeCategories: MetadataRoute.Sitemap = RECIPE_CATEGORY_SLUGS.map((slug) => ({
+    url: `${BASE}/tarifler/kategori/${slug}`,
+    lastModified: new Date().toISOString().split("T")[0],
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
+  const now = new Date().toISOString().split("T")[0];
   const staticPages: MetadataRoute.Sitemap = [
-    { url: BASE,               lastModified: now, changeFrequency: "daily",   priority: 1.0 },
-    { url: `${BASE}/gunun-menusu`, lastModified: now, changeFrequency: "daily",   priority: 0.9 },
-    { url: `${BASE}/dunun-menusu`, lastModified: now, changeFrequency: "daily",   priority: 0.8 },
-    { url: `${BASE}/blog`,         lastModified: now, changeFrequency: "daily",   priority: 0.9 },
-    { url: `${BASE}/tarifler`,     lastModified: now, changeFrequency: "daily",   priority: 0.9 },
+    { url: BASE,                   lastModified: now, changeFrequency: "daily", priority: 1.0 },
+    { url: `${BASE}/gunun-menusu`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
+    { url: `${BASE}/dunun-menusu`, lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    { url: `${BASE}/blog`,         lastModified: now, changeFrequency: "daily", priority: 0.9 },
+    { url: `${BASE}/tarifler`,     lastModified: now, changeFrequency: "daily", priority: 0.9 },
   ];
 
-  return [...staticPages, ...recipes, ...blogPosts, ...memberPosts];
+  return [
+    ...staticPages,
+    ...recipeCategories,
+    ...blogCategories,
+    ...recipes,
+    ...blogPosts,
+    ...memberPosts,
+  ];
 }

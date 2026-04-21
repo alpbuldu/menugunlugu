@@ -5,6 +5,16 @@ const BASE = "https://www.menugunlugu.com";
 
 export const revalidate = 3600; // 1 saatte bir güncelle
 
+/** Supabase tarihleri bazen mikrosaniye içerir, Google W3C datetime ister */
+function toW3CDate(dateStr: string | null | undefined): string {
+  if (!dateStr) return new Date().toISOString().split("T")[0];
+  try {
+    return new Date(dateStr).toISOString().split("T")[0]; // YYYY-MM-DD
+  } catch {
+    return new Date().toISOString().split("T")[0];
+  }
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createAdminClient();
 
@@ -16,21 +26,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const recipes = (recipesRes.data ?? []).map((r) => ({
     url: `${BASE}/recipes/${r.slug}`,
-    lastModified: r.updated_at ?? new Date().toISOString(),
+    lastModified: toW3CDate(r.updated_at),
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));
 
   const blogPosts = (blogRes.data ?? []).map((p) => ({
     url: `${BASE}/blog/${p.slug}`,
-    lastModified: p.created_at,
+    lastModified: toW3CDate(p.created_at),
     changeFrequency: "monthly" as const,
     priority: 0.7,
   }));
 
   const memberPosts = (memberPostsRes.data ?? []).map((p) => ({
     url: `${BASE}/yazi/${p.slug}`,
-    lastModified: p.created_at,
+    lastModified: toW3CDate(p.created_at),
     changeFrequency: "monthly" as const,
     priority: 0.6,
   }));

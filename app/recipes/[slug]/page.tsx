@@ -275,6 +275,7 @@ export default async function RecipeDetailPage({ params }: Props) {
                   size="icon"
                 />
                 <FavoriteButton recipeId={recipe.id} compact />
+                <ShareButton title={recipe.title} compact />
               </div>
               <div className="flex items-center gap-2 flex-shrink-0 hidden sm:flex">
                 <FollowButton
@@ -285,6 +286,7 @@ export default async function RecipeDetailPage({ params }: Props) {
                   size="sm"
                 />
                 <FavoriteButton recipeId={recipe.id} />
+                <ShareButton title={recipe.title} />
               </div>
             </div>
             <h1 className="text-xl sm:text-3xl font-bold text-warm-900 mt-3 leading-snug">{recipe.title}</h1>
@@ -367,19 +369,10 @@ export default async function RecipeDetailPage({ params }: Props) {
         />
       </div>
 
-      {/* Rating + Favorite + Share */}
-      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Rating + Favorite */}
+      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex items-center justify-between gap-4">
         <RatingStars recipeId={recipe.id} />
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <FavoriteButton recipeId={recipe.id} />
-          {/* Mobil: ikon, masaüstü: yazılı */}
-          <div className="sm:hidden">
-            <ShareButton title={recipe.title} compact />
-          </div>
-          <div className="hidden sm:block">
-            <ShareButton title={recipe.title} />
-          </div>
-        </div>
+        <FavoriteButton recipeId={recipe.id} />
       </div>
 
       {/* Mobil reklam — yorumun üstünde */}

@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-const PER_PAGE = 16;
+const PER_PAGE = 12;
 
 type CategoryFilter = Category | "all";
 

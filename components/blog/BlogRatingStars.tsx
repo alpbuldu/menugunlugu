@@ -35,7 +35,7 @@ export default function BlogRatingStars({ postId }: Props) {
       return;
     }
     setUserScore(score);
-    setMessage("Puanınız kaydedildi ✓.");
+    setMessage("Puanınız kaydedildi. ✓");
     fetch(`/api/blog/${postId}/ratings`)
       .then((r) => r.json())
       .then((d) => { setAvg(d.avg); setCount(d.count); });

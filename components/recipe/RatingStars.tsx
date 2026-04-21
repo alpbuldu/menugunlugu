@@ -36,7 +36,7 @@ export default function RatingStars({ recipeId }: Props) {
     }
     setUserScore(score);
     // Optimistically update avg
-    setMessage("Puanınız kaydedildi ✓.");
+    setMessage("Puanınız kaydedildi. ✓");
     // Re-fetch for accurate avg
     fetch(`/api/recipes/${recipeId}/ratings`)
       .then((r) => r.json())

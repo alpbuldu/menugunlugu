@@ -390,7 +390,9 @@ export default async function RecipeDetailPage({ params }: Props) {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-warm-800">Benzer Tarifler</h2>
-              <Link href={`/recipes?category=${recipe.category}`} className="text-sm text-brand-600 hover:underline">
+              <Link href={`/recipes/kategori/${
+                { soup: "corbalar", main: "ana-yemekler", side: "yardimci-lezzetler", dessert: "tatlilar" }[recipe.category] ?? recipe.category
+              }`} className="text-sm text-brand-600 hover:underline">
                 Tümünü gör →
               </Link>
             </div>

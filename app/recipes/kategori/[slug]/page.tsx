@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { getRecipes } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
@@ -9,52 +10,64 @@ import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import AdBanner from "@/components/ui/AdBanner";
 
-export const metadata: Metadata = {
-  title: "Tarifler",
-  description: "Tüm tarifleri kategorilere göre keşfedin.",
-  alternates: { canonical: "/recipes" },
-};
-
 export const dynamic = "force-dynamic";
 
 const PER_PAGE = 12;
 
-type CategoryFilter = Category | "all";
+/** Türkçe slug → veritabanı category değeri */
+const SLUG_TO_CATEGORY: Record<string, Category> = {
+  "corbalar":           "soup",
+  "ana-yemekler":       "main",
+  "yardimci-lezzetler": "side",
+  "tatlilar":           "dessert",
+};
 
-const categories: { key: CategoryFilter; label: string; slug: string }[] = [
-  { key: "all",     label: "Tümü",              slug: ""                   },
-  { key: "soup",    label: "Çorbalar",           slug: "corbalar"           },
-  { key: "main",    label: "Ana Yemekler",       slug: "ana-yemekler"       },
-  { key: "side",    label: "Yardımcı Lezzetler", slug: "yardimci-lezzetler" },
-  { key: "dessert", label: "Tatlılar",           slug: "tatlilar"           },
-];
+/** Kategori bilgileri */
+const CATEGORY_META: Record<Category, { label: string; slug: string; description: string }> = {
+  soup:    { label: "Çorbalar",           slug: "corbalar",           description: "Sıcak ve doyurucu çorba tarifleri." },
+  main:    { label: "Ana Yemekler",       slug: "ana-yemekler",       description: "Günlük sofralar için ana yemek tarifleri." },
+  side:    { label: "Yardımcı Lezzetler", slug: "yardimci-lezzetler", description: "Sofranızı tamamlayacak yardımcı lezzet tarifleri." },
+  dessert: { label: "Tatlılar",           slug: "tatlilar",           description: "Tatlı bir son için tarif önerileri." },
+};
+
+const ALL_SLUGS = Object.keys(SLUG_TO_CATEGORY);
 
 interface Props {
-  searchParams: Promise<{ category?: string; page?: string }>;
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
 }
 
-export default async function RecipesPage({ searchParams }: Props) {
-  const { category: categoryParam, page: pageParam } = await searchParams;
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const category = SLUG_TO_CATEGORY[slug];
+  if (!category) return { title: "Kategori bulunamadı" };
+  const meta = CATEGORY_META[category];
+  return {
+    title: `${meta.label} Tarifleri`,
+    description: meta.description,
+    alternates: { canonical: `/recipes/kategori/${slug}` },
+  };
+}
 
-  const validCategories: Category[] = ["soup", "main", "side", "dessert"];
-  const activeCategory =
-    categoryParam && validCategories.includes(categoryParam as Category)
-      ? (categoryParam as Category)
-      : undefined;
+export default async function RecipeKategoriPage({ params, searchParams }: Props) {
+  const { slug } = await params;
+  const { page: pageParam } = await searchParams;
 
+  const category = SLUG_TO_CATEGORY[slug];
+  if (!category) notFound();
+
+  const meta = CATEGORY_META[category];
   const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
 
   const supabase = await createClient();
-  const allRecipes = await getRecipes(activeCategory);
+  const allRecipes = await getRecipes(category);
   const totalPages = Math.ceil(allRecipes.length / PER_PAGE);
-  const recipes = allRecipes.slice(
-    (currentPage - 1) * PER_PAGE,
-    currentPage * PER_PAGE
-  );
+  const recipes = allRecipes.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
 
   // Yazar verileri
   const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();
   const adminAuthor = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "", username: ap?.username ?? "__admin__" };
+
   const memberIds = [...new Set(recipes.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
   const profileMap: Record<string, { name: string; avatar: string; username: string }> = {};
   if (memberIds.length) {
@@ -81,7 +94,6 @@ export default async function RecipesPage({ searchParams }: Props) {
     (memberFollowRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
   }
 
-  /** Her zaman ilk 2 + son 2 + mevcut±1 göster; araya … ekle */
   function buildPages(current: number, total: number): (number | "…")[] {
     const pagesSet = new Set<number>();
     pagesSet.add(1); pagesSet.add(2);
@@ -96,42 +108,52 @@ export default async function RecipesPage({ searchParams }: Props) {
     return result;
   }
 
-  /** Build ?category=X&page=Y preserving current filters */
-  function href(overrides: { category?: string; page?: number }) {
-    const p = new URLSearchParams();
-    const cat = "category" in overrides ? overrides.category : activeCategory;
-    if (cat) p.set("category", cat);
-    const pg = overrides.page ?? currentPage;
-    if (pg > 1) p.set("page", String(pg));
-    const qs = p.toString();
-    return `/recipes${qs ? `?${qs}` : ""}`;
+  function pageHref(page: number) {
+    if (page === 1) return `/recipes/kategori/${slug}`;
+    return `/recipes/kategori/${slug}?page=${page}`;
   }
 
   return (
     <SidebarLayout placement="sidebar_recipes">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
-      <h1 className="text-3xl font-bold text-warm-900 mb-1">Tarifler</h1>
-      <p className="text-sm sm:text-base text-warm-500 mb-4">Kategorilere göre tarifleri keşfedin.</p>
+      <Link href="/recipes" className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-4">
+        ← Tarifler
+      </Link>
 
-      {/* Category Filter */}
+      <h1 className="text-3xl font-bold text-warm-900 mb-1">{meta.label}</h1>
+      <p className="text-sm sm:text-base text-warm-500 mb-4">{meta.description}</p>
+
+      {/* Kategori filtreleri */}
       <div className="flex gap-1 sm:flex-wrap sm:gap-2 mb-4 sm:mb-8">
-        {categories.map((cat) => (
-          <Link
-            key={cat.key}
-            href={cat.key === "all" ? "/recipes" : `/recipes/kategori/${cat.slug}`}
-            className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
-          >
-            {cat.label}
-          </Link>
-        ))}
+        <Link
+          href="/recipes"
+          className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+        >
+          Tümü
+        </Link>
+        {ALL_SLUGS.map((s) => {
+          const cat = SLUG_TO_CATEGORY[s];
+          const m   = CATEGORY_META[cat];
+          return (
+            <Link
+              key={s}
+              href={`/recipes/kategori/${s}`}
+              className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
+                s === slug
+                  ? "bg-brand-600 border-brand-600 text-white"
+                  : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+              }`}
+            >
+              {m.label}
+            </Link>
+          );
+        })}
       </div>
 
-      {/* Yatay reklam banneri — masaüstü */}
+      {/* Reklam */}
       <AdBanner placement="recipes_banner" imageHeight="h-[100px]" className="hidden sm:block mb-8" />
-      {/* Yatay reklam banneri — mobil */}
       <AdBanner placement="recipes_banner_mobile" imageHeight="h-[70px]" className="sm:hidden mb-4" />
 
-      {/* Recipe Grid */}
       {recipes.length === 0 ? (
         <div className="text-center py-20 text-warm-400">
           <p className="text-4xl mb-4">🔍</p>
@@ -151,17 +173,11 @@ export default async function RecipesPage({ searchParams }: Props) {
                 <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
                   <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
                     {recipe.image_url ? (
-                      <Image
-                        src={recipe.image_url}
-                        alt={recipe.title}
-                        fill
+                      <Image src={recipe.image_url} alt={recipe.title} fill
                         sizes="(max-width: 640px) 50vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
+                        className="object-cover group-hover:scale-105 transition-transform duration-300" />
                     ) : (
-                      <div className="flex items-center justify-center h-full text-5xl text-warm-300">
-                        🍳
-                      </div>
+                      <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍳</div>
                     )}
                   </div>
                   <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
@@ -210,11 +226,11 @@ export default async function RecipesPage({ searchParams }: Props) {
         </div>
       )}
 
-      {/* Pagination */}
+      {/* Sayfalama */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-1.5 mt-12 flex-wrap">
           {currentPage > 1 ? (
-            <Link href={href({ page: currentPage - 1 })}
+            <Link href={pageHref(currentPage - 1)}
               className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors"
               aria-label="Önceki sayfa">‹</Link>
           ) : (
@@ -225,7 +241,7 @@ export default async function RecipesPage({ searchParams }: Props) {
             p === "…" ? (
               <span key={`dots-${i}`} className="text-warm-400 text-sm px-1">…</span>
             ) : (
-              <Link key={p} href={href({ page: p })}
+              <Link key={p} href={pageHref(p)}
                 aria-current={p === currentPage ? "page" : undefined}
                 className={`inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-colors border ${
                   p === currentPage
@@ -238,7 +254,7 @@ export default async function RecipesPage({ searchParams }: Props) {
           )}
 
           {currentPage < totalPages ? (
-            <Link href={href({ page: currentPage + 1 })}
+            <Link href={pageHref(currentPage + 1)}
               className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors"
               aria-label="Sonraki sayfa">›</Link>
           ) : (

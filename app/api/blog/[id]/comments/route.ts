@@ -3,6 +3,18 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 
 type Params = { params: Promise<{ id: string }> };
 
+async function attachProfiles(admin: ReturnType<typeof createAdminClient>, comments: any[]) {
+  if (!comments.length) return comments;
+  const userIds = [...new Set(comments.map((c) => c.user_id).filter(Boolean))];
+  const { data: profiles } = await admin
+    .from("profiles")
+    .select("id, username, avatar_url")
+    .in("id", userIds);
+  const map: Record<string, { username: string; avatar_url: string | null }> = {};
+  (profiles ?? []).forEach((p) => { map[p.id] = { username: p.username, avatar_url: p.avatar_url ?? null }; });
+  return comments.map((c) => ({ ...c, profiles: map[c.user_id] ?? null }));
+}
+
 // GET — fetch comments for a blog post
 export async function GET(_req: NextRequest, { params }: Params) {
   const { id } = await params;
@@ -10,12 +22,13 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
   const { data, error } = await admin
     .from("blog_comments")
-    .select("id, content, created_at, user_id, profiles:user_id ( username, avatar_url )")
+    .select("id, content, created_at, user_id")
     .eq("post_id", id)
     .order("created_at", { ascending: true });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ comments: data ?? [] });
+  const comments = await attachProfiles(admin, data ?? []);
+  return NextResponse.json({ comments });
 }
 
 // POST — add a comment
@@ -33,11 +46,20 @@ export async function POST(request: NextRequest, { params }: Params) {
   const { data, error } = await admin
     .from("blog_comments")
     .insert({ post_id: id, user_id: user.id, content: content.trim() })
-    .select("id, content, created_at, user_id, profiles:user_id ( username, avatar_url )")
+    .select("id, content, created_at, user_id")
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ comment: data }, { status: 201 });
+
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("username, avatar_url")
+    .eq("id", user.id)
+    .single();
+
+  return NextResponse.json({
+    comment: { ...data, profiles: profile ?? null },
+  }, { status: 201 });
 }
 
 // DELETE — delete own comment

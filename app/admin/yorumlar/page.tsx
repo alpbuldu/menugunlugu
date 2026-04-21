@@ -8,17 +8,42 @@ export const dynamic = "force-dynamic";
 export default async function YorumlarPage() {
   const supabase = createAdminClient();
 
-  const [{ data: recipeComments }, { data: blogComments }] = await Promise.all([
+  const [{ data: recipeComments }, { data: blogCommentsRaw }] = await Promise.all([
     supabase
       .from("comments")
-      .select("id, content, created_at, profiles:user_id ( username, avatar_url ), recipes:recipe_id ( title, slug )")
+      .select("id, content, created_at, user_id, profiles:user_id ( username, avatar_url ), recipes:recipe_id ( title, slug )")
       .order("created_at", { ascending: false }),
 
     supabase
       .from("blog_comments")
-      .select("id, content, created_at, profiles:user_id ( username, avatar_url ), blog_posts:post_id ( title, slug )")
+      .select("id, content, created_at, user_id, post_id")
       .order("created_at", { ascending: false }),
   ]);
+
+  // blog_comments has no FK to profiles — fetch manually
+  const blogRaw = (blogCommentsRaw ?? []) as any[];
+  const blogUserIds = [...new Set(blogRaw.map((c) => c.user_id).filter(Boolean))];
+  const blogPostIds = [...new Set(blogRaw.map((c) => c.post_id).filter(Boolean))];
+
+  const [{ data: blogProfiles }, { data: blogPosts }] = await Promise.all([
+    blogUserIds.length
+      ? supabase.from("profiles").select("id, username, avatar_url").in("id", blogUserIds)
+      : Promise.resolve({ data: [] }),
+    blogPostIds.length
+      ? supabase.from("blog_posts").select("id, title, slug").in("id", blogPostIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const profileMap: Record<string, any> = {};
+  (blogProfiles ?? []).forEach((p) => { profileMap[p.id] = p; });
+  const postMap: Record<string, any> = {};
+  (blogPosts ?? []).forEach((p) => { postMap[p.id] = p; });
+
+  const blogComments = blogRaw.map((c) => ({
+    ...c,
+    profiles:   profileMap[c.user_id] ?? null,
+    blog_posts: postMap[c.post_id]    ?? null,
+  }));
 
   const rc = (recipeComments ?? []) as any[];
   const bc = (blogComments   ?? []) as any[];

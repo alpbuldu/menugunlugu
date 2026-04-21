@@ -300,6 +300,7 @@ export default function RecipeSlider({
                             src={recipe.image_url}
                             alt={recipe.title}
                             fill
+                            sizes="(max-width: 640px) 80vw, 300px"
                             className="object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (

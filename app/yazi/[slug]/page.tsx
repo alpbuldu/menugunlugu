@@ -92,7 +92,7 @@ export default async function YaziDetayPage({ params }: Props) {
         {/* Hero görsel */}
         <div className="relative h-72 bg-warm-100">
           {hasImage ? (
-            <Image src={post.image_url!} alt={post.title} fill className="object-cover" priority />
+            <Image src={post.image_url!} alt={post.title} fill className="object-cover" priority sizes="(max-width: 768px) 100vw, 768px" />
           ) : (
             <div className="flex items-center justify-center h-full text-7xl text-warm-300">✍️</div>
           )}

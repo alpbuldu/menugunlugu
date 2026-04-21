@@ -3,7 +3,7 @@ import Link from "next/link";
 import Calendar from "@/components/archive/Calendar";
 import { createAdminClient } from "@/lib/supabase/server";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 1800; // 30 dakikada bir yenile
 
 export const metadata: Metadata = {
   title: "Dünün Menüsü",

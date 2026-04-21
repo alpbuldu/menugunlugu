@@ -5,6 +5,8 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import CookieBanner from "@/components/ui/CookieBanner";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.menugunlugu.com"),
@@ -56,6 +58,8 @@ export default function RootLayout({
         <Footer />
         <ScrollToTop />
         <CookieBanner />
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );

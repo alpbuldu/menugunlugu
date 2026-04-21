@@ -7,7 +7,7 @@ interface Props {
 }
 
 const STORAGE_KEY = "popup_dismissed_at";
-const COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 saat
+const COOLDOWN_MS = 12 * 60 * 60 * 1000; // 12 saat
 
 export default function AdPopup({ ad }: Props) {
   const [visible, setVisible] = useState(false);

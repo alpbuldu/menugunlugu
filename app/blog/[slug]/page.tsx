@@ -9,6 +9,9 @@ import FollowButton from "@/components/ui/FollowButton";
 import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdBanner from "@/components/ui/AdBanner";
 import SidebarLayout from "@/components/ui/SidebarLayout";
+import BlogFavoriteButton from "@/components/blog/BlogFavoriteButton";
+import BlogRatingStars from "@/components/blog/BlogRatingStars";
+import BlogCommentSection from "@/components/blog/BlogCommentSection";
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 
@@ -117,38 +120,71 @@ export default async function BlogPostPage({ params }: Props) {
       <AdBanner placement="blog_post_banner_mobile" imageHeight="h-[70px]" className="sm:hidden mb-4" />
 
       <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
+        {/* Hero image */}
         <div className="relative h-72 bg-warm-100">
           {hasImage ? (
             <Image src={post.image_url!} alt={post.title} fill className="object-cover" priority />
           ) : (
             <div className="flex items-center justify-center h-full text-7xl text-warm-300">✍️</div>
           )}
+          {/* Yazar etiketi — sağ alt, recipe detail ile aynı stil */}
           <Link
             href={`/uye/${authorUsername}`}
-            className="absolute bottom-3 left-3 flex items-center gap-2 bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors rounded-full px-3 py-1.5"
+            className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors rounded-full px-2.5 py-1"
           >
             {authorAvatar ? (
-              <img src={authorAvatar} alt={authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+              <img src={authorAvatar} alt={authorName} className="w-4 h-4 rounded-full object-cover flex-shrink-0" />
             ) : (
-              <span className="w-5 h-5 rounded-full bg-brand-400 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+              <span className="w-4 h-4 rounded-full bg-brand-400 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">
                 {authorName.charAt(0).toUpperCase()}
               </span>
             )}
-            <span className="text-xs font-medium text-white">{authorName}</span>
+            <span className="text-[10px] text-white/60 font-medium">Yazar:</span>
+            <span className="text-[10px] font-semibold text-white">{authorName}</span>
           </Link>
         </div>
 
         <div className="p-8">
           <div className="mb-8">
-            {post.category && (
-              <span className="inline-block self-start w-fit mb-3 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-100 text-brand-700">
-                {post.category.name}
-              </span>
-            )}
+            {/* Üst satır: kategori + tarih SOL, butonlar SAĞ */}
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                {post.category && (
+                  <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-100 text-brand-700">
+                    {post.category.name}
+                  </span>
+                )}
+                <span className="text-xs text-warm-400">
+                  {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
+                </span>
+              </div>
+
+              {/* Mobil: ikon butonlar */}
+              <div className="flex items-center gap-2 flex-shrink-0 sm:hidden">
+                <FollowButton
+                  isAdminProfile={true}
+                  initialFollowing={initialFollowing}
+                  isLoggedIn={!!currentUserId}
+                  size="icon"
+                />
+                <BlogFavoriteButton postId={post.id} compact />
+                <ShareButton title={post.title} compact />
+              </div>
+
+              {/* Masaüstü: yazılı butonlar */}
+              <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
+                <FollowButton
+                  isAdminProfile={true}
+                  initialFollowing={initialFollowing}
+                  isLoggedIn={!!currentUserId}
+                  size="sm"
+                />
+                <BlogFavoriteButton postId={post.id} />
+                <ShareButton title={post.title} />
+              </div>
+            </div>
+
             <h1 className="text-2xl sm:text-3xl font-bold text-warm-900 leading-snug">{post.title}</h1>
-            <p className="text-sm text-warm-400 mt-2">
-              {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
-            </p>
           </div>
 
           {post.excerpt && (
@@ -192,6 +228,17 @@ export default async function BlogPostPage({ params }: Props) {
           isLoggedIn={!!currentUserId}
           size="xs"
         />
+      </div>
+
+      {/* Puanlama + Deftere Ekle */}
+      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <BlogRatingStars postId={post.id} />
+        <BlogFavoriteButton postId={post.id} />
+      </div>
+
+      {/* Yorumlar */}
+      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
+        <BlogCommentSection postId={post.id} currentUserId={currentUserId} />
       </div>
 
       {/* Yatay reklam banneri — masaüstü */}

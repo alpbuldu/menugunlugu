@@ -44,10 +44,11 @@ function paginate<T>(arr: T[], page: number, size: number) {
 // searchParams:
 //   page  → tariflerim / tarif-defterim / yazılarım / takip-ettiklerim
 //   page2 → takipçilerim
-interface Props { searchParams: Promise<{ tab?: string; page?: string; page2?: string }> }
+//   defter → tarif-defterim sub-filter: "tarifler" | "blog"
+interface Props { searchParams: Promise<{ tab?: string; page?: string; page2?: string; defter?: string }> }
 
 export default async function UyePanelPage({ searchParams }: Props) {
-  const { tab = "tariflerim", page = "1", page2 = "1" } = await searchParams;
+  const { tab = "tariflerim", page = "1", page2 = "1", defter } = await searchParams;
   const pageNum  = Math.max(1, parseInt(page));
   const page2Num = Math.max(1, parseInt(page2));
 
@@ -60,6 +61,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
     { data: profile },
     { data: recipes },
     { data: favorites },
+    { data: blogFavorites },
     { data: posts },
     { data: following },
     { data: adminFollowRow },
@@ -79,6 +81,11 @@ export default async function UyePanelPage({ searchParams }: Props) {
     supabase
       .from("favorites")
       .select("recipe_id, created_at, recipes(id, title, slug, category, image_url, submitted_by)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("blog_favorites")
+      .select("post_id, created_at, blog_posts(id, title, slug, image_url)")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
     supabase
@@ -146,16 +153,20 @@ export default async function UyePanelPage({ searchParams }: Props) {
   const favFollowMap: Record<string, boolean> = {};
   favMemberIds.forEach((id) => { favFollowMap[id] = followedMemberSet.has(id); });
 
+  // Defter birleşik sayım
+  const totalDefterCount = (favorites?.length ?? 0) + (blogFavorites?.length ?? 0);
+
   // Sayfalamalar
   const recipesPag   = paginate(recipes   ?? [], pageNum,  PAGE_SIZE);
   const favsPag      = paginate(favorites ?? [], pageNum,  PAGE_SIZE);
+  const blogFavsPag  = paginate(blogFavorites ?? [], pageNum, PAGE_SIZE);
   const postsPag     = paginate(posts     ?? [], pageNum,  PAGE_SIZE);
   const followingPag = paginate(followingAll,    pageNum,  FOLLOW_SIZE);
   const followersPag = paginate(followers  ?? [], page2Num, FOLLOW_SIZE);
 
   const tabs = [
     { key: "tariflerim",     label: "Tariflerim",       count: recipes?.length ?? 0 },
-    { key: "tarif-defterim", label: "Tarif Defterim",   count: favorites?.length ?? 0 },
+    { key: "tarif-defterim", label: "Tarif Defterim",   count: totalDefterCount },
     { key: "yazilarim",      label: "Yazılarım",        count: posts?.length ?? 0 },
     { key: "takip",          label: "Takip Paneli",     count: followingCount + followerCount },
     { key: "panelim",        label: "Hesap Bilgilerim", count: null },
@@ -276,63 +287,132 @@ export default async function UyePanelPage({ searchParams }: Props) {
       {/* ── Tab: Tarif Defterim ── */}
       {tab === "tarif-defterim" && (
         <section>
-          <p className="text-xs text-warm-400 mb-3">Beğendiğiniz tarifleri kalp butonuna basarak buraya kaydedebilirsiniz. Kaydettiğiniz tarifler yalnızca size görünür.</p>
-          <p className="text-sm text-warm-500 mb-4">{favsPag.total} tarif kaydedildi</p>
-          {favsPag.total === 0 ? (
-            <Empty icon="📚" text="Tarif defteriniz boş. Tarifleri incelerken ❤️ butona basın." />
-          ) : (
+          <p className="text-xs text-warm-400 mb-3">Beğendiğiniz tarifleri ve blog yazılarını kalp butonuna basarak buraya kaydedebilirsiniz. Kaydettiğiniz içerikler yalnızca size görünür.</p>
+
+          {/* Alt filtre butonları */}
+          <div className="flex gap-2 mb-4">
+            {[
+              { key: undefined,    label: `Tümü (${totalDefterCount})` },
+              { key: "tarifler",   label: `Tarifler (${favorites?.length ?? 0})` },
+              { key: "blog",       label: `Blog Yazıları (${blogFavorites?.length ?? 0})` },
+            ].map((f) => (
+              <Link
+                key={f.key ?? "tumü"}
+                href={`/uye/panel?tab=tarif-defterim${f.key ? `&defter=${f.key}` : ""}`}
+                className={[
+                  "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+                  (defter ?? undefined) === f.key
+                    ? "bg-brand-600 border-brand-600 text-white"
+                    : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-700",
+                ].join(" ")}
+              >
+                {f.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* ─ Tarifler ─ */}
+          {(!defter || defter === "tarifler") && (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {favsPag.items.map((fav: any) => {
-                  const r = fav.recipes as unknown as (Recipe & { submitted_by?: string | null }) | null;
-                  if (!r) return null;
-                  const favAuthor: { username: string; avatar_url: string | null } | null = r.submitted_by
-                    ? (favProfileMap[r.submitted_by] ?? null)
-                    : { username: adminUsername, avatar_url: adminAvatarUrl };
-                  const authorIsAdmin = !r.submitted_by;
-                  const favInitFollowing = authorIsAdmin ? followsAdmin : (favFollowMap[r.submitted_by!] ?? false);
-                  return (
-                    <div key={fav.recipe_id} className="group bg-white rounded-xl border border-warm-200 overflow-hidden hover:shadow-md transition-all flex flex-col">
-                      <Link href={`/recipes/${r.slug}`} className="flex flex-col flex-1">
-                        {r.image_url ? (
-                          <Image src={r.image_url} alt={r.title} width={200} height={120}
-                            className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300" />
-                        ) : (
-                          <div className="w-full h-28 bg-warm-100 flex items-center justify-center text-2xl">🍽️</div>
-                        )}
-                        <div className="p-3 flex flex-col flex-1">
-                          <p className="text-sm font-medium text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{r.title}</p>
-                          <p className="text-xs text-warm-400 mt-1">{CATEGORY_LABELS[r.category]}</p>
-                        </div>
-                      </Link>
-                      {favAuthor && (
-                        <div className="flex items-center gap-1.5 px-3 pb-3 pt-2 border-t border-warm-100">
-                          <Link href={authorIsAdmin ? "/uye/__admin__" : `/uye/${favAuthor.username}`} className="flex items-center gap-1.5 flex-1 min-w-0 hover:opacity-80 transition-opacity">
-                            {favAuthor.avatar_url ? (
-                              <img src={favAuthor.avatar_url} alt={favAuthor.username}
-                                className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+              {(favorites?.length ?? 0) === 0 && defter === "tarifler" ? (
+                <Empty icon="📚" text="Kaydedilen tarif yok. Tarifleri incelerken ❤️ butona basın." />
+              ) : (favorites?.length ?? 0) > 0 ? (
+                <>
+                  {defter !== "tarifler" && <p className="text-xs font-semibold text-warm-500 mb-2 mt-1">Tarifler</p>}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+                    {favsPag.items.map((fav: any) => {
+                      const r = fav.recipes as unknown as (Recipe & { submitted_by?: string | null }) | null;
+                      if (!r) return null;
+                      const favAuthor: { username: string; avatar_url: string | null } | null = r.submitted_by
+                        ? (favProfileMap[r.submitted_by] ?? null)
+                        : { username: adminUsername, avatar_url: adminAvatarUrl };
+                      const authorIsAdmin = !r.submitted_by;
+                      const favInitFollowing = authorIsAdmin ? followsAdmin : (favFollowMap[r.submitted_by!] ?? false);
+                      return (
+                        <div key={fav.recipe_id} className="group bg-white rounded-xl border border-warm-200 overflow-hidden hover:shadow-md transition-all flex flex-col">
+                          <Link href={`/recipes/${r.slug}`} className="flex flex-col flex-1">
+                            {r.image_url ? (
+                              <Image src={r.image_url} alt={r.title} width={200} height={120}
+                                className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300" />
                             ) : (
-                              <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
-                                {favAuthor.username.charAt(0).toUpperCase()}
-                              </span>
+                              <div className="w-full h-28 bg-warm-100 flex items-center justify-center text-2xl">🍽️</div>
                             )}
-                            <span className="text-xs text-warm-500 truncate">{favAuthor.username}</span>
+                            <div className="p-3 flex flex-col flex-1">
+                              <p className="text-sm font-medium text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{r.title}</p>
+                              <p className="text-xs text-warm-400 mt-1">{CATEGORY_LABELS[r.category]}</p>
+                            </div>
                           </Link>
-                          <FollowButton
-                            targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined}
-                            isAdminProfile={authorIsAdmin}
-                            initialFollowing={favInitFollowing}
-                            isLoggedIn={true}
-                            size="icon"
-                          />
+                          {favAuthor && (
+                            <div className="flex items-center gap-1.5 px-3 pb-3 pt-2 border-t border-warm-100">
+                              <Link href={authorIsAdmin ? "/uye/__admin__" : `/uye/${favAuthor.username}`} className="flex items-center gap-1.5 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+                                {favAuthor.avatar_url ? (
+                                  <img src={favAuthor.avatar_url} alt={favAuthor.username}
+                                    className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                                ) : (
+                                  <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                                    {favAuthor.username.charAt(0).toUpperCase()}
+                                  </span>
+                                )}
+                                <span className="text-xs text-warm-500 truncate">{favAuthor.username}</span>
+                              </Link>
+                              <FollowButton
+                                targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined}
+                                isAdminProfile={authorIsAdmin}
+                                initialFollowing={favInitFollowing}
+                                isLoggedIn={true}
+                                size="icon"
+                              />
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              <Pagination tab="tarif-defterim" page={favsPag.safePage} totalPages={favsPag.totalPages} />
+                      );
+                    })}
+                  </div>
+                  {defter === "tarifler" && <Pagination tab="tarif-defterim" page={favsPag.safePage} totalPages={favsPag.totalPages} extraParam="defter=tarifler" />}
+                </>
+              ) : null}
             </>
+          )}
+
+          {/* ─ Blog Yazıları ─ */}
+          {(!defter || defter === "blog") && (
+            <>
+              {(blogFavorites?.length ?? 0) === 0 && defter === "blog" ? (
+                <Empty icon="📖" text="Kaydedilen blog yazısı yok. Blog yazılarını incelerken ❤️ butona basın." />
+              ) : (blogFavorites?.length ?? 0) > 0 ? (
+                <>
+                  {defter !== "blog" && <p className="text-xs font-semibold text-warm-500 mb-2 mt-1">Blog Yazıları</p>}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {blogFavsPag.items.map((fav: any) => {
+                      const p = fav.blog_posts as { id: string; title: string; slug: string; image_url: string | null } | null;
+                      if (!p) return null;
+                      return (
+                        <div key={fav.post_id} className="group bg-white rounded-xl border border-warm-200 overflow-hidden hover:shadow-md transition-all flex flex-col">
+                          <Link href={`/blog/${p.slug}`} className="flex flex-col flex-1">
+                            {p.image_url ? (
+                              <Image src={p.image_url} alt={p.title} width={200} height={120}
+                                className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300" />
+                            ) : (
+                              <div className="w-full h-28 bg-warm-100 flex items-center justify-center text-2xl">✍️</div>
+                            )}
+                            <div className="p-3 flex flex-col flex-1">
+                              <p className="text-sm font-medium text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{p.title}</p>
+                              <p className="text-xs text-warm-400 mt-1">Blog Yazısı</p>
+                            </div>
+                          </Link>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {defter === "blog" && <Pagination tab="tarif-defterim" page={blogFavsPag.safePage} totalPages={blogFavsPag.totalPages} extraParam="defter=blog" />}
+                </>
+              ) : null}
+            </>
+          )}
+
+          {/* Tamamen boş hali */}
+          {totalDefterCount === 0 && (
+            <Empty icon="📚" text="Tarif defteriniz boş. Tarifleri veya blog yazılarını incelerken ❤️ butona basın." />
           )}
         </section>
       )}
@@ -523,12 +603,12 @@ function Empty({ icon, text }: { icon: string; text: string }) {
 }
 
 function Pagination({
-  tab, page, totalPages, pageParam = "page",
+  tab, page, totalPages, pageParam = "page", extraParam,
 }: {
-  tab: string; page: number; totalPages: number; pageParam?: string;
+  tab: string; page: number; totalPages: number; pageParam?: string; extraParam?: string;
 }) {
   if (totalPages <= 1) return null;
-  const base = `/uye/panel?tab=${tab}`;
+  const base = `/uye/panel?tab=${tab}${extraParam ? `&${extraParam}` : ""}`;
   return (
     <div className="flex items-center justify-center gap-3 mt-6">
       {page > 1 && (

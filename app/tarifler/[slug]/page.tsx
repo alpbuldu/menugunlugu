@@ -114,6 +114,21 @@ export default async function RecipeDetailPage({ params }: Props) {
     authorRecipeCount = count ?? 0;
   }
 
+  // Takipçi sayısı
+  let authorFollowerCount = 0;
+  if (isAdminAuthor) {
+    const { count } = await supabase
+      .from("admin_follows")
+      .select("follower_id", { count: "exact", head: true });
+    authorFollowerCount = count ?? 0;
+  } else if (authorUserId) {
+    const { count } = await supabase
+      .from("follows")
+      .select("follower_id", { count: "exact", head: true })
+      .eq("following_id", authorUserId);
+    authorFollowerCount = count ?? 0;
+  }
+
   // Takip durumu
   let initialFollowing = false;
   if (currentUserId) {
@@ -348,7 +363,8 @@ export default async function RecipeDetailPage({ params }: Props) {
               {authorFullName || authorName}
             </p>
             {authorFullName && <p className="text-[11px] text-warm-400">@{authorName}</p>}
-            <p className="text-[11px] text-warm-400 mt-0.5">{authorRecipeCount} tarif · Tüm tarifleri gör →</p>
+            <p className="text-[11px] text-warm-400 mt-0.5">{authorRecipeCount} tarif · {authorFollowerCount} takipçi</p>
+            <p className="text-[11px] text-brand-500 group-hover:underline">Tüm tarifleri gör →</p>
           </div>
         </Link>
         <FollowButton
@@ -360,7 +376,7 @@ export default async function RecipeDetailPage({ params }: Props) {
       </div>
 
       {/* Rating + Favorite */}
-      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex items-center justify-between gap-4">
         <RatingStars recipeId={recipe.id} />
         <FavoriteButton recipeId={recipe.id} />
       </div>

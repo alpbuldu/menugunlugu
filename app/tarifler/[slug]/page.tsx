@@ -378,7 +378,7 @@ export default async function RecipeDetailPage({ params }: Props) {
       {/* Rating + Favorite */}
       <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex items-center justify-between gap-4">
         <RatingStars recipeId={recipe.id} />
-        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+        <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
           <FavoriteButton recipeId={recipe.id} />
           {currentUserId && (
             <Link href="/uye/panel?tab=tarif-defterim" className="text-[11px] text-brand-500 hover:underline">

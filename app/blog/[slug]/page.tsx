@@ -240,7 +240,14 @@ export default async function BlogPostPage({ params }: Props) {
       {/* Puanlama + Deftere Ekle */}
       <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex items-center justify-between gap-4">
         <BlogRatingStars postId={post.id} />
-        <BlogFavoriteButton postId={post.id} />
+        <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+          <BlogFavoriteButton postId={post.id} />
+          {currentUserId && (
+            <Link href="/uye/panel?tab=tarif-defterim" className="text-[11px] text-brand-500 hover:underline">
+              Defterini gör →
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Mobil reklam — yorumun üstünde */}

@@ -34,16 +34,21 @@ function parseHtmlIngredients(html: string): IngItem[] {
 
 function fmt(v: number): string {
   const r = Math.round(v * 100) / 100;
-  if (Math.abs(r - 0.25) < 0.01) return "çeyrek";
-  if (Math.abs(r - 0.5)  < 0.01) return "yarım";
-  if (Math.abs(r - 0.75) < 0.01) return "3/4";
   const whole = Math.floor(r);
   const frac  = Math.round((r - whole) * 100) / 100;
+
+  // Tam sayı
   if (frac < 0.01) return String(whole);
-  if (Math.abs(frac - 0.5)  < 0.01) return whole === 0 ? "yarım"   : `${whole},5`;
-  if (Math.abs(frac - 0.25) < 0.01) return whole === 0 ? "çeyrek"  : `${whole} çeyrek`;
-  if (Math.abs(frac - 0.75) < 0.01) return whole === 0 ? "3/4"     : `${whole} 3/4`;
-  return r.toFixed(1).replace(".", ",");
+
+  // Sadece kesir (0.xx) → Türkçe kelime kullan
+  if (whole === 0) {
+    if (Math.abs(frac - 0.25) < 0.01) return "çeyrek";
+    if (Math.abs(frac - 0.5)  < 0.01) return "yarım";
+    if (Math.abs(frac - 0.75) < 0.01) return "3/4";
+  }
+
+  // Tam sayı + kesir → ondalık (1,5 / 1,25 / 2,75 …)
+  return r.toFixed(2).replace(/0+$/, "").replace(/,$/, "").replace(".", ",");
 }
 
 // ─── Ingredient scaler ────────────────────────────────────────────────────────

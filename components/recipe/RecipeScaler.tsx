@@ -113,10 +113,15 @@ interface Props {
   servings: number | null;
 }
 
-const SCALES = [1, 2, 3, 4];
+// Sabit çarpan seçenekleri (kişi sayısı bilinmiyorsa)
+const SCALE_OPTIONS = [1, 2, 3, 4];
 
 export default function RecipeScaler({ ingredientsRaw, isHtml, servings }: Props) {
-  const [scale, setScale] = useState(1);
+  const original = servings ?? null;
+  const [current, setCurrent] = useState(original ?? 1);
+  const [scaleMulti, setScaleMulti] = useState(1); // servings yoksa kullanılır
+
+  const scale = original ? current / original : scaleMulti;
 
   const items: IngItem[] = isHtml
     ? parseHtmlIngredients(ingredientsRaw)
@@ -128,29 +133,50 @@ export default function RecipeScaler({ ingredientsRaw, isHtml, servings }: Props
 
   return (
     <div>
-      {/* Ölçek butonları */}
-      <div className="flex items-center gap-2 mb-4 flex-wrap">
+      {/* Porsiyon kontrolü */}
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
         <span className="text-xs text-warm-500 font-medium shrink-0">Porsiyon:</span>
-        {SCALES.map((s) => {
-          const label = servings ? `${servings * s} kişi` : `${s}×`;
-          const active = scale === s;
-          return (
+
+        {original ? (
+          // Kişi sayısı belli → arttır/azalt
+          <div className="flex items-center gap-1">
             <button
-              key={s}
-              onClick={() => setScale(s)}
-              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-                active
-                  ? "bg-brand-600 border-brand-600 text-white"
-                  : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-700"
-              }`}
-            >
-              {label}
-              {s > 1 && !servings && <span className="ml-1 opacity-60">({s}×)</span>}
-            </button>
-          );
-        })}
-        {scale > 1 && (
-          <span className="text-[10px] text-warm-400 ml-1">· miktarlar {scale}× çarpıldı</span>
+              onClick={() => setCurrent(Math.max(1, current - 1))}
+              disabled={current <= 1}
+              className="w-7 h-7 rounded-full border border-warm-200 bg-white text-warm-600 hover:border-brand-300 hover:text-brand-700 text-base flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >−</button>
+            <span className="min-w-[64px] text-center text-sm font-semibold text-warm-800">
+              {current} kişi
+            </span>
+            <button
+              onClick={() => setCurrent(Math.min(50, current + 1))}
+              disabled={current >= 50}
+              className="w-7 h-7 rounded-full border border-warm-200 bg-white text-warm-600 hover:border-brand-300 hover:text-brand-700 text-base flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >+</button>
+          </div>
+        ) : (
+          // Kişi sayısı yok → sabit çarpanlar
+          <div className="flex items-center gap-1.5">
+            {SCALE_OPTIONS.map((s) => (
+              <button
+                key={s}
+                onClick={() => setScaleMulti(s)}
+                className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                  scaleMulti === s
+                    ? "bg-brand-600 border-brand-600 text-white"
+                    : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-700"
+                }`}
+              >
+                {s}×
+              </button>
+            ))}
+          </div>
+        )}
+
+        {scale !== 1 && (
+          <span className="text-[11px] text-brand-500 font-medium">
+            {Number.isInteger(scale) ? `${scale}×` : `${scale.toFixed(2).replace(/\.?0+$/, "")}×`} ölçek
+          </span>
         )}
       </div>
 

@@ -71,6 +71,7 @@ export default function RecipeForm({ recipe }: Props) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (uploading) return;
+    if (!servings || parseInt(servings) < 1) { setError("Kaç kişilik olduğunu giriniz."); return; }
     setSaving(true);
     setError("");
 
@@ -135,12 +136,13 @@ export default function RecipeForm({ recipe }: Props) {
       {/* Servings */}
       <div>
         <label className="block text-sm font-medium text-warm-700 mb-1.5">
-          Kaç Kişilik
+          Kaç Kişilik <span className="text-red-400">*</span>
         </label>
         <input
           type="number"
           min="1"
           max="100"
+          required
           value={servings}
           onChange={(e) => setServings(e.target.value)}
           placeholder="Örn: 4"

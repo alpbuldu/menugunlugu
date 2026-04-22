@@ -49,6 +49,7 @@ export default function RecipeSubmitForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!servings || parseInt(servings) < 1) { setError("Kaç kişilik olduğunu giriniz."); return; }
     if (!ingredients.trim()) { setError("Malzemeler boş bırakılamaz."); return; }
     if (!instructions.trim()) { setError("Yapılış boş bırakılamaz."); return; }
 
@@ -128,9 +129,9 @@ export default function RecipeSubmitForm() {
           </select>
         </div>
         <div>
-          <label className={labelCls}>Kaç kişilik?</label>
+          <label className={labelCls}>Kaç kişilik? <span className="text-red-400">*</span></label>
           <input type="number" value={servings} onChange={(e) => setServings(e.target.value)}
-            min={1} max={50} placeholder="4" className={inputCls} />
+            min={1} max={50} placeholder="4" required className={inputCls} />
         </div>
       </div>
 

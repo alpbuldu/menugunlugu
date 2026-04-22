@@ -48,7 +48,7 @@ function fmt(v: number): string {
 
 // ─── Ingredient scaler ────────────────────────────────────────────────────────
 
-function scaleIngredient(text: string, scale: number): string {
+function scaleIngredientRaw(text: string, scale: number): string {
   if (scale === 1) return text;
   const s = text.trim();
 
@@ -103,6 +103,21 @@ function scaleIngredient(text: string, scale: number): string {
 
   // Miktar yok → olduğu gibi bırak (tuz, karabiber vs.)
   return text;
+}
+
+function capitalizeFirst(s: string): string {
+  if (!s) return s;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function scaleIngredient(text: string, scale: number): string {
+  const result = scaleIngredientRaw(text, scale);
+  // Sonuç harf ile başlıyorsa büyük harf yap (yarım → Yarım, çeyrek → Çeyrek)
+  // Rakam ile başlıyorsa dokunma
+  if (result !== text && /^[a-zA-ZğüşıöçĞÜŞİÖÇ]/u.test(result)) {
+    return capitalizeFirst(result);
+  }
+  return result;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────

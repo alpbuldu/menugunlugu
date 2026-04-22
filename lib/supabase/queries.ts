@@ -274,10 +274,9 @@ export async function getRelatedRecipes(
       .select(RECIPE_FIELDS)
       .eq("category", category)
       .neq("slug", excludeSlug)
-      .or("approval_status.eq.approved,approval_status.is.null")
-      .limit(40);
+      .or("approval_status.eq.approved,approval_status.is.null");
     if (error || !data) return [];
-    // Shuffle and pick `limit` random items
+    // Shuffle all and pick `limit` random items
     const shuffled = [...data].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, limit) as Recipe[];
   } catch { return []; }
@@ -296,10 +295,9 @@ export async function getRelatedBlogPosts(
       .select(BLOG_POST_SELECT)
       .eq("published", true)
       .eq("category_id", categoryId)
-      .neq("slug", excludeSlug)
-      .limit(40);
+      .neq("slug", excludeSlug);
     if (error || !data) return [];
-    // Shuffle and pick `limit` random items
+    // Shuffle all and pick `limit` random items
     const shuffled = [...data].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, limit) as unknown as BlogPost[];
   } catch { return []; }

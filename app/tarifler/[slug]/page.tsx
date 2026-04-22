@@ -14,6 +14,7 @@ import AdBanner from "@/components/ui/AdBanner";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import CommentSection from "@/components/recipe/CommentSection";
 import LazySection from "@/components/ui/LazySection";
+import RecipeScaler from "@/components/recipe/RecipeScaler";
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 
@@ -302,29 +303,11 @@ export default async function RecipeDetailPage({ params }: Props) {
               <span className="w-6 h-6 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-sm">🧂</span>
               Malzemeler
             </h2>
-            {ingredientsIsHtml ? (
-              <div className="bg-warm-50 rounded-xl p-5 space-y-1">
-                {parseIngredients(recipe.ingredients).map((item, i) =>
-                  item.type === "heading" ? (
-                    <h3 key={i} className="text-sm font-bold text-warm-800 border-b border-warm-200 pb-1 mt-4 mb-0 first:mt-0">{item.text}</h3>
-                  ) : (
-                    <div key={i} className="flex items-start gap-2.5 text-warm-700 text-sm py-0.5">
-                      <span className="text-brand-400 mt-0.5 shrink-0">•</span>
-                      <span>{item.text}</span>
-                    </div>
-                  )
-                )}
-              </div>
-            ) : (
-              <ul className="bg-warm-50 rounded-xl p-5 space-y-2.5">
-                {ingredients!.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-warm-700 text-sm">
-                    <span className="text-brand-400 mt-0.5 shrink-0">•</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <RecipeScaler
+              ingredientsRaw={recipe.ingredients}
+              isHtml={ingredientsIsHtml}
+              servings={recipe.servings ?? null}
+            />
           </section>
 
           <section>

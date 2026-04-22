@@ -118,7 +118,11 @@ const SCALE_OPTIONS = [1, 2, 3, 4];
 
 export default function RecipeScaler({ ingredientsRaw, isHtml, servings }: Props) {
   const original = servings ?? null;
-  const [current, setCurrent] = useState(original ?? 1);
+  // Başlangıç değerini en yakın çift sayıya yuvarla (min 2, maks 10)
+  const initCurrent = original
+    ? Math.min(10, Math.max(2, original % 2 === 0 ? original : original + 1))
+    : 4;
+  const [current, setCurrent] = useState(initCurrent);
   const [scaleMulti, setScaleMulti] = useState(1); // servings yoksa kullanılır
 
   const scale = original ? current / original : scaleMulti;
@@ -138,19 +142,19 @@ export default function RecipeScaler({ ingredientsRaw, isHtml, servings }: Props
         <span className="text-xs text-warm-500 font-medium shrink-0">Porsiyon:</span>
 
         {original ? (
-          // Kişi sayısı belli → arttır/azalt
+          // Kişi sayısı belli → 2'şer arttır/azalt, maks 10
           <div className="flex items-center gap-1">
             <button
-              onClick={() => setCurrent(Math.max(1, current - 1))}
-              disabled={current <= 1}
+              onClick={() => setCurrent(Math.max(2, current - 2))}
+              disabled={current <= 2}
               className="w-7 h-7 rounded-full border border-warm-200 bg-white text-warm-600 hover:border-brand-300 hover:text-brand-700 text-base flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >−</button>
             <span className="min-w-[64px] text-center text-sm font-semibold text-warm-800">
               {current} kişi
             </span>
             <button
-              onClick={() => setCurrent(Math.min(50, current + 1))}
-              disabled={current >= 50}
+              onClick={() => setCurrent(Math.min(10, current + 2))}
+              disabled={current >= 10}
               className="w-7 h-7 rounded-full border border-warm-200 bg-white text-warm-600 hover:border-brand-300 hover:text-brand-700 text-base flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >+</button>
           </div>

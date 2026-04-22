@@ -130,8 +130,12 @@ export default function RecipeSubmitForm() {
         </div>
         <div>
           <label className={labelCls}>Kaç kişilik? <span className="text-red-400">*</span></label>
-          <input type="number" value={servings} onChange={(e) => setServings(e.target.value)}
-            min={1} max={50} placeholder="4" required className={inputCls} />
+          <select value={servings} onChange={(e) => setServings(e.target.value)} required className={inputCls}>
+            <option value="">Seçiniz</option>
+            {[2, 4, 6, 8, 10].map((n) => (
+              <option key={n} value={n}>{n} kişilik</option>
+            ))}
+          </select>
         </div>
       </div>
 

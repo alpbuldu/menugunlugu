@@ -138,16 +138,17 @@ export default function RecipeForm({ recipe }: Props) {
         <label className="block text-sm font-medium text-warm-700 mb-1.5">
           Kaç Kişilik <span className="text-red-400">*</span>
         </label>
-        <input
-          type="number"
-          min="1"
-          max="100"
+        <select
           required
           value={servings}
           onChange={(e) => setServings(e.target.value)}
-          placeholder="Örn: 4"
-          className={`${inputCls} w-32`}
-        />
+          className={`${inputCls} w-40`}
+        >
+          <option value="">Seçiniz</option>
+          {[2, 4, 6, 8, 10].map((n) => (
+            <option key={n} value={n}>{n} kişilik</option>
+          ))}
+        </select>
       </div>
 
       {/* Image upload */}

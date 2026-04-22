@@ -40,15 +40,8 @@ function fmt(v: number): string {
   // Tam sayı
   if (frac < 0.01) return String(whole);
 
-  // Sadece kesir (0.xx) → Türkçe kelime kullan
-  if (whole === 0) {
-    if (Math.abs(frac - 0.25) < 0.01) return "çeyrek";
-    if (Math.abs(frac - 0.5)  < 0.01) return "yarım";
-    if (Math.abs(frac - 0.75) < 0.01) return "3/4";
-  }
-
-  // Tam sayı + kesir → ondalık (1,5 / 1,25 / 2,75 …)
-  return r.toFixed(2).replace(/0+$/, "").replace(/,$/, "").replace(".", ",");
+  // Ondalık gösterim (0,5 / 1,25 / 0,75 …)
+  return r.toFixed(2).replace(/0+$/, "").replace(/\.$/, "").replace(".", ",");
 }
 
 // ─── Ingredient scaler ────────────────────────────────────────────────────────

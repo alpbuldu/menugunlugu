@@ -4,15 +4,17 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getBlogPostBySlug, getRelatedBlogPosts } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
+import dynamicImport from "next/dynamic";
 import ShareButton from "@/components/ui/ShareButton";
 import FollowButton from "@/components/ui/FollowButton";
 import AdBanner from "@/components/ui/AdBanner";
 import SidebarLayout from "@/components/ui/SidebarLayout";
-import BlogFavoriteButton from "@/components/blog/BlogFavoriteButton";
-import BlogRatingStars from "@/components/blog/BlogRatingStars";
-import BlogCommentSection from "@/components/blog/BlogCommentSection";
 import ProseContent from "@/components/blog/ProseContent";
 import LazySection from "@/components/ui/LazySection";
+
+const BlogFavoriteButton = dynamicImport(() => import("@/components/blog/BlogFavoriteButton"));
+const BlogRatingStars    = dynamicImport(() => import("@/components/blog/BlogRatingStars"));
+const BlogCommentSection = dynamicImport(() => import("@/components/blog/BlogCommentSection"));
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 

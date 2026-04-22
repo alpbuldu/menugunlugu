@@ -6,15 +6,17 @@ import { getRecipeBySlug, getRelatedRecipes } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
+import dynamicImport from "next/dynamic";
 import ShareButton from "@/components/ui/ShareButton";
-import RatingStars from "@/components/recipe/RatingStars";
-import FavoriteButton from "@/components/recipe/FavoriteButton";
 import FollowButton from "@/components/ui/FollowButton";
 import AdBanner from "@/components/ui/AdBanner";
 import SidebarLayout from "@/components/ui/SidebarLayout";
-import CommentSection from "@/components/recipe/CommentSection";
 import LazySection from "@/components/ui/LazySection";
-import RecipeScaler from "@/components/recipe/RecipeScaler";
+
+const RatingStars    = dynamicImport(() => import("@/components/recipe/RatingStars"));
+const FavoriteButton = dynamicImport(() => import("@/components/recipe/FavoriteButton"));
+const CommentSection = dynamicImport(() => import("@/components/recipe/CommentSection"));
+const RecipeScaler   = dynamicImport(() => import("@/components/recipe/RecipeScaler"));
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -147,13 +147,25 @@ export default function RecipeScaler({ ingredientsRaw, isHtml, servings }: Props
 
   const scale = original ? current / original : scaleMulti;
 
-  const items: IngItem[] = isHtml
-    ? parseHtmlIngredients(ingredientsRaw)
-    : ingredientsRaw
-        .split(/\n+/)
-        .map((s) => s.trim())
-        .filter(Boolean)
-        .map((text) => ({ type: "item" as const, text }));
+  // Parsing sadece ingredientsRaw değişince tekrar çalışsın
+  const items: IngItem[] = useMemo(() => {
+    if (isHtml) return parseHtmlIngredients(ingredientsRaw);
+    return ingredientsRaw
+      .split(/\n+/)
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((text) => ({ type: "item" as const, text }));
+  }, [ingredientsRaw, isHtml]);
+
+  // Scale hesaplama da memoize et
+  const scaledItems = useMemo(
+    () => items.map((item) =>
+      item.type === "heading"
+        ? item
+        : { ...item, text: scaleIngredient(item.text, scale) }
+    ),
+    [items, scale]
+  );
 
   return (
     <div>
@@ -206,7 +218,7 @@ export default function RecipeScaler({ ingredientsRaw, isHtml, servings }: Props
 
       {/* Malzeme listesi */}
       <div className="bg-warm-50 rounded-xl p-5 space-y-1">
-        {items.map((item, i) =>
+        {scaledItems.map((item, i) =>
           item.type === "heading" ? (
             <h3
               key={i}
@@ -217,7 +229,7 @@ export default function RecipeScaler({ ingredientsRaw, isHtml, servings }: Props
           ) : (
             <div key={i} className="flex items-start gap-2.5 text-warm-700 text-sm py-0.5">
               <span className="text-brand-400 mt-0.5 shrink-0">•</span>
-              <span>{scaleIngredient(item.text, scale)}</span>
+              <span>{item.text}</span>
             </div>
           )
         )}

@@ -46,24 +46,28 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient();
 
-    // Mevcut başlık ve slug'ları çek — duplicate'leri atla
-    const slugs  = rows.map((r) => r.slug);
-    const titles = rows.map((r) => r.title.toLowerCase());
+    // Mevcut slug'ları çek — slug çakışırsa suffix ekle, başlık kontrolü yapma
+    const slugs = rows.map((r) => r.slug);
 
     const { data: existing } = await supabase
       .from("recipes")
-      .select("slug, title")
-      .or(`slug.in.(${slugs.map(s => `"${s}"`).join(",")}),title.in.(${titles.map(t => `"${t}"`).join(",")})`);
+      .select("slug")
+      .in("slug", slugs);
 
-    const existingSlugs  = new Set((existing ?? []).map((r: { slug: string }) => r.slug));
-    const existingTitles = new Set((existing ?? []).map((r: { title: string }) => r.title.toLowerCase()));
+    const existingSlugs = new Set((existing ?? []).map((r: { slug: string }) => r.slug));
 
-    const newRows  = rows.filter((r) => !existingSlugs.has(r.slug) && !existingTitles.has(r.title.toLowerCase()));
-    const skipped  = rows.length - newRows.length;
+    const newRows = rows.map((r) => {
+      let slug = r.slug;
+      if (existingSlugs.has(slug)) {
+        let n = 2;
+        while (existingSlugs.has(`${slug}-${n}`)) n++;
+        slug = `${slug}-${n}`;
+        existingSlugs.add(slug); // batch içinde de çakışma olmasın
+      }
+      return { ...r, slug };
+    });
 
-    if (newRows.length === 0) {
-      return NextResponse.json({ imported: 0, skipped });
-    }
+    const skipped = 0;
 
     const { data, error } = await supabase
       .from("recipes")

@@ -37,12 +37,16 @@ export async function POST(request: NextRequest) {
   // Slug — make unique if needed
   const adminSupabase = createAdminClient();
   let slug = toSlug(title);
-  const { data: existing } = await adminSupabase
+  const { data: existingSlugs } = await adminSupabase
     .from("recipes")
-    .select("id")
-    .eq("slug", slug)
-    .maybeSingle();
-  if (existing) slug = `${slug}-${Date.now()}`;
+    .select("slug")
+    .like("slug", `${slug}%`);
+  if (existingSlugs && existingSlugs.some((r: { slug: string }) => r.slug === slug)) {
+    const taken = new Set(existingSlugs.map((r: { slug: string }) => r.slug));
+    let n = 2;
+    while (taken.has(`${slug}-${n}`)) n++;
+    slug = `${slug}-${n}`;
+  }
 
   const { data, error } = await adminSupabase
     .from("recipes")

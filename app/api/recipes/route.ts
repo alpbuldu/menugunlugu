@@ -68,8 +68,18 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const slug = toSlug(title);
   const supabase = createAdminClient();
+  let slug = toSlug(title);
+  const { data: existingSlugs } = await supabase
+    .from("recipes")
+    .select("slug")
+    .like("slug", `${slug}%`);
+  if (existingSlugs && existingSlugs.some((r: { slug: string }) => r.slug === slug)) {
+    const taken = new Set(existingSlugs.map((r: { slug: string }) => r.slug));
+    let n = 2;
+    while (taken.has(`${slug}-${n}`)) n++;
+    slug = `${slug}-${n}`;
+  }
 
   const { servings, description, seo_title, seo_keywords } = body;
 

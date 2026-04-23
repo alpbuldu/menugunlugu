@@ -57,14 +57,9 @@ export default function AuthForm({ defaultTab, from }: Props) {
       return;
     }
 
-    // İlk giriş kontrolü: full_name yoksa Hesap Bilgilerim'e yönlendir
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("full_name")
-      .eq("id", data.user.id)
-      .single();
-
-    if (!profile?.full_name && !from) {
+    const isNewUser = localStorage.getItem("mg_new_user") === "1";
+    if (isNewUser) {
+      localStorage.removeItem("mg_new_user");
       window.location.href = "/uye/panel?tab=panelim";
     } else {
       window.location.href = from ?? "/uye/panel";
@@ -116,6 +111,8 @@ export default function AuthForm({ defaultTab, from }: Props) {
 
     setLoading(false);
     // Mail onayı gerekiyor — otomatik giriş yapma, kullanıcıya bildir
+    // İlk girişte Hesap Bilgilerim'e yönlendirmek için işaret bırak
+    localStorage.setItem("mg_new_user", "1");
     setSuccess("Kayıt başarılı! 🎉 E-posta adresinize bir onay linki gönderdik. Linke tıkladıktan sonra giriş yapabilirsiniz.");
     setTab("giris");
   }

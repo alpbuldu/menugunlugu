@@ -191,6 +191,12 @@ function useAuthUser() {
 
     async function fetchProfile(uid: string) {
       const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", uid).single();
+      if (!data) {
+        // Profil silinmiş (admin tarafından) — oturumu kapat
+        await supabase.auth.signOut();
+        window.location.href = "/";
+        return;
+      }
       setProfile(data);
     }
 

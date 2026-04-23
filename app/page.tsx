@@ -6,9 +6,29 @@ import { createAdminClient } from "@/lib/supabase/server";
 import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdPopup from "@/components/ui/AdPopup";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const supabase = createAdminClient();
+  const { data } = await supabase
+    .from("site_settings")
+    .select("logo_url")
+    .eq("id", 1)
+    .single();
+
+  const logoUrl = data?.logo_url ?? null;
+
+  return {
+    alternates: { canonical: "/" },
+    openGraph: {
+      url: "https://www.menugunlugu.com/",
+      siteName: "Menü Günlüğü",
+      locale: "tr_TR",
+      type: "website",
+      title: "Menü Günlüğü",
+      description: "Günlük menüler, tarifler ve daha fazlası.",
+      ...(logoUrl && { images: [{ url: logoUrl, width: 1200, height: 1200 }] }),
+    },
+  };
+}
 
 export const dynamic = "force-dynamic";
 

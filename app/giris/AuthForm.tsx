@@ -49,7 +49,11 @@ export default function AuthForm({ defaultTab, from }: Props) {
 
     setLoading(false);
     if (err || !data.user) {
-      setError("E-posta veya şifre hatalı.");
+      if (err?.message?.toLowerCase().includes("email not confirmed")) {
+        setError("E-posta adresiniz henüz doğrulanmamış. Lütfen gelen kutunuzu kontrol edin.");
+      } else {
+        setError("E-posta veya şifre hatalı.");
+      }
       return;
     }
 

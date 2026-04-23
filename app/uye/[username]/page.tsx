@@ -327,37 +327,40 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
               <EmptyState icon="📭" text={activeCategory ? "Bu kategoride tarif yok." : "Henüz paylaşılan tarif yok."} />
             ) : (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {allRecipes.map((recipe) => (
-                    <div key={recipe.id} className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                    <div key={recipe.id} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
                       <Link href={`/tarifler/${recipe.slug}`} className="flex flex-col flex-1">
-                        <div className="relative h-32 sm:h-44 bg-warm-100 shrink-0">
+                        <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
                           {recipe.image_url ? (
                             <Image src={recipe.image_url} alt={recipe.title} fill
-                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
+                              sizes="(max-width: 640px) 50vw, 33vw"
                               className="object-cover group-hover:scale-105 transition-transform duration-300" />
                           ) : (
-                            <div className="flex items-center justify-center h-full text-4xl text-warm-300">🍳</div>
+                            <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍳</div>
                           )}
                         </div>
-                        <div className="p-3 sm:p-4 flex-1">
-                          <Badge category={recipe.category as Category} />
-                          <h3 className="text-xs sm:text-sm font-semibold text-warm-800 mt-1.5 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
+                        <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
+                          <Badge category={recipe.category as Category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
+                          <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
                             {recipe.title}
-                          </h3>
+                          </h2>
                         </div>
                       </Link>
-                      {/* Yazar satırı */}
-                      <div className="px-3 pb-3 flex items-center justify-between gap-2 border-t border-warm-50 pt-2">
-                        <div className="flex items-center gap-1.5 min-w-0">
+                      {/* Yazar satırı — /tarifler ile aynı */}
+                      <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
                           {avatarUrl ? (
-                            <img src={avatarUrl} alt={displayName} className="w-4 h-4 rounded-full object-cover flex-shrink-0" />
+                            <img src={avatarUrl} alt={displayName} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
                           ) : (
-                            <div className="w-4 h-4 rounded-full bg-brand-100 text-brand-600 text-[8px] font-bold flex items-center justify-center flex-shrink-0">
+                            <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
                               {displayName.charAt(0).toUpperCase()}
-                            </div>
+                            </span>
                           )}
-                          <span className="text-[10px] text-warm-500 truncate">{displayName}</span>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
+                            <span className="text-[10px] sm:text-xs font-medium text-warm-500 truncate">{displayName}</span>
+                          </div>
                         </div>
                         {showFollowButton && (
                           <>
@@ -412,42 +415,45 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
               <EmptyState icon="✍️" text="Henüz paylaşılan yazı yok." />
             ) : (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {allPosts.map((post) => (
-                    <div key={post.id} className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                    <div key={post.id} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
                       <Link href={`${postLinkBase}/${post.slug}`} className="flex flex-col flex-1">
-                        <div className="relative h-32 sm:h-44 bg-warm-100 shrink-0">
+                        <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
                           {post.image_url ? (
                             <Image src={post.image_url} alt={post.title} fill
-                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
+                              sizes="(max-width: 640px) 50vw, 33vw"
                               className="object-cover group-hover:scale-105 transition-transform duration-300" />
                           ) : (
-                            <div className="flex items-center justify-center h-full text-4xl text-warm-300">✍️</div>
+                            <div className="flex items-center justify-center h-full text-5xl text-warm-300">✍️</div>
                           )}
                         </div>
-                        <div className="p-3 sm:p-4 flex-1">
-                          <h3 className="text-xs sm:text-sm font-semibold text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
+                        <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
+                          <h2 className="text-sm sm:text-base font-semibold text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
                             {post.title}
-                          </h3>
+                          </h2>
                           {post.excerpt && (
                             <p className="text-[11px] sm:text-xs text-warm-400 mt-1 line-clamp-2 hidden sm:block">{post.excerpt}</p>
                           )}
-                          <p className="text-[10px] sm:text-xs text-warm-300 mt-2">
+                          <p className="text-[10px] sm:text-xs text-warm-300 mt-1.5 sm:mt-2">
                             {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long" })}
                           </p>
                         </div>
                       </Link>
-                      {/* Yazar satırı */}
-                      <div className="px-3 pb-3 flex items-center justify-between gap-2 border-t border-warm-50 pt-2">
-                        <div className="flex items-center gap-1.5 min-w-0">
+                      {/* Yazar satırı — /tarifler ile aynı */}
+                      <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
+                        <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
                           {avatarUrl ? (
-                            <img src={avatarUrl} alt={displayName} className="w-4 h-4 rounded-full object-cover flex-shrink-0" />
+                            <img src={avatarUrl} alt={displayName} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
                           ) : (
-                            <div className="w-4 h-4 rounded-full bg-brand-100 text-brand-600 text-[8px] font-bold flex items-center justify-center flex-shrink-0">
+                            <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
                               {displayName.charAt(0).toUpperCase()}
-                            </div>
+                            </span>
                           )}
-                          <span className="text-[10px] text-warm-500 truncate">{displayName}</span>
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
+                            <span className="text-[10px] sm:text-xs font-medium text-warm-500 truncate">{displayName}</span>
+                          </div>
                         </div>
                         {showFollowButton && (
                           <>

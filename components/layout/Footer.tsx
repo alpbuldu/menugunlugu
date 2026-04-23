@@ -35,7 +35,7 @@ export default function Footer() {
 
               {/* YouTube */}
               <a
-                href="https://www.youtube.com/channel/UCtLzvdIzAO7xyO1uz4X_LJg"
+                href="https://youtube.com/@menugunlugu"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"
@@ -49,7 +49,7 @@ export default function Footer() {
 
               {/* TikTok */}
               <a
-                href="https://www.tiktok.com/@hikayeliyemekler"
+                href="https://www.tiktok.com/@menugunlugu"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok"
@@ -59,7 +59,28 @@ export default function Footer() {
                   <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.74a4.85 4.85 0 0 1-1.01-.05z" />
                 </svg>
               </a>
+
+              {/* X (Twitter) */}
+              <a
+                href="https://x.com/menugunlugu"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="X"
+                className="text-warm-400 hover:text-white hover:scale-110 hover:brightness-125 transition-all duration-150"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </a>
             </div>
+
+            {/* Mobil e-posta */}
+            <a
+              href="mailto:info@menugunlugu.com"
+              className="md:hidden text-xs text-warm-400 hover:text-white transition-colors mt-1"
+            >
+              info@menugunlugu.com
+            </a>
           </div>
 
           {/* Pages — desktop only */}

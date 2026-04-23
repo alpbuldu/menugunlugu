@@ -26,16 +26,29 @@ export default function IletisimPage() {
           </div>
         </div>
 
-        {/* Instagram */}
+        {/* Sosyal Medya */}
         <div className="flex items-start gap-4 p-5 bg-warm-50 rounded-2xl border border-warm-200">
-          <span className="text-2xl">📸</span>
-          <div>
-            <p className="font-semibold text-warm-900 mb-1">Instagram</p>
-            <a href="https://www.instagram.com/menugunlugu/"
-              target="_blank" rel="noopener noreferrer"
-              className="text-brand-600 hover:text-brand-700 font-medium transition-colors">
-              @menugunlugu
-            </a>
+          <span className="text-2xl">📱</span>
+          <div className="flex-1">
+            <p className="font-semibold text-warm-900 mb-3">Sosyal Medya</p>
+            <div className="flex flex-col gap-2">
+              <a href="https://www.instagram.com/menugunlugu/" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 text-brand-600 hover:text-brand-700 font-medium transition-colors text-sm">
+                <span>📸</span> Instagram — @menugunlugu
+              </a>
+              <a href="https://youtube.com/@menugunlugu" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 text-brand-600 hover:text-brand-700 font-medium transition-colors text-sm">
+                <span>▶️</span> YouTube — @menugunlugu
+              </a>
+              <a href="https://www.tiktok.com/@menugunlugu" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 text-brand-600 hover:text-brand-700 font-medium transition-colors text-sm">
+                <span>🎵</span> TikTok — @menugunlugu
+              </a>
+              <a href="https://x.com/menugunlugu" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2 text-brand-600 hover:text-brand-700 font-medium transition-colors text-sm">
+                <span>𝕏</span> X — @menugunlugu
+              </a>
+            </div>
           </div>
         </div>
 

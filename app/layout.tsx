@@ -15,12 +15,11 @@ export async function generateMetadata(): Promise<Metadata> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("site_settings")
-    .select("favicon_url, logo_url")
+    .select("logo_url")
     .eq("id", 1)
     .single();
 
-  const faviconUrl = data?.favicon_url ?? null;
-  const logoUrl    = data?.logo_url    ?? null;
+  const logoUrl = data?.logo_url ?? null;
 
   return {
     metadataBase: new URL("https://www.menugunlugu.com"),
@@ -29,13 +28,12 @@ export async function generateMetadata(): Promise<Metadata> {
       template: "%s | Menü Günlüğü",
     },
     description: "Günlük menüler, tarifler ve daha fazlası.",
-    ...(faviconUrl && {
-      icons: {
-        icon:     faviconUrl,
-        shortcut: faviconUrl,
-        apple:    faviconUrl,
-      },
-    }),
+    // Favicon her zaman /api/favicon üzerinden — DB'den redirect eder, önbellek sorunu yok
+    icons: {
+      icon:     "/api/favicon",
+      shortcut: "/api/favicon",
+      apple:    "/api/favicon",
+    },
     openGraph: {
       siteName: "Menü Günlüğü",
       locale:   "tr_TR",

@@ -351,15 +351,15 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
                       <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
                           {avatarUrl ? (
-                            <img src={avatarUrl} alt={displayName} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
+                            <img src={avatarUrl} alt={handle} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
                           ) : (
                             <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
-                              {displayName.charAt(0).toUpperCase()}
+                              {handle.charAt(0).toUpperCase()}
                             </span>
                           )}
                           <div className="flex flex-col min-w-0">
                             <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
-                            <span className="text-[10px] sm:text-xs font-medium text-warm-500 truncate">{displayName}</span>
+                            <span className="text-[10px] sm:text-xs font-medium text-warm-500 truncate">{handle}</span>
                           </div>
                         </div>
                         {showFollowButton && (
@@ -444,15 +444,15 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
                       <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
                           {avatarUrl ? (
-                            <img src={avatarUrl} alt={displayName} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
+                            <img src={avatarUrl} alt={handle} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
                           ) : (
                             <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
-                              {displayName.charAt(0).toUpperCase()}
+                              {handle.charAt(0).toUpperCase()}
                             </span>
                           )}
                           <div className="flex flex-col min-w-0">
                             <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
-                            <span className="text-[10px] sm:text-xs font-medium text-warm-500 truncate">{displayName}</span>
+                            <span className="text-[10px] sm:text-xs font-medium text-warm-500 truncate">{handle}</span>
                           </div>
                         </div>
                         {showFollowButton && (

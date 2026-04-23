@@ -125,16 +125,15 @@ export default async function UyePanelPage({ searchParams }: Props) {
       return r?.submitted_by ? [r.submitted_by] : [];
     })
   )];
-  type FavProfile = { displayName: string; username: string; avatar_url: string | null };
+  type FavProfile = { username: string; avatar_url: string | null };
   const favProfileMap: Record<string, FavProfile> = {};
   if (favMemberIds.length) {
     const { data: favProfiles } = await supabase
-      .from("profiles").select("id, username, full_name, avatar_url").in("id", favMemberIds);
-    favProfiles?.forEach((p) => { favProfileMap[p.id] = { displayName: p.full_name || p.username, username: p.username, avatar_url: p.avatar_url ?? null }; });
+      .from("profiles").select("id, username, avatar_url").in("id", favMemberIds);
+    favProfiles?.forEach((p) => { favProfileMap[p.id] = { username: p.username, avatar_url: p.avatar_url ?? null }; });
   }
-  const adminDisplayName = adminProfile?.full_name || adminProfile?.username || "Menü Günlüğü";
-  const adminUsername    = adminProfile?.username ?? "Menü Günlüğü";
-  const adminAvatarUrl   = adminProfile?.avatar_url ?? null;
+  const adminUsername  = adminProfile?.username ?? "Menü Günlüğü";
+  const adminAvatarUrl = adminProfile?.avatar_url ?? null;
 
   // Takip ettiklerim: admin önce, sonra üyeler
   type FollowEntry = { type: "admin" } | { type: "member"; id: string; username: string; full_name: string | null; avatar_url: string | null; followingId: string };
@@ -158,10 +157,27 @@ export default async function UyePanelPage({ searchParams }: Props) {
   // Defter birleşik sayım
   const totalDefterCount = (favorites?.length ?? 0) + (blogFavorites?.length ?? 0);
 
+  // Birleşik defter listesi (tarihe göre sıralı — Tümü görünümü için)
+  type DefterItem =
+    | { type: "recipe"; fav: any; recipe: Recipe & { submitted_by?: string | null } }
+    | { type: "blog";   fav: any; post: { id: string; title: string; slug: string; image_url: string | null } };
+
+  const allDefterRaw: DefterItem[] = [
+    ...(favorites ?? []).map((f) => {
+      const r = f.recipes as unknown as (Recipe & { submitted_by?: string | null }) | null;
+      return r ? { type: "recipe" as const, fav: f, recipe: r } : null;
+    }).filter(Boolean) as DefterItem[],
+    ...(blogFavorites ?? []).map((f) => {
+      const p = f.blog_posts as unknown as { id: string; title: string; slug: string; image_url: string | null } | null;
+      return p ? { type: "blog" as const, fav: f, post: p } : null;
+    }).filter(Boolean) as DefterItem[],
+  ].sort((a, b) => new Date(b.fav.created_at).getTime() - new Date(a.fav.created_at).getTime());
+
   // Sayfalamalar
   const recipesPag   = paginate(recipes   ?? [], pageNum,  PAGE_SIZE);
   const favsPag      = paginate(favorites ?? [], pageNum,  PAGE_SIZE);
-  const blogFavsPag  = paginate(blogFavorites ?? [], page2Num, PAGE_SIZE);
+  const blogFavsPag  = paginate(blogFavorites ?? [], pageNum, PAGE_SIZE);
+  const allDefterPag = paginate(allDefterRaw,     pageNum, PAGE_SIZE);
   const postsPag     = paginate(posts     ?? [], pageNum,  PAGE_SIZE);
   const followingPag = paginate(followingAll,    pageNum,  FOLLOW_SIZE);
   const followersPag = paginate(followers  ?? [], page2Num, FOLLOW_SIZE);
@@ -294,40 +310,112 @@ export default async function UyePanelPage({ searchParams }: Props) {
           {/* Alt filtre butonları */}
           <div className="flex gap-2 mb-4">
             {[
-              { key: undefined,    label: `Tümü (${totalDefterCount})` },
-              { key: "tarifler",   label: `Tarifler (${favorites?.length ?? 0})` },
-              { key: "blog",       label: `Blog Yazıları (${blogFavorites?.length ?? 0})` },
+              { key: undefined,  label: `Tümü (${totalDefterCount})` },
+              { key: "tarifler", label: `Tarifler (${favorites?.length ?? 0})` },
+              { key: "blog",     label: `Blog Yazıları (${blogFavorites?.length ?? 0})` },
             ].map((f) => (
-              <Link
-                key={f.key ?? "tumü"}
-                href={`/uye/panel?tab=tarif-defterim${f.key ? `&defter=${f.key}` : ""}`}
-                className={[
-                  "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+              <Link key={f.key ?? "tumü"} href={`/uye/panel?tab=tarif-defterim${f.key ? `&defter=${f.key}` : ""}`}
+                className={["px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
                   (defter ?? undefined) === f.key
                     ? "bg-brand-600 border-brand-600 text-white"
                     : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-700",
-                ].join(" ")}
-              >
+                ].join(" ")}>
                 {f.label}
               </Link>
             ))}
           </div>
 
-          {/* ─ Tarifler ─ */}
-          {(!defter || defter === "tarifler") && (
+          {/* Tamamen boş */}
+          {totalDefterCount === 0 && (
+            <Empty icon="📚" text="Tarif defteriniz boş. Tarifleri veya blog yazılarını incelerken ❤️ butona basın." />
+          )}
+
+          {/* ─ Tümü: birleşik grid ─ */}
+          {!defter && totalDefterCount > 0 && (
             <>
-              {(favorites?.length ?? 0) === 0 && defter === "tarifler" ? (
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
+                {allDefterPag.items.map((item) => {
+                  if (item.type === "recipe") {
+                    const r = item.recipe;
+                    const favAuthor: { username: string; avatar_url: string | null } | null = r.submitted_by
+                      ? (favProfileMap[r.submitted_by] ?? null)
+                      : { username: adminUsername, avatar_url: adminAvatarUrl };
+                    const authorIsAdmin = !r.submitted_by;
+                    const favInitFollowing = authorIsAdmin ? followsAdmin : (favFollowMap[r.submitted_by!] ?? false);
+                    return (
+                      <div key={`r-${item.fav.recipe_id}`} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                        <Link href={`/tarifler/${r.slug}`} className="flex flex-col flex-1">
+                          <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
+                            {r.image_url ? (
+                              <Image src={r.image_url} alt={r.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                            ) : (
+                              <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍽️</div>
+                            )}
+                          </div>
+                          <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
+                            <Badge category={r.category as Category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
+                            <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{r.title}</h2>
+                          </div>
+                        </Link>
+                        {favAuthor && (
+                          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
+                            <Link href={authorIsAdmin ? "/uye/__admin__" : `/uye/${favAuthor.username}`} className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+                              {favAuthor.avatar_url ? (
+                                <img src={favAuthor.avatar_url} alt={favAuthor.username} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
+                              ) : (
+                                <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">{favAuthor.username.charAt(0).toUpperCase()}</span>
+                              )}
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
+                                <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{favAuthor.username}</span>
+                              </div>
+                            </Link>
+                            <span className="sm:hidden flex-shrink-0"><FollowButton targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined} isAdminProfile={authorIsAdmin} initialFollowing={favInitFollowing} isLoggedIn={true} size="icon" /></span>
+                            <span className="hidden sm:block flex-shrink-0"><FollowButton targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined} isAdminProfile={authorIsAdmin} initialFollowing={favInitFollowing} isLoggedIn={true} size="xs" /></span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  } else {
+                    const p = item.post;
+                    return (
+                      <div key={`b-${item.fav.post_id}`} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                        <Link href={`/blog/${p.slug}`} className="flex flex-col flex-1">
+                          <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
+                            {p.image_url ? (
+                              <Image src={p.image_url} alt={p.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                            ) : (
+                              <div className="flex items-center justify-center h-full text-5xl text-warm-300">✍️</div>
+                            )}
+                          </div>
+                          <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
+                            <span className="inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-brand-100 text-brand-700">Blog Yazısı</span>
+                            <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{p.title}</h2>
+                          </div>
+                        </Link>
+                      </div>
+                    );
+                  }
+                })}
+              </div>
+              <Pagination tab="tarif-defterim" page={allDefterPag.safePage} totalPages={allDefterPag.totalPages} pageParam="page" />
+            </>
+          )}
+
+          {/* ─ Tarifler filtresi ─ */}
+          {defter === "tarifler" && (
+            <>
+              {favsPag.total === 0 ? (
                 <Empty icon="📚" text="Kaydedilen tarif yok. Tarifleri incelerken ❤️ butona basın." />
-              ) : (favorites?.length ?? 0) > 0 ? (
+              ) : (
                 <>
-                  {defter !== "tarifler" && <p className="text-xs font-semibold text-warm-500 mb-2 mt-1">Tarifler</p>}
                   <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
                     {favsPag.items.map((fav: any) => {
                       const r = fav.recipes as unknown as (Recipe & { submitted_by?: string | null }) | null;
                       if (!r) return null;
-                      const favAuthor: { displayName: string; username: string; avatar_url: string | null } | null = r.submitted_by
+                      const favAuthor: { username: string; avatar_url: string | null } | null = r.submitted_by
                         ? (favProfileMap[r.submitted_by] ?? null)
-                        : { displayName: adminDisplayName, username: adminUsername, avatar_url: adminAvatarUrl };
+                        : { username: adminUsername, avatar_url: adminAvatarUrl };
                       const authorIsAdmin = !r.submitted_by;
                       const favInitFollowing = authorIsAdmin ? followsAdmin : (favFollowMap[r.submitted_by!] ?? false);
                       return (
@@ -335,63 +423,51 @@ export default async function UyePanelPage({ searchParams }: Props) {
                           <Link href={`/tarifler/${r.slug}`} className="flex flex-col flex-1">
                             <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
                               {r.image_url ? (
-                                <Image src={r.image_url} alt={r.title} fill
-                                  sizes="(max-width: 640px) 50vw, 33vw"
-                                  className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                                <Image src={r.image_url} alt={r.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
                               ) : (
                                 <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍽️</div>
                               )}
                             </div>
                             <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
                               <Badge category={r.category as Category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
-                              <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
-                                {r.title}
-                              </h2>
+                              <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{r.title}</h2>
                             </div>
                           </Link>
                           {favAuthor && (
                             <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
                               <Link href={authorIsAdmin ? "/uye/__admin__" : `/uye/${favAuthor.username}`} className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
                                 {favAuthor.avatar_url ? (
-                                  <img src={favAuthor.avatar_url} alt={favAuthor.displayName}
-                                    className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
+                                  <img src={favAuthor.avatar_url} alt={favAuthor.username} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
                                 ) : (
-                                  <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
-                                    {favAuthor.displayName.charAt(0).toUpperCase()}
-                                  </span>
+                                  <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">{favAuthor.username.charAt(0).toUpperCase()}</span>
                                 )}
                                 <div className="flex flex-col min-w-0">
                                   <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
-                                  <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{favAuthor.displayName}</span>
+                                  <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{favAuthor.username}</span>
                                 </div>
                               </Link>
-                              <span className="sm:hidden flex-shrink-0">
-                                <FollowButton targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined} isAdminProfile={authorIsAdmin} initialFollowing={favInitFollowing} isLoggedIn={true} size="icon" />
-                              </span>
-                              <span className="hidden sm:block flex-shrink-0">
-                                <FollowButton targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined} isAdminProfile={authorIsAdmin} initialFollowing={favInitFollowing} isLoggedIn={true} size="xs" />
-                              </span>
+                              <span className="sm:hidden flex-shrink-0"><FollowButton targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined} isAdminProfile={authorIsAdmin} initialFollowing={favInitFollowing} isLoggedIn={true} size="icon" /></span>
+                              <span className="hidden sm:block flex-shrink-0"><FollowButton targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined} isAdminProfile={authorIsAdmin} initialFollowing={favInitFollowing} isLoggedIn={true} size="xs" /></span>
                             </div>
                           )}
                         </div>
                       );
                     })}
                   </div>
-                  <Pagination tab="tarif-defterim" page={favsPag.safePage} totalPages={favsPag.totalPages} pageParam="page" extraParam={defter === "tarifler" ? "defter=tarifler" : undefined} />
+                  <Pagination tab="tarif-defterim" page={favsPag.safePage} totalPages={favsPag.totalPages} pageParam="page" extraParam="defter=tarifler" />
                 </>
-              ) : null}
+              )}
             </>
           )}
 
-          {/* ─ Blog Yazıları ─ */}
-          {(!defter || defter === "blog") && (
+          {/* ─ Blog filtresi ─ */}
+          {defter === "blog" && (
             <>
-              {(blogFavorites?.length ?? 0) === 0 && defter === "blog" ? (
+              {blogFavsPag.total === 0 ? (
                 <Empty icon="📖" text="Kaydedilen blog yazısı yok. Blog yazılarını incelerken ❤️ butona basın." />
-              ) : (blogFavorites?.length ?? 0) > 0 ? (
+              ) : (
                 <>
-                  {defter !== "blog" && <p className="text-xs font-semibold text-warm-500 mb-2 mt-1">Blog Yazıları</p>}
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
                     {blogFavsPag.items.map((fav: any) => {
                       const p = fav.blog_posts as { id: string; title: string; slug: string; image_url: string | null } | null;
                       if (!p) return null;
@@ -400,33 +476,24 @@ export default async function UyePanelPage({ searchParams }: Props) {
                           <Link href={`/blog/${p.slug}`} className="flex flex-col flex-1">
                             <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
                               {p.image_url ? (
-                                <Image src={p.image_url} alt={p.title} fill
-                                  sizes="(max-width: 640px) 50vw, 33vw"
-                                  className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                                <Image src={p.image_url} alt={p.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
                               ) : (
                                 <div className="flex items-center justify-center h-full text-5xl text-warm-300">✍️</div>
                               )}
                             </div>
                             <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
                               <span className="inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-brand-100 text-brand-700">Blog Yazısı</span>
-                              <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
-                                {p.title}
-                              </h2>
+                              <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{p.title}</h2>
                             </div>
                           </Link>
                         </div>
                       );
                     })}
                   </div>
-                  <Pagination tab="tarif-defterim" page={blogFavsPag.safePage} totalPages={blogFavsPag.totalPages} pageParam="page2" extraParam={defter === "blog" ? "defter=blog" : undefined} />
+                  <Pagination tab="tarif-defterim" page={blogFavsPag.safePage} totalPages={blogFavsPag.totalPages} pageParam="page" extraParam="defter=blog" />
                 </>
-              ) : null}
+              )}
             </>
-          )}
-
-          {/* Tamamen boş hali */}
-          {totalDefterCount === 0 && (
-            <Empty icon="📚" text="Tarif defteriniz boş. Tarifleri veya blog yazılarını incelerken ❤️ butona basın." />
           )}
         </section>
       )}

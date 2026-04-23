@@ -53,7 +53,7 @@ export default async function BlogPage({ searchParams }: Props) {
   ]);
 
   const adminProfile  = adminProfileRes.data;
-  const adminAuthorName   = adminProfile?.full_name || adminProfile?.username || "Menü Günlüğü";
+  const adminAuthorName   = adminProfile?.username ?? "Menü Günlüğü";
   const adminAuthorAvatar = adminProfile?.avatar_url ?? "";
 
   // Üye yazıları (onaylı) + kategorileri
@@ -110,7 +110,7 @@ export default async function BlogPage({ searchParams }: Props) {
         created_at:   p.created_at,
         href:         `/yazi/${p.slug}`,
         categoryName: (p.blog_categories as any)?.name ?? null,
-        authorName:   profile?.full_name || profile?.username || "Üye",
+        authorName:   profile?.username ?? "Üye",
         authorAvatar: profile?.avatar_url ?? "",
         authorUsername: profile?.username ?? "Üye",
         authorId:     p.submitted_by as string,

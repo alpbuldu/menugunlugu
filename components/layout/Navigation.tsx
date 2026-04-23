@@ -198,12 +198,13 @@ function useAuthUser() {
         return;
       }
       setProfile(data);
+      setLoading(false);
     }
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user);
       if (user) fetchProfile(user.id);
-      else setLoading(false);
+      else { setLoading(false); }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
@@ -211,9 +212,6 @@ function useAuthUser() {
       if (session?.user) fetchProfile(session.user.id);
       else { setProfile(null); setLoading(false); }
     });
-
-    // Loading done after first getUser resolves
-    setTimeout(() => setLoading(false), 800);
     return () => subscription.unsubscribe();
   }, []);
 

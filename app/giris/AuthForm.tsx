@@ -65,11 +65,10 @@ export default function AuthForm({ defaultTab, from }: Props) {
       .single();
 
     if (!profile?.full_name && !from) {
-      router.push("/uye/panel?tab=panelim");
+      window.location.href = "/uye/panel?tab=panelim";
     } else {
-      router.push(from ?? "/uye/panel");
+      window.location.href = from ?? "/uye/panel";
     }
-    router.refresh();
   }
 
   // ── Register ───────────────────────────────────────────────────

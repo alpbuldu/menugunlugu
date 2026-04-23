@@ -176,43 +176,32 @@ export default async function AdminRecipesPage({ searchParams }: Props) {
       )}
 
       {/* Sayfalama */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-1.5 mt-8 flex-wrap">
-          {currentPage > 1 ? (
-            <Link href={href({ page: currentPage - 1 })} className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors">‹</Link>
-          ) : (
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">‹</span>
-          )}
-
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
-            const isCurrent = p === currentPage;
-            const show = p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1;
-            const ellipsisBefore = p === currentPage - 2 && currentPage - 2 > 1;
-            const ellipsisAfter  = p === currentPage + 2 && currentPage + 2 < totalPages;
-            if (!show) return null;
-            return (
-              <span key={p} className="flex items-center gap-1.5">
-                {ellipsisBefore && <span className="text-warm-400 text-sm px-1">…</span>}
-                <Link
-                  href={href({ page: p })}
-                  className={`inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium border transition-colors ${
-                    isCurrent ? "bg-brand-600 border-brand-600 text-white" : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"
-                  }`}
-                >
-                  {p}
-                </Link>
-                {ellipsisAfter && <span className="text-warm-400 text-sm px-1">…</span>}
-              </span>
-            );
-          })}
-
-          {currentPage < totalPages ? (
-            <Link href={href({ page: currentPage + 1 })} className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors">›</Link>
-          ) : (
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">›</span>
-          )}
-        </div>
-      )}
+      {totalPages > 1 && (() => {
+        const btn = "inline-flex items-center justify-center w-9 h-9 rounded-xl text-sm font-medium border transition-colors";
+        const WINDOW = 4;
+        let start = Math.max(1, currentPage - Math.floor(WINDOW / 2));
+        let end   = Math.min(totalPages, start + WINDOW - 1);
+        if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1);
+        const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
+        return (
+          <div className="flex items-center justify-center gap-1.5 mt-8">
+            {currentPage > 1
+              ? <Link href={href({ page: currentPage - 1 })} className={`${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>‹</Link>
+              : <span className={`${btn} border-warm-100 text-warm-300 cursor-default`}>‹</span>}
+            {start > 1 && <span className="text-warm-400 text-sm px-1">…</span>}
+            {pages.map((p) => (
+              <Link key={p} href={href({ page: p })}
+                className={`${btn} ${p === currentPage ? "bg-brand-600 border-brand-600 text-white" : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"}`}>
+                {p}
+              </Link>
+            ))}
+            {end < totalPages && <span className="text-warm-400 text-sm px-1">…</span>}
+            {currentPage < totalPages
+              ? <Link href={href({ page: currentPage + 1 })} className={`${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>›</Link>
+              : <span className={`${btn} border-warm-100 text-warm-300 cursor-default`}>›</span>}
+          </div>
+        );
+      })()}
     </div>
   );
 }

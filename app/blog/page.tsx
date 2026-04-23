@@ -144,19 +144,14 @@ export default async function BlogPage({ searchParams }: Props) {
   }
 
   function buildPages(current: number, total: number): (number | "…")[] {
-    if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
-    const pages = new Set<number>();
-    pages.add(1);
-    pages.add(total);
-    pages.add(Math.max(1, current - 1));
-    pages.add(current);
-    pages.add(Math.min(total, current + 1));
-    const sorted = Array.from(pages).sort((a, b) => a - b);
+    const WINDOW = 4;
+    let start = Math.max(1, current - Math.floor(WINDOW / 2));
+    let end   = Math.min(total, start + WINDOW - 1);
+    if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1);
     const result: (number | "…")[] = [];
-    for (let i = 0; i < sorted.length; i++) {
-      if (i > 0 && sorted[i] - sorted[i - 1] > 1) result.push("…");
-      result.push(sorted[i]);
-    }
+    if (start > 1) result.push("…");
+    for (let p = start; p <= end; p++) result.push(p);
+    if (end < total) result.push("…");
     return result;
   }
 

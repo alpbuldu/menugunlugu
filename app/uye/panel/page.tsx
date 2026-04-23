@@ -609,21 +609,28 @@ function Pagination({
 }) {
   if (totalPages <= 1) return null;
   const base = `/uye/panel?tab=${tab}${extraParam ? `&${extraParam}` : ""}`;
+  const btn  = "inline-flex items-center justify-center w-9 h-9 rounded-xl text-sm font-medium border transition-colors";
+  const WINDOW = 4;
+  let start = Math.max(1, page - Math.floor(WINDOW / 2));
+  let end   = Math.min(totalPages, start + WINDOW - 1);
+  if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1);
+  const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
   return (
-    <div className="flex items-center justify-center gap-3 mt-6">
-      {page > 1 && (
-        <Link href={`${base}&${pageParam}=${page - 1}`}
-          className="px-4 py-2 rounded-xl border border-warm-200 text-sm text-warm-600 hover:bg-warm-50 transition-colors">
-          ← Önceki
+    <div className="flex items-center justify-center gap-1.5 mt-6">
+      {page > 1
+        ? <Link href={`${base}&${pageParam}=${page - 1}`} className={`${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>‹</Link>
+        : <span className={`${btn} border-warm-100 text-warm-300 cursor-default`}>‹</span>}
+      {start > 1 && <span className="text-warm-400 text-sm px-1">…</span>}
+      {pages.map((p) => (
+        <Link key={p} href={`${base}&${pageParam}=${p}`}
+          className={`${btn} ${p === page ? "bg-brand-600 border-brand-600 text-white" : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"}`}>
+          {p}
         </Link>
-      )}
-      <span className="text-sm text-warm-400">{page} / {totalPages}</span>
-      {page < totalPages && (
-        <Link href={`${base}&${pageParam}=${page + 1}`}
-          className="px-4 py-2 rounded-xl border border-warm-200 text-sm text-warm-600 hover:bg-warm-50 transition-colors">
-          Sonraki →
-        </Link>
-      )}
+      ))}
+      {end < totalPages && <span className="text-warm-400 text-sm px-1">…</span>}
+      {page < totalPages
+        ? <Link href={`${base}&${pageParam}=${page + 1}`} className={`${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>›</Link>
+        : <span className={`${btn} border-warm-100 text-warm-300 cursor-default`}>›</span>}
     </div>
   );
 }

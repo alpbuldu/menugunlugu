@@ -7,23 +7,44 @@ import ScrollToTop from "@/components/ui/ScrollToTop";
 import CookieBanner from "@/components/ui/CookieBanner";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
+import { createClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://www.menugunlugu.com"),
-  title: {
-    default: "Menü Günlüğü",
-    template: "%s | Menü Günlüğü",
-  },
-  description: "Günlük menüler, tarifler ve daha fazlası.",
-  openGraph: {
-    siteName: "Menü Günlüğü",
-    locale: "tr_TR",
-    type: "website",
-  },
-  other: {
-    "google-adsense-account": "ca-pub-8588576330436541",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("site_settings")
+    .select("favicon_url, logo_url")
+    .eq("id", 1)
+    .single();
+
+  const faviconUrl = data?.favicon_url ?? null;
+  const logoUrl    = data?.logo_url    ?? null;
+
+  return {
+    metadataBase: new URL("https://www.menugunlugu.com"),
+    title: {
+      default: "Menü Günlüğü",
+      template: "%s | Menü Günlüğü",
+    },
+    description: "Günlük menüler, tarifler ve daha fazlası.",
+    ...(faviconUrl && {
+      icons: {
+        icon:     faviconUrl,
+        shortcut: faviconUrl,
+        apple:    faviconUrl,
+      },
+    }),
+    openGraph: {
+      siteName: "Menü Günlüğü",
+      locale:   "tr_TR",
+      type:     "website",
+      ...(logoUrl && { images: [{ url: logoUrl, width: 1200, height: 1200 }] }),
+    },
+    other: {
+      "google-adsense-account": "ca-pub-8588576330436541",
+    },
+  };
+}
 
 export default function RootLayout({
   children,

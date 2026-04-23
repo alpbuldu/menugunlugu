@@ -210,16 +210,27 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
               </div>
             </div>
 
-            {/* Sağ: Takip Et butonu */}
+            {/* Sağ: Takip Et — mobilde ikon, masaüstünde yazılı */}
             {showFollowButton && (
               <div className="flex-shrink-0 pt-1">
-                <FollowButton
-                  targetUserId={isAdmin ? undefined : profileId!}
-                  isAdminProfile={isAdmin}
-                  initialFollowing={isFollowing}
-                  isLoggedIn={!!currentUser}
-                  size="sm"
-                />
+                <span className="sm:hidden">
+                  <FollowButton
+                    targetUserId={isAdmin ? undefined : profileId!}
+                    isAdminProfile={isAdmin}
+                    initialFollowing={isFollowing}
+                    isLoggedIn={!!currentUser}
+                    size="icon"
+                  />
+                </span>
+                <span className="hidden sm:block">
+                  <FollowButton
+                    targetUserId={isAdmin ? undefined : profileId!}
+                    isAdminProfile={isAdmin}
+                    initialFollowing={isFollowing}
+                    isLoggedIn={!!currentUser}
+                    size="sm"
+                  />
+                </span>
               </div>
             )}
           </div>
@@ -318,24 +329,48 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
                   {allRecipes.map((recipe) => (
-                    <Link key={recipe.id} href={`/tarifler/${recipe.slug}`}
-                      className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
-                      <div className="relative h-32 sm:h-44 bg-warm-100 shrink-0">
-                        {recipe.image_url ? (
-                          <Image src={recipe.image_url} alt={recipe.title} fill
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
-                            className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                        ) : (
-                          <div className="flex items-center justify-center h-full text-4xl text-warm-300">🍳</div>
+                    <div key={recipe.id} className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                      <Link href={`/tarifler/${recipe.slug}`} className="flex flex-col flex-1">
+                        <div className="relative h-32 sm:h-44 bg-warm-100 shrink-0">
+                          {recipe.image_url ? (
+                            <Image src={recipe.image_url} alt={recipe.title} fill
+                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
+                              className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                          ) : (
+                            <div className="flex items-center justify-center h-full text-4xl text-warm-300">🍳</div>
+                          )}
+                        </div>
+                        <div className="p-3 sm:p-4 flex-1">
+                          <Badge category={recipe.category as Category} />
+                          <h3 className="text-xs sm:text-sm font-semibold text-warm-800 mt-1.5 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
+                            {recipe.title}
+                          </h3>
+                        </div>
+                      </Link>
+                      {/* Yazar satırı */}
+                      <div className="px-3 pb-3 flex items-center justify-between gap-2 border-t border-warm-50 pt-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          {avatarUrl ? (
+                            <img src={avatarUrl} alt={displayName} className="w-4 h-4 rounded-full object-cover flex-shrink-0" />
+                          ) : (
+                            <div className="w-4 h-4 rounded-full bg-brand-100 text-brand-600 text-[8px] font-bold flex items-center justify-center flex-shrink-0">
+                              {displayName.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <span className="text-[10px] text-warm-500 truncate">{displayName}</span>
+                        </div>
+                        {showFollowButton && (
+                          <>
+                            <span className="sm:hidden flex-shrink-0">
+                              <FollowButton targetUserId={isAdmin ? undefined : profileId!} isAdminProfile={isAdmin} initialFollowing={isFollowing} isLoggedIn={!!currentUser} size="icon" />
+                            </span>
+                            <span className="hidden sm:block flex-shrink-0">
+                              <FollowButton targetUserId={isAdmin ? undefined : profileId!} isAdminProfile={isAdmin} initialFollowing={isFollowing} isLoggedIn={!!currentUser} size="xs" />
+                            </span>
+                          </>
                         )}
                       </div>
-                      <div className="p-3 sm:p-4">
-                        <Badge category={recipe.category as Category} />
-                        <h3 className="text-xs sm:text-sm font-semibold text-warm-800 mt-1.5 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
-                          {recipe.title}
-                        </h3>
-                      </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
                 <Pagination current={currentPage} total={recipesTotalPages} hrefFn={(p) => pageHref({ tab: "tarifler", page: p })} />
@@ -379,29 +414,53 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
                   {allPosts.map((post) => (
-                    <Link key={post.id} href={`${postLinkBase}/${post.slug}`}
-                      className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
-                      <div className="relative h-32 sm:h-44 bg-warm-100 shrink-0">
-                        {post.image_url ? (
-                          <Image src={post.image_url} alt={post.title} fill
-                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
-                            className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                        ) : (
-                          <div className="flex items-center justify-center h-full text-4xl text-warm-300">✍️</div>
+                    <div key={post.id} className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                      <Link href={`${postLinkBase}/${post.slug}`} className="flex flex-col flex-1">
+                        <div className="relative h-32 sm:h-44 bg-warm-100 shrink-0">
+                          {post.image_url ? (
+                            <Image src={post.image_url} alt={post.title} fill
+                              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 33vw"
+                              className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                          ) : (
+                            <div className="flex items-center justify-center h-full text-4xl text-warm-300">✍️</div>
+                          )}
+                        </div>
+                        <div className="p-3 sm:p-4 flex-1">
+                          <h3 className="text-xs sm:text-sm font-semibold text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
+                            {post.title}
+                          </h3>
+                          {post.excerpt && (
+                            <p className="text-[11px] sm:text-xs text-warm-400 mt-1 line-clamp-2 hidden sm:block">{post.excerpt}</p>
+                          )}
+                          <p className="text-[10px] sm:text-xs text-warm-300 mt-2">
+                            {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long" })}
+                          </p>
+                        </div>
+                      </Link>
+                      {/* Yazar satırı */}
+                      <div className="px-3 pb-3 flex items-center justify-between gap-2 border-t border-warm-50 pt-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          {avatarUrl ? (
+                            <img src={avatarUrl} alt={displayName} className="w-4 h-4 rounded-full object-cover flex-shrink-0" />
+                          ) : (
+                            <div className="w-4 h-4 rounded-full bg-brand-100 text-brand-600 text-[8px] font-bold flex items-center justify-center flex-shrink-0">
+                              {displayName.charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <span className="text-[10px] text-warm-500 truncate">{displayName}</span>
+                        </div>
+                        {showFollowButton && (
+                          <>
+                            <span className="sm:hidden flex-shrink-0">
+                              <FollowButton targetUserId={isAdmin ? undefined : profileId!} isAdminProfile={isAdmin} initialFollowing={isFollowing} isLoggedIn={!!currentUser} size="icon" />
+                            </span>
+                            <span className="hidden sm:block flex-shrink-0">
+                              <FollowButton targetUserId={isAdmin ? undefined : profileId!} isAdminProfile={isAdmin} initialFollowing={isFollowing} isLoggedIn={!!currentUser} size="xs" />
+                            </span>
+                          </>
                         )}
                       </div>
-                      <div className="p-3 sm:p-4">
-                        <h3 className="text-xs sm:text-sm font-semibold text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
-                          {post.title}
-                        </h3>
-                        {post.excerpt && (
-                          <p className="text-[11px] sm:text-xs text-warm-400 mt-1 line-clamp-2 hidden sm:block">{post.excerpt}</p>
-                        )}
-                        <p className="text-[10px] sm:text-xs text-warm-300 mt-2">
-                          {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long" })}
-                        </p>
-                      </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
                 <Pagination current={currentPage} total={postsTotalPages} hrefFn={(p) => pageHref({ tab: "yazilar", page: p })} />
@@ -427,35 +486,28 @@ function EmptyState({ icon, text }: { icon: string; text: string }) {
 
 function Pagination({ current, total, hrefFn }: { current: number; total: number; hrefFn: (p: number) => string }) {
   if (total <= 1) return null;
-  const btnBase = "inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium border transition-colors";
+  const btn  = "inline-flex items-center justify-center w-9 h-9 rounded-xl text-sm font-medium border transition-colors";
+  const WINDOW = 4;
+  let start = Math.max(1, current - Math.floor(WINDOW / 2));
+  let end   = Math.min(total, start + WINDOW - 1);
+  if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1);
+  const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
   return (
-    <div className="flex items-center justify-center gap-1.5 mt-8 flex-wrap">
-      {current > 1 ? (
-        <Link href={hrefFn(current - 1)} className={`${btnBase} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>‹</Link>
-      ) : (
-        <span className={`${btnBase} border-warm-100 text-warm-300 cursor-default`}>‹</span>
-      )}
-      {Array.from({ length: total }, (_, i) => i + 1).map((p) => {
-        const show = p === 1 || p === total || Math.abs(p - current) <= 1;
-        const ellipsisBefore = p === current - 2 && current - 2 > 1;
-        const ellipsisAfter  = p === current + 2 && current + 2 < total;
-        if (!show) return null;
-        return (
-          <span key={p} className="flex items-center gap-1.5">
-            {ellipsisBefore && <span className="text-warm-400 text-sm px-1">…</span>}
-            <Link href={hrefFn(p)}
-              className={`${btnBase} ${p === current ? "bg-brand-600 border-brand-600 text-white" : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"}`}>
-              {p}
-            </Link>
-            {ellipsisAfter && <span className="text-warm-400 text-sm px-1">…</span>}
-          </span>
-        );
-      })}
-      {current < total ? (
-        <Link href={hrefFn(current + 1)} className={`${btnBase} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>›</Link>
-      ) : (
-        <span className={`${btnBase} border-warm-100 text-warm-300 cursor-default`}>›</span>
-      )}
+    <div className="flex items-center justify-center gap-1.5 mt-8">
+      {current > 1
+        ? <Link href={hrefFn(current - 1)} className={`${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>‹</Link>
+        : <span className={`${btn} border-warm-100 text-warm-300 cursor-default`}>‹</span>}
+      {start > 1 && <span className="text-warm-400 text-sm px-1">…</span>}
+      {pages.map((p) => (
+        <Link key={p} href={hrefFn(p)}
+          className={`${btn} ${p === current ? "bg-brand-600 border-brand-600 text-white" : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"}`}>
+          {p}
+        </Link>
+      ))}
+      {end < total && <span className="text-warm-400 text-sm px-1">…</span>}
+      {current < total
+        ? <Link href={hrefFn(current + 1)} className={`${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>›</Link>
+        : <span className={`${btn} border-warm-100 text-warm-300 cursor-default`}>›</span>}
     </div>
   );
 }

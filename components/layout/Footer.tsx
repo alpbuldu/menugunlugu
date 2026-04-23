@@ -74,10 +74,10 @@ export default function Footer() {
               </a>
             </div>
 
-            {/* Mobil e-posta */}
+            {/* E-posta */}
             <a
               href="mailto:info@menugunlugu.com"
-              className="md:hidden text-xs text-warm-400 hover:text-white transition-colors mt-1"
+              className="text-xs text-warm-400 hover:text-white transition-colors mt-1"
             >
               info@menugunlugu.com
             </a>

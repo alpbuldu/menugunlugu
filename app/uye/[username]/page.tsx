@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { getBlogCategories } from "@/lib/supabase/queries";
 import Badge from "@/components/ui/Badge";
 import FollowButton from "@/components/ui/FollowButton";
 import type { Category } from "@/lib/types";
@@ -12,7 +13,7 @@ const PER_PAGE = 12;
 
 interface Props {
   params: Promise<{ username: string }>;
-  searchParams: Promise<{ tab?: string; category?: string; page?: string }>;
+  searchParams: Promise<{ tab?: string; category?: string; blogcat?: string; page?: string }>;
 }
 
 const CATEGORIES: { key: string; label: string }[] = [
@@ -32,12 +33,14 @@ const SocialIcon = ({ type }: { type: string }) => {
 
 export default async function UserProfilePage({ params, searchParams }: Props) {
   const { username }           = await params;
-  const { tab = "tarifler", category: catParam, page: pageParam } = await searchParams;
-  const activeCategory = catParam && catParam !== "all" ? catParam : null;
+  const { tab = "tarifler", category: catParam, blogcat: blogCatParam, page: pageParam } = await searchParams;
+  const activeCategory    = catParam    && catParam    !== "all" ? catParam    : null;
+  const activeBlogCat     = blogCatParam && blogCatParam !== "all" ? blogCatParam : null;
   const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
 
   const supabase = await createClient();
   const { data: { user: currentUser } } = await supabase.auth.getUser();
+  const blogCategories = await getBlogCategories();
 
   let isAdmin = false;
   let adminProfile: any = null;
@@ -138,14 +141,16 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
   let postsTotalPages = 1;
   if (tab === "yazilar") {
     if (isAdmin) {
-      const { data: bp } = await supabase
+      let bpQuery = supabase
         .from("blog_posts")
-        .select("id, title, slug, excerpt, image_url, created_at")
-        .eq("published", true)
-        .order("created_at", { ascending: false });
-      const all = bp ?? [];
-      postsTotalPages = Math.ceil(all.length / PER_PAGE);
-      allPosts = all.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+        .select("id, title, slug, excerpt, image_url, created_at, category_id, blog_categories:category_id(name, slug)")
+        .eq("published", true);
+      const all = (await bpQuery.order("created_at", { ascending: false })).data ?? [];
+      const filtered = activeBlogCat
+        ? all.filter((p: any) => (p.blog_categories as any)?.slug === activeBlogCat)
+        : all;
+      postsTotalPages = Math.ceil(filtered.length / PER_PAGE);
+      allPosts = filtered.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
     } else if (profileId) {
       const { data: mp } = await supabase
         .from("member_posts")
@@ -161,12 +166,14 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
 
   const postLinkBase = isAdmin ? "/blog" : "/yazi";
 
-  function pageHref(overrides: { tab?: string; category?: string; page?: number }) {
+  function pageHref(overrides: { tab?: string; category?: string; blogcat?: string; page?: number }) {
     const p = new URLSearchParams();
     const t = overrides.tab ?? tab;
     if (t !== "tarifler") p.set("tab", t);
     const cat = "category" in overrides ? overrides.category : activeCategory;
     if (cat) p.set("category", cat);
+    const bc = "blogcat" in overrides ? overrides.blogcat : activeBlogCat;
+    if (bc) p.set("blogcat", bc);
     const pg = overrides.page ?? currentPage;
     if (pg > 1) p.set("page", String(pg));
     const qs = p.toString();
@@ -287,17 +294,17 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
         {/* ── Recipes Tab ── */}
         {tab === "tarifler" && (
           <>
-            {/* Kategori filtresi */}
-            <div className="flex flex-wrap gap-2 mb-5 overflow-x-auto pb-1">
+            {/* Kategori filtresi — tarifler sayfasıyla aynı tasarım */}
+            <div className="flex gap-1 sm:flex-wrap sm:gap-2 mb-4 sm:mb-6">
               {CATEGORIES.map((cat) => {
                 const isActive = cat.key === "all" ? !activeCategory : activeCategory === cat.key;
                 return (
                   <Link key={cat.key}
                     href={pageHref({ tab: "tarifler", category: cat.key === "all" ? undefined : cat.key, page: 1 })}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border whitespace-nowrap transition-colors ${
+                    className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
                       isActive
                         ? "bg-brand-600 border-brand-600 text-white"
-                        : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-700"
+                        : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
                     }`}>
                     {cat.label}
                   </Link>
@@ -340,6 +347,32 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
         {/* ── Posts Tab ── */}
         {tab === "yazilar" && (
           <>
+            {/* Blog kategori filtresi — blog sayfasıyla aynı tasarım */}
+            {isAdmin && blogCategories.length > 0 && (
+              <div className="flex gap-1 sm:flex-wrap sm:gap-2 mb-4 sm:mb-6">
+                <Link
+                  href={pageHref({ tab: "yazilar", blogcat: undefined, page: 1 })}
+                  className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
+                    !activeBlogCat
+                      ? "bg-brand-600 border-brand-600 text-white"
+                      : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+                  }`}>
+                  Tümü
+                </Link>
+                {blogCategories.map((cat: any) => (
+                  <Link key={cat.id}
+                    href={pageHref({ tab: "yazilar", blogcat: cat.slug, page: 1 })}
+                    className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
+                      activeBlogCat === cat.slug
+                        ? "bg-brand-600 border-brand-600 text-white"
+                        : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+                    }`}>
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+
             {allPosts.length === 0 ? (
               <EmptyState icon="✍️" text="Henüz paylaşılan yazı yok." />
             ) : (

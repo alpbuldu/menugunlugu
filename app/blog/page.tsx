@@ -47,13 +47,13 @@ export default async function BlogPage({ searchParams }: Props) {
   const admin    = createAdminClient();
 
   const [adminProfileRes, categories, adminPosts] = await Promise.all([
-    supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).maybeSingle(),
+    supabase.from("admin_profile").select("username, full_name, avatar_url").eq("id", 1).maybeSingle(),
     getBlogCategories(),
     getBlogPosts(kategori),
   ]);
 
   const adminProfile  = adminProfileRes.data;
-  const adminAuthorName   = adminProfile?.username   ?? "Menü Günlüğü";
+  const adminAuthorName   = adminProfile?.full_name || adminProfile?.username || "Menü Günlüğü";
   const adminAuthorAvatar = adminProfile?.avatar_url ?? "";
 
   // Üye yazıları (onaylı) + kategorileri
@@ -65,11 +65,11 @@ export default async function BlogPage({ searchParams }: Props) {
 
   // Üye profilleri
   const memberIds = [...new Set((memberPostsRaw ?? []).map((p: any) => p.submitted_by).filter(Boolean))];
-  const memberProfileMap: Record<string, { username: string; avatar_url: string | null }> = {};
+  const memberProfileMap: Record<string, { username: string; full_name: string | null; avatar_url: string | null }> = {};
   if (memberIds.length) {
     const { data: profiles } = await supabase
-      .from("profiles").select("id, username, avatar_url").in("id", memberIds);
-    profiles?.forEach((p) => { memberProfileMap[p.id] = { username: p.username, avatar_url: p.avatar_url ?? null }; });
+      .from("profiles").select("id, username, full_name, avatar_url").in("id", memberIds);
+    profiles?.forEach((p) => { memberProfileMap[p.id] = { username: p.username, full_name: p.full_name ?? null, avatar_url: p.avatar_url ?? null }; });
   }
 
   // Admin yazılarını birleştir (kategori filtresi halihazırda uygulanmış)
@@ -110,7 +110,7 @@ export default async function BlogPage({ searchParams }: Props) {
         created_at:   p.created_at,
         href:         `/yazi/${p.slug}`,
         categoryName: (p.blog_categories as any)?.name ?? null,
-        authorName:   profile?.username ?? "Üye",
+        authorName:   profile?.full_name || profile?.username || "Üye",
         authorAvatar: profile?.avatar_url ?? "",
         authorUsername: profile?.username ?? "Üye",
         authorId:     p.submitted_by as string,

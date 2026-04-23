@@ -53,13 +53,13 @@ export default async function RecipesPage({ searchParams }: Props) {
   );
 
   // Yazar verileri
-  const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();
-  const adminAuthor = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "", username: ap?.username ?? "__admin__" };
+  const { data: ap } = await supabase.from("admin_profile").select("username, full_name, avatar_url").eq("id", 1).single();
+  const adminAuthor = { name: ap?.full_name || ap?.username || "Menü Günlüğü", avatar: ap?.avatar_url ?? "", username: ap?.username ?? "__admin__" };
   const memberIds = [...new Set(recipes.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
   const profileMap: Record<string, { name: string; avatar: string; username: string }> = {};
   if (memberIds.length) {
-    const { data: profiles } = await supabase.from("profiles").select("id, username, avatar_url").in("id", memberIds);
-    profiles?.forEach((p) => { profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "", username: p.username }; });
+    const { data: profiles } = await supabase.from("profiles").select("id, username, full_name, avatar_url").in("id", memberIds);
+    profiles?.forEach((p) => { profileMap[p.id] = { name: p.full_name || p.username, avatar: p.avatar_url ?? "", username: p.username }; });
   }
   function getAuthor(submittedBy: string | null) {
     return submittedBy ? (profileMap[submittedBy] ?? adminAuthor) : adminAuthor;

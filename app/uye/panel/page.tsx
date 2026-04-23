@@ -125,15 +125,16 @@ export default async function UyePanelPage({ searchParams }: Props) {
       return r?.submitted_by ? [r.submitted_by] : [];
     })
   )];
-  type FavProfile = { username: string; avatar_url: string | null };
+  type FavProfile = { displayName: string; username: string; avatar_url: string | null };
   const favProfileMap: Record<string, FavProfile> = {};
   if (favMemberIds.length) {
     const { data: favProfiles } = await supabase
-      .from("profiles").select("id, username, avatar_url").in("id", favMemberIds);
-    favProfiles?.forEach((p) => { favProfileMap[p.id] = { username: p.username, avatar_url: p.avatar_url ?? null }; });
+      .from("profiles").select("id, username, full_name, avatar_url").in("id", favMemberIds);
+    favProfiles?.forEach((p) => { favProfileMap[p.id] = { displayName: p.full_name || p.username, username: p.username, avatar_url: p.avatar_url ?? null }; });
   }
-  const adminUsername  = adminProfile?.username ?? "Menü Günlüğü";
-  const adminAvatarUrl = adminProfile?.avatar_url ?? null;
+  const adminDisplayName = adminProfile?.full_name || adminProfile?.username || "Menü Günlüğü";
+  const adminUsername    = adminProfile?.username ?? "Menü Günlüğü";
+  const adminAvatarUrl   = adminProfile?.avatar_url ?? null;
 
   // Takip ettiklerim: admin önce, sonra üyeler
   type FollowEntry = { type: "admin" } | { type: "member"; id: string; username: string; full_name: string | null; avatar_url: string | null; followingId: string };
@@ -160,7 +161,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
   // Sayfalamalar
   const recipesPag   = paginate(recipes   ?? [], pageNum,  PAGE_SIZE);
   const favsPag      = paginate(favorites ?? [], pageNum,  PAGE_SIZE);
-  const blogFavsPag  = paginate(blogFavorites ?? [], pageNum, PAGE_SIZE);
+  const blogFavsPag  = paginate(blogFavorites ?? [], page2Num, PAGE_SIZE);
   const postsPag     = paginate(posts     ?? [], pageNum,  PAGE_SIZE);
   const followingPag = paginate(followingAll,    pageNum,  FOLLOW_SIZE);
   const followersPag = paginate(followers  ?? [], page2Num, FOLLOW_SIZE);
@@ -324,9 +325,9 @@ export default async function UyePanelPage({ searchParams }: Props) {
                     {favsPag.items.map((fav: any) => {
                       const r = fav.recipes as unknown as (Recipe & { submitted_by?: string | null }) | null;
                       if (!r) return null;
-                      const favAuthor: { username: string; avatar_url: string | null } | null = r.submitted_by
+                      const favAuthor: { displayName: string; username: string; avatar_url: string | null } | null = r.submitted_by
                         ? (favProfileMap[r.submitted_by] ?? null)
-                        : { username: adminUsername, avatar_url: adminAvatarUrl };
+                        : { displayName: adminDisplayName, username: adminUsername, avatar_url: adminAvatarUrl };
                       const authorIsAdmin = !r.submitted_by;
                       const favInitFollowing = authorIsAdmin ? followsAdmin : (favFollowMap[r.submitted_by!] ?? false);
                       return (
@@ -352,16 +353,16 @@ export default async function UyePanelPage({ searchParams }: Props) {
                             <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
                               <Link href={authorIsAdmin ? "/uye/__admin__" : `/uye/${favAuthor.username}`} className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
                                 {favAuthor.avatar_url ? (
-                                  <img src={favAuthor.avatar_url} alt={favAuthor.username}
+                                  <img src={favAuthor.avatar_url} alt={favAuthor.displayName}
                                     className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
                                 ) : (
                                   <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
-                                    {favAuthor.username.charAt(0).toUpperCase()}
+                                    {favAuthor.displayName.charAt(0).toUpperCase()}
                                   </span>
                                 )}
                                 <div className="flex flex-col min-w-0">
                                   <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
-                                  <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{favAuthor.username}</span>
+                                  <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{favAuthor.displayName}</span>
                                 </div>
                               </Link>
                               <span className="sm:hidden flex-shrink-0">
@@ -376,7 +377,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
                       );
                     })}
                   </div>
-                  {defter === "tarifler" && <Pagination tab="tarif-defterim" page={favsPag.safePage} totalPages={favsPag.totalPages} extraParam="defter=tarifler" />}
+                  <Pagination tab="tarif-defterim" page={favsPag.safePage} totalPages={favsPag.totalPages} pageParam="page" extraParam={defter === "tarifler" ? "defter=tarifler" : undefined} />
                 </>
               ) : null}
             </>
@@ -417,7 +418,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
                       );
                     })}
                   </div>
-                  {defter === "blog" && <Pagination tab="tarif-defterim" page={blogFavsPag.safePage} totalPages={blogFavsPag.totalPages} extraParam="defter=blog" />}
+                  <Pagination tab="tarif-defterim" page={blogFavsPag.safePage} totalPages={blogFavsPag.totalPages} pageParam="page2" extraParam={defter === "blog" ? "defter=blog" : undefined} />
                 </>
               ) : null}
             </>
@@ -618,7 +619,7 @@ function Empty({ icon, text }: { icon: string; text: string }) {
 function Pagination({
   tab, page, totalPages, pageParam = "page", extraParam,
 }: {
-  tab: string; page: number; totalPages: number; pageParam?: string; extraParam?: string;
+  tab: string; page: number; totalPages: number; pageParam?: string; extraParam?: string | undefined;
 }) {
   if (totalPages <= 1) return null;
   const base = `/uye/panel?tab=${tab}${extraParam ? `&${extraParam}` : ""}`;

@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import type { Recipe, Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 import UsernameForm from "./UsernameForm";
+import DeleteAccountButton from "./DeleteAccountButton";
 import ProfileForm from "./ProfileForm";
 import DeleteRecipeButton from "./DeleteRecipeButton";
 import DeletePostButton from "./DeletePostButton";
@@ -700,6 +701,11 @@ export default async function UyePanelPage({ searchParams }: Props) {
             youtube:   profile?.youtube   ?? null,
             website:   profile?.website   ?? null,
           }} />
+
+          {/* Hesap silme */}
+          <div className="pt-2 border-t border-warm-100 flex justify-end">
+            <DeleteAccountButton />
+          </div>
         </div>
       )}
     </div>

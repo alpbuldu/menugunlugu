@@ -82,8 +82,8 @@ export default function AuthForm({ defaultTab, from }: Props) {
       setError("Şifre en az 6 karakter olmalı.");
       return;
     }
-    if (!/^[a-z0-9_]{3,20}$/.test(regUsername.trim().toLowerCase())) {
-      setError("Kullanıcı adı 3-20 karakter, sadece harf/rakam/alt çizgi olabilir.");
+    if (!/^[a-z0-9_]{3,16}$/.test(regUsername.trim().toLowerCase())) {
+      setError("Kullanıcı adı 3-16 karakter, sadece harf/rakam/alt çizgi olabilir.");
       return;
     }
     if (!acceptKvkk) {
@@ -202,7 +202,7 @@ export default function AuthForm({ defaultTab, from }: Props) {
                 className={inputCls}
               />
               <p className="mt-1 text-xs text-warm-400">
-                3-20 karakter, harf/rakam/alt çizgi
+                3-16 karakter, harf/rakam/alt çizgi
               </p>
             </div>
             <div>

@@ -75,12 +75,12 @@ export default function UsernameForm({ currentUsername, changeCount }: Props) {
               }}
               placeholder="kullanici_adi"
               minLength={3}
-              maxLength={30}
+              maxLength={16}
               required
               className="w-full px-4 py-2.5 rounded-xl border border-warm-200 text-warm-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
             />
             <p className="text-xs text-warm-400 mt-1.5">
-              Sadece küçük harf, rakam ve _ — en az 3 karakter
+              Sadece küçük harf, rakam ve _ — 3-16 karakter
             </p>
           </div>
           <button

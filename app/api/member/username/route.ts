@@ -11,12 +11,24 @@ export async function PUT(request: NextRequest) {
   const { username } = await request.json();
   const clean = (username ?? "").toLowerCase().trim();
 
-  if (clean.length < 3)
-    return NextResponse.json({ error: "Kullanıcı adı en az 3 karakter olmalı." }, { status: 400 });
-  if (!/^[a-z0-9_]+$/.test(clean))
-    return NextResponse.json({ error: "Sadece küçük harf, rakam ve _ kullanabilirsiniz." }, { status: 400 });
+  if (!/^[a-z0-9_]{3,16}$/.test(clean))
+    return NextResponse.json({ error: "Kullanıcı adı 3-16 karakter, sadece harf/rakam/alt çizgi olabilir." }, { status: 400 });
+
+  const RESERVED = ["__admin__", "admin"];
+  if (RESERVED.includes(clean))
+    return NextResponse.json({ error: "Bu kullanıcı adı kullanılamaz." }, { status: 409 });
 
   const admin = createAdminClient();
+
+  // Admin'in gerçek kullanıcı adını da blokla
+  const { data: adminProfile } = await admin
+    .from("admin_profile")
+    .select("username")
+    .eq("id", 1)
+    .single();
+
+  if (adminProfile?.username && clean === adminProfile.username.toLowerCase())
+    return NextResponse.json({ error: "Bu kullanıcı adı kullanılamaz." }, { status: 409 });
 
   // Mevcut profili çek (değişim sayısını kontrol için)
   const { data: profile } = await admin

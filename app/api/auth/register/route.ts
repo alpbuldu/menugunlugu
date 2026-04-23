@@ -11,11 +11,44 @@ export async function POST(request: NextRequest) {
 
   const adminClient = createAdminClient();
 
+  const unameTrimmed = username.toLowerCase().trim();
+
+  // Format kontrolü (3-16 karakter, harf/rakam/alt çizgi)
+  if (!/^[a-z0-9_]{3,16}$/.test(unameTrimmed)) {
+    return NextResponse.json(
+      { error: "Kullanıcı adı 3-16 karakter, sadece harf/rakam/alt çizgi olabilir." },
+      { status: 400 }
+    );
+  }
+
+  // Rezerve adlar — admin sistem adı
+  const RESERVED = ["__admin__", "admin"];
+  if (RESERVED.includes(unameTrimmed)) {
+    return NextResponse.json(
+      { error: "Bu kullanıcı adı kullanılamaz." },
+      { status: 409 }
+    );
+  }
+
+  // Admin'in gerçek kullanıcı adını da blokla
+  const { data: adminProfile } = await adminClient
+    .from("admin_profile")
+    .select("username")
+    .eq("id", 1)
+    .single();
+
+  if (adminProfile?.username && unameTrimmed === adminProfile.username.toLowerCase()) {
+    return NextResponse.json(
+      { error: "Bu kullanıcı adı kullanılamaz." },
+      { status: 409 }
+    );
+  }
+
   // Kullanıcı adı benzersizlik kontrolü
   const { data: existing } = await adminClient
     .from("profiles")
     .select("id")
-    .eq("username", username.toLowerCase().trim())
+    .eq("username", unameTrimmed)
     .maybeSingle();
 
   if (existing) {
@@ -26,7 +59,7 @@ export async function POST(request: NextRequest) {
   }
 
   const origin = request.nextUrl.origin;
-  const uname  = username.toLowerCase().trim();
+  const uname  = unameTrimmed;
 
   // signUp → Supabase custom SMTP ile onay maili gönderir
   const supabase = await createClient();
@@ -61,6 +94,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: "Kayıt sırasında hata oluştu." },
       { status: 500 }
+    );
+  }
+
+  // Supabase zaten kayıtlı email için hata vermez, identities boş döner
+  if (!data.user.identities || data.user.identities.length === 0) {
+    return NextResponse.json(
+      { error: "Bu e-posta adresi zaten kayıtlı." },
+      { status: 409 }
     );
   }
 

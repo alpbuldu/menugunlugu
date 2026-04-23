@@ -199,6 +199,7 @@ export default function AuthForm({ defaultTab, from }: Props) {
                 required
                 autoComplete="username"
                 placeholder="ahmet_yemek"
+                maxLength={16}
                 className={inputCls}
               />
               <p className="mt-1 text-xs text-warm-400">

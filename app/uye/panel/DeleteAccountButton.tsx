@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 export default function DeleteAccountButton() {
   const [open,    setOpen]    = useState(false);
@@ -22,9 +23,10 @@ export default function DeleteAccountButton() {
       return;
     }
 
-    // Oturumu kapat ve anasayfaya yönlendir
-    router.push("/");
-    router.refresh();
+    // Önce oturumu kapat, sonra anasayfaya yönlendir
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    window.location.href = "/";
   }
 
   return (

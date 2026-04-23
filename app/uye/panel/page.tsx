@@ -55,8 +55,8 @@ export default async function UyePanelPage({ searchParams }: Props) {
   const page2Num = Math.max(1, parseInt(page2));
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect("/giris");
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (!user || authError) redirect("/giris");
 
   // Tüm sorgular paralel — tek round-trip
   const [
@@ -116,6 +116,9 @@ export default async function UyePanelPage({ searchParams }: Props) {
       .eq("following_id", user.id)
       .order("created_at", { ascending: false }),
   ]);
+
+  // Profil silinmişse (admin tarafından) oturumu sonlandır
+  if (!profile) redirect("/giris?deleted=1");
 
   const followsAdmin = !!adminFollowRow;
 

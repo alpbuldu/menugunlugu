@@ -429,13 +429,13 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
                           )}
                         </div>
                         <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
-                          <h2 className="text-sm sm:text-base font-semibold text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
+                          <h2 className="text-sm sm:text-base font-semibold text-warm-800 group-hover:text-brand-700 transition-colors sm:line-clamp-2 leading-snug">
                             {post.title}
                           </h2>
                           {post.excerpt && (
                             <p className="text-[11px] sm:text-xs text-warm-400 mt-1 line-clamp-2 hidden sm:block">{post.excerpt}</p>
                           )}
-                          <p className="text-[10px] sm:text-xs text-warm-300 mt-1.5 sm:mt-2">
+                          <p className="hidden sm:block text-xs text-warm-300 mt-2">
                             {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long" })}
                           </p>
                         </div>

@@ -393,6 +393,22 @@ export default async function UyePanelPage({ searchParams }: Props) {
                             <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{p.title}</h2>
                           </div>
                         </Link>
+                        {/* Yazar satırı — blog yazıları her zaman admin */}
+                        <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
+                          <Link href="/uye/__admin__" className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+                            {adminAvatarUrl ? (
+                              <img src={adminAvatarUrl} alt={adminUsername} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
+                            ) : (
+                              <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">{adminUsername.charAt(0).toUpperCase()}</span>
+                            )}
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
+                              <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{adminUsername}</span>
+                            </div>
+                          </Link>
+                          <span className="sm:hidden flex-shrink-0"><FollowButton targetUserId={undefined} isAdminProfile={true} initialFollowing={followsAdmin} isLoggedIn={true} size="icon" /></span>
+                          <span className="hidden sm:block flex-shrink-0"><FollowButton targetUserId={undefined} isAdminProfile={true} initialFollowing={followsAdmin} isLoggedIn={true} size="xs" /></span>
+                        </div>
                       </div>
                     );
                   }
@@ -486,6 +502,22 @@ export default async function UyePanelPage({ searchParams }: Props) {
                               <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{p.title}</h2>
                             </div>
                           </Link>
+                          {/* Yazar satırı — blog yazıları her zaman admin */}
+                          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
+                            <Link href="/uye/__admin__" className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+                              {adminAvatarUrl ? (
+                                <img src={adminAvatarUrl} alt={adminUsername} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
+                              ) : (
+                                <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">{adminUsername.charAt(0).toUpperCase()}</span>
+                              )}
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
+                                <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{adminUsername}</span>
+                              </div>
+                            </Link>
+                            <span className="sm:hidden flex-shrink-0"><FollowButton targetUserId={undefined} isAdminProfile={true} initialFollowing={followsAdmin} isLoggedIn={true} size="icon" /></span>
+                            <span className="hidden sm:block flex-shrink-0"><FollowButton targetUserId={undefined} isAdminProfile={true} initialFollowing={followsAdmin} isLoggedIn={true} size="xs" /></span>
+                          </div>
                         </div>
                       );
                     })}

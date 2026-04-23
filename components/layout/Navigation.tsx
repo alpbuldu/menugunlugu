@@ -271,7 +271,7 @@ function DesktopUserMenu() {
 
   if (!user) {
     return (
-      <Link href="/giris"
+      <Link href={`/giris?from=${encodeURIComponent(pathname)}`}
         className="px-3 py-1 rounded-full text-xs font-medium border border-brand-300 text-brand-700 hover:bg-brand-50 transition-colors">
         Giriş Yap
       </Link>
@@ -484,7 +484,7 @@ export default function Navigation() {
                 </button>
               </>
             ) : (
-              <Link href="/giris" onClick={() => setOpen(false)}
+              <Link href={`/giris?from=${encodeURIComponent(pathname)}`} onClick={() => setOpen(false)}
                 className="flex items-center gap-3 px-5 py-3.5 text-sm font-medium text-brand-700 hover:bg-brand-50 transition-colors">
                 <span className="w-5 text-center flex-shrink-0">🔑</span>
                 Giriş Yap

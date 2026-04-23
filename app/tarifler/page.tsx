@@ -81,17 +81,12 @@ export default async function RecipesPage({ searchParams }: Props) {
     (memberFollowRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
   }
 
-  /** Her zaman ilk 2 + son 2 + mevcut±1 göster; araya … ekle */
-  function buildPages(current: number, total: number): (number | "…")[] {
-    const WINDOW = 4;
+  function buildPages(current: number, total: number): number[] {
+    const WINDOW = 3;
     let start = Math.max(1, current - Math.floor(WINDOW / 2));
     let end   = Math.min(total, start + WINDOW - 1);
     if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1);
-    const result: (number | "…")[] = [];
-    if (start > 1) result.push("…");
-    for (let p = start; p <= end; p++) result.push(p);
-    if (end < total) result.push("…");
-    return result;
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
   /** Build ?category=X&page=Y preserving current filters */
@@ -209,41 +204,25 @@ export default async function RecipesPage({ searchParams }: Props) {
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-1.5 mt-12 flex-wrap">
-          {currentPage > 1 ? (
-            <Link href={href({ page: currentPage - 1 })}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors"
-              aria-label="Önceki sayfa">‹</Link>
-          ) : (
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">‹</span>
-          )}
-
-          {buildPages(currentPage, totalPages).map((p, i) =>
-            p === "…" ? (
-              <span key={`dots-${i}`} className="text-warm-400 text-sm px-1">…</span>
-            ) : (
-              <Link key={p} href={href({ page: p })}
-                aria-current={p === currentPage ? "page" : undefined}
-                className={`inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-colors border ${
-                  p === currentPage
-                    ? "bg-brand-600 border-brand-600 text-white"
-                    : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"
-                }`}>
-                {p}
-              </Link>
-            )
-          )}
-
-          {currentPage < totalPages ? (
-            <Link href={href({ page: currentPage + 1 })}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors"
-              aria-label="Sonraki sayfa">›</Link>
-          ) : (
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">›</span>
-          )}
-        </div>
-      )}
+      {totalPages > 1 && (() => {
+        const btn      = "inline-flex items-center justify-center w-9 h-9 rounded-xl text-sm font-medium border transition-colors";
+        const inactive = `${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`;
+        const active   = `${btn} bg-brand-600 border-brand-600 text-white`;
+        const dis      = `${btn} border-warm-100 text-warm-300 cursor-default`;
+        const pages    = buildPages(currentPage, totalPages);
+        return (
+          <div className="flex items-center justify-center gap-1.5 mt-12 flex-wrap">
+            {currentPage > 1 ? <Link href={href({ page: 1 })}                  className={inactive}>«</Link> : <span className={dis}>«</span>}
+            {currentPage > 1 ? <Link href={href({ page: currentPage - 1 })}    className={inactive}>‹</Link> : <span className={dis}>‹</span>}
+            {pages.map((p) => (
+              <Link key={p} href={href({ page: p })} aria-current={p === currentPage ? "page" : undefined}
+                className={p === currentPage ? active : inactive}>{p}</Link>
+            ))}
+            {currentPage < totalPages ? <Link href={href({ page: currentPage + 1 })} className={inactive}>›</Link> : <span className={dis}>›</span>}
+            {currentPage < totalPages ? <Link href={href({ page: totalPages })}       className={inactive}>»</Link> : <span className={dis}>»</span>}
+          </div>
+        );
+      })()}
     </div>
     </SidebarLayout>
   );

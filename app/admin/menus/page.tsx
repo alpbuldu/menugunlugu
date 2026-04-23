@@ -158,28 +158,24 @@ export default async function AdminMenusPage({ searchParams }: Props) {
 
       {/* Sayfalama */}
       {totalPages > 1 && (() => {
-        const btn = "inline-flex items-center justify-center w-9 h-9 rounded-xl text-sm font-medium border transition-colors";
-        const WINDOW = 4;
+        const btn      = "inline-flex items-center justify-center w-9 h-9 rounded-xl text-sm font-medium border transition-colors";
+        const inactive = `${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`;
+        const active   = `${btn} bg-brand-600 border-brand-600 text-white`;
+        const dis      = `${btn} border-warm-100 text-warm-300 cursor-default`;
+        const WINDOW = 3;
         let start = Math.max(1, currentPage - Math.floor(WINDOW / 2));
         let end   = Math.min(totalPages, start + WINDOW - 1);
         if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1);
         const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
         return (
           <div className="flex items-center justify-center gap-1.5 mt-8">
-            {currentPage > 1
-              ? <Link href={href({ page: currentPage - 1 })} className={`${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>‹</Link>
-              : <span className={`${btn} border-warm-100 text-warm-300 cursor-default`}>‹</span>}
-            {start > 1 && <span className="text-warm-400 text-sm px-1">…</span>}
+            {currentPage > 1 ? <Link href={href({ page: 1 })}                   className={inactive}>«</Link> : <span className={dis}>«</span>}
+            {currentPage > 1 ? <Link href={href({ page: currentPage - 1 })}     className={inactive}>‹</Link> : <span className={dis}>‹</span>}
             {pages.map((p) => (
-              <Link key={p} href={href({ page: p })}
-                className={`${btn} ${p === currentPage ? "bg-brand-600 border-brand-600 text-white" : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"}`}>
-                {p}
-              </Link>
+              <Link key={p} href={href({ page: p })} className={p === currentPage ? active : inactive}>{p}</Link>
             ))}
-            {end < totalPages && <span className="text-warm-400 text-sm px-1">…</span>}
-            {currentPage < totalPages
-              ? <Link href={href({ page: currentPage + 1 })} className={`${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>›</Link>
-              : <span className={`${btn} border-warm-100 text-warm-300 cursor-default`}>›</span>}
+            {currentPage < totalPages ? <Link href={href({ page: currentPage + 1 })} className={inactive}>›</Link> : <span className={dis}>›</span>}
+            {currentPage < totalPages ? <Link href={href({ page: totalPages })}       className={inactive}>»</Link> : <span className={dis}>»</span>}
           </div>
         );
       })()}

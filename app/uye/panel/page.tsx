@@ -3,7 +3,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
-import type { Recipe } from "@/lib/types";
+import type { Recipe, Category } from "@/lib/types";
+import Badge from "@/components/ui/Badge";
 import UsernameForm from "./UsernameForm";
 import ProfileForm from "./ProfileForm";
 import DeleteRecipeButton from "./DeleteRecipeButton";
@@ -319,7 +320,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
               ) : (favorites?.length ?? 0) > 0 ? (
                 <>
                   {defter !== "tarifler" && <p className="text-xs font-semibold text-warm-500 mb-2 mt-1">Tarifler</p>}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
                     {favsPag.items.map((fav: any) => {
                       const r = fav.recipes as unknown as (Recipe & { submitted_by?: string | null }) | null;
                       if (!r) return null;
@@ -329,39 +330,46 @@ export default async function UyePanelPage({ searchParams }: Props) {
                       const authorIsAdmin = !r.submitted_by;
                       const favInitFollowing = authorIsAdmin ? followsAdmin : (favFollowMap[r.submitted_by!] ?? false);
                       return (
-                        <div key={fav.recipe_id} className="group bg-white rounded-xl border border-warm-200 overflow-hidden hover:shadow-md transition-all flex flex-col">
-                          <Link href={`/recipes/${r.slug}`} className="flex flex-col flex-1">
-                            {r.image_url ? (
-                              <Image src={r.image_url} alt={r.title} width={200} height={120}
-                                className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300" />
-                            ) : (
-                              <div className="w-full h-28 bg-warm-100 flex items-center justify-center text-2xl">🍽️</div>
-                            )}
-                            <div className="p-3 flex flex-col flex-1">
-                              <p className="text-sm font-medium text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{r.title}</p>
-                              <p className="text-xs text-warm-400 mt-1">{CATEGORY_LABELS[r.category]}</p>
+                        <div key={fav.recipe_id} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                          <Link href={`/tarifler/${r.slug}`} className="flex flex-col flex-1">
+                            <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
+                              {r.image_url ? (
+                                <Image src={r.image_url} alt={r.title} fill
+                                  sizes="(max-width: 640px) 50vw, 33vw"
+                                  className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                              ) : (
+                                <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍽️</div>
+                              )}
+                            </div>
+                            <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
+                              <Badge category={r.category as Category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
+                              <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
+                                {r.title}
+                              </h2>
                             </div>
                           </Link>
                           {favAuthor && (
-                            <div className="flex items-center gap-1.5 px-3 pb-3 pt-2 border-t border-warm-100">
-                              <Link href={authorIsAdmin ? "/uye/__admin__" : `/uye/${favAuthor.username}`} className="flex items-center gap-1.5 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+                            <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
+                              <Link href={authorIsAdmin ? "/uye/__admin__" : `/uye/${favAuthor.username}`} className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
                                 {favAuthor.avatar_url ? (
                                   <img src={favAuthor.avatar_url} alt={favAuthor.username}
-                                    className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                                    className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
                                 ) : (
-                                  <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                                  <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
                                     {favAuthor.username.charAt(0).toUpperCase()}
                                   </span>
                                 )}
-                                <span className="text-xs text-warm-500 truncate">{favAuthor.username}</span>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
+                                  <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{favAuthor.username}</span>
+                                </div>
                               </Link>
-                              <FollowButton
-                                targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined}
-                                isAdminProfile={authorIsAdmin}
-                                initialFollowing={favInitFollowing}
-                                isLoggedIn={true}
-                                size="icon"
-                              />
+                              <span className="sm:hidden flex-shrink-0">
+                                <FollowButton targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined} isAdminProfile={authorIsAdmin} initialFollowing={favInitFollowing} isLoggedIn={true} size="icon" />
+                              </span>
+                              <span className="hidden sm:block flex-shrink-0">
+                                <FollowButton targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined} isAdminProfile={authorIsAdmin} initialFollowing={favInitFollowing} isLoggedIn={true} size="xs" />
+                              </span>
                             </div>
                           )}
                         </div>
@@ -382,22 +390,27 @@ export default async function UyePanelPage({ searchParams }: Props) {
               ) : (blogFavorites?.length ?? 0) > 0 ? (
                 <>
                   {defter !== "blog" && <p className="text-xs font-semibold text-warm-500 mb-2 mt-1">Blog Yazıları</p>}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {blogFavsPag.items.map((fav: any) => {
                       const p = fav.blog_posts as { id: string; title: string; slug: string; image_url: string | null } | null;
                       if (!p) return null;
                       return (
-                        <div key={fav.post_id} className="group bg-white rounded-xl border border-warm-200 overflow-hidden hover:shadow-md transition-all flex flex-col">
+                        <div key={fav.post_id} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
                           <Link href={`/blog/${p.slug}`} className="flex flex-col flex-1">
-                            {p.image_url ? (
-                              <Image src={p.image_url} alt={p.title} width={200} height={120}
-                                className="w-full h-28 object-cover group-hover:scale-105 transition-transform duration-300" />
-                            ) : (
-                              <div className="w-full h-28 bg-warm-100 flex items-center justify-center text-2xl">✍️</div>
-                            )}
-                            <div className="p-3 flex flex-col flex-1">
-                              <p className="text-sm font-medium text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{p.title}</p>
-                              <p className="text-xs text-warm-400 mt-1">Blog Yazısı</p>
+                            <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
+                              {p.image_url ? (
+                                <Image src={p.image_url} alt={p.title} fill
+                                  sizes="(max-width: 640px) 50vw, 33vw"
+                                  className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                              ) : (
+                                <div className="flex items-center justify-center h-full text-5xl text-warm-300">✍️</div>
+                              )}
+                            </div>
+                            <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
+                              <span className="inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-brand-100 text-brand-700">Blog Yazısı</span>
+                              <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
+                                {p.title}
+                              </h2>
                             </div>
                           </Link>
                         </div>
@@ -609,28 +622,24 @@ function Pagination({
 }) {
   if (totalPages <= 1) return null;
   const base = `/uye/panel?tab=${tab}${extraParam ? `&${extraParam}` : ""}`;
-  const btn  = "inline-flex items-center justify-center w-9 h-9 rounded-xl text-sm font-medium border transition-colors";
-  const WINDOW = 4;
+  const btn      = "inline-flex items-center justify-center w-9 h-9 rounded-xl text-sm font-medium border transition-colors";
+  const inactive = `${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`;
+  const active   = `${btn} bg-brand-600 border-brand-600 text-white`;
+  const disabled = `${btn} border-warm-100 text-warm-300 cursor-default`;
+  const WINDOW = 3;
   let start = Math.max(1, page - Math.floor(WINDOW / 2));
   let end   = Math.min(totalPages, start + WINDOW - 1);
   if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1);
   const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
   return (
     <div className="flex items-center justify-center gap-1.5 mt-6">
-      {page > 1
-        ? <Link href={`${base}&${pageParam}=${page - 1}`} className={`${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>‹</Link>
-        : <span className={`${btn} border-warm-100 text-warm-300 cursor-default`}>‹</span>}
-      {start > 1 && <span className="text-warm-400 text-sm px-1">…</span>}
+      {page > 1 ? <Link href={`${base}&${pageParam}=1`}           className={inactive}>«</Link> : <span className={disabled}>«</span>}
+      {page > 1 ? <Link href={`${base}&${pageParam}=${page - 1}`} className={inactive}>‹</Link> : <span className={disabled}>‹</span>}
       {pages.map((p) => (
-        <Link key={p} href={`${base}&${pageParam}=${p}`}
-          className={`${btn} ${p === page ? "bg-brand-600 border-brand-600 text-white" : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"}`}>
-          {p}
-        </Link>
+        <Link key={p} href={`${base}&${pageParam}=${p}`} className={p === page ? active : inactive}>{p}</Link>
       ))}
-      {end < totalPages && <span className="text-warm-400 text-sm px-1">…</span>}
-      {page < totalPages
-        ? <Link href={`${base}&${pageParam}=${page + 1}`} className={`${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>›</Link>
-        : <span className={`${btn} border-warm-100 text-warm-300 cursor-default`}>›</span>}
+      {page < totalPages ? <Link href={`${base}&${pageParam}=${page + 1}`}    className={inactive}>›</Link> : <span className={disabled}>›</span>}
+      {page < totalPages ? <Link href={`${base}&${pageParam}=${totalPages}`}   className={inactive}>»</Link> : <span className={disabled}>»</span>}
     </div>
   );
 }

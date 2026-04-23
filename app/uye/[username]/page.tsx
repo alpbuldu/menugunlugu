@@ -492,28 +492,24 @@ function EmptyState({ icon, text }: { icon: string; text: string }) {
 
 function Pagination({ current, total, hrefFn }: { current: number; total: number; hrefFn: (p: number) => string }) {
   if (total <= 1) return null;
-  const btn  = "inline-flex items-center justify-center w-9 h-9 rounded-xl text-sm font-medium border transition-colors";
-  const WINDOW = 4;
+  const btn      = "inline-flex items-center justify-center w-9 h-9 rounded-xl text-sm font-medium border transition-colors";
+  const inactive = `${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`;
+  const active   = `${btn} bg-brand-600 border-brand-600 text-white`;
+  const disabled = `${btn} border-warm-100 text-warm-300 cursor-default`;
+  const WINDOW = 3;
   let start = Math.max(1, current - Math.floor(WINDOW / 2));
   let end   = Math.min(total, start + WINDOW - 1);
   if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1);
   const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
   return (
     <div className="flex items-center justify-center gap-1.5 mt-8">
-      {current > 1
-        ? <Link href={hrefFn(current - 1)} className={`${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>‹</Link>
-        : <span className={`${btn} border-warm-100 text-warm-300 cursor-default`}>‹</span>}
-      {start > 1 && <span className="text-warm-400 text-sm px-1">…</span>}
+      {current > 1 ? <Link href={hrefFn(1)}           className={inactive}>«</Link> : <span className={disabled}>«</span>}
+      {current > 1 ? <Link href={hrefFn(current - 1)} className={inactive}>‹</Link> : <span className={disabled}>‹</span>}
       {pages.map((p) => (
-        <Link key={p} href={hrefFn(p)}
-          className={`${btn} ${p === current ? "bg-brand-600 border-brand-600 text-white" : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"}`}>
-          {p}
-        </Link>
+        <Link key={p} href={hrefFn(p)} className={p === current ? active : inactive}>{p}</Link>
       ))}
-      {end < total && <span className="text-warm-400 text-sm px-1">…</span>}
-      {current < total
-        ? <Link href={hrefFn(current + 1)} className={`${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`}>›</Link>
-        : <span className={`${btn} border-warm-100 text-warm-300 cursor-default`}>›</span>}
+      {current < total ? <Link href={hrefFn(current + 1)} className={inactive}>›</Link> : <span className={disabled}>›</span>}
+      {current < total ? <Link href={hrefFn(total)}       className={inactive}>»</Link> : <span className={disabled}>»</span>}
     </div>
   );
 }

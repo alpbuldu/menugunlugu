@@ -27,6 +27,7 @@ const adminLinks = [
   { href: "/admin/yazarlar",       label: "👥  Yazarlar" },
   { href: "/admin/reklamlar",      label: "📢  Reklamlar" },
   { href: "/admin/profil",         label: "👤  Admin Profili" },
+  { href: "/admin/site-ayarlari",  label: "⚙️  Site Ayarları" },
 ];
 
 export default async function AdminLayout({

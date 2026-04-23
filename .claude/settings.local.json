@@ -37,7 +37,11 @@
       "Bash(sed -i '' 's|/recipes/${|/tarifler/${|g; s|/recipes/\\\\${|/tarifler/\\\\${|g' \"app/tarifler/[slug]/page.tsx\")",
       "Bash(sed -i '' 's|canonical: \"/recipes|canonical: \"/tarifler|g' \"app/tarifler/[slug]/page.tsx\")",
       "Bash(sed -i '' 's|menugunlugu.com/recipes/|menugunlugu.com/tarifler/|g' \"app/tarifler/[slug]/page.tsx\")",
-      "Bash(sed -i '' 's|href=\"/recipes|href=\"/tarifler|g' \"app/tarifler/kategori/[slug]/page.tsx\")"
+      "Bash(sed -i '' 's|href=\"/recipes|href=\"/tarifler|g' \"app/tarifler/kategori/[slug]/page.tsx\")",
+      "Bash(python3 -c ' *)",
+      "Bash(grep -n \"return \\\\`/recipes\\\\|return \\\\`/blog\\\\|return \\\\`/tarifler\\\\|href\\({\\\\|pageHref\" \"app/tarifler/page.tsx\" \"app/tarifler/kategori/[slug]/page.tsx\")",
+      "Bash(grep -n '`/recipes\\\\|\"/recipes' \"app/tarifler/page.tsx\" \"app/tarifler/kategori/[slug]/page.tsx\")",
+      "Bash(npm run *)"
     ]
   }
 }

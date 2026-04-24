@@ -4,14 +4,17 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 
 interface SiteSettings {
-  logo_url:        string | null;
-  favicon_url:     string | null;
-  contact_email:   string | null;
-  instagram_url:   string | null;
-  youtube_url:     string | null;
-  tiktok_url:      string | null;
-  twitter_url:     string | null;
-  adsense_enabled: boolean | null;
+  logo_url:         string | null;
+  favicon_url:      string | null;
+  contact_email:    string | null;
+  instagram_url:    string | null;
+  youtube_url:      string | null;
+  tiktok_url:       string | null;
+  twitter_url:      string | null;
+  adsense_enabled:  boolean | null;
+  popup_image_url:  string | null;
+  popup_link_url:   string | null;
+  popup_is_active:  boolean | null;
 }
 
 const inputCls = "w-full px-4 py-2.5 rounded-xl border border-warm-200 bg-white text-warm-900 placeholder-warm-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm";
@@ -26,13 +29,18 @@ export default function SiteSettingsForm({ settings }: { settings: SiteSettings 
   const [tiktok,          setTiktok]           = useState(settings.tiktok_url       ?? "");
   const [twitter,         setTwitter]          = useState(settings.twitter_url      ?? "");
   const [adsenseEnabled,  setAdsenseEnabled]   = useState(settings.adsense_enabled  ?? false);
+  const [popupImageUrl,   setPopupImageUrl]    = useState(settings.popup_image_url  ?? "");
+  const [popupLinkUrl,    setPopupLinkUrl]     = useState(settings.popup_link_url   ?? "");
+  const [popupIsActive,   setPopupIsActive]    = useState(settings.popup_is_active  ?? false);
   const [uploadingLogo,    setUploadingLogo]    = useState(false);
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
+  const [uploadingPopup,   setUploadingPopup]   = useState(false);
   const [saving,   setSaving]   = useState(false);
   const [message,  setMessage]  = useState("");
 
   const logoRef    = useRef<HTMLInputElement>(null);
   const faviconRef = useRef<HTMLInputElement>(null);
+  const popupRef   = useRef<HTMLInputElement>(null);
 
   async function upload(file: File, setUrl: (u: string) => void, setLoading: (b: boolean) => void) {
     setLoading(true);
@@ -53,14 +61,17 @@ export default function SiteSettingsForm({ settings }: { settings: SiteSettings 
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        logo_url:         logoUrl          || null,
-        favicon_url:      faviconUrl       || null,
-        contact_email:    email.trim()     || null,
-        instagram_url:    instagram.trim() || null,
-        youtube_url:      youtube.trim()   || null,
-        tiktok_url:       tiktok.trim()    || null,
-        twitter_url:      twitter.trim()   || null,
+        logo_url:         logoUrl              || null,
+        favicon_url:      faviconUrl           || null,
+        contact_email:    email.trim()         || null,
+        instagram_url:    instagram.trim()     || null,
+        youtube_url:      youtube.trim()       || null,
+        tiktok_url:       tiktok.trim()        || null,
+        twitter_url:      twitter.trim()       || null,
         adsense_enabled:  adsenseEnabled,
+        popup_image_url:  popupImageUrl        || null,
+        popup_link_url:   popupLinkUrl.trim()  || null,
+        popup_is_active:  popupIsActive,
       }),
     });
     setSaving(false);
@@ -145,6 +156,51 @@ export default function SiteSettingsForm({ settings }: { settings: SiteSettings 
               placeholder={f.ph} className={inputCls} />
           </div>
         ))}
+      </div>
+
+      {/* Popup */}
+      <div className="border border-warm-200 rounded-2xl p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-warm-800">🪟 Site Geneli Popup</h2>
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <span className="text-xs text-warm-500">{popupIsActive ? "Açık" : "Kapalı"}</span>
+            <div className="relative">
+              <input type="checkbox" className="sr-only" checked={popupIsActive} onChange={(e) => setPopupIsActive(e.target.checked)} />
+              <div className={`w-11 h-6 rounded-full transition-colors ${popupIsActive ? "bg-brand-500" : "bg-warm-200"}`} />
+              <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${popupIsActive ? "translate-x-5" : "translate-x-0"}`} />
+            </div>
+          </label>
+        </div>
+        <p className="text-xs text-warm-400">Açıkken tüm sayfalarda görseli sayfa açılışından 1.5 sn sonra popup olarak gösterir. 12 saatte bir tekrar gösterir.</p>
+
+        {/* Görsel */}
+        <div>
+          <label className={labelCls}>Popup Görseli</label>
+          <div className="flex items-center gap-4">
+            <div className="w-24 h-24 rounded-xl border border-warm-200 bg-warm-50 overflow-hidden flex items-center justify-center flex-shrink-0">
+              {popupImageUrl
+                ? <img src={popupImageUrl} alt="Popup" className="w-full h-full object-cover" />
+                : <span className="text-3xl">🪟</span>}
+            </div>
+            <div>
+              <input ref={popupRef} type="file" accept="image/*" className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f, setPopupImageUrl, setUploadingPopup); }} />
+              <button type="button" onClick={() => popupRef.current?.click()} disabled={uploadingPopup}
+                className="px-4 py-2 rounded-xl border border-warm-200 bg-white hover:bg-warm-50 text-warm-700 text-sm font-medium transition-colors disabled:opacity-50">
+                {uploadingPopup ? "Yükleniyor…" : popupImageUrl ? "Değiştir" : "Yükle"}
+              </button>
+              {popupImageUrl && <button type="button" onClick={() => setPopupImageUrl("")} className="block text-xs text-red-500 hover:underline mt-1.5">Kaldır</button>}
+              <p className="text-xs text-warm-400 mt-1.5">Önerilen: 600 × 600 px (kare)</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Link */}
+        <div>
+          <label className={labelCls}>Tıklama Linki <span className="text-xs text-warm-400">(opsiyonel)</span></label>
+          <input type="url" value={popupLinkUrl} onChange={(e) => setPopupLinkUrl(e.target.value)}
+            placeholder="https://example.com" className={inputCls} />
+        </div>
       </div>
 
       {/* Reklam Toggle */}

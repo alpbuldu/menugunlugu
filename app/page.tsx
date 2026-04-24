@@ -4,7 +4,6 @@ import { getRandomRecipes } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import RecipeSlider from "@/components/ui/RecipeSlider";
-import AdPopup from "@/components/ui/AdPopup";
 import AdSlot from "@/components/ui/AdSlot";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -53,16 +52,6 @@ export default async function HomePage() {
   // Kolon yoksa (undefined) → açık sayılır; sadece açıkça false ise kapalı
   const adsEnabled = siteSettings?.adsense_enabled !== false;
 
-  // Ana sayfa popup
-  const { data: homePopup } = adsEnabled ? await adminSb
-    .from("ads")
-    .select("image_url, link_url, title")
-    .eq("placement", "home_popup")
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle() : { data: null };
-
   // Ana sayfa sponsorlu kart (slider ortası)
   const { data: homeAd } = adsEnabled ? await adminSb
     .from("ads")
@@ -101,8 +90,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      {homePopup && <AdPopup ad={homePopup} />}
-      {/* ── Hero ──────────────────────────────────────────────── */}
+{/* ── Hero ──────────────────────────────────────────────── */}
       <section className="bg-gradient-to-b from-brand-600 to-warm-700 text-white">
         <div className={`${CONTAINER} py-6 sm:py-10 text-center`}>
           <h1 className="text-xl sm:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4 leading-tight">

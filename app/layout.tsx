@@ -5,9 +5,11 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import CookieBanner from "@/components/ui/CookieBanner";
+import SitePopup from "@/components/ui/SitePopup";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -46,11 +48,24 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Site geneli popup
+  const adminSb = createAdminClient();
+  const { data: popupSettings } = await adminSb
+    .from("site_settings")
+    .select("popup_image_url, popup_link_url, popup_is_active")
+    .eq("id", 1)
+    .single();
+
+  const popup =
+    popupSettings?.popup_is_active && popupSettings.popup_image_url
+      ? { image_url: popupSettings.popup_image_url, link_url: popupSettings.popup_link_url ?? "" }
+      : null;
+
   return (
     <html lang="tr">
       <head>
@@ -74,6 +89,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body className="min-h-screen flex flex-col">
+        {popup && <SitePopup popup={popup} />}
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

@@ -187,18 +187,20 @@ export default async function HomePage() {
               <p>Henüz tarif eklenmemiş.</p>
             </div>
           ) : (
-            <RecipeSlider
-              recipes={featured}
-              adminAuthor={adminAuthor}
-              profileMap={profileMap}
-              isLoggedIn={!!currentUserId}
-              followMap={followMap}
-              followsAdmin={followsAdmin}
-              sponsoredAd={homeAd ?? undefined}
-            />
-            {!homeAd && (
-              <AdSenseUnit slot="anasayfa_sponsorlu_kart" className="mt-4 max-w-[400px] mx-auto" />
-            )}
+            <>
+              <RecipeSlider
+                recipes={featured}
+                adminAuthor={adminAuthor}
+                profileMap={profileMap}
+                isLoggedIn={!!currentUserId}
+                followMap={followMap}
+                followsAdmin={followsAdmin}
+                sponsoredAd={homeAd ?? undefined}
+              />
+              {!homeAd && (
+                <AdSenseUnit slot="anasayfa_sponsorlu_kart" className="mt-4 max-w-[400px] mx-auto" />
+              )}
+            </>
           )}
         </div>
       </section>

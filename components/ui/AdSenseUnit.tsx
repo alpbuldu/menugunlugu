@@ -47,10 +47,12 @@ export type AdSlotKey = keyof typeof AD_SLOTS;
 interface Props {
   slot: AdSlotKey;
   className?: string;
-  format?: "auto" | "rectangle" | "vertical" | "horizontal";
+  // Sabit boyut — custom reklam alanlarıyla aynı ölçüde
+  width?: number | string;
+  height?: number | string;
 }
 
-export default function AdSenseUnit({ slot, className = "", format = "auto" }: Props) {
+export default function AdSenseUnit({ slot, className = "", width, height }: Props) {
   const ref = useRef<HTMLModElement>(null);
   const pushed = useRef(false);
 
@@ -64,17 +66,22 @@ export default function AdSenseUnit({ slot, className = "", format = "auto" }: P
     }
   }, []);
 
+  const isFixed = width && height;
+
   return (
     <div className={className}>
       <p className="text-[10px] text-warm-300 mb-1 text-right tracking-wide">Reklam</p>
       <ins
         ref={ref}
         className="adsbygoogle"
-        style={{ display: "block" }}
+        style={{
+          display: "block",
+          ...(isFixed ? { width, height } : {}),
+        }}
         data-ad-client="ca-pub-8588576330436541"
         data-ad-slot={AD_SLOTS[slot]}
-        data-ad-format={format}
-        data-full-width-responsive="true"
+        data-ad-format={isFixed ? undefined : "auto"}
+        data-full-width-responsive={isFixed ? undefined : "true"}
       />
     </div>
   );

@@ -166,7 +166,12 @@ export default async function HomePage() {
               </div>
             </div>
           ) : (
-            <AdSenseUnit slot="anasayfa_banner" className="max-w-[728px] mx-auto" />
+            <>
+              {/* Mobil */}
+              <AdSenseUnit slot="anasayfa_banner" width="320px" height="80px" className="block sm:hidden mx-auto" />
+              {/* Masaüstü */}
+              <AdSenseUnit slot="anasayfa_banner" width="728px" height="160px" className="hidden sm:block mx-auto" />
+            </>
           )}
         </div>
       </section>

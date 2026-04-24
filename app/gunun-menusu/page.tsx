@@ -173,7 +173,10 @@ export default async function MenuPage() {
           </a>
         </div>
       ) : (
-        <AdSenseUnit slot="gunun_menusu_yatay" className="mb-6 sm:mb-8" />
+        <>
+          <AdSenseUnit slot="gunun_menusu_yatay" width="100%" height="70px" className="block sm:hidden mb-6" />
+          <AdSenseUnit slot="gunun_menusu_yatay" width="100%" height="100px" className="hidden sm:block mb-8" />
+        </>
       )}
 
       {!menu ? (

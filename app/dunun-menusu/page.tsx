@@ -48,7 +48,10 @@ export default async function ArchivePage() {
           </a>
         </div>
       ) : (
-        <AdSenseUnit slot="dunun_menusu_yatay" className="mb-6 sm:mb-8" />
+        <>
+          <AdSenseUnit slot="dunun_menusu_yatay" width="100%" height="70px" className="block sm:hidden mb-6" />
+          <AdSenseUnit slot="dunun_menusu_yatay" width="100%" height="100px" className="hidden sm:block mb-8" />
+        </>
       )}
 
       <Calendar />

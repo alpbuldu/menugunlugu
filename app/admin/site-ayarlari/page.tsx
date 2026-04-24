@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import SiteSettingsForm from "./SiteSettingsForm";
 import PopupSettings from "./PopupSettings";
 import type { Metadata } from "next";
@@ -13,6 +13,7 @@ const PAGE_ORDER = [
 
 export default async function SiteAyarlariPage() {
   const supabase = await createClient();
+  const adminSupabase = createAdminClient();
 
   const [{ data: settingsData }, { data: popupsData }] = await Promise.all([
     supabase
@@ -20,7 +21,7 @@ export default async function SiteAyarlariPage() {
       .select("logo_url, favicon_url, contact_email, instagram_url, youtube_url, tiktok_url, twitter_url, adsense_enabled")
       .eq("id", 1)
       .single(),
-    supabase
+    adminSupabase
       .from("page_popups")
       .select("page, image_url, link_url, is_active"),
   ]);

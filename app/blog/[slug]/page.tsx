@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import dynamicImport from "next/dynamic";
 import ShareButton from "@/components/ui/ShareButton";
 import FollowButton from "@/components/ui/FollowButton";
-import AdBanner from "@/components/ui/AdBanner";
+import AdSlot from "@/components/ui/AdSlot";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import ProseContent from "@/components/blog/ProseContent";
 import LazySection from "@/components/ui/LazySection";
@@ -113,7 +113,7 @@ export default async function BlogPostPage({ params }: Props) {
   };
 
   return (
-    <SidebarLayout placement="sidebar_blog_post">
+    <SidebarLayout placement="sidebar_blog_post" adSenseSlot="blog_yazisi_dikey_masaustu">
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
@@ -125,7 +125,8 @@ export default async function BlogPostPage({ params }: Props) {
       </Link>
 
       {/* Mobil üst banner */}
-      <AdBanner placement="blog_post_banner_mobile" imageHeight="h-[70px]" className="sm:hidden mb-4" />
+      <AdSlot placement="blog_post_banner_mobile" adSenseSlot="blog_yazisi_yatay_mobil"
+        imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="sm:hidden mb-4" />
 
       <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
         {/* Hero image */}
@@ -253,7 +254,8 @@ export default async function BlogPostPage({ params }: Props) {
       </div>
 
       {/* Mobil reklam — yorumun üstünde */}
-      <AdBanner placement="blog_post_banner_mobile" imageHeight="h-[70px]" className="mt-4 sm:hidden" />
+      <AdSlot placement="blog_post_banner_mobile" adSenseSlot="blog_yazisi_yatay_mobil"
+        imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="mt-4 sm:hidden" />
 
       {/* Yorumlar — viewport'a girince yükle */}
       <LazySection
@@ -266,7 +268,8 @@ export default async function BlogPostPage({ params }: Props) {
       </LazySection>
 
       {/* Yatay reklam banneri — masaüstü */}
-      <AdBanner placement="blog_post_banner" imageHeight="h-[100px]" className="mt-4 hidden sm:block" />
+      <AdSlot placement="blog_post_banner" adSenseSlot="blog_yazisi_yatay_masaustu"
+        imageHeight="h-[100px]" adWidth="100%" adHeight="100px" className="mt-4 hidden sm:block" />
 
       {/* Benzer Yazılar — viewport'a girince göster */}
       {relatedPosts.length > 0 && (

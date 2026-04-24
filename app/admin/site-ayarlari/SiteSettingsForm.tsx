@@ -4,26 +4,28 @@ import { useState, useRef } from "react";
 import Image from "next/image";
 
 interface SiteSettings {
-  logo_url:      string | null;
-  favicon_url:   string | null;
-  contact_email: string | null;
-  instagram_url: string | null;
-  youtube_url:   string | null;
-  tiktok_url:    string | null;
-  twitter_url:   string | null;
+  logo_url:        string | null;
+  favicon_url:     string | null;
+  contact_email:   string | null;
+  instagram_url:   string | null;
+  youtube_url:     string | null;
+  tiktok_url:      string | null;
+  twitter_url:     string | null;
+  adsense_enabled: boolean | null;
 }
 
 const inputCls = "w-full px-4 py-2.5 rounded-xl border border-warm-200 bg-white text-warm-900 placeholder-warm-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm";
 const labelCls = "block text-sm font-medium text-warm-700 mb-1.5";
 
 export default function SiteSettingsForm({ settings }: { settings: SiteSettings }) {
-  const [logoUrl,      setLogoUrl]      = useState(settings.logo_url      ?? "");
-  const [faviconUrl,   setFaviconUrl]   = useState(settings.favicon_url   ?? "");
-  const [email,        setEmail]        = useState(settings.contact_email ?? "");
-  const [instagram,    setInstagram]    = useState(settings.instagram_url ?? "");
-  const [youtube,      setYoutube]      = useState(settings.youtube_url   ?? "");
-  const [tiktok,       setTiktok]       = useState(settings.tiktok_url    ?? "");
-  const [twitter,      setTwitter]      = useState(settings.twitter_url   ?? "");
+  const [logoUrl,         setLogoUrl]         = useState(settings.logo_url         ?? "");
+  const [faviconUrl,      setFaviconUrl]       = useState(settings.favicon_url      ?? "");
+  const [email,           setEmail]            = useState(settings.contact_email    ?? "");
+  const [instagram,       setInstagram]        = useState(settings.instagram_url    ?? "");
+  const [youtube,         setYoutube]          = useState(settings.youtube_url      ?? "");
+  const [tiktok,          setTiktok]           = useState(settings.tiktok_url       ?? "");
+  const [twitter,         setTwitter]          = useState(settings.twitter_url      ?? "");
+  const [adsenseEnabled,  setAdsenseEnabled]   = useState(settings.adsense_enabled  ?? false);
   const [uploadingLogo,    setUploadingLogo]    = useState(false);
   const [uploadingFavicon, setUploadingFavicon] = useState(false);
   const [saving,   setSaving]   = useState(false);
@@ -51,13 +53,14 @@ export default function SiteSettingsForm({ settings }: { settings: SiteSettings 
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        logo_url:      logoUrl      || null,
-        favicon_url:   faviconUrl   || null,
-        contact_email: email.trim() || null,
-        instagram_url: instagram.trim() || null,
-        youtube_url:   youtube.trim()   || null,
-        tiktok_url:    tiktok.trim()    || null,
-        twitter_url:   twitter.trim()   || null,
+        logo_url:         logoUrl          || null,
+        favicon_url:      faviconUrl       || null,
+        contact_email:    email.trim()     || null,
+        instagram_url:    instagram.trim() || null,
+        youtube_url:      youtube.trim()   || null,
+        tiktok_url:       tiktok.trim()    || null,
+        twitter_url:      twitter.trim()   || null,
+        adsense_enabled:  adsenseEnabled,
       }),
     });
     setSaving(false);
@@ -142,6 +145,31 @@ export default function SiteSettingsForm({ settings }: { settings: SiteSettings 
               placeholder={f.ph} className={inputCls} />
           </div>
         ))}
+      </div>
+
+      {/* AdSense */}
+      <div className="border border-warm-200 rounded-2xl p-5 space-y-4">
+        <h2 className="text-sm font-semibold text-warm-800">💰 Google AdSense</h2>
+        <label className="flex items-center gap-3 cursor-pointer select-none">
+          <div className="relative">
+            <input
+              type="checkbox"
+              className="sr-only"
+              checked={adsenseEnabled}
+              onChange={(e) => setAdsenseEnabled(e.target.checked)}
+            />
+            <div className={`w-11 h-6 rounded-full transition-colors ${adsenseEnabled ? "bg-brand-500" : "bg-warm-200"}`} />
+            <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${adsenseEnabled ? "translate-x-5" : "translate-x-0"}`} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-warm-800">
+              AdSense Reklamlarını Göster
+            </p>
+            <p className="text-xs text-warm-400 mt-0.5">
+              Kapalıyken custom reklam da yoksa alan tamamen boş kalır.
+            </p>
+          </div>
+        </label>
       </div>
 
       {message && (

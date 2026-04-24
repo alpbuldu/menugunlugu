@@ -9,13 +9,13 @@ export default async function SiteAyarlariPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("site_settings")
-    .select("logo_url, favicon_url, contact_email, instagram_url, youtube_url, tiktok_url, twitter_url")
+    .select("logo_url, favicon_url, contact_email, instagram_url, youtube_url, tiktok_url, twitter_url, adsense_enabled")
     .eq("id", 1)
     .single();
 
   const settings = data ?? {
     logo_url: null, favicon_url: null, contact_email: null,
-    instagram_url: null, youtube_url: null, tiktok_url: null, twitter_url: null,
+    instagram_url: null, youtube_url: null, tiktok_url: null, twitter_url: null, adsense_enabled: false,
   };
 
   return (

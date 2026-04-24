@@ -9,7 +9,7 @@ import Badge from "@/components/ui/Badge";
 import dynamicImport from "next/dynamic";
 import ShareButton from "@/components/ui/ShareButton";
 import FollowButton from "@/components/ui/FollowButton";
-import AdBanner from "@/components/ui/AdBanner";
+import AdSlot from "@/components/ui/AdSlot";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import LazySection from "@/components/ui/LazySection";
 
@@ -224,7 +224,7 @@ export default async function RecipeDetailPage({ params }: Props) {
   };
 
   return (
-    <SidebarLayout placement="sidebar_recipe_detail">
+    <SidebarLayout placement="sidebar_recipe_detail" adSenseSlot="tarif_detay_dikey_masaustu">
     <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -236,7 +236,8 @@ export default async function RecipeDetailPage({ params }: Props) {
       </Link>
 
       {/* Mobil üst banner */}
-      <AdBanner placement="recipe_detail_banner_mobile" imageHeight="h-[70px]" className="sm:hidden mb-4" />
+      <AdSlot placement="recipe_detail_banner_mobile" adSenseSlot="tarif_detay_yatay_mobil"
+        imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="sm:hidden mb-4" />
 
       <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
         {/* Hero image */}
@@ -374,7 +375,8 @@ export default async function RecipeDetailPage({ params }: Props) {
       </div>
 
       {/* Mobil reklam — yorumun üstünde */}
-      <AdBanner placement="recipe_detail_banner_mobile" imageHeight="h-[70px]" className="mt-4 sm:hidden" />
+      <AdSlot placement="recipe_detail_banner_mobile" adSenseSlot="tarif_detay_yatay_mobil"
+        imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="mt-4 sm:hidden" />
 
       {/* Yorumlar — viewport'a girince yükle */}
       <LazySection
@@ -387,7 +389,8 @@ export default async function RecipeDetailPage({ params }: Props) {
       </LazySection>
 
       {/* Yatay reklam banneri — masaüstü */}
-      <AdBanner placement="recipe_detail_banner" imageHeight="h-[100px]" className="mt-4 hidden sm:block" />
+      <AdSlot placement="recipe_detail_banner" adSenseSlot="tarif_detay_yatay_masaustu"
+        imageHeight="h-[100px]" adWidth="100%" adHeight="100px" className="mt-4 hidden sm:block" />
 
       {/* İlgili Tarifler — viewport'a girince göster */}
       {relatedRecipes.length > 0 && (

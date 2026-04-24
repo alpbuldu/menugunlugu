@@ -44,17 +44,21 @@ export default async function SidebarLayout({
   adSenseSlot?: AdSlotKey;
 }) {
   const supabase = createAdminClient();
-  const { data: ad } = await supabase
-    .from("ads")
-    .select("image_url, link_url, title")
-    .eq("placement", placement)
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const [{ data: ad }, { data: settings }] = await Promise.all([
+    supabase
+      .from("ads")
+      .select("image_url, link_url, title")
+      .eq("placement", placement)
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase.from("site_settings").select("adsense_enabled").eq("id", 1).single(),
+  ]);
 
-  // Custom reklam yoksa ve AdSense slot tanımlıysa AdSense göster
-  const showAdsense = !ad && !!adSenseSlot;
+  const adsenseEnabled = settings?.adsense_enabled === true;
+  // Custom reklam yoksa, AdSense açıksa ve slot tanımlıysa AdSense göster
+  const showAdsense = !ad && !!adSenseSlot && adsenseEnabled;
 
   if (!ad && !showAdsense) return <>{children}</>;
 
@@ -66,7 +70,7 @@ export default async function SidebarLayout({
           {ad ? (
             <SidebarAd ad={ad} side="left" />
           ) : (
-            <AdSenseUnit slot={adSenseSlot!} format="vertical" />
+            <AdSenseUnit slot={adSenseSlot!} />
           )}
         </div>
       </div>
@@ -80,7 +84,7 @@ export default async function SidebarLayout({
           {ad ? (
             <SidebarAd ad={ad} side="right" />
           ) : (
-            <AdSenseUnit slot={adSenseSlot!} format="vertical" />
+            <AdSenseUnit slot={adSenseSlot!} />
           )}
         </div>
       </div>

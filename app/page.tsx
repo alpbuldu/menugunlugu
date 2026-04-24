@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdPopup from "@/components/ui/AdPopup";
-import AdSenseUnit from "@/components/ui/AdSenseUnit";
+import AdSlot from "@/components/ui/AdSlot";
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = createAdminClient();
@@ -59,16 +59,6 @@ export default async function HomePage() {
     .from("ads")
     .select("image_url, link_url, title")
     .eq("placement", "home")
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  // Ana sayfa yatay banner (tarifler altı)
-  const { data: homeBanner } = await adminSb
-    .from("ads")
-    .select("image_url, link_url, title")
-    .eq("placement", "home_banner")
     .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -152,27 +142,10 @@ export default async function HomePage() {
       {/* ── Banner — custom aktifse onu, değilse AdSense */}
       <section className="bg-warm-100 pt-5 sm:pt-8 pb-0">
         <div className={CONTAINER}>
-          {homeBanner ? (
-            <div className="flex justify-center">
-              <div className="relative">
-                <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
-                <a href={homeBanner.link_url} target="_blank" rel="noopener noreferrer sponsored"
-                  className="block hover:opacity-90 transition-opacity rounded-lg overflow-hidden">
-                  <img src={homeBanner.image_url} alt={homeBanner.title ?? "Reklam"}
-                    className="block sm:hidden w-[320px] h-[80px] object-cover" />
-                  <img src={homeBanner.image_url} alt={homeBanner.title ?? "Reklam"}
-                    className="hidden sm:block w-[728px] h-[160px] object-cover" />
-                </a>
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* Mobil */}
-              <AdSenseUnit slot="anasayfa_banner" width="320px" height="80px" className="block sm:hidden mx-auto" />
-              {/* Masaüstü */}
-              <AdSenseUnit slot="anasayfa_banner" width="728px" height="160px" className="hidden sm:block mx-auto" />
-            </>
-          )}
+          <AdSlot placement="home_banner" adSenseSlot="anasayfa_banner"
+            imageHeight="h-[80px]" adWidth="320px" adHeight="80px" className="block sm:hidden mx-auto" />
+          <AdSlot placement="home_banner" adSenseSlot="anasayfa_banner"
+            imageHeight="h-[160px]" adWidth="728px" adHeight="160px" className="hidden sm:block mx-auto" />
         </div>
       </section>
 

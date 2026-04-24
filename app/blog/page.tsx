@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
-import AdBanner from "@/components/ui/AdBanner";
+import AdSlot from "@/components/ui/AdSlot";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -162,7 +162,7 @@ export default async function BlogPage({ searchParams }: Props) {
   }
 
   return (
-    <SidebarLayout placement="sidebar_blog">
+    <SidebarLayout placement="sidebar_blog" adSenseSlot="blog_dikey_masaustu">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-1">Blog</h1>
       <p className="text-sm sm:text-base text-warm-500 mb-4">Yemek kültürü, tarifler ve mutfak hikayeleri.</p>
@@ -192,10 +192,11 @@ export default async function BlogPage({ searchParams }: Props) {
         </div>
       )}
 
-      {/* Yatay reklam banneri — masaüstü */}
-      <AdBanner placement="blog_banner" imageHeight="h-[100px]" className="hidden sm:block mb-8" />
-      {/* Yatay reklam banneri — mobil */}
-      <AdBanner placement="blog_banner_mobile" imageHeight="h-[70px]" className="sm:hidden mb-4" />
+      {/* Yatay reklam banneri */}
+      <AdSlot placement="blog_banner" adSenseSlot="blog_yatay_masaustu"
+        imageHeight="h-[100px]" adWidth="100%" adHeight="100px" className="hidden sm:block mb-8" />
+      <AdSlot placement="blog_banner_mobile" adSenseSlot="blog_yatay_mobil"
+        imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="sm:hidden mb-4" />
 
       {/* ── Seçtiklerimiz bölümü (sadece kategori filtresi yokken göster) ── */}
       {!kategori && (() => {

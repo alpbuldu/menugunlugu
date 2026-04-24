@@ -9,13 +9,14 @@ export async function PUT(req: Request) {
     .from("site_settings")
     .upsert({
       id: 1,
-      logo_url:      body.logo_url      ?? null,
-      favicon_url:   body.favicon_url   ?? null,
-      contact_email: body.contact_email ?? null,
-      instagram_url: body.instagram_url ?? null,
-      youtube_url:   body.youtube_url   ?? null,
-      tiktok_url:    body.tiktok_url    ?? null,
-      twitter_url:   body.twitter_url   ?? null,
+      logo_url:         body.logo_url         ?? null,
+      favicon_url:      body.favicon_url       ?? null,
+      contact_email:    body.contact_email     ?? null,
+      instagram_url:    body.instagram_url     ?? null,
+      youtube_url:      body.youtube_url       ?? null,
+      tiktok_url:       body.tiktok_url        ?? null,
+      twitter_url:      body.twitter_url       ?? null,
+      adsense_enabled:  body.adsense_enabled   ?? false,
     }, { onConflict: "id" });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

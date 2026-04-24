@@ -7,7 +7,7 @@ import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
-import AdBanner from "@/components/ui/AdBanner";
+import AdSlot from "@/components/ui/AdSlot";
 
 export const metadata: Metadata = {
   title: "Tarifler",
@@ -101,7 +101,7 @@ export default async function RecipesPage({ searchParams }: Props) {
   }
 
   return (
-    <SidebarLayout placement="sidebar_recipes">
+    <SidebarLayout placement="sidebar_recipes" adSenseSlot="tarifler_dikey_masaustu">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-1">Tarifler</h1>
       <p className="text-sm sm:text-base text-warm-500 mb-4">Kategorilere göre tarifleri keşfedin.</p>
@@ -119,10 +119,11 @@ export default async function RecipesPage({ searchParams }: Props) {
         ))}
       </div>
 
-      {/* Yatay reklam banneri — masaüstü */}
-      <AdBanner placement="recipes_banner" imageHeight="h-[100px]" className="hidden sm:block mb-8" />
-      {/* Yatay reklam banneri — mobil */}
-      <AdBanner placement="recipes_banner_mobile" imageHeight="h-[70px]" className="sm:hidden mb-4" />
+      {/* Yatay reklam banneri */}
+      <AdSlot placement="recipes_banner" adSenseSlot="tarifler_yatay_masaustu"
+        imageHeight="h-[100px]" adWidth="100%" adHeight="100px" className="hidden sm:block mb-8" />
+      <AdSlot placement="recipes_banner_mobile" adSenseSlot="tarifler_yatay_mobil"
+        imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="sm:hidden mb-4" />
 
       {/* Recipe Grid */}
       {recipes.length === 0 ? (

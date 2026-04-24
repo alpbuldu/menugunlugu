@@ -7,7 +7,7 @@ import type { Recipe, Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
-import AdSenseUnit from "@/components/ui/AdSenseUnit";
+import AdSlot from "@/components/ui/AdSlot";
 
 export const metadata: Metadata = {
   title: "Günün Menüsü",
@@ -140,15 +140,6 @@ export default async function MenuPage() {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
   });
 
-  const { data: menuBanner } = await supabase
-    .from("ads")
-    .select("image_url, link_url, title")
-    .eq("placement", "menu_banner")
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
   return (
     <SidebarLayout placement="sidebar_menu" adSenseSlot="gunun_menusu_dikey">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
@@ -156,28 +147,10 @@ export default async function MenuPage() {
       <p className="text-sm sm:text-base text-warm-500 mb-4 capitalize">{today}</p>
 
       {/* Banner — açıklama altında, kartlar üstünde */}
-      {menuBanner ? (
-        <div className="mb-6 sm:mb-8 relative">
-          <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
-          <a
-            href={menuBanner.link_url}
-            target="_blank"
-            rel="noopener noreferrer sponsored"
-            className="block rounded-xl overflow-hidden border border-warm-100 hover:opacity-90 transition-opacity"
-          >
-            <img
-              src={menuBanner.image_url}
-              alt={menuBanner.title ?? "Reklam"}
-              className="w-full h-[70px] sm:h-[100px] object-cover"
-            />
-          </a>
-        </div>
-      ) : (
-        <>
-          <AdSenseUnit slot="gunun_menusu_yatay" width="100%" height="70px" className="block sm:hidden mb-6" />
-          <AdSenseUnit slot="gunun_menusu_yatay" width="100%" height="100px" className="hidden sm:block mb-8" />
-        </>
-      )}
+      <AdSlot placement="menu_banner" adSenseSlot="gunun_menusu_yatay"
+        imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="block sm:hidden mb-6" />
+      <AdSlot placement="menu_banner" adSenseSlot="gunun_menusu_yatay"
+        imageHeight="h-[100px]" adWidth="100%" adHeight="100px" className="hidden sm:block mb-8" />
 
       {!menu ? (
         <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-12 text-center">

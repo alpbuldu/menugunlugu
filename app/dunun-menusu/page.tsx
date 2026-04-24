@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Calendar from "@/components/archive/Calendar";
 import { createAdminClient } from "@/lib/supabase/server";
+import AdSenseUnit from "@/components/ui/AdSenseUnit";
 
 export const revalidate = 1800; // 30 dakikada bir yenile
 
@@ -30,7 +31,7 @@ export default async function ArchivePage() {
       </p>
 
       {/* Yatay banner — açıklama altında, takvim üstünde */}
-      {archiveBanner && (
+      {archiveBanner ? (
         <div className="mb-6 sm:mb-8 relative">
           <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
           <a
@@ -46,6 +47,8 @@ export default async function ArchivePage() {
             />
           </a>
         </div>
+      ) : (
+        <AdSenseUnit slot="dunun_menusu_yatay" className="mb-6 sm:mb-8" />
       )}
 
       <Calendar />

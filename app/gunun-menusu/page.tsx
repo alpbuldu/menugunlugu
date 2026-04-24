@@ -7,6 +7,7 @@ import type { Recipe, Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
+import AdSenseUnit from "@/components/ui/AdSenseUnit";
 
 export const metadata: Metadata = {
   title: "Günün Menüsü",
@@ -149,13 +150,13 @@ export default async function MenuPage() {
     .maybeSingle();
 
   return (
-    <SidebarLayout placement="sidebar_menu">
+    <SidebarLayout placement="sidebar_menu" adSenseSlot="gunun_menusu_dikey">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-1">Günün Menüsü</h1>
       <p className="text-sm sm:text-base text-warm-500 mb-4 capitalize">{today}</p>
 
       {/* Banner — açıklama altında, kartlar üstünde */}
-      {menuBanner && (
+      {menuBanner ? (
         <div className="mb-6 sm:mb-8 relative">
           <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
           <a
@@ -171,6 +172,8 @@ export default async function MenuPage() {
             />
           </a>
         </div>
+      ) : (
+        <AdSenseUnit slot="gunun_menusu_yatay" className="mb-6 sm:mb-8" />
       )}
 
       {!menu ? (

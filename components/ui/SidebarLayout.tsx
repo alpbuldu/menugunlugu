@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/server";
+import AdSenseUnit, { type AdSlotKey } from "@/components/ui/AdSenseUnit";
 
 interface Ad {
   image_url: string;
@@ -36,9 +37,11 @@ const RIGHT_PAD = "[@media(min-width:1440px)]:pr-3";
 export default async function SidebarLayout({
   children,
   placement,
+  adSenseSlot,
 }: {
   children: React.ReactNode;
   placement: string;
+  adSenseSlot?: AdSlotKey;
 }) {
   const supabase = createAdminClient();
   const { data: ad } = await supabase
@@ -50,14 +53,21 @@ export default async function SidebarLayout({
     .limit(1)
     .maybeSingle();
 
-  if (!ad) return <>{children}</>;
+  // Custom reklam yoksa ve AdSense slot tanımlıysa AdSense göster
+  const showAdsense = !ad && !!adSenseSlot;
+
+  if (!ad && !showAdsense) return <>{children}</>;
 
   return (
     <div className={OUTER}>
       {/* Sol sidebar */}
       <div className={`${SIDE} ${LEFT_PAD}`}>
         <div className="sticky top-20" style={{ height: "min(calc(100vh - 9rem), 100%)" }}>
-          <SidebarAd ad={ad} side="left" />
+          {ad ? (
+            <SidebarAd ad={ad} side="left" />
+          ) : (
+            <AdSenseUnit slot={adSenseSlot!} format="vertical" />
+          )}
         </div>
       </div>
 
@@ -67,7 +77,11 @@ export default async function SidebarLayout({
       {/* Sağ sidebar */}
       <div className={`${SIDE} ${RIGHT_PAD}`}>
         <div className="sticky top-20" style={{ height: "min(calc(100vh - 9rem), 100%)" }}>
-          <SidebarAd ad={ad} side="right" />
+          {ad ? (
+            <SidebarAd ad={ad} side="right" />
+          ) : (
+            <AdSenseUnit slot={adSenseSlot!} format="vertical" />
+          )}
         </div>
       </div>
     </div>

@@ -17,9 +17,6 @@ export async function PUT(req: Request) {
       tiktok_url:       body.tiktok_url        ?? null,
       twitter_url:      body.twitter_url       ?? null,
       adsense_enabled:  body.adsense_enabled   ?? false,
-      popup_image_url:  body.popup_image_url   ?? null,
-      popup_link_url:   body.popup_link_url    ?? null,
-      popup_is_active:  body.popup_is_active   ?? false,
     }, { onConflict: "id" });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

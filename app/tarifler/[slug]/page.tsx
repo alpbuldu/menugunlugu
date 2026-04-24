@@ -11,6 +11,7 @@ import ShareButton from "@/components/ui/ShareButton";
 import FollowButton from "@/components/ui/FollowButton";
 import AdSlot from "@/components/ui/AdSlot";
 import SidebarLayout from "@/components/ui/SidebarLayout";
+import PagePopup from "@/components/ui/PagePopup";
 import LazySection from "@/components/ui/LazySection";
 
 const RatingStars    = dynamicImport(() => import("@/components/recipe/RatingStars"));
@@ -439,6 +440,7 @@ export default async function RecipeDetailPage({ params }: Props) {
         <ShareButton title={recipe.title} />
       </div>
     </div>
+      <PagePopup page="tarif_detay" />
     </SidebarLayout>
   );
 }

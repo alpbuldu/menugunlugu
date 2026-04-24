@@ -7,6 +7,7 @@ import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
+import PagePopup from "@/components/ui/PagePopup";
 
 export const metadata: Metadata = {
   title: "Tarifler",
@@ -219,6 +220,7 @@ export default async function RecipesPage({ searchParams }: Props) {
         );
       })()}
     </div>
+      <PagePopup page="tarifler" />
     </SidebarLayout>
   );
 }

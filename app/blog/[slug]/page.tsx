@@ -9,6 +9,7 @@ import ShareButton from "@/components/ui/ShareButton";
 import FollowButton from "@/components/ui/FollowButton";
 import AdSlot from "@/components/ui/AdSlot";
 import SidebarLayout from "@/components/ui/SidebarLayout";
+import PagePopup from "@/components/ui/PagePopup";
 import ProseContent from "@/components/blog/ProseContent";
 import LazySection from "@/components/ui/LazySection";
 
@@ -321,6 +322,7 @@ export default async function BlogPostPage({ params }: Props) {
         <ShareButton title={post.title} />
       </div>
     </div>
+      <PagePopup page="blog_yazisi" />
     </SidebarLayout>
   );
 }

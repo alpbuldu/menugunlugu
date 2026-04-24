@@ -3,27 +3,30 @@
 import { useEffect, useState } from "react";
 
 interface Props {
-  popup: { image_url: string; link_url: string };
+  imageUrl: string;
+  linkUrl?: string | null;
+  placement: string; // used for unique localStorage key per placement
 }
 
-const STORAGE_KEY = "site_popup_dismissed_at";
-const COOLDOWN_MS = 12 * 60 * 60 * 1000; // 12 saat
+const COOLDOWN_MS = 4 * 60 * 60 * 1000; // 4 saat
 
-export default function SitePopup({ popup }: Props) {
+export default function SitePopup({ imageUrl, linkUrl, placement }: Props) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    const storageKey = `popup_dismissed_${placement}`;
     try {
-      const dismissed = localStorage.getItem(STORAGE_KEY);
+      const dismissed = localStorage.getItem(storageKey);
       if (dismissed && Date.now() - Number(dismissed) < COOLDOWN_MS) return;
     } catch {}
     const t = setTimeout(() => setVisible(true), 1500);
     return () => clearTimeout(t);
-  }, []);
+  }, [placement]);
 
   function close() {
+    const storageKey = `popup_dismissed_${placement}`;
     setVisible(false);
-    try { localStorage.setItem(STORAGE_KEY, String(Date.now())); } catch {}
+    try { localStorage.setItem(storageKey, String(Date.now())); } catch {}
   }
 
   if (!visible) return null;
@@ -51,12 +54,12 @@ export default function SitePopup({ popup }: Props) {
         </button>
 
         {/* Görsel */}
-        {popup.link_url ? (
-          <a href={popup.link_url} target="_blank" rel="noopener noreferrer" onClick={close}>
-            <img src={popup.image_url} alt="Duyuru" className="w-full block" />
+        {linkUrl ? (
+          <a href={linkUrl} target="_blank" rel="noopener noreferrer" onClick={close}>
+            <img src={imageUrl} alt="Duyuru" className="w-full block" />
           </a>
         ) : (
-          <img src={popup.image_url} alt="Duyuru" className="w-full block" />
+          <img src={imageUrl} alt="Duyuru" className="w-full block" />
         )}
 
         {/* Alt bar */}

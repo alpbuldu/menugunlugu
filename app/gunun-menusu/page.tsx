@@ -8,6 +8,7 @@ import Badge from "@/components/ui/Badge";
 import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import AdSlot from "@/components/ui/AdSlot";
+import PagePopup from "@/components/ui/PagePopup";
 
 export const metadata: Metadata = {
   title: "Günün Menüsü",
@@ -189,6 +190,7 @@ export default async function MenuPage() {
         </Link>
       </div>
     </div>
+      <PagePopup page="gunun_menusu" />
     </SidebarLayout>
   );
 }

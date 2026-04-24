@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Calendar from "@/components/archive/Calendar";
 import AdSlot from "@/components/ui/AdSlot";
+import PagePopup from "@/components/ui/PagePopup";
 
 export const revalidate = 1800; // 30 dakikada bir yenile
 
@@ -36,6 +37,7 @@ export default async function ArchivePage() {
           Tüm tarifleri gör →
         </Link>
       </div>
+      <PagePopup page="dunun_menusu" />
     </div>
   );
 }

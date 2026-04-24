@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdSlot from "@/components/ui/AdSlot";
+import PagePopup from "@/components/ui/PagePopup";
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = createAdminClient();
@@ -177,6 +178,7 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <PagePopup page="home" />
     </div>
   );
 }

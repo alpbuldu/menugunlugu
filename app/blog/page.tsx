@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
+import PagePopup from "@/components/ui/PagePopup";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -385,6 +386,7 @@ export default async function BlogPage({ searchParams }: Props) {
         );
       })()}
     </div>
+      <PagePopup page="blog" />
     </SidebarLayout>
   );
 }

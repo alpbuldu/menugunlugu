@@ -4,6 +4,7 @@ import type { Category } from "@/lib/types";
 import MenuBuilder from "./MenuBuilder";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import AdSlot from "@/components/ui/AdSlot";
+import PagePopup from "@/components/ui/PagePopup";
 
 export const metadata: Metadata = {
   title: "Menü Oluştur",
@@ -75,6 +76,7 @@ export default async function MenuOlusturPage() {
 
       <MenuBuilder grouped={grouped} />
     </div>
+      <PagePopup page="menu_olustur" />
     </SidebarLayout>
   );
 }

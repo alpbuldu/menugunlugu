@@ -147,9 +147,9 @@ export default function SiteSettingsForm({ settings }: { settings: SiteSettings 
         ))}
       </div>
 
-      {/* AdSense */}
+      {/* Reklam Toggle */}
       <div className="border border-warm-200 rounded-2xl p-5 space-y-4">
-        <h2 className="text-sm font-semibold text-warm-800">💰 Google AdSense</h2>
+        <h2 className="text-sm font-semibold text-warm-800">💰 Reklamlar</h2>
         <label className="flex items-center gap-3 cursor-pointer select-none">
           <div className="relative">
             <input
@@ -163,10 +163,10 @@ export default function SiteSettingsForm({ settings }: { settings: SiteSettings 
           </div>
           <div>
             <p className="text-sm font-medium text-warm-800">
-              AdSense Reklamlarını Göster
+              Reklamları Göster
             </p>
             <p className="text-xs text-warm-400 mt-0.5">
-              Kapalıyken custom reklam da yoksa alan tamamen boş kalır.
+              Kapalıyken sitedeki tüm reklam alanları gizlenir (custom + AdSense).
             </p>
           </div>
         </label>

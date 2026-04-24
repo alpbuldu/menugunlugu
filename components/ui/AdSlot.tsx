@@ -11,8 +11,8 @@ interface Props {
 }
 
 /**
- * Reklam alanı: önce custom reklam kontrol eder, yoksa AdSense'e düşer.
- * AdSense global olarak kapalıysa (site_settings.adsense_enabled = false) hiçbir şey göstermez.
+ * Reklam alanı — global toggle (site_settings.adsense_enabled) kapalıysa HİÇBİR ŞEY göstermez.
+ * Açıksa: önce custom reklam, yoksa AdSense.
  */
 export default async function AdSlot({
   placement,
@@ -40,6 +40,9 @@ export default async function AdSlot({
       .single(),
   ]);
 
+  // Global reklam kapalıysa hiçbir şey gösterme
+  if (!settings?.adsense_enabled) return null;
+
   // Özel reklam aktifse onu göster
   if (ad) {
     return (
@@ -61,8 +64,8 @@ export default async function AdSlot({
     );
   }
 
-  // AdSense global açıksa ve slot tanımlıysa göster
-  if (adSenseSlot && settings?.adsense_enabled) {
+  // Custom reklam yoksa AdSense göster (slot tanımlıysa)
+  if (adSenseSlot) {
     return (
       <AdSenseUnit
         slot={adSenseSlot}

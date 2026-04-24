@@ -44,25 +44,33 @@ export default async function HomePage() {
 
   const adminSb = createAdminClient();
 
+  // Global reklam toggle
+  const { data: siteSettings } = await adminSb
+    .from("site_settings")
+    .select("adsense_enabled")
+    .eq("id", 1)
+    .single();
+  const adsEnabled = siteSettings?.adsense_enabled === true;
+
   // Ana sayfa popup
-  const { data: homePopup } = await adminSb
+  const { data: homePopup } = adsEnabled ? await adminSb
     .from("ads")
     .select("image_url, link_url, title")
     .eq("placement", "home_popup")
     .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(1)
-    .maybeSingle();
+    .maybeSingle() : { data: null };
 
   // Ana sayfa sponsorlu kart (slider ortası)
-  const { data: homeAd } = await adminSb
+  const { data: homeAd } = adsEnabled ? await adminSb
     .from("ads")
     .select("image_url, link_url, title")
     .eq("placement", "home")
     .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(1)
-    .maybeSingle();
+    .maybeSingle() : { data: null };
 
   // Admin profili
   const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();

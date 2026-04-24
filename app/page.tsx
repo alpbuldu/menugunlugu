@@ -202,9 +202,6 @@ export default async function HomePage() {
                 followsAdmin={followsAdmin}
                 sponsoredAd={homeAd ?? undefined}
               />
-              {!homeAd && (
-                <AdSenseUnit slot="anasayfa_sponsorlu_kart" className="mt-4 max-w-[400px] mx-auto" />
-              )}
             </>
           )}
         </div>

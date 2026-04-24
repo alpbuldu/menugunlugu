@@ -56,7 +56,8 @@ export default async function SidebarLayout({
     supabase.from("site_settings").select("adsense_enabled").eq("id", 1).single(),
   ]);
 
-  const adsEnabled = settings?.adsense_enabled === true;
+  // Kolon yoksa (undefined) → açık sayılır; sadece açıkça false ise kapalı
+  const adsEnabled = settings?.adsense_enabled !== false;
 
   // Global reklam kapalıysa sidebar hiç gösterme
   if (!adsEnabled) return <>{children}</>;

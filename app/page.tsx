@@ -50,7 +50,8 @@ export default async function HomePage() {
     .select("adsense_enabled")
     .eq("id", 1)
     .single();
-  const adsEnabled = siteSettings?.adsense_enabled === true;
+  // Kolon yoksa (undefined) → açık sayılır; sadece açıkça false ise kapalı
+  const adsEnabled = siteSettings?.adsense_enabled !== false;
 
   // Ana sayfa popup
   const { data: homePopup } = adsEnabled ? await adminSb

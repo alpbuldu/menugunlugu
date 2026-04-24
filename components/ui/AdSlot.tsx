@@ -41,7 +41,8 @@ export default async function AdSlot({
   ]);
 
   // Global reklam kapalıysa hiçbir şey gösterme
-  if (!settings?.adsense_enabled) return null;
+  // Not: kolon henüz yoksa (undefined) → açık sayılır; sadece açıkça false ise kapalı
+  if (settings?.adsense_enabled === false) return null;
 
   // Özel reklam aktifse onu göster
   if (ad) {

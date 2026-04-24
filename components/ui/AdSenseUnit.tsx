@@ -50,9 +50,11 @@ interface Props {
   // Sabit boyut — custom reklam alanlarıyla aynı ölçüde
   width?: number | string;
   height?: number | string;
+  // "Reklam" etiketinin hizalanması — dikey sidebar için "left" | "right"
+  labelAlign?: "left" | "right";
 }
 
-export default function AdSenseUnit({ slot, className = "", width, height }: Props) {
+export default function AdSenseUnit({ slot, className = "", width, height, labelAlign = "right" }: Props) {
   const ref = useRef<HTMLModElement>(null);
   const pushed = useRef(false);
 
@@ -70,7 +72,7 @@ export default function AdSenseUnit({ slot, className = "", width, height }: Pro
 
   return (
     <div className={className}>
-      <p className="text-[10px] text-warm-300 mb-1 text-right tracking-wide">Reklam</p>
+      <p className={`text-[10px] text-warm-300 mb-1 tracking-wide ${labelAlign === "left" ? "text-left" : "text-right"}`}>Reklam</p>
       <ins
         ref={ref}
         className="adsbygoogle"

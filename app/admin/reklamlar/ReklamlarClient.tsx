@@ -24,16 +24,12 @@ const PLACEMENT_LABELS: Record<string, string> = {
   archive_banner:                "Dünün Menüsü — Yatay Banner (Web + Mobil)",
   sidebar_archive:               "Dünün Menüsü — Dikey Kenar (Masaüstü)",
   // ── Tarifler Listesi ───────────────────────────────────
-  recipes_banner:                "Tarifler — Yatay Banner (Masaüstü)",
-  recipes_banner_mobile:         "Tarifler — Yatay Banner (Mobil)",
   sidebar_recipes:               "Tarifler — Dikey Kenar (Masaüstü)",
   // ── Tarif Detayı ──────────────────────────────────────
   recipe_detail_banner:          "Tarif Detayı — Yatay Banner (Masaüstü)",
   recipe_detail_banner_mobile:   "Tarif Detayı — Yatay Banner (Mobil)",
   sidebar_recipe_detail:         "Tarif Detayı — Dikey Kenar (Masaüstü)",
   // ── Blog Listesi ───────────────────────────────────────
-  blog_banner:                   "Blog — Yatay Banner (Masaüstü)",
-  blog_banner_mobile:            "Blog — Yatay Banner (Mobil)",
   sidebar_blog:                  "Blog — Dikey Kenar (Masaüstü)",
   // ── Blog Yazısı ────────────────────────────────────────
   blog_post_banner:              "Blog Yazısı — Yatay Banner (Masaüstü)",
@@ -52,14 +48,10 @@ const PLACEMENT_SIZES: Record<string, string> = {
   sidebar_menu:                  "200 × 600 px dikey",
   archive_banner:                "1100 × 100 px geniş yatay",
   sidebar_archive:               "200 × 600 px dikey",
-  recipes_banner:                "1100 × 100 px geniş yatay",
-  recipes_banner_mobile:         "390 × 70 px dar yatay (mobil genişlik)",
   sidebar_recipes:               "200 × 600 px dikey",
   recipe_detail_banner:          "700 × 100 px yatay",
   recipe_detail_banner_mobile:   "390 × 70 px dar yatay (mobil genişlik)",
   sidebar_recipe_detail:         "200 × 600 px dikey",
-  blog_banner:                   "1100 × 100 px geniş yatay",
-  blog_banner_mobile:            "390 × 70 px dar yatay (mobil genişlik)",
   sidebar_blog:                  "200 × 600 px dikey",
   blog_post_banner:              "700 × 100 px yatay",
   blog_post_banner_mobile:       "390 × 70 px dar yatay (mobil genişlik)",

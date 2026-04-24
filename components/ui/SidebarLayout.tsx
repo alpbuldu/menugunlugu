@@ -70,7 +70,7 @@ export default async function SidebarLayout({
           {ad ? (
             <SidebarAd ad={ad} side="left" />
           ) : (
-            <AdSenseUnit slot={adSenseSlot!} />
+            <AdSenseUnit slot={adSenseSlot!} labelAlign="right" />
           )}
         </div>
       </div>
@@ -84,7 +84,7 @@ export default async function SidebarLayout({
           {ad ? (
             <SidebarAd ad={ad} side="right" />
           ) : (
-            <AdSenseUnit slot={adSenseSlot!} />
+            <AdSenseUnit slot={adSenseSlot!} labelAlign="left" />
           )}
         </div>
       </div>

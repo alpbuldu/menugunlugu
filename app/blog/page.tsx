@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
-import AdSlot from "@/components/ui/AdSlot";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -192,11 +191,6 @@ export default async function BlogPage({ searchParams }: Props) {
         </div>
       )}
 
-      {/* Yatay reklam banneri */}
-      <AdSlot placement="blog_banner" adSenseSlot="blog_yatay_masaustu"
-        imageHeight="h-[100px]" adWidth="100%" adHeight="100px" className="hidden sm:block mb-8" />
-      <AdSlot placement="blog_banner_mobile" adSenseSlot="blog_yatay_mobil"
-        imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="sm:hidden mb-4" />
 
       {/* ── Seçtiklerimiz bölümü (sadece kategori filtresi yokken göster) ── */}
       {!kategori && (() => {

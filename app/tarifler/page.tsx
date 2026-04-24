@@ -7,7 +7,6 @@ import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
-import AdSlot from "@/components/ui/AdSlot";
 
 export const metadata: Metadata = {
   title: "Tarifler",
@@ -119,11 +118,6 @@ export default async function RecipesPage({ searchParams }: Props) {
         ))}
       </div>
 
-      {/* Yatay reklam banneri */}
-      <AdSlot placement="recipes_banner" adSenseSlot="tarifler_yatay_masaustu"
-        imageHeight="h-[100px]" adWidth="100%" adHeight="100px" className="hidden sm:block mb-8" />
-      <AdSlot placement="recipes_banner_mobile" adSenseSlot="tarifler_yatay_mobil"
-        imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="sm:hidden mb-4" />
 
       {/* Recipe Grid */}
       {recipes.length === 0 ? (

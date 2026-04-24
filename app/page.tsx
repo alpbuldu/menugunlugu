@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdPopup from "@/components/ui/AdPopup";
+import AdSenseUnit from "@/components/ui/AdSenseUnit";
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = createAdminClient();
@@ -101,7 +102,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      {homePopup && <AdPopup ad={homePopup} />}
+      {homePopup ? <AdPopup ad={homePopup} /> : <AdSenseUnit slot="anasayfa_popup" className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4" />}
       {/* ── Hero ──────────────────────────────────────────────── */}
       <section className="bg-gradient-to-b from-brand-600 to-warm-700 text-white">
         <div className={`${CONTAINER} py-6 sm:py-10 text-center`}>
@@ -148,19 +149,15 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Leaderboard Banner — sadece aktif reklam varsa göster */}
-      {homeBanner && (
-        <section className="bg-warm-100 pt-5 sm:pt-8 pb-0">
-          <div className={CONTAINER}>
+      {/* ── Banner — custom aktifse onu, değilse AdSense */}
+      <section className="bg-warm-100 pt-5 sm:pt-8 pb-0">
+        <div className={CONTAINER}>
+          {homeBanner ? (
             <div className="flex justify-center">
               <div className="relative">
                 <p className="absolute -top-4 right-0 text-[10px] text-warm-300 tracking-wide">Reklam</p>
-                <a
-                  href={homeBanner.link_url}
-                  target="_blank"
-                  rel="noopener noreferrer sponsored"
-                  className="block hover:opacity-90 transition-opacity rounded-lg overflow-hidden"
-                >
+                <a href={homeBanner.link_url} target="_blank" rel="noopener noreferrer sponsored"
+                  className="block hover:opacity-90 transition-opacity rounded-lg overflow-hidden">
                   <img src={homeBanner.image_url} alt={homeBanner.title ?? "Reklam"}
                     className="block sm:hidden w-[320px] h-[80px] object-cover" />
                   <img src={homeBanner.image_url} alt={homeBanner.title ?? "Reklam"}
@@ -168,9 +165,11 @@ export default async function HomePage() {
                 </a>
               </div>
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <AdSenseUnit slot="anasayfa_banner" className="max-w-[728px] mx-auto" />
+          )}
+        </div>
+      </section>
 
       {/* ── Featured Recipes ──────────────────────────────────── */}
       <section className="bg-warm-100 py-5 sm:py-8">
@@ -197,6 +196,9 @@ export default async function HomePage() {
               followsAdmin={followsAdmin}
               sponsoredAd={homeAd ?? undefined}
             />
+            {!homeAd && (
+              <AdSenseUnit slot="anasayfa_sponsorlu_kart" className="mt-4 max-w-[400px] mx-auto" />
+            )}
           )}
         </div>
       </section>

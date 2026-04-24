@@ -102,7 +102,7 @@ export default async function HomePage() {
 
   return (
     <div>
-      {homePopup ? <AdPopup ad={homePopup} /> : <AdSenseUnit slot="anasayfa_popup" className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4" />}
+      {homePopup && <AdPopup ad={homePopup} />}
       {/* ── Hero ──────────────────────────────────────────────── */}
       <section className="bg-gradient-to-b from-brand-600 to-warm-700 text-white">
         <div className={`${CONTAINER} py-6 sm:py-10 text-center`}>

@@ -139,6 +139,7 @@ export default async function MenuPage() {
 
   const today = new Date().toLocaleDateString("tr-TR", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
+    timeZone: "Europe/Istanbul",
   });
 
   return (

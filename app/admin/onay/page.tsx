@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import Image from "next/image";
 import type { Metadata } from "next";
 import ApprovalActions from "./ApprovalActions";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export const metadata: Metadata = { title: "İçerik Onayı" };
 export const dynamic = "force-dynamic";
@@ -178,7 +179,7 @@ export default async function OnayPage() {
                         <h3 className="text-xs font-semibold text-warm-500 uppercase tracking-wide mb-3">Malzemeler</h3>
                         {recipe.ingredients.trim().startsWith("<") ? (
                           <div className="recipe-content text-sm text-warm-700 line-clamp-6"
-                            dangerouslySetInnerHTML={{ __html: recipe.ingredients }} />
+                            dangerouslySetInnerHTML={{ __html: sanitizeHtml(recipe.ingredients) }} />
                         ) : (
                           <p className="text-sm text-warm-700 whitespace-pre-line line-clamp-6">
                             {recipe.ingredients}
@@ -189,7 +190,7 @@ export default async function OnayPage() {
                         <h3 className="text-xs font-semibold text-warm-500 uppercase tracking-wide mb-3">Yapılışı</h3>
                         {recipe.instructions.trim().startsWith("<") ? (
                           <div className="recipe-content text-sm text-warm-700 line-clamp-6"
-                            dangerouslySetInnerHTML={{ __html: recipe.instructions }} />
+                            dangerouslySetInnerHTML={{ __html: sanitizeHtml(recipe.instructions) }} />
                         ) : (
                           <p className="text-sm text-warm-700 whitespace-pre-line line-clamp-6">
                             {recipe.instructions}

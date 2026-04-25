@@ -7,7 +7,9 @@ import { Suspense } from "react";
 function LoginForm() {
   const router       = useRouter();
   const searchParams = useSearchParams();
-  const from         = searchParams.get("from") ?? "/admin";
+  const rawFrom = searchParams.get("from") ?? "";
+  // Sadece site-içi yollara izin ver — harici URL yönlendirmesini engelle
+  const from = rawFrom.startsWith("/") && !rawFrom.startsWith("//") ? rawFrom : "/admin";
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

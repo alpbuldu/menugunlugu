@@ -4,6 +4,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import ShareButton from "@/components/ui/ShareButton";
+import { sanitizeHtml } from "@/lib/sanitize";
 import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -142,7 +143,7 @@ export default async function YaziDetayPage({ params }: Props) {
           {post.content.trimStart().startsWith("<") ? (
             <div
               className="prose-content text-warm-700 text-[15px] leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content) }}
             />
           ) : (
             <div className="text-warm-700 text-[15px] leading-relaxed whitespace-pre-wrap">

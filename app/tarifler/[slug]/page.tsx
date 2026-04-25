@@ -13,11 +13,12 @@ import AdSlot from "@/components/ui/AdSlot";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import PagePopup from "@/components/ui/PagePopup";
 import LazySection from "@/components/ui/LazySection";
+import RatingStars    from "@/components/recipe/RatingStars";
+import FavoriteButton from "@/components/recipe/FavoriteButton";
+import RecipeScaler   from "@/components/recipe/RecipeScaler";
 
-const RatingStars    = dynamicImport(() => import("@/components/recipe/RatingStars"));
-const FavoriteButton = dynamicImport(() => import("@/components/recipe/FavoriteButton"));
+// Sadece CommentSection dynamic — sayfa altında, ağır veri çekiyor
 const CommentSection = dynamicImport(() => import("@/components/recipe/CommentSection"));
-const RecipeScaler   = dynamicImport(() => import("@/components/recipe/RecipeScaler"));
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 

@@ -12,9 +12,10 @@ import SidebarLayout from "@/components/ui/SidebarLayout";
 import PagePopup from "@/components/ui/PagePopup";
 import ProseContent from "@/components/blog/ProseContent";
 import LazySection from "@/components/ui/LazySection";
+import BlogFavoriteButton from "@/components/blog/BlogFavoriteButton";
+import BlogRatingStars    from "@/components/blog/BlogRatingStars";
 
-const BlogFavoriteButton = dynamicImport(() => import("@/components/blog/BlogFavoriteButton"));
-const BlogRatingStars    = dynamicImport(() => import("@/components/blog/BlogRatingStars"));
+// Sadece CommentSection dynamic — sayfa altında, ağır veri çekiyor
 const BlogCommentSection = dynamicImport(() => import("@/components/blog/BlogCommentSection"));
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";

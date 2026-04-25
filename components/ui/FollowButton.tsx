@@ -7,8 +7,8 @@ interface Props {
   isAdminProfile?: boolean;
   initialFollowing: boolean;
   isLoggedIn: boolean;
-  /** "icon" = sadece ikon (+ / ✓), "xs" = küçük yazılı, "sm" = varsayılan mini, "md" = profil sayfası için belirgin */
-  size?: "icon" | "xs" | "sm" | "md";
+  /** "icon" = sadece ikon, "2xs" = dar kart için kısa metin, "xs" = küçük yazılı, "sm" = varsayılan mini, "md" = profil sayfası */
+  size?: "icon" | "2xs" | "xs" | "sm" | "md";
 }
 
 const CHANNEL = "follow-state";
@@ -121,12 +121,18 @@ export default function FollowButton({
       className={[
         size === "icon"
           ? "w-7 h-7 rounded-full text-sm font-bold transition-all border flex-shrink-0 flex items-center justify-center"
+          : size === "2xs"
+          ? "px-2 py-0.5 rounded-md text-[10px] font-semibold transition-all border flex-shrink-0"
           : size === "xs"
           ? "px-2.5 sm:px-2 py-1 sm:py-0.5 rounded-lg sm:rounded-md text-xs sm:text-[11px] font-medium transition-all border flex-shrink-0"
           : size === "md"
           ? "px-5 py-2 rounded-xl text-sm font-semibold transition-all border flex-shrink-0"
           : "px-3 py-2 sm:px-2.5 sm:py-1.5 rounded-xl sm:rounded-lg text-sm sm:text-[13px] font-medium transition-all border flex-shrink-0 whitespace-nowrap",
         size === "icon"
+          ? following
+            ? "bg-warm-100 border-warm-200 text-warm-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
+            : "bg-brand-50 border-brand-200 text-brand-600 hover:bg-brand-600 hover:text-white hover:border-brand-600"
+          : size === "2xs"
           ? following
             ? "bg-warm-100 border-warm-200 text-warm-500 hover:bg-red-50 hover:border-red-200 hover:text-red-500"
             : "bg-brand-50 border-brand-200 text-brand-600 hover:bg-brand-600 hover:text-white hover:border-brand-600"
@@ -153,6 +159,8 @@ export default function FollowButton({
               <line x1="22" y1="11" x2="16" y2="11"/>
             </svg>
           ))
+        : size === "2xs"
+        ? (isPending ? "…" : following ? "✓ Takip" : "Takip Et")
         : (isPending ? "…" : following ? "Takip Ediliyor" : "Takip Et")}
     </button>
   );

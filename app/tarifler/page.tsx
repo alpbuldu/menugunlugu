@@ -180,7 +180,7 @@ export default async function RecipesPage({ searchParams }: Props) {
                       isAdminProfile={isAdmin}
                       initialFollowing={initialFollowing}
                       isLoggedIn={!!currentUserId}
-                      size="icon"
+                      size="2xs"
                     />
                   </span>
                   <span className="hidden sm:block">

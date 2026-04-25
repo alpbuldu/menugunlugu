@@ -160,35 +160,30 @@ export default async function RecipesPage({ searchParams }: Props) {
                     </h2>
                   </div>
                 </Link>
-                {/* Mobil: 2 satır (yazar + buton ayrı), masaüstü: tek satır */}
-                <div className="px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <Link href={`/uye/${a.username}`} className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
-                      {a.avatar ? (
-                        <img src={a.avatar} alt={a.name} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
-                      ) : (
-                        <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
-                          {a.name.charAt(0).toUpperCase()}
-                        </span>
-                      )}
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
-                        <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{a.name}</span>
-                      </div>
-                    </Link>
-                    {/* Masaüstü: buton aynı satırda */}
-                    <span className="hidden sm:block flex-shrink-0">
-                      <FollowButton
-                        targetUserId={isAdmin ? undefined : recipe.submitted_by ?? undefined}
-                        isAdminProfile={isAdmin}
-                        initialFollowing={initialFollowing}
-                        isLoggedIn={!!currentUserId}
-                        size="xs"
-                      />
-                    </span>
-                  </div>
-                  {/* Mobil: buton ikinci satır, sağa yaslı */}
-                  <div className="flex justify-end mt-1.5 sm:hidden">
+                <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
+                  <Link href={`/uye/${a.username}`} className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+                    {a.avatar ? (
+                      <img src={a.avatar} alt={a.name} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
+                    ) : (
+                      <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                        {a.name.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
+                      <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{a.name}</span>
+                    </div>
+                  </Link>
+                  <span className="sm:hidden">
+                    <FollowButton
+                      targetUserId={isAdmin ? undefined : recipe.submitted_by ?? undefined}
+                      isAdminProfile={isAdmin}
+                      initialFollowing={initialFollowing}
+                      isLoggedIn={!!currentUserId}
+                      size="icon"
+                    />
+                  </span>
+                  <span className="hidden sm:block">
                     <FollowButton
                       targetUserId={isAdmin ? undefined : recipe.submitted_by ?? undefined}
                       isAdminProfile={isAdmin}
@@ -196,7 +191,7 @@ export default async function RecipesPage({ searchParams }: Props) {
                       isLoggedIn={!!currentUserId}
                       size="xs"
                     />
-                  </div>
+                  </span>
                 </div>
               </div>
             );

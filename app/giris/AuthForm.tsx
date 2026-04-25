@@ -62,7 +62,9 @@ export default function AuthForm({ defaultTab, from }: Props) {
       localStorage.removeItem("mg_new_user");
       window.location.href = "/uye/panel?tab=panelim";
     } else {
-      window.location.href = from ?? "/uye/panel";
+      // Sadece site-içi yollara izin ver — harici URL yönlendirmesini engelle
+      const safeFrom = from && from.startsWith("/") && !from.startsWith("//") ? from : "/uye/panel";
+      window.location.href = safeFrom;
     }
   }
 

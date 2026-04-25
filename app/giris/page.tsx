@@ -12,7 +12,9 @@ export default async function GirisPage({
 }: {
   searchParams: Promise<{ from?: string; tab?: string; mesaj?: string }>;
 }) {
-  const { from, tab, mesaj } = await searchParams;
+  const { from: rawFrom, tab, mesaj } = await searchParams;
+  // Sadece site-içi yollara izin ver
+  const from = rawFrom && rawFrom.startsWith("/") && !rawFrom.startsWith("//") ? rawFrom : undefined;
 
   // Already logged in → redirect
   const supabase = await createClient();

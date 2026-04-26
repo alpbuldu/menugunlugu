@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-const PER_PAGE = 12;
+const PER_PAGE = 9;
 
 interface Props {
   searchParams: Promise<{ kategori?: string; page?: string }>;

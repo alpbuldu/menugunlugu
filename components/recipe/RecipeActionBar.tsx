@@ -68,7 +68,7 @@ function Cell({
       </span>
       {/* Etiket satırı: h-4 */}
       <span className="h-4 flex items-center justify-center">
-        <span className={`text-[10px] leading-none ${active ? "text-brand-500 underline underline-offset-2" : "text-warm-400"}`}>{label}</span>
+        <span className={`text-[10px] leading-none underline underline-offset-2 ${active ? "text-brand-500" : "text-warm-400 decoration-warm-200"}`}>{label}</span>
       </span>
     </span>
   );
@@ -253,7 +253,7 @@ export default function RecipeActionBar({
         <Cell
           icon={following ? Ico.following : Ico.follow}
           stat={fmt(follCount)}
-          label={following ? "Yazar kartı →" : "Takip Et"}
+          label={following ? "Yazar Kartı" : "Takip Et"}
           onClick={following && authorProfileHref ? undefined : handleFollow}
           href={following && authorProfileHref ? authorProfileHref : undefined}
           active={following}
@@ -274,7 +274,7 @@ export default function RecipeActionBar({
         <Cell
           icon={favorited ? Ico.heartOn : Ico.heart}
           stat={fmt(favCount)}
-          label={favorited ? "Tarif defteri →" : "Deftere Ekle"}
+          label={favorited ? "Tarif Defteri" : "Deftere Ekle"}
           onClick={favorited ? undefined : toggleFavorite}
           href={favorited ? "/uye/panel?tab=tarif-defterim" : undefined}
           active={favorited}

@@ -117,7 +117,7 @@ export default async function BlogPostPage({ params }: Props) {
   }
 
   // Benzer blog yazıları
-  const relatedPosts = await (post.category_id ? getRelatedBlogPosts(post.category_id, post.slug, 3) : Promise.resolve([]));
+  const relatedPosts = await (post.category_id ? getRelatedBlogPosts(post.category_id, post.slug, 4) : Promise.resolve([]));
 
   const blogJsonLd = {
     "@context": "https://schema.org",
@@ -288,7 +288,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </Link>
               )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               {relatedPosts.map((p) => (
                 <Link key={p.id} href={`/blog/${p.slug}`}
                   className="group bg-white rounded-xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">

@@ -24,6 +24,24 @@ const CATEGORIES: { key: string; label: string }[] = [
   { key: "dessert", label: "Tatlılar" },
 ];
 
+// Blog kategori badge rengi — blog listesiyle aynı mantık
+const BADGE_COLORS = [
+  "bg-brand-100 text-brand-700",
+  "bg-amber-100 text-amber-700",
+  "bg-emerald-100 text-emerald-700",
+  "bg-sky-100 text-sky-700",
+  "bg-violet-100 text-violet-700",
+  "bg-rose-100 text-rose-700",
+  "bg-teal-100 text-teal-700",
+  "bg-orange-100 text-orange-700",
+];
+function blogCategoryColor(name: string | null): string {
+  if (!name) return BADGE_COLORS[0];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return BADGE_COLORS[Math.abs(hash) % BADGE_COLORS.length];
+}
+
 const SocialIcon = ({ type }: { type: string }) => {
   if (type === "instagram") return <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" /></svg>;
   if (type === "twitter")   return <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.261 5.635 5.903-5.635zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>;
@@ -432,7 +450,7 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
                         </div>
                         <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
                           {catName && (
-                            <span className="inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-brand-100 text-brand-700 mb-1.5 sm:mb-2">
+                            <span className={`inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold mb-1.5 sm:mb-2 ${blogCategoryColor(catName)}`}>
                               {catName}
                             </span>
                           )}

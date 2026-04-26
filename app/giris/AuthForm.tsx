@@ -58,13 +58,17 @@ export default function AuthForm({ defaultTab, from }: Props) {
     }
 
     const isNewUser = localStorage.getItem("mg_new_user") === "1";
-    if (isNewUser) {
-      localStorage.removeItem("mg_new_user");
+    localStorage.removeItem("mg_new_user"); // Her başarılı girişte temizle
+
+    if (from) {
+      // Nereden gelindiyse oraya dön — yeni/eski üye fark etmez
+      window.location.href = from;
+    } else if (isNewUser) {
+      // İlk giriş, özel bir hedef yok → Hesap Bilgilerim
       window.location.href = "/uye/panel?tab=panelim";
     } else {
-      // Sadece site-içi yollara izin ver — harici URL yönlendirmesini engelle
-      const safeFrom = from && from.startsWith("/") && !from.startsWith("//") ? from : "/uye/panel";
-      window.location.href = safeFrom;
+      // Normal dönüş
+      window.location.href = "/uye/panel";
     }
   }
 

@@ -9,10 +9,19 @@ import DeleteButton from "@/components/admin/DeleteButton";
 export const metadata: Metadata = { title: "Blog Yönetimi" };
 export const dynamic = "force-dynamic";
 
-export default async function AdminBlogPage() {
+const PER_PAGE = 20;
+
+interface Props {
+  searchParams: Promise<{ cat?: string; page?: string }>;
+}
+
+export default async function AdminBlogPage({ searchParams }: Props) {
+  const { cat: activeCat, page: pageParam } = await searchParams;
+  const currentPage = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+
   const supabase = createAdminClient();
 
-  const [categories, posts, { data: memberPostsRaw }] = await Promise.all([
+  const [categories, allPosts, { data: memberPostsRaw }] = await Promise.all([
     adminGetAllBlogCategories(),
     adminGetAllBlogPosts(),
     supabase
@@ -37,6 +46,24 @@ export default async function AdminBlogPage() {
     categoryName: p.blog_categories?.name ?? null,
   }));
 
+  // Kategori filtresi
+  const filteredPosts = activeCat
+    ? allPosts.filter((p) => (p.category as any)?.slug === activeCat)
+    : allPosts;
+
+  // Sayfalama
+  const totalPages = Math.ceil(filteredPosts.length / PER_PAGE);
+  const posts = filteredPosts.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
+
+  function pageHref(p: number, cat?: string) {
+    const params = new URLSearchParams();
+    const c = cat ?? activeCat;
+    if (c) params.set("cat", c);
+    if (p > 1) params.set("page", String(p));
+    const qs = params.toString();
+    return `/admin/blog${qs ? `?${qs}` : ""}`;
+  }
+
   return (
     <div className="space-y-12">
       <div className="flex items-center justify-between">
@@ -59,59 +86,130 @@ export default async function AdminBlogPage() {
 
       {/* ── Admin Yazıları ──────────────────────────────── */}
       <section>
-        <h2 className="text-lg font-semibold text-warm-800 mb-4">
-          Admin Yazıları
-          <span className="ml-2 text-sm font-normal text-warm-400">({posts.length})</span>
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-warm-800">
+            Admin Yazıları
+            <span className="ml-2 text-sm font-normal text-warm-400">
+              ({filteredPosts.length}{activeCat ? " / " + allPosts.length : ""})
+            </span>
+          </h2>
+        </div>
+
+        {/* Kategori filtre sekmeleri */}
+        {categories.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Link
+              href={pageHref(1, "")}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                !activeCat
+                  ? "bg-brand-600 border-brand-600 text-white"
+                  : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-700"
+              }`}
+            >
+              Tümü ({allPosts.length})
+            </Link>
+            {categories.map((cat: any) => {
+              const count = allPosts.filter((p) => (p.category as any)?.slug === cat.slug).length;
+              return (
+                <Link
+                  key={cat.id}
+                  href={pageHref(1, cat.slug)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                    activeCat === cat.slug
+                      ? "bg-brand-600 border-brand-600 text-white"
+                      : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-700"
+                  }`}
+                >
+                  {cat.name} ({count})
+                </Link>
+              );
+            })}
+          </div>
+        )}
 
         {posts.length === 0 ? (
           <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-8 text-center">
-            <p className="text-warm-400 text-sm mb-4">Henüz blog yazısı yok.</p>
-            <Link href="/admin/blog/posts/new" className="text-brand-600 text-sm font-medium hover:underline">
-              İlk yazıyı oluştur →
-            </Link>
+            <p className="text-warm-400 text-sm mb-4">
+              {activeCat ? "Bu kategoride yazı yok." : "Henüz blog yazısı yok."}
+            </p>
+            {!activeCat && (
+              <Link href="/admin/blog/posts/new" className="text-brand-600 text-sm font-medium hover:underline">
+                İlk yazıyı oluştur →
+              </Link>
+            )}
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
-            <table className="w-full text-sm">
-              <thead className="border-b border-warm-100 bg-warm-50">
-                <tr>
-                  <th className="text-left px-5 py-3 font-medium text-warm-600">Başlık</th>
-                  <th className="text-left px-5 py-3 font-medium text-warm-600 hidden sm:table-cell">Kategori</th>
-                  <th className="text-left px-5 py-3 font-medium text-warm-600 hidden md:table-cell">Tarih</th>
-                  <th className="px-5 py-3" />
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-warm-50">
-                {posts.map((post) => (
-                  <tr key={post.id} className="hover:bg-warm-50 transition-colors">
-                    <td className="px-5 py-3.5 font-medium text-warm-800">
-                      <Link href={`/blog/${post.slug}`} target="_blank"
-                        className="hover:text-brand-600 transition-colors">
-                        {post.title}
-                      </Link>
-                    </td>
-                    <td className="px-5 py-3.5 text-warm-400 hidden sm:table-cell">
-                      {post.category?.name ?? <span className="italic text-warm-300">—</span>}
-                    </td>
-                    <td className="px-5 py-3.5 text-warm-400 hidden md:table-cell">
-                      {new Date(post.created_at).toLocaleDateString("tr-TR")}
-                    </td>
-                    <td className="px-5 py-3.5">
-                      <div className="flex items-center justify-end gap-3">
-                        <Link href={`/admin/blog/posts/${post.id}/edit`}
-                          className="text-xs text-brand-600 hover:underline">Düzenle</Link>
-                        <DeleteButton
-                          endpoint={`/api/blog/posts/${post.id}`}
-                          label={`"${post.title}" silinecek. Emin misiniz?`}
-                        />
-                      </div>
-                    </td>
+          <>
+            <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="border-b border-warm-100 bg-warm-50">
+                  <tr>
+                    <th className="text-left px-5 py-3 font-medium text-warm-600">Başlık</th>
+                    <th className="text-left px-5 py-3 font-medium text-warm-600 hidden sm:table-cell">Kategori</th>
+                    <th className="text-left px-5 py-3 font-medium text-warm-600 hidden md:table-cell">Tarih</th>
+                    <th className="px-5 py-3" />
                   </tr>
+                </thead>
+                <tbody className="divide-y divide-warm-50">
+                  {posts.map((post) => (
+                    <tr key={post.id} className="hover:bg-warm-50 transition-colors">
+                      <td className="px-5 py-3.5 font-medium text-warm-800">
+                        <Link href={`/blog/${post.slug}`} target="_blank"
+                          className="hover:text-brand-600 transition-colors">
+                          {post.title}
+                        </Link>
+                      </td>
+                      <td className="px-5 py-3.5 text-warm-400 hidden sm:table-cell">
+                        {(post.category as any)?.name ?? <span className="italic text-warm-300">—</span>}
+                      </td>
+                      <td className="px-5 py-3.5 text-warm-400 hidden md:table-cell">
+                        {new Date(post.created_at).toLocaleDateString("tr-TR")}
+                      </td>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center justify-end gap-3">
+                          <Link href={`/admin/blog/posts/${post.id}/edit`}
+                            className="text-xs text-brand-600 hover:underline">Düzenle</Link>
+                          <DeleteButton
+                            endpoint={`/api/blog/posts/${post.id}`}
+                            label={`"${post.title}" silinecek. Emin misiniz?`}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Sayfalama */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-1.5 mt-6">
+                {currentPage > 1 && (
+                  <Link href={pageHref(currentPage - 1)} className="px-3 py-1.5 rounded-lg text-xs font-medium border bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-700">
+                    ‹ Önceki
+                  </Link>
+                )}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <Link
+                    key={p}
+                    href={pageHref(p)}
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium border transition-colors ${
+                      p === currentPage
+                        ? "bg-brand-600 border-brand-600 text-white"
+                        : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-700"
+                    }`}
+                  >
+                    {p}
+                  </Link>
                 ))}
-              </tbody>
-            </table>
-          </div>
+                {currentPage < totalPages && (
+                  <Link href={pageHref(currentPage + 1)} className="px-3 py-1.5 rounded-lg text-xs font-medium border bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-700">
+                    Sonraki ›
+                  </Link>
+                )}
+              </div>
+            )}
+          </>
         )}
       </section>
 

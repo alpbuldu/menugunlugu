@@ -66,6 +66,10 @@ export default function ConfirmPage() {
       return;
     }
 
+    // mg_new_user bayrağını temizle — confirm sayfasından giriş yapılırken silinmezse
+    // sonraki normal girişlerde de yanlış yönlendirme yapılıyor
+    localStorage.removeItem("mg_new_user");
+
     // İlk giriş: profilde full_name yoksa Hesap Bilgilerim'e yönlendir
     const { data: profile } = await supabase
       .from("profiles")

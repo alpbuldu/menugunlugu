@@ -14,6 +14,7 @@ import ProseContent from "@/components/blog/ProseContent";
 import LazySection from "@/components/ui/LazySection";
 import BlogFavoriteButton from "@/components/blog/BlogFavoriteButton";
 import BlogRatingStars    from "@/components/blog/BlogRatingStars";
+import BlogActionBar      from "@/components/blog/BlogActionBar";
 
 // Sadece CommentSection dynamic — sayfa altında, ağır veri çekiyor
 const BlogCommentSection = dynamicImport(() => import("@/components/blog/BlogCommentSection"));
@@ -67,10 +68,22 @@ export default async function BlogPostPage({ params }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   const currentUserId = user?.id ?? null;
 
-  const [adminProfileRes, postCountRes, followerCountRes] = await Promise.all([
+  const adminSb = (await import("@/lib/supabase/server")).createAdminClient();
+
+  const [adminProfileRes, postCountRes, followerCountRes, commentCountRes, favCountRes, ratingsRes, favoritedRes, userRatingRes, shareCountRes] = await Promise.all([
     supabase.from("admin_profile").select("username, avatar_url, full_name").eq("id", 1).single(),
     supabase.from("blog_posts").select("*", { count: "exact", head: true }).eq("published", true),
     supabase.from("admin_follows").select("follower_id", { count: "exact", head: true }),
+    adminSb.from("blog_comments").select("id", { count: "exact", head: true }).eq("post_id", post.id),
+    adminSb.from("blog_favorites").select("post_id", { count: "exact", head: true }).eq("post_id", post.id),
+    adminSb.from("blog_ratings").select("score").eq("post_id", post.id),
+    currentUserId
+      ? adminSb.from("blog_favorites").select("post_id").eq("post_id", post.id).eq("user_id", currentUserId).maybeSingle()
+      : Promise.resolve({ data: null }),
+    currentUserId
+      ? adminSb.from("blog_ratings").select("score").eq("post_id", post.id).eq("user_id", currentUserId).maybeSingle()
+      : Promise.resolve({ data: null }),
+    adminSb.from("blog_shares").select("id", { count: "exact", head: true }).eq("post_id", post.id),
   ]);
   const adminProfile    = adminProfileRes.data;
   const authorFullName  = (adminProfile as any)?.full_name ?? "";
@@ -80,6 +93,17 @@ export default async function BlogPostPage({ params }: Props) {
   const authorPostCount     = postCountRes.count ?? 0;
   const authorFollowerCount = followerCountRes.count ?? 0;
   const authorUsername  = "__admin__";
+
+  const statCommentCount  = commentCountRes.count ?? 0;
+  const statFavCount      = favCountRes.count ?? 0;
+  const statInitFavorited = !!favoritedRes.data;
+  const ratingScores      = (ratingsRes.data ?? []).map((r: any) => r.score as number);
+  const statAvgRating     = ratingScores.length
+    ? Math.round((ratingScores.reduce((a, b) => a + b, 0) / ratingScores.length) * 10) / 10
+    : 0;
+  const statRatingCount   = ratingScores.length;
+  const statUserRating    = (userRatingRes.data as any)?.score ?? 0;
+  const statShareCount    = shareCountRes.count ?? 0;
 
   // Takip durumu (admin)
   let initialFollowing = false;
@@ -138,7 +162,13 @@ export default async function BlogPostPage({ params }: Props) {
           ) : (
             <div className="flex items-center justify-center h-full text-7xl text-warm-300">✍️</div>
           )}
-          {/* Yazar etiketi — sağ alt, recipe detail ile aynı stil */}
+          {/* Kategori etiketi — sol alt */}
+          {post.category && (
+            <span className="absolute bottom-3 left-3 bg-black/40 backdrop-blur-sm rounded-full px-2.5 py-1 text-[10px] font-semibold text-white">
+              {post.category.name}
+            </span>
+          )}
+          {/* Yazar etiketi — sağ alt */}
           <Link
             href={`/uye/${authorUsername}`}
             className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors rounded-full px-2.5 py-1"
@@ -155,43 +185,25 @@ export default async function BlogPostPage({ params }: Props) {
           </Link>
         </div>
 
+        {/* Aksiyon barı */}
+        <BlogActionBar
+          postId={post.id}
+          postTitle={post.title}
+          commentCount={statCommentCount}
+          favoriteCount={statFavCount}
+          avgRating={statAvgRating}
+          ratingCount={statRatingCount}
+          followerCount={authorFollowerCount}
+          initialFavorited={statInitFavorited}
+          isLoggedIn={!!currentUserId}
+          initialFollowing={initialFollowing}
+          authorProfileHref={`/uye/${authorUsername}`}
+          initialUserRating={statUserRating}
+          shareCount={statShareCount}
+        />
+
         <div className="px-6 py-8 sm:px-10 sm:py-10">
           <div className="mb-8">
-            {/* Üst satır: kategori SOL, butonlar SAĞ */}
-            <div className="flex items-center justify-between gap-2 mb-3">
-              <div className="flex items-center gap-2 flex-wrap">
-                {post.category && (
-                  <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-100 text-brand-700">
-                    {post.category.name}
-                  </span>
-                )}
-              </div>
-
-              {/* Mobil: ikon butonlar */}
-              <div className="flex items-center gap-2 flex-shrink-0 sm:hidden">
-                <FollowButton
-                  isAdminProfile={true}
-                  initialFollowing={initialFollowing}
-                  isLoggedIn={!!currentUserId}
-                  size="icon"
-                />
-                <BlogFavoriteButton postId={post.id} compact />
-                <ShareButton title={post.title} compact />
-              </div>
-
-              {/* Masaüstü: yazılı butonlar */}
-              <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
-                <FollowButton
-                  isAdminProfile={true}
-                  initialFollowing={initialFollowing}
-                  isLoggedIn={!!currentUserId}
-                  size="sm"
-                />
-                <BlogFavoriteButton postId={post.id} />
-                <ShareButton title={post.title} />
-              </div>
-            </div>
-
             <h1 className="text-2xl sm:text-3xl font-bold text-warm-900 leading-snug">{post.title}</h1>
             <p className="text-sm text-warm-400 mt-2">
               {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" })}
@@ -236,17 +248,9 @@ export default async function BlogPostPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Puanlama + Deftere Ekle */}
-      <div className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6 flex items-center justify-between gap-4">
+      {/* Puanlama */}
+      <div id="puan" className="mt-4 bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
         <BlogRatingStars postId={post.id} />
-        <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
-          <BlogFavoriteButton postId={post.id} />
-          {currentUserId && (
-            <Link href="/uye/panel?tab=tarif-defterim" className="text-[11px] text-brand-500 hover:underline">
-              Defterini gör →
-            </Link>
-          )}
-        </div>
       </div>
 
       {/* Mobil reklam — yorumun üstünde */}
@@ -254,6 +258,7 @@ export default async function BlogPostPage({ params }: Props) {
         imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="mt-4 sm:hidden" />
 
       {/* Yorumlar — viewport'a girince yükle */}
+      <div id="yorumlar">
       <LazySection
         className="mt-4"
         fallback={<div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-6 h-32 animate-pulse" />}
@@ -262,6 +267,7 @@ export default async function BlogPostPage({ params }: Props) {
           <BlogCommentSection postId={post.id} currentUserId={currentUserId} />
         </div>
       </LazySection>
+      </div>
 
       {/* Yatay reklam banneri — masaüstü */}
       <AdSlot placement="blog_post_banner" adSenseSlot="blog_yazisi_yatay_masaustu"

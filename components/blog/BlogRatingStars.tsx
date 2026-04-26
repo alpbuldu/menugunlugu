@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface Props { postId: string; }
 
@@ -12,6 +13,7 @@ export default function BlogRatingStars({ postId }: Props) {
   const [loading,   setLoading]   = useState(true);
   const [saving,    setSaving]    = useState(false);
   const [message,   setMessage]   = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     fetch(`/api/blog/${postId}/ratings`)
@@ -30,6 +32,10 @@ export default function BlogRatingStars({ postId }: Props) {
     });
     const data = await res.json();
     setSaving(false);
+    if (res.status === 401) {
+      router.push(`/giris?from=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
     if (!res.ok) {
       setMessage(data.error ?? "Hata oluştu.");
       return;
@@ -38,7 +44,13 @@ export default function BlogRatingStars({ postId }: Props) {
     setMessage("Puanınız kaydedildi. ✓");
     fetch(`/api/blog/${postId}/ratings`)
       .then((r) => r.json())
-      .then((d) => { setAvg(d.avg); setCount(d.count); });
+      .then((d) => {
+        setAvg(d.avg);
+        setCount(d.count);
+        window.dispatchEvent(new CustomEvent("blog-rating-changed", {
+          detail: { postId, avg: d.avg, count: d.count, userScore: score },
+        }));
+      });
   }
 
   if (loading) return <div className="h-8 w-32 bg-warm-100 rounded animate-pulse" />;

@@ -84,6 +84,7 @@ body {
 .prose-content tr     { display: table-row; }
 .prose-content th     { display: table-cell; background: #fdf0dc; font-weight: 700; color: #924c12; padding: 0.1rem 0.6rem; border: 1px solid #edd8bc; text-align: left; vertical-align: middle; line-height: 1.4; font-size: 0.9375rem; }
 .prose-content td     { display: table-cell; padding: 0.1rem 0.6rem; border: 1px solid #edd8bc; vertical-align: middle; color: #5a4a38; line-height: 1.4; font-size: 0.9375rem; }
+.prose-content th p, .prose-content td p { margin: 0; font-size: 0.9375rem; line-height: 1.4; }
 .prose-content tr:nth-child(even) td { background: #fdf8f0; }
 .prose-content colgroup, .prose-content col { display: none; }
 

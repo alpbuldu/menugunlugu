@@ -97,6 +97,7 @@ const PROSE_STYLES = `
     line-height: 1.4;
     font-size: 0.9375rem;
   }
+  .prose-content th p, .prose-content td p { margin: 0; font-size: 0.9375rem; line-height: 1.4; }
   .prose-content tr:nth-child(even) td { background: #fdf8f0; }
   .prose-content colgroup, .prose-content col { display: none; }
 `;

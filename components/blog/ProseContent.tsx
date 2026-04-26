@@ -73,10 +73,9 @@ const PROSE_STYLES = `
   .prose-content table {
     display: table;
     border-collapse: collapse;
-    width: auto;
-    max-width: 100%;
+    width: 100%;
     margin: 1rem 0;
-    font-size: 0.85rem;
+    font-size: 1.0625rem;
   }
   .prose-content thead { display: table-header-group; }
   .prose-content tbody { display: table-row-group; }
@@ -86,17 +85,19 @@ const PROSE_STYLES = `
     background: #fdf0dc;
     font-weight: 700;
     color: #924c12;
-    padding: 0.35rem 0.7rem;
+    padding: 0.25rem 0.75rem;
     border: 1px solid #edd8bc;
     text-align: left;
-    white-space: nowrap;
+    vertical-align: middle;
+    line-height: 1.5;
   }
   .prose-content td {
     display: table-cell;
-    padding: 0.3rem 0.7rem;
+    padding: 0.2rem 0.75rem;
     border: 1px solid #edd8bc;
-    vertical-align: top;
+    vertical-align: middle;
     color: #5a4a38;
+    line-height: 1.5;
   }
   .prose-content tr:nth-child(even) td { background: #fdf8f0; }
   .prose-content colgroup, .prose-content col { display: none; }

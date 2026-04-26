@@ -79,12 +79,12 @@ body {
 .prose-content [style*="text-align: center"] { text-align: center; }
 .prose-content [style*="text-align: right"]  { text-align: right; }
 /* Tablo */
-.prose-content table  { display: table; border-collapse: collapse; width: auto; max-width: 100%; margin: 1rem 0; font-size: 0.85rem; }
+.prose-content table  { display: table; border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 1.0625rem; }
 .prose-content thead  { display: table-header-group; }
 .prose-content tbody  { display: table-row-group; }
 .prose-content tr     { display: table-row; }
-.prose-content th     { display: table-cell; background: #fdf0dc; font-weight: 700; color: #924c12; padding: 0.35rem 0.7rem; border: 1px solid #edd8bc; text-align: left; vertical-align: middle; white-space: nowrap; }
-.prose-content td     { display: table-cell; padding: 0.3rem 0.7rem; border: 1px solid #edd8bc; vertical-align: top; color: #5a4a38; }
+.prose-content th     { display: table-cell; background: #fdf0dc; font-weight: 700; color: #924c12; padding: 0.25rem 0.75rem; border: 1px solid #edd8bc; text-align: left; vertical-align: middle; line-height: 1.5; }
+.prose-content td     { display: table-cell; padding: 0.2rem 0.75rem; border: 1px solid #edd8bc; vertical-align: middle; color: #5a4a38; line-height: 1.5; }
 .prose-content tr:nth-child(even) td { background: #fdf8f0; }
 .prose-content colgroup, .prose-content col { display: none; }
 

@@ -81,7 +81,7 @@ const PROSE_STYLES = `
     background: #fdf0dc;
     font-weight: 700;
     color: #924c12;
-    padding: 0.1rem 0.6rem;
+    padding: 0.3rem 0.6rem;
     border: 1px solid #edd8bc;
     text-align: left;
     vertical-align: middle;
@@ -90,7 +90,7 @@ const PROSE_STYLES = `
   }
   .prose-content td {
     display: table-cell;
-    padding: 0.1rem 0.6rem;
+    padding: 0.3rem 0.6rem;
     border: 1px solid #edd8bc;
     vertical-align: middle;
     color: #5a4a38;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -17,6 +17,7 @@ interface Props {
   targetUserId?: string;
   isAdminProfile: boolean;
   initialFollowing: boolean;
+  authorProfileHref?: string;
 }
 
 /* ── SVG ikonlar — tek renk, aynı boyut ── */
@@ -90,6 +91,7 @@ export default function RecipeActionBar({
   commentCount, favoriteCount, avgRating, ratingCount, followerCount,
   initialFavorited, isLoggedIn,
   targetUserId, isAdminProfile, initialFollowing,
+  authorProfileHref,
 }: Props) {
   const [favorited,  setFavorited]  = useState(initialFavorited);
   const [favCount,   setFavCount]   = useState(favoriteCount);
@@ -100,6 +102,7 @@ export default function RecipeActionBar({
   const [copied,     setCopied]     = useState(false);
   const [,           startTransition] = useTransition();
   const router = useRouter();
+  const selfDispatch = useRef(false); // kendi dispatch ettiği follow-change'i tekrar saymasın
 
   const myId = isAdminProfile ? "__admin__" : (targetUserId ?? null);
 
@@ -113,10 +116,11 @@ export default function RecipeActionBar({
     return () => window.removeEventListener("recipe-rating-changed", onRating);
   }, [recipeId]);
 
-  /* Dış follow eventleri */
+  /* Dış follow eventleri — kendi dispatch ettiğimizdekileri atla */
   useEffect(() => {
     if (!myId) return;
     function onFollow(e: Event) {
+      if (selfDispatch.current) return; // kendi tıkladığımız → zaten güncelledik
       const { id, following: val } = (e as CustomEvent<{ id: string; following: boolean }>).detail;
       if (id !== myId) return;
       setFollowing(val);
@@ -145,7 +149,9 @@ export default function RecipeActionBar({
     setFollowing(optimistic);
     setFollCount(c => optimistic ? c + 1 : Math.max(0, c - 1));
     const evDetail = { id: myId, following: optimistic };
+    selfDispatch.current = true;
     window.dispatchEvent(new CustomEvent("follow-change", { detail: evDetail }));
+    selfDispatch.current = false;
     if (typeof BroadcastChannel !== "undefined") {
       const ch = new BroadcastChannel("follow-state");
       ch.postMessage(evDetail); ch.close();
@@ -236,6 +242,15 @@ export default function RecipeActionBar({
           label={following ? "Takipte" : "Takip Et"}
           onClick={handleFollow}
           active={following}
+          sub={following && authorProfileHref ? (
+            <Link
+              href={authorProfileHref}
+              onClick={e => e.stopPropagation()}
+              className="text-[9px] text-brand-500 hover:underline leading-none"
+            >
+              Yazar kartını gör →
+            </Link>
+          ) : undefined}
         />
 
         <Sep />

@@ -302,6 +302,7 @@ export default async function RecipeDetailPage({ params }: Props) {
           targetUserId={isAdminAuthor ? undefined : authorUserId ?? undefined}
           isAdminProfile={isAdminAuthor}
           initialFollowing={initialFollowing}
+          authorProfileHref={`/uye/${authorUsername}`}
         />
 
         <div className="p-8">

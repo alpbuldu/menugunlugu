@@ -60,13 +60,25 @@ export default function AuthForm({ defaultTab, from }: Props) {
     const isNewUser = localStorage.getItem("mg_new_user") === "1";
     localStorage.removeItem("mg_new_user"); // Her başarılı girişte temizle
 
-    // URL'den doğrudan oku — SSR prop aktarım sorunlarını bypass eder
-    const urlParams = new URLSearchParams(window.location.search);
-    const rawFrom   = urlParams.get("from") ?? "";
-    const safeFrom  = rawFrom.startsWith("/") && !rawFrom.startsWith("//") ? rawFrom : "";
+    // Önce sessionStorage'a bak (action bar goLogin() buraya yazar)
+    let destination = "";
+    try {
+      const stored = sessionStorage.getItem("mg_login_return") ?? "";
+      if (stored.startsWith("/") && !stored.startsWith("//")) {
+        destination = stored;
+        sessionStorage.removeItem("mg_login_return");
+      }
+    } catch {}
 
-    if (safeFrom) {
-      window.location.href = safeFrom;
+    // Fallback: URL param
+    if (!destination) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const rawFrom   = urlParams.get("from") ?? "";
+      if (rawFrom.startsWith("/") && !rawFrom.startsWith("//")) destination = rawFrom;
+    }
+
+    if (destination) {
+      window.location.href = destination;
     } else if (isNewUser) {
       window.location.href = "/uye/panel?tab=panelim";
     } else {

@@ -198,9 +198,9 @@ export default function RichTextEditor({
   const hasLink = editor.isActive("link");
 
   return (
-    <div className="border border-warm-200 rounded-xl overflow-hidden focus-within:border-brand-400 focus-within:ring-1 focus-within:ring-brand-200 transition-shadow">
-      {/* ── Toolbar ── */}
-      <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 bg-warm-50 border-b border-warm-200">
+    <div className="border border-warm-200 rounded-xl focus-within:border-brand-400 focus-within:ring-1 focus-within:ring-brand-200 transition-shadow">
+      {/* ── Toolbar — sticky: sayfa kayarken yerinde kalır ── */}
+      <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 bg-warm-50 border-b border-warm-200 rounded-t-xl sticky top-0 z-10">
         {/* Geri / İleri */}
         <ToolBtn onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Geri al">↩</ToolBtn>
         <ToolBtn onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="İleri al">↪</ToolBtn>
@@ -387,7 +387,7 @@ export default function RichTextEditor({
       `}</style>
       <EditorContent
         editor={editor}
-        className="tiptap-editor px-4 py-3 text-warm-800 text-[15px] leading-relaxed relative"
+        className="tiptap-editor px-4 py-3 text-warm-800 text-[15px] leading-relaxed relative rounded-b-xl overflow-hidden"
         style={{ minHeight }}
       />
     </div>

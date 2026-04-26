@@ -43,6 +43,8 @@ function fmt(n: number) {
 }
 
 function goLogin() {
+  // sessionStorage'a kaydet — URL encoding sorunlarını bypass eder
+  try { sessionStorage.setItem("mg_login_return", window.location.pathname); } catch {}
   window.location.href = `/giris?from=${encodeURIComponent(window.location.pathname)}`;
 }
 

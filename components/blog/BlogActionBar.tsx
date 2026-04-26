@@ -41,6 +41,7 @@ function fmt(n: number) {
 }
 
 function goLogin() {
+  try { sessionStorage.setItem("mg_login_return", window.location.pathname); } catch {}
   window.location.href = `/giris?from=${encodeURIComponent(window.location.pathname)}`;
 }
 

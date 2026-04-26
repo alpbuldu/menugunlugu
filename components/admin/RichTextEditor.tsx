@@ -5,6 +5,10 @@ import { Extension } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
 import { useEffect } from "react";
 
 const HeadingBreak = Extension.create({
@@ -79,6 +83,10 @@ export default function RichTextEditor({
       Underline,
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       HeadingBreak,
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: value || "",
     editorProps: {
@@ -98,12 +106,14 @@ export default function RichTextEditor({
   useEffect(() => {
     if (!editor) return;
     if (editor.getHTML() !== value && value !== undefined) {
-      editor.commands.setContent(value || "", false);
+      editor.commands.setContent(value || "");
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!editor) return null;
+
+  const inTable = editor.isActive("table");
 
   return (
     <div className="border border-warm-200 rounded-xl overflow-hidden focus-within:border-brand-400 focus-within:ring-1 focus-within:ring-brand-200 transition-shadow">
@@ -207,6 +217,25 @@ export default function RichTextEditor({
           title="Sağa hizala"
         >➡</ToolBtn>
 
+        <Divider />
+
+        {/* Tablo */}
+        {!inTable ? (
+          <ToolBtn
+            onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+            title="Tablo ekle (3×3)"
+          >⊞ Tablo</ToolBtn>
+        ) : (
+          <>
+            <ToolBtn onClick={() => editor.chain().focus().addColumnBefore().run()} title="Sola sütun ekle">◀+</ToolBtn>
+            <ToolBtn onClick={() => editor.chain().focus().addColumnAfter().run()}  title="Sağa sütun ekle">+▶</ToolBtn>
+            <ToolBtn onClick={() => editor.chain().focus().deleteColumn().run()}    title="Sütun sil">✕S</ToolBtn>
+            <ToolBtn onClick={() => editor.chain().focus().addRowBefore().run()}    title="Üste satır ekle">▲+</ToolBtn>
+            <ToolBtn onClick={() => editor.chain().focus().addRowAfter().run()}     title="Alta satır ekle">+▼</ToolBtn>
+            <ToolBtn onClick={() => editor.chain().focus().deleteRow().run()}       title="Satır sil">✕R</ToolBtn>
+            <ToolBtn onClick={() => editor.chain().focus().deleteTable().run()}     title="Tabloyu sil">🗑</ToolBtn>
+          </>
+        )}
       </div>
 
       {/* ── Editor alanı ── */}
@@ -246,6 +275,28 @@ export default function RichTextEditor({
         .tiptap-editor em { font-style: italic; }
         .tiptap-editor s  { text-decoration: line-through; }
         .tiptap-editor a  { color: #b86515; text-decoration: underline; text-underline-offset: 3px; }
+        /* Tablo stilleri */
+        .tiptap-editor table {
+          border-collapse: collapse;
+          width: 100%;
+          margin: 1rem 0;
+          font-size: 0.9rem;
+        }
+        .tiptap-editor th {
+          background: #fdf0dc;
+          font-weight: 700;
+          color: #924c12;
+          padding: 0.5rem 0.75rem;
+          border: 1px solid #edd8bc;
+          text-align: left;
+        }
+        .tiptap-editor td {
+          padding: 0.45rem 0.75rem;
+          border: 1px solid #edd8bc;
+          vertical-align: top;
+        }
+        .tiptap-editor tr:nth-child(even) td { background: #fdf8f0; }
+        .tiptap-editor .selectedCell { background: #fef3db !important; }
       `}</style>
       <EditorContent
         editor={editor}

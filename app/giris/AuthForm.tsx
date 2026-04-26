@@ -60,14 +60,16 @@ export default function AuthForm({ defaultTab, from }: Props) {
     const isNewUser = localStorage.getItem("mg_new_user") === "1";
     localStorage.removeItem("mg_new_user"); // Her başarılı girişte temizle
 
-    if (from) {
-      // Nereden gelindiyse oraya dön — yeni/eski üye fark etmez
-      window.location.href = from;
+    // URL'den doğrudan oku — SSR prop aktarım sorunlarını bypass eder
+    const urlParams = new URLSearchParams(window.location.search);
+    const rawFrom   = urlParams.get("from") ?? "";
+    const safeFrom  = rawFrom.startsWith("/") && !rawFrom.startsWith("//") ? rawFrom : "";
+
+    if (safeFrom) {
+      window.location.href = safeFrom;
     } else if (isNewUser) {
-      // İlk giriş, özel bir hedef yok → Hesap Bilgilerim
       window.location.href = "/uye/panel?tab=panelim";
     } else {
-      // Normal dönüş
       window.location.href = "/uye/panel";
     }
   }

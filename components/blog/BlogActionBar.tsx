@@ -62,7 +62,7 @@ function Cell({
         <span className="text-[12px] font-semibold text-warm-700 tabular-nums leading-none">{stat}</span>
       </span>
       <span className="h-4 flex items-center justify-center">
-        <span className={`text-[10px] leading-none ${active ? "text-brand-500" : "text-warm-400"}`}>{label}</span>
+        <span className={`text-[10px] leading-none ${active ? "text-brand-500 underline underline-offset-2" : "text-warm-400"}`}>{label}</span>
       </span>
     </span>
   );
@@ -95,7 +95,8 @@ export default function BlogActionBar({
   const [copied,     setCopied]     = useState(false);
   const [,           startTransition] = useTransition();
   const router = useRouter();
-  const selfDispatch = useRef(false);
+  const selfDispatch    = useRef(false);
+  const selfFavDispatch = useRef(false);
 
   /* BlogRatingStars'tan puan güncellemesi */
   useEffect(() => {
@@ -125,6 +126,7 @@ export default function BlogActionBar({
   /* Dış favorite eventleri */
   useEffect(() => {
     function onFav(e: Event) {
+      if (selfFavDispatch.current) return;
       const { postId: id, favorited: val } = (e as CustomEvent).detail;
       if (id !== postId) return;
       setFavorited(val);
@@ -192,7 +194,9 @@ export default function BlogActionBar({
           setFavorited(confirmed);
           setFavCount(c => confirmed ? c + 1 : Math.max(0, c - 1));
         }
+        selfFavDispatch.current = true;
         window.dispatchEvent(new CustomEvent("blog-favorite-changed", { detail: { postId, favorited: confirmed } }));
+        selfFavDispatch.current = false;
       } else {
         setFavorited(!optimistic);
         setFavCount(c => optimistic ? Math.max(0, c - 1) : c + 1);
@@ -238,7 +242,7 @@ export default function BlogActionBar({
         <Cell
           icon={following ? Ico.following : Ico.follow}
           stat={fmt(follCount)}
-          label={following ? "Yazar kartını gör" : "Takip Et"}
+          label={following ? "Yazar kartı →" : "Takip Et"}
           onClick={following && authorProfileHref ? undefined : handleFollow}
           href={following && authorProfileHref ? authorProfileHref : undefined}
           active={following}
@@ -259,7 +263,7 @@ export default function BlogActionBar({
         <Cell
           icon={favorited ? Ico.heartOn : Ico.heart}
           stat={fmt(favCount)}
-          label={favorited ? "Defterini gör" : "Deftere Ekle"}
+          label={favorited ? "Tarif defteri →" : "Deftere Ekle"}
           onClick={favorited ? undefined : toggleFavorite}
           href={favorited ? "/uye/panel?tab=tarif-defterim&defter=blog" : undefined}
           active={favorited}

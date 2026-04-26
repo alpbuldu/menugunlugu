@@ -68,7 +68,7 @@ function Cell({
       </span>
       {/* Etiket satırı: h-4 */}
       <span className="h-4 flex items-center justify-center">
-        <span className={`text-[10px] leading-none ${active ? "text-brand-500" : "text-warm-400"}`}>{label}</span>
+        <span className={`text-[10px] leading-none ${active ? "text-brand-500 underline underline-offset-2" : "text-warm-400"}`}>{label}</span>
       </span>
     </span>
   );
@@ -104,7 +104,8 @@ export default function RecipeActionBar({
   const [copied,      setCopied]     = useState(false);
   const [,            startTransition] = useTransition();
   const router = useRouter();
-  const selfDispatch = useRef(false);
+  const selfDispatch    = useRef(false);
+  const selfFavDispatch = useRef(false);
 
   const myId = isAdminProfile ? "__admin__" : (targetUserId ?? null);
 
@@ -134,9 +135,10 @@ export default function RecipeActionBar({
     return () => window.removeEventListener("follow-change", onFollow);
   }, [myId]);
 
-  /* Dış favorite eventleri */
+  /* Dış favorite eventleri — kendi dispatch ettiğimizdekileri atla */
   useEffect(() => {
     function onFav(e: Event) {
+      if (selfFavDispatch.current) return;
       const { recipeId: id, favorited: val } = (e as CustomEvent).detail;
       if (id !== recipeId) return;
       setFavorited(val);
@@ -201,7 +203,9 @@ export default function RecipeActionBar({
           setFavorited(confirmed);
           setFavCount(c => confirmed ? c + 1 : Math.max(0, c - 1));
         }
+        selfFavDispatch.current = true;
         window.dispatchEvent(new CustomEvent("favorite-changed", { detail: { recipeId, favorited: confirmed } }));
+        selfFavDispatch.current = false;
       } else {
         setFavorited(!optimistic);
         setFavCount(c => optimistic ? Math.max(0, c - 1) : c + 1);
@@ -249,7 +253,7 @@ export default function RecipeActionBar({
         <Cell
           icon={following ? Ico.following : Ico.follow}
           stat={fmt(follCount)}
-          label={following ? "Yazar kartını gör" : "Takip Et"}
+          label={following ? "Yazar kartı →" : "Takip Et"}
           onClick={following && authorProfileHref ? undefined : handleFollow}
           href={following && authorProfileHref ? authorProfileHref : undefined}
           active={following}
@@ -270,7 +274,7 @@ export default function RecipeActionBar({
         <Cell
           icon={favorited ? Ico.heartOn : Ico.heart}
           stat={fmt(favCount)}
-          label={favorited ? "Defterini gör" : "Deftere Ekle"}
+          label={favorited ? "Tarif defteri →" : "Deftere Ekle"}
           onClick={favorited ? undefined : toggleFavorite}
           href={favorited ? "/uye/panel?tab=tarif-defterim" : undefined}
           active={favorited}

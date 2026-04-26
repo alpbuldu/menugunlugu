@@ -419,7 +419,7 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
                   {allPosts.map((post) => {
                     const catName = (post.blog_categories as any)?.name as string | undefined;
                     return (
-                    <div key={post.id} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                      <div key={post.id} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
                       <Link href={`${postLinkBase}/${post.slug}`} className="flex flex-col flex-1">
                         <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
                           {post.image_url ? (
@@ -468,7 +468,8 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
                         )}
                       </div>
                     </div>
-                  ))}
+                  );
+                  })}
                 </div>
                 <Pagination current={currentPage} total={postsTotalPages} hrefFn={(p) => pageHref({ tab: "yazilar", page: p })} />
               </>

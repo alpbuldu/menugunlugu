@@ -96,18 +96,20 @@ export default function AuthForm({ defaultTab, from }: Props) {
     setSuccess("");
     setLoading(true);
 
-    const supabase = createClient();
-    const { error: err } = await supabase.auth.resetPasswordForEmail(
-      resetEmail.trim(),
-      { redirectTo: `${window.location.origin}/sifre-guncelle` }
-    );
+    const res = await fetch("/api/auth/reset-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: resetEmail.trim() }),
+    });
 
+    const data = await res.json();
     setLoading(false);
-    if (err) {
-      setError("Şifre sıfırlama e-postası gönderilemedi. Lütfen tekrar deneyin.");
+
+    if (!res.ok) {
+      setError(data.error ?? "Şifre sıfırlama e-postası gönderilemedi. Lütfen tekrar deneyin.");
       return;
     }
-    setSuccess("Şifre sıfırlama linki e-postanıza gönderildi. Lütfen gelen kutunuzu kontrol edin.");
+    setSuccess("Şifre sıfırlama linki e-postanıza gönderildi. Gelen kutunuzu ve spam klasörünü kontrol edin.");
   }
 
   // ── Register ───────────────────────────────────────────────────
@@ -223,16 +225,7 @@ export default function AuthForm({ defaultTab, from }: Props) {
               />
             </div>
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-sm font-medium text-warm-700">Şifre</label>
-                <button
-                  type="button"
-                  onClick={() => { setTab("sifre"); setResetEmail(loginEmail); setError(""); setSuccess(""); }}
-                  className="text-xs text-brand-600 hover:text-brand-800 hover:underline transition-colors"
-                >
-                  Şifremi unuttum
-                </button>
-              </div>
+              <label className={labelCls}>Şifre</label>
               <input
                 type="password"
                 value={loginPassword}
@@ -250,6 +243,15 @@ export default function AuthForm({ defaultTab, from }: Props) {
             >
               {loading ? "Giriş yapılıyor…" : "Giriş Yap"}
             </button>
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => { setTab("sifre"); setResetEmail(loginEmail); setError(""); setSuccess(""); }}
+                className="text-xs text-warm-400 hover:text-brand-600 hover:underline transition-colors"
+              >
+                Şifremi unuttum
+              </button>
+            </div>
           </form>
         )}
 

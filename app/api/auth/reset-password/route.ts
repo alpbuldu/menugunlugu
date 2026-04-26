@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   const { email } = await request.json();
@@ -8,22 +9,41 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "E-posta gerekli" }, { status: 400 });
   }
 
-  const supabase = await createClient();
-  const origin   = request.nextUrl.origin;
+  const normalEmail = email.trim().toLowerCase();
+  const origin      = request.nextUrl.origin;
+  const redirectTo  = `${origin}/auth/callback?next=/sifre-guncelle`;
 
-  // Supabase SMTP üzerinden şifre sıfırlama maili gönder
-  // Dashboard → Auth → URL Configuration'a origin/sifre-guncelle eklenmiş olmalı
-  // Auth callback üzerinden geçerek PKCE code'u exchange et, sonra sifre-guncelle'ye yönlendir
-  const { error } = await supabase.auth.resetPasswordForEmail(
-    email.trim().toLowerCase(),
-    { redirectTo: `${origin}/auth/callback?next=/sifre-guncelle` }
-  );
+  // Admin client ile kullanıcının kayıtlı olup olmadığını kontrol et.
+  // generateLink, kullanıcı yoksa hata döner.
+  const adminClient = createAdminClient();
+  const { error: linkError } = await adminClient.auth.admin.generateLink({
+    type:    "recovery",
+    email:   normalEmail,
+    options: { redirectTo },
+  });
 
-  if (error) {
-    console.error("[reset-password]", error.message);
-    // Güvenlik: kullanıcıya e-posta var mı yok mu söyleme, her zaman başarı dön
+  if (linkError) {
+    // "User not found" veya benzeri → kullanıcı kayıtlı değil
+    return NextResponse.json(
+      { error: "Bu e-posta adresiyle kayıtlı bir hesap bulunamadı." },
+      { status: 404 }
+    );
   }
 
-  // Her durumda 200 dön (email enumeration saldırısını önler)
+  // Kullanıcı var — Supabase/Brevo SMTP üzerinden gerçek maili gönder
+  const supabase = await createClient();
+  const { error: mailError } = await supabase.auth.resetPasswordForEmail(
+    normalEmail,
+    { redirectTo }
+  );
+
+  if (mailError) {
+    console.error("[reset-password] mail error:", mailError.message);
+    return NextResponse.json(
+      { error: "Mail gönderilemedi, lütfen tekrar deneyin." },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json({ ok: true });
 }

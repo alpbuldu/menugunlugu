@@ -416,7 +416,9 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
             ) : (
               <>
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                  {allPosts.map((post) => (
+                  {allPosts.map((post) => {
+                    const catName = (post.blog_categories as any)?.name as string | undefined;
+                    return (
                     <div key={post.id} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
                       <Link href={`${postLinkBase}/${post.slug}`} className="flex flex-col flex-1">
                         <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
@@ -429,15 +431,14 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
                           )}
                         </div>
                         <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
-                          <h2 className="text-sm sm:text-base font-semibold text-warm-800 group-hover:text-brand-700 transition-colors sm:line-clamp-2 leading-snug">
+                          {catName && (
+                            <span className="inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-brand-100 text-brand-700 mb-1.5 sm:mb-2">
+                              {catName}
+                            </span>
+                          )}
+                          <h2 className="text-sm sm:text-base font-semibold text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
                             {post.title}
                           </h2>
-                          {post.excerpt && (
-                            <p className="text-[11px] sm:text-xs text-warm-400 mt-1 line-clamp-2 hidden sm:block">{post.excerpt}</p>
-                          )}
-                          <p className="hidden sm:block text-xs text-warm-300 mt-2">
-                            {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "long" })}
-                          </p>
                         </div>
                       </Link>
                       {/* Yazar satırı — /tarifler ile aynı */}

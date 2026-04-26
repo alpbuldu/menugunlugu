@@ -190,11 +190,17 @@ function useAuthUser() {
     const supabase = createClient();
 
     async function fetchProfile(uid: string) {
-      const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", uid).single();
-      if (!data) {
-        // Profil silinmiş (admin tarafından) — oturumu kapat
+      const { data, error } = await supabase.from("profiles").select("username, avatar_url").eq("id", uid).maybeSingle();
+      if (error) {
+        // Gerçek bir hata (izin, ağ vb.) — oturumu kapat
         await supabase.auth.signOut();
         window.location.href = "/";
+        return;
+      }
+      if (!data) {
+        // Profil yok (admin kullanıcısı, yeni kayıt race condition vb.)
+        // Kick etme — sadece profil verisi olmadan devam et
+        setLoading(false);
         return;
       }
       setProfile(data);

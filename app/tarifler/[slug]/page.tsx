@@ -296,6 +296,7 @@ export default async function RecipeDetailPage({ params }: Props) {
           favoriteCount={statFavoriteCount}
           avgRating={statAvgRating}
           ratingCount={statRatingCount}
+          followerCount={authorFollowerCount}
           initialFavorited={statInitFavorited}
           isLoggedIn={!!currentUserId}
           targetUserId={isAdminAuthor ? undefined : authorUserId ?? undefined}

@@ -16,10 +16,10 @@ export default async function GirisPage({
   // Sadece site-içi yollara izin ver
   const from = rawFrom && rawFrom.startsWith("/") && !rawFrom.startsWith("//") ? rawFrom : undefined;
 
-  // Already logged in → redirect
+  // Already logged in → redirect (email-onaylandi mesajı varsa göster, login formu kapatma)
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
+  if (user && mesaj !== "email-onaylandi") {
     redirect(from ?? "/uye/panel");
   }
 
@@ -43,7 +43,7 @@ export default async function GirisPage({
 
         {mesaj === "email-onaylandi" && (
           <div className="mb-4 px-4 py-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm text-center">
-            ✓ E-postanız onaylandı! Artık giriş yapabilirsiniz.
+            ✅ E-posta adresiniz onaylandı! Aşağıdan giriş yapabilirsiniz.
           </div>
         )}
 

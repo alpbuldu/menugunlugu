@@ -9,8 +9,9 @@ import { cookies } from "next/headers";
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
-  const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
+  const code   = searchParams.get("code");
+  const next   = searchParams.get("next") ?? "/";
+  const logout = searchParams.get("logout") === "1";
 
   if (code) {
     const cookieStore = await cookies();
@@ -32,7 +33,11 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      // Başarılı → hedef sayfaya yönlendir
+      // logout=1 → e-posta onayı akışı: session kur, hemen çıkış yap
+      // Kullanıcı login formunu doldurmak zorunda kalır → mg_new_user flag çalışır
+      if (logout) {
+        await supabase.auth.signOut();
+      }
       return NextResponse.redirect(`${origin}${next}`);
     }
   }

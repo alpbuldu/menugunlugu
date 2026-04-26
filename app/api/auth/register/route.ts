@@ -61,12 +61,15 @@ export async function POST(request: NextRequest) {
   const origin = request.nextUrl.origin;
   const uname  = unameTrimmed;
 
-  // signUp → Supabase custom SMTP ile onay maili gönderir
+  // signUp → Supabase/Brevo SMTP ile onay maili gönderir
+  // Onay sonrası auth/callback → çıkış → /giris?mesaj=email-onaylandi
   const supabase = await createClient();
+  const emailRedirectTo = `${origin}/auth/callback?logout=1&next=${encodeURIComponent("/giris?mesaj=email-onaylandi")}`;
   const { data, error } = await supabase.auth.signUp({
     email: email.trim(),
     password,
     options: {
+      emailRedirectTo,
       data: {
         username: uname,
         marketing_consent: !!marketing_consent,

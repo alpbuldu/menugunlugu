@@ -2,7 +2,7 @@
 
 const PROSE_STYLES = `
   .prose-content {
-    font-size: 1.0625rem;
+    font-size: 0.9375rem;
     line-height: 1.95;
     color: #5a4a38;
   }
@@ -39,12 +39,12 @@ const PROSE_STYLES = `
   .prose-content p {
     margin: 1rem 0;
     line-height: 1.95;
-    font-size: 1.0625rem;
+    font-size: 0.9375rem;
     color: #5a4a38;
   }
   .prose-content ul { list-style: disc;    padding-left: 1.6rem; margin: 1rem 0; }
   .prose-content ol { list-style: decimal; padding-left: 1.6rem; margin: 1rem 0; }
-  .prose-content li { margin: 0.3rem 0; line-height: 1.95; font-size: 1.0625rem; color: #5a4a38; }
+  .prose-content li { margin: 0.3rem 0; line-height: 1.95; font-size: 0.9375rem; color: #5a4a38; }
   .prose-content blockquote {
     border-left: 4px solid #ecc070;
     padding: 0.75rem 1.25rem;
@@ -71,7 +71,7 @@ const PROSE_STYLES = `
     border-collapse: collapse;
     width: 100%;
     margin: 1rem 0;
-    font-size: 1.0625rem;
+    font-size: 0.9375rem;
   }
   .prose-content thead { display: table-header-group; }
   .prose-content tbody { display: table-row-group; }
@@ -81,21 +81,21 @@ const PROSE_STYLES = `
     background: #fdf0dc;
     font-weight: 700;
     color: #924c12;
-    padding: 0.2rem 0.75rem;
+    padding: 0.1rem 0.6rem;
     border: 1px solid #edd8bc;
     text-align: left;
     vertical-align: middle;
     line-height: 1.4;
-    font-size: 1.0625rem;
+    font-size: 0.9375rem;
   }
   .prose-content td {
     display: table-cell;
-    padding: 0.15rem 0.75rem;
+    padding: 0.1rem 0.6rem;
     border: 1px solid #edd8bc;
     vertical-align: middle;
     color: #5a4a38;
     line-height: 1.4;
-    font-size: 1.0625rem;
+    font-size: 0.9375rem;
   }
   .prose-content tr:nth-child(even) td { background: #fdf8f0; }
   .prose-content colgroup, .prose-content col { display: none; }

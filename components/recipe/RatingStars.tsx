@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 interface Props { recipeId: string; }
 
@@ -12,6 +13,7 @@ export default function RatingStars({ recipeId }: Props) {
   const [loading,   setLoading]   = useState(true);
   const [saving,    setSaving]    = useState(false);
   const [message,   setMessage]   = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     fetch(`/api/recipes/${recipeId}/ratings`)
@@ -30,17 +32,27 @@ export default function RatingStars({ recipeId }: Props) {
     });
     const data = await res.json();
     setSaving(false);
+
+    if (res.status === 401) {
+      router.push(`/giris?from=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
     if (!res.ok) {
       setMessage(data.error ?? "Hata oluştu.");
       return;
     }
     setUserScore(score);
-    // Optimistically update avg
     setMessage("Puanınız kaydedildi. ✓");
-    // Re-fetch for accurate avg
+    // Güncel ortalamayı çek ve action bar'a bildir
     fetch(`/api/recipes/${recipeId}/ratings`)
       .then((r) => r.json())
-      .then((d) => { setAvg(d.avg); setCount(d.count); });
+      .then((d) => {
+        setAvg(d.avg);
+        setCount(d.count);
+        window.dispatchEvent(new CustomEvent("recipe-rating-changed", {
+          detail: { recipeId, avg: d.avg, count: d.count },
+        }));
+      });
   }
 
   if (loading) return <div className="h-8 w-32 bg-warm-100 rounded animate-pulse" />;
@@ -49,7 +61,6 @@ export default function RatingStars({ recipeId }: Props) {
 
   return (
     <div className="flex flex-col gap-1">
-      {/* Stars */}
       <div className="flex items-center gap-0.5">
         {[1, 2, 3, 4, 5].map((star) => (
           <button
@@ -62,26 +73,18 @@ export default function RatingStars({ recipeId }: Props) {
             className="text-2xl leading-none transition-transform hover:scale-110 disabled:cursor-not-allowed"
             title={`${star} yıldız`}
           >
-            <span className={
-              star <= (display || avg)
-                ? "text-yellow-400"
-                : "text-warm-200"
-            }>★</span>
+            <span className={star <= (display || avg) ? "text-yellow-400" : "text-warm-200"}>★</span>
           </button>
         ))}
       </div>
-
-      {/* Score below stars */}
       {count > 0 && (
         <p className="text-xs text-warm-500">
           <strong className="text-warm-800">{avg.toFixed(1)}</strong> ({count} değerlendirme)
         </p>
       )}
-      {message && (
-        <p className="text-xs text-brand-600">{message}</p>
-      )}
+      {message && <p className="text-xs text-brand-600">{message}</p>}
       {!userScore && !message && (
-        <p className="text-xs text-warm-400">Bu tarifi puanlamak için bir yıldıza tıklayın.</p>
+        <p className="text-xs text-warm-400">Puanlamak için bir yıldıza tıklayın.</p>
       )}
     </div>
   );

@@ -9,7 +9,8 @@ import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
-import { useEffect } from "react";
+import Link from "@tiptap/extension-link";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 const HeadingBreak = Extension.create({
   name: "headingBreak",
@@ -69,12 +70,23 @@ function Divider() {
   return <span className="w-px h-5 bg-warm-200 mx-0.5 shrink-0" />;
 }
 
+interface RecipeHit { id: string; title: string; slug: string; category: string; }
+
 export default function RichTextEditor({
   value,
   onChange,
   placeholder = "İçerik yazın…",
   minHeight = "280px",
 }: Props) {
+  // ── Panel states ──
+  const [panel, setPanel] = useState<"none" | "link" | "recipe">("none");
+  const [linkInput, setLinkInput] = useState("");
+  const [recipeQ, setRecipeQ] = useState("");
+  const [recipeHits, setRecipeHits] = useState<RecipeHit[]>([]);
+  const [recipeLoading, setRecipeLoading] = useState(false);
+  const linkInputRef = useRef<HTMLInputElement>(null);
+  const recipeInputRef = useRef<HTMLInputElement>(null);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -87,6 +99,10 @@ export default function RichTextEditor({
       TableRow,
       TableHeader,
       TableCell,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: { target: "_blank", rel: "noopener noreferrer" },
+      }),
     ],
     content: value || "",
     editorProps: {
@@ -102,7 +118,7 @@ export default function RichTextEditor({
     immediatelyRender: false,
   });
 
-  // Sync external value (e.g. when editing existing post)
+  // Sync external value
   useEffect(() => {
     if (!editor) return;
     if (editor.getHTML() !== value && value !== undefined) {
@@ -111,120 +127,131 @@ export default function RichTextEditor({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Tarif arama
+  const searchRecipes = useCallback(async (q: string) => {
+    setRecipeLoading(true);
+    try {
+      const res = await fetch(`/api/admin/recipes/search?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      setRecipeHits(Array.isArray(data) ? data : []);
+    } catch { setRecipeHits([]); }
+    finally { setRecipeLoading(false); }
+  }, []);
+
+  useEffect(() => {
+    if (panel !== "recipe") return;
+    const t = setTimeout(() => searchRecipes(recipeQ), 250);
+    return () => clearTimeout(t);
+  }, [recipeQ, panel, searchRecipes]);
+
+  // Panel açıldığında input'a focus
+  useEffect(() => {
+    if (panel === "link") {
+      // Mevcut linki pre-fill et
+      const href = editor?.getAttributes("link").href ?? "";
+      setLinkInput(href);
+      setTimeout(() => linkInputRef.current?.focus(), 50);
+    }
+    if (panel === "recipe") {
+      setRecipeQ("");
+      searchRecipes("");
+      setTimeout(() => recipeInputRef.current?.focus(), 50);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [panel]);
+
+  const applyLink = () => {
+    if (!editor) return;
+    const url = linkInput.trim();
+    if (!url) {
+      editor.chain().focus().unsetLink().run();
+    } else {
+      editor.chain().focus().setLink({ href: url }).run();
+    }
+    setPanel("none");
+    setLinkInput("");
+  };
+
+  const applyRecipeLink = (recipe: RecipeHit) => {
+    if (!editor) return;
+    const href = `/tarifler/${recipe.slug}`;
+    const { from, to, empty } = editor.state.selection;
+    if (empty) {
+      // Seçili metin yoksa tarif adını yaz
+      editor.chain().focus()
+        .insertContent(`<a href="${href}">${recipe.title}</a> `)
+        .run();
+    } else {
+      editor.chain().focus().setLink({ href, target: "_self" }).run();
+    }
+    setPanel("none");
+    setRecipeQ("");
+  };
+
+  const togglePanel = (p: "link" | "recipe") => {
+    setPanel(prev => prev === p ? "none" : p);
+  };
+
   if (!editor) return null;
 
   const inTable = editor.isActive("table");
+  const hasLink = editor.isActive("link");
 
   return (
     <div className="border border-warm-200 rounded-xl overflow-hidden focus-within:border-brand-400 focus-within:ring-1 focus-within:ring-brand-200 transition-shadow">
       {/* ── Toolbar ── */}
       <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 bg-warm-50 border-b border-warm-200">
         {/* Geri / İleri */}
-        <ToolBtn
-          onClick={() => editor.chain().focus().undo().run()}
-          disabled={!editor.can().undo()}
-          title="Geri al"
-        >↩</ToolBtn>
-        <ToolBtn
-          onClick={() => editor.chain().focus().redo().run()}
-          disabled={!editor.can().redo()}
-          title="İleri al"
-        >↪</ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().undo().run()} disabled={!editor.can().undo()} title="Geri al">↩</ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().redo().run()} disabled={!editor.can().redo()} title="İleri al">↪</ToolBtn>
 
         <Divider />
 
-        {/* Bold / Italic / Underline */}
-        <ToolBtn
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          active={editor.isActive("bold")}
-          title="Kalın (Ctrl+B)"
-        ><strong>B</strong></ToolBtn>
-        <ToolBtn
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          active={editor.isActive("italic")}
-          title="İtalik (Ctrl+I)"
-        ><em>İ</em></ToolBtn>
-        <ToolBtn
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-          active={editor.isActive("underline")}
-          title="Altı çizili (Ctrl+U)"
-        ><span className="underline">A</span></ToolBtn>
-        <ToolBtn
-          onClick={() => editor.chain().focus().toggleStrike().run()}
-          active={editor.isActive("strike")}
-          title="Üstü çizili"
-        ><s>S</s></ToolBtn>
+        {/* Bold / Italic / Underline / Strike */}
+        <ToolBtn onClick={() => editor.chain().focus().toggleBold().run()}      active={editor.isActive("bold")}      title="Kalın (Ctrl+B)"><strong>B</strong></ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().toggleItalic().run()}    active={editor.isActive("italic")}    title="İtalik (Ctrl+I)"><em>İ</em></ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive("underline")} title="Altı çizili (Ctrl+U)"><span className="underline">A</span></ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().toggleStrike().run()}    active={editor.isActive("strike")}    title="Üstü çizili"><s>S</s></ToolBtn>
 
         <Divider />
 
         {/* Başlıklar */}
-        <ToolBtn
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          active={editor.isActive("heading", { level: 2 })}
-          title="Büyük başlık"
-        >H2</ToolBtn>
-        <ToolBtn
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          active={editor.isActive("heading", { level: 3 })}
-          title="Orta başlık"
-        >H3</ToolBtn>
-        <ToolBtn
-          onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()}
-          active={editor.isActive("heading", { level: 4 })}
-          title="Küçük başlık"
-        >H4</ToolBtn>
-        <ToolBtn
-          onClick={() => editor.chain().focus().setParagraph().run()}
-          active={editor.isActive("paragraph")}
-          title="Normal metin"
-        >¶</ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive("heading", { level: 2 })} title="Büyük başlık">H2</ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive("heading", { level: 3 })} title="Orta başlık">H3</ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().toggleHeading({ level: 4 }).run()} active={editor.isActive("heading", { level: 4 })} title="Küçük başlık">H4</ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().setParagraph().run()} active={editor.isActive("paragraph")} title="Normal metin">¶</ToolBtn>
 
         <Divider />
 
         {/* Listeler */}
-        <ToolBtn
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          active={editor.isActive("bulletList")}
-          title="Madde listesi"
-        >• —</ToolBtn>
-        <ToolBtn
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          active={editor.isActive("orderedList")}
-          title="Numaralı liste"
-        >1.</ToolBtn>
-        <ToolBtn
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          active={editor.isActive("blockquote")}
-          title="Alıntı"
-        >&ldquo;&rdquo;</ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().toggleBulletList().run()}  active={editor.isActive("bulletList")}  title="Madde listesi">• —</ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive("orderedList")} title="Numaralı liste">1.</ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().toggleBlockquote().run()}  active={editor.isActive("blockquote")}  title="Alıntı">&ldquo;&rdquo;</ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Yatay çizgi">—</ToolBtn>
 
         <Divider />
 
         {/* Hizalama */}
-        <ToolBtn
-          onClick={() => editor.chain().focus().setTextAlign("left").run()}
-          active={editor.isActive({ textAlign: "left" })}
-          title="Sola hizala"
-        >⬅</ToolBtn>
-        <ToolBtn
-          onClick={() => editor.chain().focus().setTextAlign("center").run()}
-          active={editor.isActive({ textAlign: "center" })}
-          title="Ortala"
-        >☰</ToolBtn>
-        <ToolBtn
-          onClick={() => editor.chain().focus().setTextAlign("right").run()}
-          active={editor.isActive({ textAlign: "right" })}
-          title="Sağa hizala"
-        >➡</ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().setTextAlign("left").run()}   active={editor.isActive({ textAlign: "left" })}   title="Sola hizala">⬅</ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().setTextAlign("center").run()} active={editor.isActive({ textAlign: "center" })} title="Ortala">☰</ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().setTextAlign("right").run()}  active={editor.isActive({ textAlign: "right" })}  title="Sağa hizala">➡</ToolBtn>
+
+        <Divider />
+
+        {/* Link */}
+        <ToolBtn onClick={() => togglePanel("link")} active={hasLink || panel === "link"} title="Link ekle">🔗</ToolBtn>
+        {hasLink && (
+          <ToolBtn onClick={() => editor.chain().focus().unsetLink().run()} title="Linki kaldır">🔗✕</ToolBtn>
+        )}
+
+        {/* Tarif linki */}
+        <ToolBtn onClick={() => togglePanel("recipe")} active={panel === "recipe"} title="Tarif linki ekle">📖</ToolBtn>
 
         <Divider />
 
         {/* Tablo */}
         {!inTable ? (
-          <ToolBtn
-            onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
-            title="Tablo ekle (3×3)"
-          >⊞ Tablo</ToolBtn>
+          <ToolBtn onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()} title="Tablo ekle (3×3)">⊞ Tablo</ToolBtn>
         ) : (
           <>
             <ToolBtn onClick={() => editor.chain().focus().addColumnBefore().run()} title="Sola sütun ekle">◀+</ToolBtn>
@@ -237,6 +264,66 @@ export default function RichTextEditor({
           </>
         )}
       </div>
+
+      {/* ── Link paneli ── */}
+      {panel === "link" && (
+        <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 border-b border-blue-100">
+          <span className="text-xs font-medium text-blue-700 shrink-0">🔗 URL:</span>
+          <input
+            ref={linkInputRef}
+            type="url"
+            value={linkInput}
+            onChange={e => setLinkInput(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); applyLink(); } if (e.key === "Escape") setPanel("none"); }}
+            placeholder="https://… veya /tarifler/slug"
+            className="flex-1 text-sm border border-blue-200 rounded px-2 py-1 focus:outline-none focus:border-blue-400 bg-white"
+          />
+          <button type="button" onClick={applyLink}
+            className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors shrink-0">
+            Uygula
+          </button>
+          <button type="button" onClick={() => setPanel("none")}
+            className="px-2 py-1 text-xs text-blue-500 hover:text-blue-700 shrink-0">✕</button>
+        </div>
+      )}
+
+      {/* ── Tarif arama paneli ── */}
+      {panel === "recipe" && (
+        <div className="px-3 py-2 bg-amber-50 border-b border-amber-100">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-medium text-amber-700 shrink-0">📖 Tarif ara:</span>
+            <input
+              ref={recipeInputRef}
+              type="text"
+              value={recipeQ}
+              onChange={e => setRecipeQ(e.target.value)}
+              onKeyDown={e => { if (e.key === "Escape") setPanel("none"); }}
+              placeholder="Tarif adı yaz…"
+              className="flex-1 text-sm border border-amber-200 rounded px-2 py-1 focus:outline-none focus:border-amber-400 bg-white"
+            />
+            <button type="button" onClick={() => setPanel("none")}
+              className="px-2 py-1 text-xs text-amber-500 hover:text-amber-700 shrink-0">✕</button>
+          </div>
+          <div className="max-h-40 overflow-y-auto rounded border border-amber-100 bg-white divide-y divide-amber-50">
+            {recipeLoading ? (
+              <p className="text-xs text-center text-warm-400 py-3">Aranıyor…</p>
+            ) : recipeHits.length === 0 ? (
+              <p className="text-xs text-center text-warm-400 py-3">Sonuç yok</p>
+            ) : recipeHits.map(r => (
+              <button
+                key={r.id}
+                type="button"
+                onMouseDown={e => { e.preventDefault(); applyRecipeLink(r); }}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-amber-50 transition-colors flex items-center gap-2"
+              >
+                <span className="text-warm-800 font-medium flex-1 truncate">{r.title}</span>
+                <span className="text-xs text-warm-400 shrink-0">{r.category}</span>
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-amber-600 mt-1.5">Seçili metin varsa ona link eklenir, yoksa tarif adı yazılır.</p>
+        </div>
+      )}
 
       {/* ── Editor alanı ── */}
       <style>{`
@@ -274,24 +361,24 @@ export default function RichTextEditor({
         .tiptap-editor strong { font-weight: 700; }
         .tiptap-editor em { font-style: italic; }
         .tiptap-editor s  { text-decoration: line-through; }
-        .tiptap-editor a  { color: #b86515; text-decoration: underline; text-underline-offset: 3px; }
+        .tiptap-editor a  { color: #b86515; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
         /* Tablo stilleri */
         .tiptap-editor table {
           border-collapse: collapse;
           width: 100%;
-          margin: 1rem 0;
-          font-size: 0.9rem;
+          margin: 0.75rem 0;
+          font-size: 0.82rem;
         }
         .tiptap-editor th {
           background: #fdf0dc;
           font-weight: 700;
           color: #924c12;
-          padding: 0.5rem 0.75rem;
+          padding: 0.35rem 0.6rem;
           border: 1px solid #edd8bc;
           text-align: left;
         }
         .tiptap-editor td {
-          padding: 0.45rem 0.75rem;
+          padding: 0.3rem 0.6rem;
           border: 1px solid #edd8bc;
           vertical-align: top;
         }

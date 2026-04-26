@@ -198,12 +198,6 @@ export default async function BlogPostPage({ params }: Props) {
             </p>
           </div>
 
-          {post.excerpt && (
-            <p className="text-warm-500 text-base leading-relaxed mb-6 pb-6 border-b border-warm-100 font-medium">
-              {post.excerpt}
-            </p>
-          )}
-
           {post.content.trimStart().startsWith("<") ? (
             <ProseContent html={post.content} />
           ) : (

@@ -190,21 +190,15 @@ function useAuthUser() {
     const supabase = createClient();
 
     async function fetchProfile(uid: string) {
-      const { data, error } = await supabase.from("profiles").select("username, avatar_url").eq("id", uid).maybeSingle();
-      if (error) {
-        // Gerçek bir hata (izin, ağ vb.) — oturumu kapat
-        await supabase.auth.signOut();
-        window.location.href = "/";
-        return;
-      }
-      if (!data) {
-        // Profil yok (admin kullanıcısı, yeni kayıt race condition vb.)
-        // Kick etme — sadece profil verisi olmadan devam et
+      try {
+        const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", uid).maybeSingle();
+        // data null ise (profil yok) ya da hata varsa sadece devam et — asla anasayfaya atma
+        if (data) setProfile(data);
+      } catch {
+        // Ağ hatası vb. — sessizce geç, kullanıcıyı oturumundan çıkarma
+      } finally {
         setLoading(false);
-        return;
       }
-      setProfile(data);
-      setLoading(false);
     }
 
     supabase.auth.getUser().then(({ data: { user } }) => {

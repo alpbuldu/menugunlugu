@@ -74,7 +74,12 @@ export default function FollowButton({
   }
 
   function handleClick() {
-    if (!isLoggedIn) { router.push(`/giris?from=${encodeURIComponent(window.location.pathname + window.location.search)}`); return; }
+    if (!isLoggedIn) {
+      const dest = window.location.pathname + window.location.search;
+      try { sessionStorage.setItem("mg_login_return", dest); } catch {}
+      router.push(`/giris?from=${encodeURIComponent(dest)}`);
+      return;
+    }
 
     // Optimistic update hemen
     const optimistic = !following;

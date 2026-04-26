@@ -34,7 +34,9 @@ export default function RatingStars({ recipeId }: Props) {
     setSaving(false);
 
     if (res.status === 401) {
-      router.push(`/giris?from=${encodeURIComponent(window.location.pathname)}`);
+      const dest = window.location.pathname;
+      try { sessionStorage.setItem("mg_login_return", dest); } catch {}
+      router.push(`/giris?from=${encodeURIComponent(dest)}`);
       return;
     }
     if (!res.ok) {

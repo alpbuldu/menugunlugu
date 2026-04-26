@@ -47,7 +47,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="h-screen flex overflow-hidden">
       <AdminSidebar links={adminLinks} pathname={pathname} />
 
       {/* ── Main content ──────────────────────────────────── */}

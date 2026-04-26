@@ -33,7 +33,9 @@ export default function BlogRatingStars({ postId }: Props) {
     const data = await res.json();
     setSaving(false);
     if (res.status === 401) {
-      router.push(`/giris?from=${encodeURIComponent(window.location.pathname)}`);
+      const dest = window.location.pathname;
+      try { sessionStorage.setItem("mg_login_return", dest); } catch {}
+      router.push(`/giris?from=${encodeURIComponent(dest)}`);
       return;
     }
     if (!res.ok) {

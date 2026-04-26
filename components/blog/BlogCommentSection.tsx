@@ -49,6 +49,7 @@ export default function BlogCommentSection({ postId, currentUserId }: Props) {
     if (!res.ok) { setError(data.error ?? "Yorum gönderilemedi."); return; }
     setComments((prev) => [...prev, data.comment]);
     setText("");
+    window.dispatchEvent(new CustomEvent("blog-comment-posted", { detail: { postId } }));
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
   }
 

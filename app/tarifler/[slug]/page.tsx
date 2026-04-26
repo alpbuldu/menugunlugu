@@ -161,7 +161,7 @@ export default async function RecipeDetailPage({ params }: Props) {
 
   // Aksiyon barı istatistikleri
   const adminSb = (await import("@/lib/supabase/server")).createAdminClient();
-  const [commentsCountRes, favoritesRes, ratingsRes, favoritedRes, userRatingRes, shareCountRes] = await Promise.all([
+  const [commentsCountRes, favoritesRes, ratingsRes, favoritedRes, userRatingRes, shareCountRes, userCommentedRes] = await Promise.all([
     adminSb.from("comments").select("id", { count: "exact", head: true }).eq("recipe_id", recipe.id),
     adminSb.from("favorites").select("recipe_id", { count: "exact", head: true }).eq("recipe_id", recipe.id),
     adminSb.from("ratings").select("score").eq("recipe_id", recipe.id),
@@ -172,6 +172,9 @@ export default async function RecipeDetailPage({ params }: Props) {
       ? adminSb.from("ratings").select("score").eq("recipe_id", recipe.id).eq("user_id", currentUserId).maybeSingle()
       : Promise.resolve({ data: null }),
     adminSb.from("recipe_shares").select("id", { count: "exact", head: true }).eq("recipe_id", recipe.id),
+    currentUserId
+      ? adminSb.from("comments").select("id").eq("recipe_id", recipe.id).eq("user_id", currentUserId).limit(1).maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
   const statCommentCount  = commentsCountRes.count ?? 0;
   const statFavoriteCount = favoritesRes.count ?? 0;
@@ -181,8 +184,9 @@ export default async function RecipeDetailPage({ params }: Props) {
     ? Math.round((ratingScores.reduce((a, b) => a + b, 0) / ratingScores.length) * 10) / 10
     : 0;
   const statRatingCount   = ratingScores.length;
-  const statUserRating    = (userRatingRes.data as any)?.score ?? 0;
-  const statShareCount    = shareCountRes.count ?? 0;
+  const statUserRating      = (userRatingRes.data as any)?.score ?? 0;
+  const statShareCount      = shareCountRes.count ?? 0;
+  const statUserCommented   = !!userCommentedRes.data;
 
   // Malzemeler
   const ingredientsIsHtml = recipe.ingredients.trim().startsWith("<");
@@ -311,6 +315,7 @@ export default async function RecipeDetailPage({ params }: Props) {
           authorProfileHref={`/uye/${authorUsername}`}
           initialUserRating={statUserRating}
           shareCount={statShareCount}
+          initialUserCommented={statUserCommented}
         />
 
         <div className="p-8">
@@ -396,14 +401,16 @@ export default async function RecipeDetailPage({ params }: Props) {
         imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="mt-4 sm:hidden" />
 
       {/* Yorumlar — viewport'a girince yükle */}
-      <LazySection
-        className="mt-4"
-        fallback={<div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-6 h-32 animate-pulse" />}
-      >
-        <div id="yorumlar" className="bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
-          <CommentSection recipeId={recipe.id} currentUserId={currentUserId} />
-        </div>
-      </LazySection>
+      <div id="yorumlar">
+        <LazySection
+          className="mt-4"
+          fallback={<div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-6 h-32 animate-pulse" />}
+        >
+          <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-6">
+            <CommentSection recipeId={recipe.id} currentUserId={currentUserId} />
+          </div>
+        </LazySection>
+      </div>
 
       {/* Yatay reklam banneri — masaüstü */}
       <AdSlot placement="recipe_detail_banner" adSenseSlot="tarif_detay_yatay_masaustu"

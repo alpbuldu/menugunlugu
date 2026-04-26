@@ -37,8 +37,9 @@ const COUNTABLE_WORDS = new Set([
 ]);
 
 function needsCeil(restText: string): boolean {
-  const first = restText.trim().toLowerCase().split(/[\s,.(]/)[0];
-  return COUNTABLE_WORDS.has(first);
+  // Herhangi bir kelime sayılabilir listedeyse yukarı yuvarla ("adet yufka" gibi durumlar için)
+  const words = restText.trim().toLowerCase().split(/[\s,.(]+/);
+  return words.some(w => COUNTABLE_WORDS.has(w));
 }
 
 function applyCountable(val: number, restText: string): number {

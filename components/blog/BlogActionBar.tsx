@@ -17,11 +17,13 @@ interface Props {
   authorProfileHref?: string;
   initialUserRating?: number;
   shareCount?: number;
+  initialUserCommented?: boolean;
 }
 
 /* ── SVG ikonlar ── */
 const Ico = {
   comment:  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+  commentOn:<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
   follow:   <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>,
   following:<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>,
   star:     <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
@@ -29,6 +31,7 @@ const Ico = {
   heart:    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
   heartOn:  <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
   share:    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>,
+  shareOn:  <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>,
   check:    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
 };
 
@@ -41,6 +44,15 @@ function goLogin() {
   window.location.href = `/giris?from=${encodeURIComponent(window.location.pathname)}`;
 }
 
+/* Yorumlar bölümüne kaydır — LazySection yüklenince yeniden konumlanır */
+function scrollToComments() {
+  const el = document.getElementById("yorumlar");
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth" });
+  // LazySection içeriği yüklenip layout kayabilir — 500ms sonra tekrar kaydır
+  setTimeout(() => document.getElementById("yorumlar")?.scrollIntoView({ behavior: "smooth" }), 500);
+}
+
 function Cell({
   icon, stat, label, onClick, href, active,
 }: {
@@ -51,18 +63,24 @@ function Cell({
   href?: string;
   active?: boolean;
 }) {
-  const color = active ? "text-brand-600" : "text-warm-400 hover:text-warm-700";
+  const iconColor  = active ? "text-brand-700" : "text-warm-400 hover:text-warm-700";
+  const statClass  = active
+    ? "text-[12px] font-bold text-brand-700 tabular-nums leading-none"
+    : "text-[12px] font-semibold text-warm-700 tabular-nums leading-none";
+  const labelClass = active
+    ? "text-[10px] leading-none font-bold underline underline-offset-2 text-brand-700 decoration-brand-700"
+    : "text-[10px] leading-none underline underline-offset-2 text-warm-400 decoration-warm-200";
 
   const inner = (
     <span className="flex flex-col items-center w-full">
-      <span className={`h-8 flex items-center justify-center transition-colors ${color}`}>
+      <span className={`h-8 flex items-center justify-center transition-colors ${iconColor}`}>
         {icon}
       </span>
       <span className="h-5 flex items-center justify-center">
-        <span className="text-[12px] font-semibold text-warm-700 tabular-nums leading-none">{stat}</span>
+        <span className={statClass}>{stat}</span>
       </span>
       <span className="h-4 flex items-center justify-center">
-        <span className={`text-[10px] leading-none underline underline-offset-2 ${active ? "text-brand-500" : "text-warm-400 decoration-warm-200"}`}>{label}</span>
+        <span className={labelClass}>{label}</span>
       </span>
     </span>
   );
@@ -78,22 +96,27 @@ function Sep() {
 
 export default function BlogActionBar({
   postId, postTitle,
-  commentCount, favoriteCount, avgRating, ratingCount, followerCount,
+  commentCount: initialCommentCount,
+  favoriteCount, avgRating, ratingCount, followerCount,
   initialFavorited, isLoggedIn, initialFollowing,
   authorProfileHref,
   initialUserRating = 0,
   shareCount: initialShareCount = 0,
+  initialUserCommented = false,
 }: Props) {
-  const [favorited,  setFavorited]  = useState(initialFavorited);
-  const [favCount,   setFavCount]   = useState(favoriteCount);
-  const [favSaving,  setFavSaving]  = useState(false);
-  const [following,  setFollowing]  = useState(initialFollowing);
-  const [follCount,  setFollCount]  = useState(followerCount);
-  const [rating,     setRating]     = useState({ avg: avgRating, count: ratingCount });
-  const [userRating, setUserRating] = useState(initialUserRating);
-  const [shareCount, setShareCount] = useState(initialShareCount);
-  const [copied,     setCopied]     = useState(false);
-  const [,           startTransition] = useTransition();
+  const [favorited,      setFavorited]      = useState(initialFavorited);
+  const [favCount,       setFavCount]       = useState(favoriteCount);
+  const [favSaving,      setFavSaving]      = useState(false);
+  const [following,      setFollowing]      = useState(initialFollowing);
+  const [follCount,      setFollCount]      = useState(followerCount);
+  const [rating,         setRating]         = useState({ avg: avgRating, count: ratingCount });
+  const [userRating,     setUserRating]     = useState(initialUserRating);
+  const [shareCount,     setShareCount]     = useState(initialShareCount);
+  const [hasShared,      setHasShared]      = useState(false);
+  const [copied,         setCopied]         = useState(false);
+  const [commentCount,   setCommentCount]   = useState(initialCommentCount);
+  const [userCommented,  setUserCommented]  = useState(initialUserCommented);
+  const [,               startTransition]   = useTransition();
   const router = useRouter();
   const selfDispatch    = useRef(false);
   const selfFavDispatch = useRef(false);
@@ -108,6 +131,18 @@ export default function BlogActionBar({
     }
     window.addEventListener("blog-rating-changed", onRating);
     return () => window.removeEventListener("blog-rating-changed", onRating);
+  }, [postId]);
+
+  /* Yorum gönderilince sayacı ve aktif durumu güncelle */
+  useEffect(() => {
+    function onComment(e: Event) {
+      const { postId: id } = (e as CustomEvent).detail;
+      if (id !== postId) return;
+      setCommentCount(c => c + 1);
+      setUserCommented(true);
+    }
+    window.addEventListener("blog-comment-posted", onComment);
+    return () => window.removeEventListener("blog-comment-posted", onComment);
   }, [postId]);
 
   /* Dış follow eventleri */
@@ -212,6 +247,7 @@ export default function BlogActionBar({
   /* Paylaş */
   async function handleShare() {
     const url = window.location.href;
+    setHasShared(true);
     setShareCount(c => c + 1);
     fetch(`/api/blog/${postId}/shares`, { method: "POST" }).catch(() => {});
     if (navigator.share) {
@@ -231,10 +267,11 @@ export default function BlogActionBar({
       <div className="flex items-stretch">
 
         <Cell
-          icon={Ico.comment}
+          icon={userCommented ? Ico.commentOn : Ico.comment}
           stat={fmt(commentCount)}
           label="Yorum"
-          href="#yorumlar"
+          onClick={scrollToComments}
+          active={userCommented}
         />
 
         <Sep />
@@ -272,11 +309,11 @@ export default function BlogActionBar({
         <Sep />
 
         <Cell
-          icon={copied ? Ico.check : Ico.share}
+          icon={hasShared ? Ico.shareOn : (copied ? Ico.check : Ico.share)}
           stat={shareCount > 0 ? fmt(shareCount) : ""}
           label={copied ? "Kopyalandı" : "Paylaş"}
           onClick={handleShare}
-          active={copied}
+          active={hasShared}
         />
 
       </div>

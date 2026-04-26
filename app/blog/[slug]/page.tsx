@@ -70,7 +70,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   const adminSb = (await import("@/lib/supabase/server")).createAdminClient();
 
-  const [adminProfileRes, postCountRes, followerCountRes, commentCountRes, favCountRes, ratingsRes, favoritedRes, userRatingRes, shareCountRes] = await Promise.all([
+  const [adminProfileRes, postCountRes, followerCountRes, commentCountRes, favCountRes, ratingsRes, favoritedRes, userRatingRes, shareCountRes, userCommentedRes] = await Promise.all([
     supabase.from("admin_profile").select("username, avatar_url, full_name").eq("id", 1).single(),
     supabase.from("blog_posts").select("*", { count: "exact", head: true }).eq("published", true),
     supabase.from("admin_follows").select("follower_id", { count: "exact", head: true }),
@@ -84,6 +84,9 @@ export default async function BlogPostPage({ params }: Props) {
       ? adminSb.from("blog_ratings").select("score").eq("post_id", post.id).eq("user_id", currentUserId).maybeSingle()
       : Promise.resolve({ data: null }),
     adminSb.from("blog_shares").select("id", { count: "exact", head: true }).eq("post_id", post.id),
+    currentUserId
+      ? adminSb.from("blog_comments").select("id").eq("post_id", post.id).eq("user_id", currentUserId).limit(1).maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
   const adminProfile    = adminProfileRes.data;
   const authorFullName  = (adminProfile as any)?.full_name ?? "";
@@ -102,8 +105,9 @@ export default async function BlogPostPage({ params }: Props) {
     ? Math.round((ratingScores.reduce((a, b) => a + b, 0) / ratingScores.length) * 10) / 10
     : 0;
   const statRatingCount   = ratingScores.length;
-  const statUserRating    = (userRatingRes.data as any)?.score ?? 0;
-  const statShareCount    = shareCountRes.count ?? 0;
+  const statUserRating      = (userRatingRes.data as any)?.score ?? 0;
+  const statShareCount      = shareCountRes.count ?? 0;
+  const statUserCommented   = !!userCommentedRes.data;
 
   // Takip durumu (admin)
   let initialFollowing = false;
@@ -200,6 +204,7 @@ export default async function BlogPostPage({ params }: Props) {
           authorProfileHref={`/uye/${authorUsername}`}
           initialUserRating={statUserRating}
           shareCount={statShareCount}
+          initialUserCommented={statUserCommented}
         />
 
         <div className="px-6 py-8 sm:px-10 sm:py-10">

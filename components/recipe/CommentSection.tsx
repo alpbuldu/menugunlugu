@@ -49,6 +49,7 @@ export default function CommentSection({ recipeId, currentUserId }: Props) {
     if (!res.ok) { setError(data.error ?? "Yorum gönderilemedi."); return; }
     setComments((prev) => [...prev, data.comment]);
     setText("");
+    window.dispatchEvent(new CustomEvent("recipe-comment-posted", { detail: { recipeId } }));
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
   }
 

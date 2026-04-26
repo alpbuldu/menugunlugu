@@ -155,7 +155,7 @@ export default async function BlogPostPage({ params }: Props) {
           </Link>
         </div>
 
-        <div className="p-8">
+        <div className="px-6 py-8 sm:px-10 sm:py-10">
           <div className="mb-8">
             {/* Üst satır: kategori SOL, butonlar SAĞ */}
             <div className="flex items-center justify-between gap-2 mb-3">

@@ -233,7 +233,7 @@ export default async function BlogPage({ searchParams }: Props) {
                           {post.title}
                         </h3>
                         {post.excerpt && (
-                          <p className="text-sm text-warm-400 mt-1.5 line-clamp-2 leading-relaxed">
+                          <p className="text-sm text-warm-400 mt-1.5 line-clamp-3 leading-relaxed">
                             {post.excerpt}
                           </p>
                         )}
@@ -327,7 +327,7 @@ export default async function BlogPage({ searchParams }: Props) {
                       {post.title}
                     </h2>
                     {post.excerpt && (
-                      <p className="text-sm text-warm-400 mt-1.5 line-clamp-2 leading-relaxed">
+                      <p className="text-sm text-warm-400 mt-1.5 line-clamp-3 leading-relaxed">
                         {post.excerpt}
                       </p>
                     )}

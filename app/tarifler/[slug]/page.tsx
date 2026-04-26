@@ -249,6 +249,9 @@ export default async function RecipeDetailPage({ params }: Props) {
           ) : (
             <div className="flex items-center justify-center h-full text-7xl text-warm-300">🍽️</div>
           )}
+          <span className="absolute bottom-3 left-3 bg-black/40 backdrop-blur-sm rounded-full px-2.5 py-1 text-[10px] font-semibold text-white">
+            {({ soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı" } as Record<string, string>)[recipe.category as string] ?? recipe.category}
+          </span>
           <Link
             href={`/uye/${authorUsername}`}
             className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors rounded-full px-2.5 py-1"
@@ -267,15 +270,7 @@ export default async function RecipeDetailPage({ params }: Props) {
 
         <div className="p-8">
           <div className="mb-8">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge category={recipe.category as Category} />
-                {recipe.servings && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-warm-100 text-warm-600">
-                    👤 {recipe.servings} kişilik
-                  </span>
-                )}
-              </div>
+            <div className="flex items-center justify-end gap-2">
               {/* Mobilde ikon, masaüstünde yazılı butonlar */}
               <div className="flex items-center gap-2 flex-shrink-0 sm:hidden">
                 <FollowButton

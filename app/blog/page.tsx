@@ -143,6 +143,24 @@ export default async function BlogPage({ searchParams }: Props) {
     (memberFollowRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
   }
 
+  // Yorum / favori / puan sayıları (sayfadaki postlar için)
+  const postIds = posts.map((p) => p.id);
+  const [commentsRes, favoritesRes, ratingsRes] = await Promise.all([
+    postIds.length ? admin.from("blog_comments").select("post_id").in("post_id", postIds) : Promise.resolve({ data: [] }),
+    postIds.length ? admin.from("blog_favorites").select("post_id").in("post_id", postIds) : Promise.resolve({ data: [] }),
+    postIds.length ? admin.from("blog_ratings").select("post_id, score").in("post_id", postIds) : Promise.resolve({ data: [] }),
+  ]);
+  const commentCounts: Record<string, number> = {};
+  const favoriteCounts: Record<string, number> = {};
+  const ratingAvgs: Record<string, number> = {};
+  (commentsRes.data ?? []).forEach((r: any) => { commentCounts[r.post_id] = (commentCounts[r.post_id] ?? 0) + 1; });
+  (favoritesRes.data ?? []).forEach((r: any) => { favoriteCounts[r.post_id] = (favoriteCounts[r.post_id] ?? 0) + 1; });
+  const ratingMap: Record<string, number[]> = {};
+  (ratingsRes.data ?? []).forEach((r: any) => { ratingMap[r.post_id] = [...(ratingMap[r.post_id] ?? []), r.score]; });
+  Object.entries(ratingMap).forEach(([id, scores]) => {
+    ratingAvgs[id] = Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10;
+  });
+
   // Kategori adına göre deterministik renk
   const BADGE_COLORS = [
     "bg-brand-100 text-brand-700",
@@ -260,18 +278,32 @@ export default async function BlogPage({ searchParams }: Props) {
                         </p>
                       </div>
                     </Link>
-                    <div className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-brand-100">
-                      <Link href={`/uye/${post.authorUsername}`} className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+                    {/* Aksiyon barı — seçtiklerimiz */}
+                    <div className="flex items-center gap-3 px-4 py-2 border-t border-brand-100 bg-brand-50/40">
+                      <Link href={`${post.href}#yorumlar`} className="flex flex-col items-center gap-0.5 text-warm-400 hover:text-brand-600 transition-colors flex-shrink-0">
+                        <span className="text-sm leading-none">💬</span>
+                        <span className="text-[10px] leading-none">{commentCounts[post.id] ?? 0}</span>
+                      </Link>
+                      <Link href={`${post.href}#puan`} className="flex flex-col items-center gap-0.5 text-warm-400 hover:text-brand-600 transition-colors flex-shrink-0">
+                        <span className="text-sm leading-none">⭐</span>
+                        <span className="text-[10px] leading-none">{ratingAvgs[post.id] ?? "–"}</span>
+                      </Link>
+                      <Link href={post.href} className="flex flex-col items-center gap-0.5 text-warm-400 hover:text-red-500 transition-colors flex-shrink-0">
+                        <span className="text-sm leading-none">❤️</span>
+                        <span className="text-[10px] leading-none">{favoriteCounts[post.id] ?? 0}</span>
+                      </Link>
+                      <div className="flex-1" />
+                      <Link href={`/uye/${post.authorUsername}`} className="flex items-center gap-1.5 min-w-0 hover:opacity-80 transition-opacity group/author flex-shrink-0">
                         {post.authorAvatar ? (
-                          <img src={post.authorAvatar} alt={post.authorName} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                          <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
                         ) : (
-                          <span className="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-[9px] font-bold text-brand-600 flex-shrink-0">
+                          <span className="w-5 h-5 rounded-full bg-brand-100 flex items-center justify-center text-[9px] font-bold text-brand-600 flex-shrink-0">
                             {post.authorName.charAt(0).toUpperCase()}
                           </span>
                         )}
                         <div className="flex flex-col min-w-0">
-                          <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
-                          <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{post.authorName}</span>
+                          <span className="text-[10px] text-warm-300 leading-none">Yazar</span>
+                          <span className="text-[10px] font-medium text-warm-500 group-hover/author:text-brand-600 truncate">{post.authorName}</span>
                         </div>
                       </Link>
                       <FollowButton
@@ -279,7 +311,7 @@ export default async function BlogPage({ searchParams }: Props) {
                         isAdminProfile={post.isAdminAuthor}
                         initialFollowing={initialFollowing}
                         isLoggedIn={!!currentUserId}
-                        size="xs"
+                        size="stacked"
                       />
                     </div>
                   </div>
@@ -335,7 +367,7 @@ export default async function BlogPage({ searchParams }: Props) {
                       </div>
                     )}
                   </div>
-                  <div className="p-5 flex flex-col flex-1">
+                  <div className="px-4 pt-4 pb-2 flex flex-col flex-1">
                     {post.categoryName && (
                       <span className={`inline-block self-start w-fit mb-2 px-2.5 py-0.5 rounded-full text-xs font-semibold ${categoryColor(post.categoryName)}`}>
                         {post.categoryName}
@@ -349,24 +381,39 @@ export default async function BlogPage({ searchParams }: Props) {
                         {post.excerpt}
                       </p>
                     )}
-                    <p className="text-xs text-warm-300 mt-auto pt-3 flex-shrink-0">
+                    <p className="text-xs text-warm-300 mt-auto pt-2 flex-shrink-0">
                       {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })}
                     </p>
                   </div>
                 </Link>
-                {/* Yazar satırı + Takip Et */}
-                <div className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-warm-100">
-                  <Link href={`/uye/${post.authorUsername}`} className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+
+                {/* Aksiyon barı */}
+                <div className="flex items-center gap-3 px-4 py-2 border-t border-warm-100 bg-warm-50/60">
+                  <Link href={`${post.href}#yorumlar`} className="flex flex-col items-center gap-0.5 text-warm-400 hover:text-brand-600 transition-colors flex-shrink-0">
+                    <span className="text-sm leading-none">💬</span>
+                    <span className="text-[10px] leading-none">{commentCounts[post.id] ?? 0}</span>
+                  </Link>
+                  <Link href={`${post.href}#puan`} className="flex flex-col items-center gap-0.5 text-warm-400 hover:text-brand-600 transition-colors flex-shrink-0">
+                    <span className="text-sm leading-none">⭐</span>
+                    <span className="text-[10px] leading-none">{ratingAvgs[post.id] ?? "–"}</span>
+                  </Link>
+                  <Link href={post.href} className="flex flex-col items-center gap-0.5 text-warm-400 hover:text-red-500 transition-colors flex-shrink-0">
+                    <span className="text-sm leading-none">❤️</span>
+                    <span className="text-[10px] leading-none">{favoriteCounts[post.id] ?? 0}</span>
+                  </Link>
+                  <div className="flex-1" />
+                  {/* Yazar + Takip */}
+                  <Link href={`/uye/${post.authorUsername}`} className="flex items-center gap-1.5 min-w-0 hover:opacity-80 transition-opacity group/author flex-shrink-0">
                     {post.authorAvatar ? (
-                      <img src={post.authorAvatar} alt={post.authorName} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                      <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
                     ) : (
-                      <span className="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-[9px] font-bold text-brand-600 flex-shrink-0">
+                      <span className="w-5 h-5 rounded-full bg-brand-100 flex items-center justify-center text-[9px] font-bold text-brand-600 flex-shrink-0">
                         {post.authorName.charAt(0).toUpperCase()}
                       </span>
                     )}
                     <div className="flex flex-col min-w-0">
-                      <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
-                      <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{post.authorName}</span>
+                      <span className="text-[10px] text-warm-300 leading-none">Yazar</span>
+                      <span className="text-[10px] font-medium text-warm-500 group-hover/author:text-brand-600 truncate">{post.authorName}</span>
                     </div>
                   </Link>
                   <FollowButton
@@ -374,7 +421,7 @@ export default async function BlogPage({ searchParams }: Props) {
                     isAdminProfile={post.isAdminAuthor}
                     initialFollowing={initialFollowing}
                     isLoggedIn={!!currentUserId}
-                    size="xs"
+                    size="stacked"
                   />
                 </div>
               </div>

@@ -7,8 +7,8 @@ interface Props {
   isAdminProfile?: boolean;
   initialFollowing: boolean;
   isLoggedIn: boolean;
-  /** "icon" = sadece ikon, "2xs" = dar kart için kısa metin, "xs" = küçük yazılı, "sm" = varsayılan mini, "md" = profil sayfası */
-  size?: "icon" | "2xs" | "xs" | "sm" | "md";
+  /** "icon" = sadece ikon, "stacked" = ikon üstte yazı altta, "2xs" = dar kart için kısa metin, "xs" = küçük yazılı, "sm" = varsayılan mini, "md" = profil sayfası */
+  size?: "icon" | "stacked" | "2xs" | "xs" | "sm" | "md";
 }
 
 const CHANNEL = "follow-state";
@@ -112,6 +112,38 @@ export default function FollowButton({
         pendingRef.current = false;
       }
     });
+  }
+
+  // Stacked: ikon üstte, yazı altta
+  if (size === "stacked") {
+    const stackedColor = following
+      ? "text-warm-500 hover:text-red-500"
+      : "text-brand-600 hover:text-brand-800";
+    return (
+      <button
+        onClick={handleClick}
+        disabled={isPending}
+        className={["flex flex-col items-center gap-0.5 transition-colors flex-shrink-0", stackedColor, isPending ? "opacity-50 cursor-not-allowed" : ""].join(" ")}
+      >
+        <span className={["w-7 h-7 rounded-full border flex items-center justify-center transition-all",
+          following
+            ? "bg-warm-100 border-warm-200"
+            : "bg-brand-50 border-brand-200 hover:bg-brand-600 hover:text-white hover:border-brand-600"
+        ].join(" ")}>
+          {isPending ? "…" : following ? "✓" : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <line x1="19" y1="8" x2="19" y2="14"/>
+              <line x1="22" y1="11" x2="16" y2="11"/>
+            </svg>
+          )}
+        </span>
+        <span className="text-[10px] font-medium leading-none">
+          {isPending ? "…" : following ? "Takip" : "Takip Et"}
+        </span>
+      </button>
+    );
   }
 
   return (

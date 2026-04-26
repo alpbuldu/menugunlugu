@@ -143,6 +143,24 @@ export default async function BlogPage({ searchParams }: Props) {
     (memberFollowRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
   }
 
+  // Kategori adına göre deterministik renk
+  const BADGE_COLORS = [
+    "bg-brand-100 text-brand-700",
+    "bg-amber-100 text-amber-700",
+    "bg-emerald-100 text-emerald-700",
+    "bg-sky-100 text-sky-700",
+    "bg-violet-100 text-violet-700",
+    "bg-rose-100 text-rose-700",
+    "bg-teal-100 text-teal-700",
+    "bg-orange-100 text-orange-700",
+  ];
+  function categoryColor(name: string | null): string {
+    if (!name) return BADGE_COLORS[0];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return BADGE_COLORS[Math.abs(hash) % BADGE_COLORS.length];
+  }
+
   function buildPages(current: number, total: number): number[] {
     const WINDOW = 3;
     let start = Math.max(1, current - Math.floor(WINDOW / 2));
@@ -165,7 +183,7 @@ export default async function BlogPage({ searchParams }: Props) {
     <SidebarLayout placement="sidebar_blog" adSenseSlot="blog_dikey_masaustu">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-1">Blog</h1>
-      <p className="text-sm sm:text-base text-warm-500 mb-4">Yemek kültürü, tarifler ve mutfak hikayeleri.</p>
+      <p className="text-sm sm:text-base text-brand-600 mb-4 font-medium">Yemek kültürü, tarifler ve mutfak hikayeleri.</p>
 
       {/* Kategori filtreleri */}
       {categories.length > 0 && (
@@ -225,7 +243,7 @@ export default async function BlogPage({ searchParams }: Props) {
                       </div>
                       <div className="p-5 flex flex-col flex-1">
                         {post.categoryName && (
-                          <span className="inline-block self-start w-fit mb-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-100 text-brand-700">
+                          <span className={`inline-block self-start w-fit mb-2 px-2.5 py-0.5 rounded-full text-xs font-semibold ${categoryColor(post.categoryName)}`}>
                             {post.categoryName}
                           </span>
                         )}
@@ -319,7 +337,7 @@ export default async function BlogPage({ searchParams }: Props) {
                   </div>
                   <div className="p-5 flex flex-col flex-1">
                     {post.categoryName && (
-                      <span className="inline-block self-start w-fit mb-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-100 text-brand-700">
+                      <span className={`inline-block self-start w-fit mb-2 px-2.5 py-0.5 rounded-full text-xs font-semibold ${categoryColor(post.categoryName)}`}>
                         {post.categoryName}
                       </span>
                     )}

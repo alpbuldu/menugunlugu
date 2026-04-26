@@ -128,7 +128,7 @@ export default async function RecipesPage({ searchParams }: Props) {
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {recipes.map((recipe) => {
+          {recipes.map((recipe, index) => {
             const a = getAuthor(recipe.submitted_by ?? null);
             const isAdmin = !recipe.submitted_by;
             const initialFollowing = isAdmin ? followsAdmin : followedMemberIds.has(recipe.submitted_by!);
@@ -146,6 +146,7 @@ export default async function RecipesPage({ searchParams }: Props) {
                         fill
                         sizes="(max-width: 640px) 50vw, 33vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        priority={index < 4}
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full text-5xl text-warm-300">

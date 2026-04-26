@@ -310,7 +310,7 @@ export default async function BlogPage({ searchParams }: Props) {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map((post) => {
+          {posts.map((post, index) => {
             const initialFollowing = post.isAdminAuthor
               ? followsAdmin
               : post.authorId ? followedMemberIds.has(post.authorId) : false;
@@ -328,6 +328,7 @@ export default async function BlogPage({ searchParams }: Props) {
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        priority={index < 3}
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full text-5xl text-warm-300">

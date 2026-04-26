@@ -94,21 +94,12 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
     (memberFollowRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
   }
 
-  function buildPages(current: number, total: number): (number | "…")[] {
-    if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
-    const pages = new Set<number>();
-    pages.add(1);
-    pages.add(total);
-    pages.add(Math.max(1, current - 1));
-    pages.add(current);
-    pages.add(Math.min(total, current + 1));
-    const sorted = Array.from(pages).sort((a, b) => a - b);
-    const result: (number | "…")[] = [];
-    for (let i = 0; i < sorted.length; i++) {
-      if (i > 0 && sorted[i] - sorted[i - 1] > 1) result.push("…");
-      result.push(sorted[i]);
-    }
-    return result;
+  function buildPages(current: number, total: number): number[] {
+    const WINDOW = 3;
+    let start = Math.max(1, current - Math.floor(WINDOW / 2));
+    let end   = Math.min(total, start + WINDOW - 1);
+    if (end - start + 1 < WINDOW) start = Math.max(1, end - WINDOW + 1);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
   function pageHref(page: number) {
@@ -164,7 +155,7 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {recipes.map((recipe) => {
+          {recipes.map((recipe, index) => {
             const a = getAuthor(recipe.submitted_by ?? null);
             const isAdmin = !recipe.submitted_by;
             const initialFollowing = isAdmin ? followsAdmin : followedMemberIds.has(recipe.submitted_by!);
@@ -178,7 +169,8 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
                     {recipe.image_url ? (
                       <Image src={recipe.image_url} alt={recipe.title} fill
                         sizes="(max-width: 640px) 50vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        priority={index < 4} />
                     ) : (
                       <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍳</div>
                     )}
@@ -230,41 +222,25 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
       )}
 
       {/* Sayfalama */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-1.5 mt-12 flex-wrap">
-          {currentPage > 1 ? (
-            <Link href={pageHref(currentPage - 1)}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors"
-              aria-label="Önceki sayfa">‹</Link>
-          ) : (
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">‹</span>
-          )}
-
-          {buildPages(currentPage, totalPages).map((p, i) =>
-            p === "…" ? (
-              <span key={`dots-${i}`} className="text-warm-400 text-sm px-1">…</span>
-            ) : (
-              <Link key={p} href={pageHref(p)}
-                aria-current={p === currentPage ? "page" : undefined}
-                className={`inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-colors border ${
-                  p === currentPage
-                    ? "bg-brand-600 border-brand-600 text-white"
-                    : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600"
-                }`}>
-                {p}
-              </Link>
-            )
-          )}
-
-          {currentPage < totalPages ? (
-            <Link href={pageHref(currentPage + 1)}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-200 bg-white text-warm-600 text-sm hover:border-brand-300 hover:text-brand-600 transition-colors"
-              aria-label="Sonraki sayfa">›</Link>
-          ) : (
-            <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg border border-warm-100 text-warm-300 text-sm cursor-default">›</span>
-          )}
-        </div>
-      )}
+      {totalPages > 1 && (() => {
+        const btn      = "inline-flex items-center justify-center w-9 h-9 rounded-xl text-sm font-medium border transition-colors";
+        const inactive = `${btn} bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600`;
+        const active   = `${btn} bg-brand-600 border-brand-600 text-white`;
+        const dis      = `${btn} border-warm-100 text-warm-300 cursor-default`;
+        const pages    = buildPages(currentPage, totalPages);
+        return (
+          <div className="flex items-center justify-center gap-1.5 mt-12 flex-wrap">
+            {currentPage > 1 ? <Link href={pageHref(1)}                  className={inactive}>«</Link> : <span className={dis}>«</span>}
+            {currentPage > 1 ? <Link href={pageHref(currentPage - 1)}    className={inactive}>‹</Link> : <span className={dis}>‹</span>}
+            {pages.map((p) => (
+              <Link key={p} href={pageHref(p)} aria-current={p === currentPage ? "page" : undefined}
+                className={p === currentPage ? active : inactive}>{p}</Link>
+            ))}
+            {currentPage < totalPages ? <Link href={pageHref(currentPage + 1)} className={inactive}>›</Link> : <span className={dis}>›</span>}
+            {currentPage < totalPages ? <Link href={pageHref(totalPages)}       className={inactive}>»</Link> : <span className={dis}>»</span>}
+          </div>
+        );
+      })()}
     </div>
     </SidebarLayout>
   );

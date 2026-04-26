@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { clsx } from "clsx";
 
-type Tab = "giris" | "kayit";
+type Tab = "giris" | "kayit" | "sifre";
 
 interface Props {
   defaultTab: Tab;
@@ -27,6 +27,9 @@ export default function AuthForm({ defaultTab, from }: Props) {
   const [regPassword2,      setRegPassword2]      = useState("");
   const [acceptKvkk,        setAcceptKvkk]        = useState(false);
   const [acceptMarketing,   setAcceptMarketing]   = useState(false);
+
+  // Forgot password state
+  const [resetEmail,   setResetEmail]   = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState("");
@@ -84,6 +87,27 @@ export default function AuthForm({ defaultTab, from }: Props) {
     } else {
       window.location.href = "/uye/panel";
     }
+  }
+
+  // ── Forgot Password ────────────────────────────────────────────
+  async function handleForgotPassword(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    const supabase = createClient();
+    const { error: err } = await supabase.auth.resetPasswordForEmail(
+      resetEmail.trim(),
+      { redirectTo: `${window.location.origin}/sifre-guncelle` }
+    );
+
+    setLoading(false);
+    if (err) {
+      setError("Şifre sıfırlama e-postası gönderilemedi. Lütfen tekrar deneyin.");
+      return;
+    }
+    setSuccess("Şifre sıfırlama linki e-postanıza gönderildi. Lütfen gelen kutunuzu kontrol edin.");
   }
 
   // ── Register ───────────────────────────────────────────────────
@@ -156,6 +180,19 @@ export default function AuthForm({ defaultTab, from }: Props) {
           </button>
         ))}
       </div>
+      {/* Şifremi Unuttum başlık (tab dışı) */}
+      {tab === "sifre" && (
+        <div className="flex items-center gap-2 px-6 py-3 border-b border-warm-100 bg-warm-50/50">
+          <button
+            onClick={() => { setTab("giris"); setError(""); setSuccess(""); }}
+            className="text-warm-400 hover:text-warm-700 transition-colors"
+            aria-label="Geri"
+          >
+            ←
+          </button>
+          <span className="text-sm font-medium text-warm-700">Şifremi Unuttum</span>
+        </div>
+      )}
 
       <div className="p-6">
         {/* Error / success */}
@@ -186,7 +223,16 @@ export default function AuthForm({ defaultTab, from }: Props) {
               />
             </div>
             <div>
-              <label className={labelCls}>Şifre</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-sm font-medium text-warm-700">Şifre</label>
+                <button
+                  type="button"
+                  onClick={() => { setTab("sifre"); setResetEmail(loginEmail); setError(""); setSuccess(""); }}
+                  className="text-xs text-brand-600 hover:text-brand-800 hover:underline transition-colors"
+                >
+                  Şifremi unuttum
+                </button>
+              </div>
               <input
                 type="password"
                 value={loginPassword}
@@ -203,6 +249,41 @@ export default function AuthForm({ defaultTab, from }: Props) {
               className="w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white font-medium text-sm transition-colors"
             >
               {loading ? "Giriş yapılıyor…" : "Giriş Yap"}
+            </button>
+          </form>
+        )}
+
+        {/* ── Forgot password form ── */}
+        {tab === "sifre" && (
+          <form onSubmit={handleForgotPassword} className="space-y-4">
+            <p className="text-sm text-warm-500 leading-relaxed">
+              Kayıtlı e-posta adresinizi girin. Şifre sıfırlama linki göndereceğiz.
+            </p>
+            <div>
+              <label className={labelCls}>E-posta</label>
+              <input
+                type="email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                required
+                autoComplete="email"
+                placeholder="ornek@mail.com"
+                className={inputCls}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white font-medium text-sm transition-colors"
+            >
+              {loading ? "Gönderiliyor…" : "Sıfırlama Linki Gönder"}
+            </button>
+            <button
+              type="button"
+              onClick={() => { setTab("giris"); setError(""); setSuccess(""); }}
+              className="w-full py-2 text-sm text-warm-500 hover:text-warm-700 transition-colors"
+            >
+              ← Giriş sayfasına dön
             </button>
           </form>
         )}

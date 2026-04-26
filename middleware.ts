@@ -47,6 +47,9 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // ── Auth callback — her zaman geçsin (PKCE code exchange) ──────
+  if (pathname.startsWith("/auth/callback")) return response;
+
   // ── Protected member routes ──────────────────────────────────────
   const memberRoutes = ["/uye/panel", "/tarif-ekle"];
   const isMemberRoute = memberRoutes.some((r) => pathname.startsWith(r));

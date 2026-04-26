@@ -13,9 +13,10 @@ export async function POST(request: NextRequest) {
 
   // Supabase SMTP üzerinden şifre sıfırlama maili gönder
   // Dashboard → Auth → URL Configuration'a origin/sifre-guncelle eklenmiş olmalı
+  // Auth callback üzerinden geçerek PKCE code'u exchange et, sonra sifre-guncelle'ye yönlendir
   const { error } = await supabase.auth.resetPasswordForEmail(
     email.trim().toLowerCase(),
-    { redirectTo: `${origin}/sifre-guncelle` }
+    { redirectTo: `${origin}/auth/callback?next=/sifre-guncelle` }
   );
 
   if (error) {

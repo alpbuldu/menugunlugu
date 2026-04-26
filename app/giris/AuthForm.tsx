@@ -159,7 +159,7 @@ export default function AuthForm({ defaultTab, from }: Props) {
     // Mail onayı gerekiyor — otomatik giriş yapma, kullanıcıya bildir
     // İlk girişte Hesap Bilgilerim'e yönlendirmek için işaret bırak
     localStorage.setItem("mg_new_user", "1");
-    setSuccess("Kayıt başarılı! 🎉 E-posta adresinize bir onay linki gönderdik. Linke tıkladıktan sonra giriş yapabilirsiniz.");
+    setSuccess("Kayıt başarılı! 🎉 E-posta adresinize bir onay linki gönderdik. Gelen kutunuzu ve spam klasörünü kontrol edin.");
     setTab("giris");
   }
 

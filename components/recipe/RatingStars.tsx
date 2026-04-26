@@ -50,7 +50,7 @@ export default function RatingStars({ recipeId }: Props) {
         setAvg(d.avg);
         setCount(d.count);
         window.dispatchEvent(new CustomEvent("recipe-rating-changed", {
-          detail: { recipeId, avg: d.avg, count: d.count },
+          detail: { recipeId, avg: d.avg, count: d.count, userScore: score },
         }));
       });
   }

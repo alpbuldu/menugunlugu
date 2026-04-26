@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 interface Props {
   recipeId: string;
@@ -18,6 +17,8 @@ interface Props {
   isAdminProfile: boolean;
   initialFollowing: boolean;
   authorProfileHref?: string;
+  initialUserRating?: number;
+  shareCount?: number;
 }
 
 /* ── SVG ikonlar — tek renk, aynı boyut ── */
@@ -26,6 +27,7 @@ const Ico = {
   follow:  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>,
   following:<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>,
   star:    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
+  starOn:  <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
   heart:   <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
   heartOn: <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
   share:   <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>,
@@ -43,12 +45,11 @@ function goLogin() {
 
 /* ── Hücre — sabit yükseklikli satırlar için ── */
 function Cell({
-  icon, stat, label, sub, onClick, href, active,
+  icon, stat, label, onClick, href, active,
 }: {
   icon: React.ReactNode;
   stat: string;
   label: string;
-  sub?: React.ReactNode;
   onClick?: () => void;
   href?: string;
   active?: boolean;
@@ -56,9 +57,8 @@ function Cell({
   const color = active ? "text-brand-600" : "text-warm-400 hover:text-warm-700";
 
   const inner = (
-    /* Sabit yükseklik satırları — tüm hücreler hizalı */
     <span className="flex flex-col items-center w-full">
-      {/* İkon satırı: h-8, tüm ikonlar aynı dikeyde */}
+      {/* İkon satırı: h-8 */}
       <span className={`h-8 flex items-center justify-center transition-colors ${color}`}>
         {icon}
       </span>
@@ -68,10 +68,8 @@ function Cell({
       </span>
       {/* Etiket satırı: h-4 */}
       <span className="h-4 flex items-center justify-center">
-        <span className="text-[10px] text-warm-400 leading-none">{label}</span>
+        <span className={`text-[10px] leading-none ${active ? "text-brand-500" : "text-warm-400"}`}>{label}</span>
       </span>
-      {/* Opsiyonel alt link */}
-      {sub && <span className="h-4 flex items-center justify-center mt-0.5">{sub}</span>}
     </span>
   );
 
@@ -92,25 +90,31 @@ export default function RecipeActionBar({
   initialFavorited, isLoggedIn,
   targetUserId, isAdminProfile, initialFollowing,
   authorProfileHref,
+  initialUserRating = 0,
+  shareCount: initialShareCount = 0,
 }: Props) {
-  const [favorited,  setFavorited]  = useState(initialFavorited);
-  const [favCount,   setFavCount]   = useState(favoriteCount);
-  const [favSaving,  setFavSaving]  = useState(false);
-  const [following,  setFollowing]  = useState(initialFollowing);
-  const [follCount,  setFollCount]  = useState(followerCount);
-  const [rating,     setRating]     = useState({ avg: avgRating, count: ratingCount });
-  const [copied,     setCopied]     = useState(false);
-  const [,           startTransition] = useTransition();
+  const [favorited,   setFavorited]  = useState(initialFavorited);
+  const [favCount,    setFavCount]   = useState(favoriteCount);
+  const [favSaving,   setFavSaving]  = useState(false);
+  const [following,   setFollowing]  = useState(initialFollowing);
+  const [follCount,   setFollCount]  = useState(followerCount);
+  const [rating,      setRating]     = useState({ avg: avgRating, count: ratingCount });
+  const [userRating,  setUserRating] = useState(initialUserRating);
+  const [shareCount,  setShareCount] = useState(initialShareCount);
+  const [copied,      setCopied]     = useState(false);
+  const [,            startTransition] = useTransition();
   const router = useRouter();
-  const selfDispatch = useRef(false); // kendi dispatch ettiği follow-change'i tekrar saymasın
+  const selfDispatch = useRef(false);
 
   const myId = isAdminProfile ? "__admin__" : (targetUserId ?? null);
 
-  /* RatingStars'tan puan güncellemesi */
+  /* RatingStars'tan puan güncellemesi + kullanıcı puanı */
   useEffect(() => {
     function onRating(e: Event) {
-      const { recipeId: id, avg, count } = (e as CustomEvent).detail;
-      if (id === recipeId) setRating({ avg, count });
+      const { recipeId: id, avg, count, userScore } = (e as CustomEvent).detail;
+      if (id !== recipeId) return;
+      setRating({ avg, count });
+      if (typeof userScore === "number") setUserRating(userScore);
     }
     window.addEventListener("recipe-rating-changed", onRating);
     return () => window.removeEventListener("recipe-rating-changed", onRating);
@@ -120,7 +124,7 @@ export default function RecipeActionBar({
   useEffect(() => {
     if (!myId) return;
     function onFollow(e: Event) {
-      if (selfDispatch.current) return; // kendi tıkladığımız → zaten güncelledik
+      if (selfDispatch.current) return;
       const { id, following: val } = (e as CustomEvent<{ id: string; following: boolean }>).detail;
       if (id !== myId) return;
       setFollowing(val);
@@ -213,7 +217,13 @@ export default function RecipeActionBar({
   /* Paylaş */
   async function handleShare() {
     const url = window.location.href;
-    if (navigator.share) { try { await navigator.share({ title: recipeTitle, url }); return; } catch { return; } }
+    // Sayacı artır
+    setShareCount(c => c + 1);
+    fetch(`/api/recipes/${recipeId}/shares`, { method: "POST" }).catch(() => {});
+
+    if (navigator.share) {
+      try { await navigator.share({ title: recipeTitle, url }); return; } catch { return; }
+    }
     await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -239,27 +249,20 @@ export default function RecipeActionBar({
         <Cell
           icon={following ? Ico.following : Ico.follow}
           stat={fmt(follCount)}
-          label={following ? "Takipte" : "Takip Et"}
-          onClick={handleFollow}
+          label={following ? "Yazar kartını gör" : "Takip Et"}
+          onClick={following && authorProfileHref ? undefined : handleFollow}
+          href={following && authorProfileHref ? authorProfileHref : undefined}
           active={following}
-          sub={following && authorProfileHref ? (
-            <Link
-              href={authorProfileHref}
-              onClick={e => e.stopPropagation()}
-              className="text-[9px] text-brand-500 hover:underline leading-none"
-            >
-              Yazar kartını gör →
-            </Link>
-          ) : undefined}
         />
 
         <Sep />
 
         <Cell
-          icon={Ico.star}
+          icon={userRating > 0 ? Ico.starOn : Ico.star}
           stat={ratingDisplay}
-          label="Puan"
+          label={userRating > 0 ? `${userRating} yıldız` : "Puan"}
           href="#puan"
+          active={userRating > 0}
         />
 
         <Sep />
@@ -267,25 +270,17 @@ export default function RecipeActionBar({
         <Cell
           icon={favorited ? Ico.heartOn : Ico.heart}
           stat={fmt(favCount)}
-          label={favorited ? "Defterde" : "Deftere Ekle"}
-          onClick={toggleFavorite}
+          label={favorited ? "Defterini gör" : "Deftere Ekle"}
+          onClick={favorited ? undefined : toggleFavorite}
+          href={favorited ? "/uye/panel?tab=tarif-defterim" : undefined}
           active={favorited}
-          sub={favorited && isLoggedIn ? (
-            <Link
-              href="/uye/panel?tab=tarif-defterim"
-              onClick={e => e.stopPropagation()}
-              className="text-[9px] text-brand-500 hover:underline leading-none"
-            >
-              Defterini gör →
-            </Link>
-          ) : undefined}
         />
 
         <Sep />
 
         <Cell
           icon={copied ? Ico.check : Ico.share}
-          stat=""
+          stat={shareCount > 0 ? fmt(shareCount) : ""}
           label={copied ? "Kopyalandı" : "Paylaş"}
           onClick={handleShare}
           active={copied}

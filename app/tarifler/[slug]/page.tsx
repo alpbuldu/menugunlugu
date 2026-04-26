@@ -161,13 +161,17 @@ export default async function RecipeDetailPage({ params }: Props) {
 
   // Aksiyon barı istatistikleri
   const adminSb = (await import("@/lib/supabase/server")).createAdminClient();
-  const [commentsCountRes, favoritesRes, ratingsRes, favoritedRes] = await Promise.all([
+  const [commentsCountRes, favoritesRes, ratingsRes, favoritedRes, userRatingRes, shareCountRes] = await Promise.all([
     adminSb.from("comments").select("id", { count: "exact", head: true }).eq("recipe_id", recipe.id),
     adminSb.from("favorites").select("recipe_id", { count: "exact", head: true }).eq("recipe_id", recipe.id),
     adminSb.from("ratings").select("score").eq("recipe_id", recipe.id),
     currentUserId
       ? adminSb.from("favorites").select("recipe_id").eq("recipe_id", recipe.id).eq("user_id", currentUserId).maybeSingle()
       : Promise.resolve({ data: null }),
+    currentUserId
+      ? adminSb.from("ratings").select("score").eq("recipe_id", recipe.id).eq("user_id", currentUserId).maybeSingle()
+      : Promise.resolve({ data: null }),
+    adminSb.from("recipe_shares").select("id", { count: "exact", head: true }).eq("recipe_id", recipe.id),
   ]);
   const statCommentCount  = commentsCountRes.count ?? 0;
   const statFavoriteCount = favoritesRes.count ?? 0;
@@ -177,6 +181,8 @@ export default async function RecipeDetailPage({ params }: Props) {
     ? Math.round((ratingScores.reduce((a, b) => a + b, 0) / ratingScores.length) * 10) / 10
     : 0;
   const statRatingCount   = ratingScores.length;
+  const statUserRating    = (userRatingRes.data as any)?.score ?? 0;
+  const statShareCount    = shareCountRes.count ?? 0;
 
   // Malzemeler
   const ingredientsIsHtml = recipe.ingredients.trim().startsWith("<");
@@ -303,6 +309,8 @@ export default async function RecipeDetailPage({ params }: Props) {
           isAdminProfile={isAdminAuthor}
           initialFollowing={initialFollowing}
           authorProfileHref={`/uye/${authorUsername}`}
+          initialUserRating={statUserRating}
+          shareCount={statShareCount}
         />
 
         <div className="p-8">

@@ -183,7 +183,7 @@ export default async function BlogPage({ searchParams }: Props) {
     <SidebarLayout placement="sidebar_blog" adSenseSlot="blog_dikey_masaustu">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-1">Blog</h1>
-      <p className="text-sm sm:text-base text-brand-600 mb-4 font-medium">Yemek kültürü, tarifler ve mutfak hikayeleri.</p>
+      <p className="text-sm sm:text-base text-warm-500 mb-4">Yemek kültürü, tarifler ve mutfak hikayeleri.</p>
 
       {/* Kategori filtreleri */}
       {categories.length > 0 && (
@@ -251,7 +251,7 @@ export default async function BlogPage({ searchParams }: Props) {
                           {post.title}
                         </h3>
                         {post.excerpt && (
-                          <p className="text-sm text-warm-400 mt-1.5 line-clamp-3 leading-relaxed">
+                          <p className="text-sm text-warm-600 mt-1.5 line-clamp-3 leading-relaxed">
                             {post.excerpt}
                           </p>
                         )}
@@ -345,7 +345,7 @@ export default async function BlogPage({ searchParams }: Props) {
                       {post.title}
                     </h2>
                     {post.excerpt && (
-                      <p className="text-sm text-warm-400 mt-1.5 line-clamp-3 leading-relaxed">
+                      <p className="text-sm text-warm-600 mt-1.5 line-clamp-3 leading-relaxed">
                         {post.excerpt}
                       </p>
                     )}

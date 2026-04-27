@@ -20,17 +20,14 @@ export default function PasswordUpdateForm() {
   useEffect(() => {
     const supabase = createClient();
 
-    // Code exchange artık /auth/callback server-side route'unda yapılıyor.
-    // Bu sayfa sadece oluşan session'ı bekler.
-
-    // onAuthStateChange: PASSWORD_RECOVERY veya SIGNED_IN event'ini yakala
+    // onAuthStateChange: PASSWORD_RECOVERY (hash token) veya SIGNED_IN event'ini yakala
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
         setReady(true);
       }
     });
 
-    // Zaten session varsa (sayfa yüklendikten hemen sonra) hemen göster
+    // Zaten aktif session varsa hemen göster (örn. /auth/callback üzerinden gelindiyse)
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setReady(true);
     });

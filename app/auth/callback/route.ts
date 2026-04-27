@@ -31,6 +31,7 @@ export async function GET(request: NextRequest) {
     );
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
+    console.error("[auth/callback] exchangeCodeForSession result:", error ? `ERROR: ${error.message}` : "OK");
 
     if (!error) {
       // logout=1 → e-posta onayı akışı: session kur, hemen çıkış yap

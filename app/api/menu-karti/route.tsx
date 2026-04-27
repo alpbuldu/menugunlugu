@@ -110,8 +110,8 @@ export async function GET(request: NextRequest) {
     const r = byId[ids[s.key]];
     const author = !r?.submitted_by ? adminName : (profileMap[r.submitted_by!] ?? "");
     const img = await getImg(r?.image_url ?? null);
-    const ingredients = parseIngredients(r?.ingredients ?? "").slice(0, 6);
-    const steps       = parseSteps(r?.instructions ?? "").slice(0, 5);
+    const ingredients = parseIngredients(r?.ingredients ?? "");
+    const steps       = parseSteps(r?.instructions ?? "");
     cards.push({ title: r?.title ?? "—", author, cat: s.cat, img, ingredients, steps });
   }
 
@@ -243,8 +243,8 @@ function SharedFooter() {
 function SlideView({ card, date }: { card: Card; date: string }) {
   const DIV        = 3;
   const PANEL_W    = 330;
-  const maxIngr    = card.ingredients.slice(0, 6);
-  const maxSteps   = card.steps.slice(0, 5);
+  const maxIngr    = card.ingredients;
+  const maxSteps   = card.steps;
 
   return (
     <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>

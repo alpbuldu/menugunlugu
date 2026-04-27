@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 
 export async function POST(request: NextRequest) {
   const { email, password, username, marketing_consent } = await request.json();
@@ -61,11 +61,16 @@ export async function POST(request: NextRequest) {
   const origin = request.nextUrl.origin;
   const uname  = unameTrimmed;
 
-  // signUp → Supabase/Brevo SMTP ile onay maili gönderir
-  // Onay sonrası auth/callback → çıkış → /giris?mesaj=email-onaylandi
-  const supabase = await createClient();
-  const emailRedirectTo = `${origin}/auth/callback?logout=1&next=${encodeURIComponent("/giris?mesaj=email-onaylandi&new=1")}`;
-  const { data, error } = await supabase.auth.signUp({
+  // signUp — implicit flow ile çağrılır (PKCE gerektirmez).
+  // Supabase, onay mailinde token_hash tabanlı link gönderir.
+  // /auth/confirm sayfası verifyOtp ile doğrular — PKCE verifier sorununu ortadan kaldırır.
+  const signUpClient = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { auth: { flowType: "implicit", persistSession: false } }
+  );
+  const emailRedirectTo = `${origin}/auth/confirm`;
+  const { data, error } = await signUpClient.auth.signUp({
     email: email.trim(),
     password,
     options: {

@@ -296,8 +296,9 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
       `🍽️ ${today} günün menüsü hazır!`,
       `Bugün sofrada: ${sel.soup.title}, ${sel.main.title}, ${sel.side.title} ve ${sel.dessert.title} var.`,
       `Tariflerin detaylarına ve daha fazlasına menugunlugu.com üzerinden ulaşabilir, kendi günlük menünüzü oluşturabilirsiniz.`,
-      `Afiyet olsun! 😊\n\n#menugunlugu #günlükmenu #yemektarifleri #türkmutfağı #evyemeği #yemek #tarif`,
-    ].join("\n");
+      `Afiyet olsun! 😊`,
+      `#tarif #yemek #gününmenüsü #menügünlüğü`,
+    ].join("\n\n");
   }
 
   async function handleCard(format: "post" | "story") {

@@ -288,6 +288,18 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     });
   }
 
+  function generateCaption(sel: Record<Category, MenuRecipe>): string {
+    const today = new Date().toLocaleDateString("tr-TR", {
+      weekday: "long", day: "numeric", month: "long",
+    });
+    return [
+      `🍽️ ${today} günün menüsü hazır!`,
+      `Bugün sofrada: ${sel.soup.title}, ${sel.main.title}, ${sel.side.title} ve ${sel.dessert.title} var.`,
+      `Tariflerin detaylarına ve daha fazlasına menugunlugu.com üzerinden ulaşabilir, kendi günlük menünüzü oluşturabilirsiniz.`,
+      `Afiyet olsun! 😊\n\n#menugunlugu #günlükmenu #yemektarifleri #türkmutfağı #evyemeği #yemek #tarif`,
+    ].join("\n");
+  }
+
   async function handleCard(format: "post" | "story") {
     if (!allFilled || downloading) return;
     const sel = selection as Record<Category, MenuRecipe>;
@@ -338,6 +350,10 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
         const buf = buffers[i];
         if (buf) zipFiles[`${labels[i]}.png`] = new Uint8Array(buf);
       }
+      // Caption önerisi — metin dosyası olarak ekle
+      const caption = generateCaption(sel);
+      zipFiles["caption.txt"] = new TextEncoder().encode(caption);
+
       const zipped  = zipSync(zipFiles, { level: 0 });
       const zipBlob = new Blob([zipped], { type: "application/zip" });
 

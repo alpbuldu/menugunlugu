@@ -25,13 +25,18 @@ export default function PasswordUpdateForm() {
     const params = new URLSearchParams(window.location.search);
     const code   = params.get("code");
     if (code) {
+      // URL'yi hemen temizle (yenileme sorununu önler)
+      window.history.replaceState({}, "", window.location.pathname);
       supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
         if (!error && data.session) {
           setReady(true);
-          // URL'i temizle
-          window.history.replaceState({}, "", window.location.pathname);
+        } else {
+          // Exchange başarısız: hata göster, form açılmasın
+          setError("Şifre sıfırlama linki geçersiz veya süresi dolmuş. Lütfen tekrar şifre sıfırlama isteği gönderin.");
         }
       });
+      // code varken getSession'a bakma — exchange sonucunu bekle
+      return () => {};
     }
 
     // onAuthStateChange: PASSWORD_RECOVERY veya SIGNED_IN event'ini yakala
@@ -68,7 +73,14 @@ export default function PasswordUpdateForm() {
     setLoading(false);
 
     if (err) {
-      setError("Şifre güncellenemedi. Link süresi dolmuş olabilir, lütfen tekrar şifre sıfırlama isteği gönderin.");
+      const msg = err.message ?? "";
+      if (msg.toLowerCase().includes("same password") || msg.toLowerCase().includes("different from")) {
+        setError("Yeni şifreniz eski şifrenizle aynı olamaz. Lütfen farklı bir şifre seçin.");
+      } else if (msg.toLowerCase().includes("session") || msg.toLowerCase().includes("not authenticated") || msg.toLowerCase().includes("jwt")) {
+        setError("Oturum süresi dolmuş. Lütfen şifre sıfırlama e-postasını tekrar isteyin.");
+      } else {
+        setError(`Şifre güncellenemedi: ${msg || "Lütfen tekrar şifre sıfırlama isteği gönderin."}`);
+      }
       return;
     }
 
@@ -79,7 +91,18 @@ export default function PasswordUpdateForm() {
   if (!ready) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-warm-200 p-6 text-center">
-        <div className="text-warm-400 text-sm">Doğrulanıyor…</div>
+        {error ? (
+          <>
+            <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm text-left">
+              {error}
+            </div>
+            <a href="/giris?tab=sifre" className="text-sm text-brand-600 hover:underline">
+              ← Şifre sıfırlama isteği gönder
+            </a>
+          </>
+        ) : (
+          <div className="text-warm-400 text-sm">Doğrulanıyor…</div>
+        )}
       </div>
     );
   }

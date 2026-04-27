@@ -98,23 +98,21 @@ export default function AuthForm({ defaultTab, from, isNewAccount }: Props) {
 
     const trimmedEmail = resetEmail.trim();
 
-    // 1) Server: sadece kullanıcı varlık kontrolü
-    const res = await fetch("/api/auth/reset-password", {
+    // 1) Server: rate limit'siz kullanıcı varlık kontrolü
+    const checkRes = await fetch("/api/auth/reset-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email: trimmedEmail }),
     });
-
-    const resData = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
+    if (!checkRes.ok) {
+      const d = await checkRes.json().catch(() => ({}));
       setLoading(false);
-      setError((resData as { error?: string }).error ?? "Şifre sıfırlama e-postası gönderilemedi. Lütfen tekrar deneyin.");
+      setError((d as { error?: string }).error ?? "Şifre sıfırlama e-postası gönderilemedi.");
       return;
     }
 
-    // Kullanıcı var → tarayıcıdan resetPasswordForEmail çağır.
-    // PKCE verifier browser cookie'sine yazılır; linke tıklayınca /auth/callback okur.
+    // 2) Tarayıcıdan resetPasswordForEmail → Supabase Brevo SMTP ile gönderir,
+    // PKCE verifier browser cookie'sine yazılır.
     const supabase = createClient();
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent("/sifre-guncelle")}`;
     const { error: resetErr } = await supabase.auth.resetPasswordForEmail(
@@ -125,7 +123,12 @@ export default function AuthForm({ defaultTab, from, isNewAccount }: Props) {
     setLoading(false);
 
     if (resetErr) {
-      setError(`Hata: ${resetErr.message}`);
+      const msg = resetErr.message ?? "";
+      if (msg.toLowerCase().includes("security purposes") || msg.toLowerCase().includes("after")) {
+        setError("Lütfen 1 dakika bekleyip tekrar deneyin.");
+      } else {
+        setError("Şifre sıfırlama e-postası gönderilemedi. Lütfen tekrar deneyin.");
+      }
       return;
     }
 

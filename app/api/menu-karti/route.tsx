@@ -315,7 +315,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
                     <div style={{ minWidth: 15, height: 15, borderRadius: 2, backgroundColor: "rgba(217,119,6,0.75)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
                       <div style={{ color: "#FFF", fontSize: 9, fontWeight: 700, display: "flex" }}>{i + 1}</div>
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 12, lineHeight: 1.3, display: "flex" }}>{step}</div>
+                    <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 13, lineHeight: 1.3, display: "flex" }}>{step}</div>
                   </div>
                 ))}
               </div>

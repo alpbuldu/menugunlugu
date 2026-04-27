@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
-/**
- * Şifre sıfırlama:
- * 1) GoTrue Admin generate_link → kullanıcı varlık kontrolü (422 = kayıtlı değil).
- * 2) createServerClient ile resetPasswordForEmail → Supabase kendi SMTP'siyle
- *    (Brevo) maili gönderir; PKCE verifier'ı Set-Cookie ile browser'a yazar.
- *    Browser linke tıkladığında cookie hazır olduğu için /auth/callback exchange'i başarır.
- */
 export async function POST(request: NextRequest) {
   const { email } = await request.json();
 
@@ -22,7 +16,6 @@ export async function POST(request: NextRequest) {
   const siteOrigin  = request.nextUrl.origin;
 
   // ── 1) Kullanıcı varlık kontrolü ──────────────────────────────────
-  // generate_link başarılı olursa kullanıcı var demektir; linki kullanmıyoruz.
   const genRes = await fetch(`${supabaseUrl}/auth/v1/admin/generate_link`, {
     method: "POST",
     headers: {
@@ -45,21 +38,21 @@ export async function POST(request: NextRequest) {
   }
 
   // ── 2) Supabase SMTP (Brevo) ile mail gönder ───────────────────────
-  // createServerClient PKCE verifier'ı cookiesToSet listesine yazar.
-  const cookiesToSet: Array<{
-    name: string;
-    value: string;
-    options: Record<string, unknown>;
-  }> = [];
+  const cookieStore = await cookies();
 
   const supabase = createServerClient(supabaseUrl, anonKey, {
     cookies: {
-      getAll() { return []; },
-      setAll(list) { cookiesToSet.push(...list); },
+      getAll()      { return cookieStore.getAll(); },
+      setAll(list)  {
+        try {
+          list.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          );
+        } catch { /* Server Component context */ }
+      },
     },
   });
 
-  // redirectTo: GoTrue bu URL'ye &code=xxx ekler → /auth/callback next=/sifre-guncelle
   const redirectTo =
     `${siteOrigin}/auth/callback?next=${encodeURIComponent("/sifre-guncelle")}`;
 
@@ -69,18 +62,12 @@ export async function POST(request: NextRequest) {
   );
 
   if (resetErr) {
-    console.error("[reset-password] resetPasswordForEmail error:", resetErr.message);
+    // Geçici: debug için gerçek hata mesajını döndür
     return NextResponse.json(
-      { error: "E-posta gönderilemedi. Lütfen tekrar deneyin." },
+      { error: `Hata: ${resetErr.message}` },
       { status: 500 }
     );
   }
 
-  // PKCE verifier'ı browser'a cookie olarak ilet (Set-Cookie header)
-  const response = NextResponse.json({ ok: true });
-  cookiesToSet.forEach(({ name, value, options }) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    response.cookies.set(name, value, options as any);
-  });
-  return response;
+  return NextResponse.json({ ok: true });
 }

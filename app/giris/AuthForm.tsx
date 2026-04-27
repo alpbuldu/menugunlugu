@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { clsx } from "clsx";
 
@@ -10,11 +9,11 @@ type Tab = "giris" | "kayit" | "sifre";
 interface Props {
   defaultTab: Tab;
   from?: string;
+  isNewAccount?: boolean;
 }
 
-export default function AuthForm({ defaultTab, from }: Props) {
-  const router  = useRouter();
-  const [tab,   setTab]   = useState<Tab>(defaultTab);
+export default function AuthForm({ defaultTab, from, isNewAccount }: Props) {
+  const [tab, setTab] = useState<Tab>(defaultTab);
 
   // Login state
   const [loginEmail,    setLoginEmail]    = useState("");
@@ -60,7 +59,8 @@ export default function AuthForm({ defaultTab, from }: Props) {
       return;
     }
 
-    const isNewUser = localStorage.getItem("mg_new_user") === "1";
+    // İlk giriş: URL'deki new=1 (email onay mailinden geldi) veya localStorage flag
+    const isNewUser = isNewAccount || localStorage.getItem("mg_new_user") === "1";
     localStorage.removeItem("mg_new_user"); // Her başarılı girişte temizle
 
     // Önce sessionStorage'a bak (action bar goLogin() buraya yazar)
@@ -96,19 +96,36 @@ export default function AuthForm({ defaultTab, from }: Props) {
     setSuccess("");
     setLoading(true);
 
+    const trimmedEmail = resetEmail.trim();
+
+    // 1) Server: sadece kullanıcı varlık kontrolü
     const res = await fetch("/api/auth/reset-password", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: resetEmail.trim() }),
+      body: JSON.stringify({ email: trimmedEmail }),
     });
 
-    const data = await res.json();
-    setLoading(false);
-
     if (!res.ok) {
+      const data = await res.json();
+      setLoading(false);
       setError(data.error ?? "Şifre sıfırlama e-postası gönderilemedi. Lütfen tekrar deneyin.");
       return;
     }
+
+    // 2) Client: resetPasswordForEmail — PKCE verifier tarayıcıda saklanır
+    //    Doğrudan /sifre-guncelle'ye yönlendir; browser client kodu orada exchange eder
+    const supabase = createClient();
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+      redirectTo: `${window.location.origin}/sifre-guncelle`,
+    });
+
+    setLoading(false);
+
+    if (resetError) {
+      setError("Şifre sıfırlama e-postası gönderilemedi. Lütfen tekrar deneyin.");
+      return;
+    }
+
     setSuccess("Şifre sıfırlama linki e-postanıza gönderildi. Gelen kutunuzu ve spam klasörünü kontrol edin.");
   }
 

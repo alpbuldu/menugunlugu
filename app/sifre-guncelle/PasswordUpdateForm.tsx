@@ -18,16 +18,30 @@ export default function PasswordUpdateForm() {
   const labelCls = "block text-sm font-medium text-warm-700 mb-1.5";
 
   useEffect(() => {
-    // Supabase, reset linkindeki token'ı otomatik olarak oturuma çevirir.
-    // onAuthStateChange ile PASSWORD_RECOVERY event'ini yakala.
     const supabase = createClient();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+
+    // PKCE code exchange: URL'de ?code= varsa browser-side exchange yap
+    // (resetPasswordForEmail browser'dan çağrıldığında verifier browser'da)
+    const params = new URLSearchParams(window.location.search);
+    const code   = params.get("code");
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+        if (!error && data.session) {
+          setReady(true);
+          // URL'i temizle
+          window.history.replaceState({}, "", window.location.pathname);
+        }
+      });
+    }
+
+    // onAuthStateChange: PASSWORD_RECOVERY veya SIGNED_IN event'ini yakala
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
         setReady(true);
       }
     });
 
-    // Zaten oturum açıksa (sayfa yenilemesi) kontrol et
+    // Zaten session varsa (sayfa yenilemesi vb.) hemen göster
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setReady(true);
     });

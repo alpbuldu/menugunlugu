@@ -31,8 +31,10 @@ export default function PasswordUpdateForm() {
         if (!error && data.session) {
           setReady(true);
         } else {
-          // Exchange başarısız: hata göster, form açılmasın
-          setError("Şifre sıfırlama linki geçersiz veya süresi dolmuş. Lütfen tekrar şifre sıfırlama isteği gönderin.");
+          // Exchange başarısız: gerçek hata mesajını göster
+          const errMsg = error?.message ?? "bilinmeyen hata";
+          console.error("[sifre-guncelle] exchangeCodeForSession hatası:", errMsg);
+          setError(`Şifre sıfırlama linki geçersiz veya süresi dolmuş. (${errMsg})`);
         }
       });
       // code varken getSession'a bakma — exchange sonucunu bekle

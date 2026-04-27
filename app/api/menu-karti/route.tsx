@@ -238,21 +238,21 @@ function SharedFooter() {
 
 /* ════════════════════════════════════════════════════════════════
    SLIDE  1080 × 1350
-   Tek tarif — tam arka plan görsel · sağda malzeme paneli
+   Sol: tam görsel + sol-alt overlay (kategori, başlık, yazar, detaylar)
+   Sağ: 400px panel — malzemeler + hazırlanış, overflow: hidden ile kliplenmiş
 ════════════════════════════════════════════════════════════════ */
 function SlideView({ card, date }: { card: Card; date: string }) {
-  const DIV        = 3;
-  const PANEL_W    = 330;
-  const maxIngr    = card.ingredients;
-  const maxSteps   = card.steps;
+  const DIV     = 3;
+  const PANEL_W = 400; // 330 → 400: daha geniş panel, daha az satır kırılması
 
   return (
     <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
       <SharedHeader date={date} />
       <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
 
-      {/* İçerik: tam arka plan görsel */}
+      {/* Ana içerik alanı */}
       <div style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}>
+
         {/* Arka plan görsel */}
         {card.img
           ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
@@ -261,62 +261,67 @@ function SlideView({ card, date }: { card: Card; date: string }) {
             </div>
         }
 
-        {/* Sol alt gradyan */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: PANEL_W, height: "65%", background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.45) 55%, transparent 100%)", display: "flex" }} />
+        {/* Sol-alt gradyan (panel genişliği kadar içe çekik) */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: PANEL_W, height: "62%", background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)", display: "flex" }} />
 
-        {/* Sol alt: kategori, isim, yazar */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: PANEL_W, padding: "28px 32px", display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ color: "#FCD34D", fontSize: 22, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
-          <div style={{ color: "#FFFFFF", fontSize: 38, fontWeight: 700, lineHeight: 1.15, display: "flex" }}>{card.title}</div>
+        {/* Sol-alt: kategori · başlık · yazar · Detaylar için */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: PANEL_W, padding: "24px 28px", display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ color: "#FCD34D", fontSize: 18, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
+          <div style={{ color: "#FFFFFF", fontSize: 34, fontWeight: 700, lineHeight: 1.15, display: "flex" }}>{card.title}</div>
           {card.author && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, display: "flex" }}>Yazar:</div>
-              <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 15, fontWeight: 700, display: "flex" }}>{card.author}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, display: "flex" }}>Yazar:</div>
+              <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 13, fontWeight: 700, display: "flex" }}>{card.author}</div>
             </div>
           )}
+          {/* Detaylar için — yazarın hemen altı */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 2 }}>
+            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 10, letterSpacing: 0.5, display: "flex" }}>Detaylar için</div>
+            <div style={{ color: "#FCD34D", fontSize: 12, fontWeight: 700, letterSpacing: 0.5, display: "flex" }}>menugunlugu.com</div>
+          </div>
         </div>
 
-        {/* Sağ panel: malzemeler */}
-        <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: PANEL_W, background: "rgba(10,4,0,0.82)", display: "flex", flexDirection: "column", padding: "28px 22px" }}>
-          {/* Başlık */}
-          <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex", marginBottom: 10 }}>MALZEMELER</div>
-          <div style={{ height: 1, backgroundColor: "#D97706", display: "flex", marginBottom: 14 }} />
+        {/* ── Sağ panel ── */}
+        <div style={{
+          position: "absolute", top: 0, right: 0, bottom: 0, width: PANEL_W,
+          background: "rgba(10,4,0,0.87)",
+          display: "flex", flexDirection: "column",
+          padding: "20px 16px",
+          overflow: "hidden", // taşan içerik düzgün kliplensin
+        }}>
 
-          {/* Malzeme listesi */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-            {maxIngr.map((item, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#D97706", marginTop: 5, flexShrink: 0, display: "flex" }} />
-                <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 13, lineHeight: 1.3, display: "flex" }}>{item}</div>
+          {/* MALZEMELER */}
+          <div style={{ color: "#FCD34D", fontSize: 11, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>MALZEMELER</div>
+          <div style={{ height: 1, backgroundColor: "#D97706", display: "flex", marginBottom: 9 }} />
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            {card.ingredients.map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
+                <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#D97706", marginTop: 5, flexShrink: 0, display: "flex" }} />
+                <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 11, lineHeight: 1.25, display: "flex" }}>{item}</div>
               </div>
             ))}
           </div>
 
-          {/* Hazırlanış */}
-          {maxSteps.length > 0 && (
+          {/* HAZIRLANIŞ */}
+          {card.steps.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.2)", display: "flex", margin: "12px 0 10px" }} />
-              <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex", marginBottom: 8 }}>HAZIRLANIŞ</div>
-              <div style={{ height: 1, backgroundColor: "#D97706", display: "flex", marginBottom: 10 }} />
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {maxSteps.map((step, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
-                    <div style={{ minWidth: 17, height: 17, borderRadius: 3, backgroundColor: "rgba(217,119,6,0.7)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                      <div style={{ color: "#FFF", fontSize: 10, fontWeight: 700, display: "flex" }}>{i + 1}</div>
+              <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.18)", display: "flex", margin: "10px 0 8px" }} />
+              <div style={{ color: "#FCD34D", fontSize: 11, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>HAZIRLANIŞ</div>
+              <div style={{ height: 1, backgroundColor: "#D97706", display: "flex", marginBottom: 9 }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {card.steps.map((step, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+                    <div style={{ minWidth: 15, height: 15, borderRadius: 2, backgroundColor: "rgba(217,119,6,0.75)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                      <div style={{ color: "#FFF", fontSize: 9, fontWeight: 700, display: "flex" }}>{i + 1}</div>
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 12, lineHeight: 1.3, display: "flex" }}>{step}</div>
+                    <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 10.5, lineHeight: 1.3, display: "flex" }}>{step}</div>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Alt: site linki */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: "auto" }}>
-            <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.15)", display: "flex", marginBottom: 6 }} />
-            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, letterSpacing: 0.5, display: "flex" }}>Detaylar için</div>
-            <div style={{ color: "#FCD34D", fontSize: 14, fontWeight: 700, letterSpacing: 0.5, display: "flex" }}>menugunlugu.com</div>
-          </div>
         </div>
       </div>
 

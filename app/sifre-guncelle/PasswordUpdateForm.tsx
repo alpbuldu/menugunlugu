@@ -20,26 +20,8 @@ export default function PasswordUpdateForm() {
   useEffect(() => {
     const supabase = createClient();
 
-    // PKCE code exchange: URL'de ?code= varsa browser-side exchange yap
-    // (resetPasswordForEmail browser'dan çağrıldığında verifier browser'da)
-    const params = new URLSearchParams(window.location.search);
-    const code   = params.get("code");
-    if (code) {
-      // URL'yi hemen temizle (yenileme sorununu önler)
-      window.history.replaceState({}, "", window.location.pathname);
-      supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
-        if (!error && data.session) {
-          setReady(true);
-        } else {
-          // Exchange başarısız: gerçek hata mesajını göster
-          const errMsg = error?.message ?? "bilinmeyen hata";
-          console.error("[sifre-guncelle] exchangeCodeForSession hatası:", errMsg);
-          setError(`Şifre sıfırlama linki geçersiz veya süresi dolmuş. (${errMsg})`);
-        }
-      });
-      // code varken getSession'a bakma — exchange sonucunu bekle
-      return () => {};
-    }
+    // Code exchange artık /auth/callback server-side route'unda yapılıyor.
+    // Bu sayfa sadece oluşan session'ı bekler.
 
     // onAuthStateChange: PASSWORD_RECOVERY veya SIGNED_IN event'ini yakala
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -48,7 +30,7 @@ export default function PasswordUpdateForm() {
       }
     });
 
-    // Zaten session varsa (sayfa yenilemesi vb.) hemen göster
+    // Zaten session varsa (sayfa yüklendikten hemen sonra) hemen göster
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setReady(true);
     });
@@ -93,18 +75,7 @@ export default function PasswordUpdateForm() {
   if (!ready) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-warm-200 p-6 text-center">
-        {error ? (
-          <>
-            <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm text-left">
-              {error}
-            </div>
-            <a href="/giris?tab=sifre" className="text-sm text-brand-600 hover:underline">
-              ← Şifre sıfırlama isteği gönder
-            </a>
-          </>
-        ) : (
-          <div className="text-warm-400 text-sm">Doğrulanıyor…</div>
-        )}
+        <div className="text-warm-400 text-sm">Doğrulanıyor…</div>
       </div>
     );
   }

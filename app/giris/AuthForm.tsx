@@ -112,20 +112,7 @@ export default function AuthForm({ defaultTab, from, isNewAccount }: Props) {
       return;
     }
 
-    // 2) Client: resetPasswordForEmail — PKCE verifier tarayıcıda saklanır
-    //    Doğrudan /sifre-guncelle'ye yönlendir; browser client kodu orada exchange eder
-    const supabase = createClient();
-    const { error: resetError } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
-      redirectTo: `${window.location.origin}/sifre-guncelle`,
-    });
-
     setLoading(false);
-
-    if (resetError) {
-      setError("Şifre sıfırlama e-postası gönderilemedi. Lütfen tekrar deneyin.");
-      return;
-    }
-
     setSuccess("Şifre sıfırlama linki e-postanıza gönderildi. Gelen kutunuzu ve spam klasörünü kontrol edin.");
   }
 

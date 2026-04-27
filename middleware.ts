@@ -4,6 +4,19 @@ import { NextRequest, NextResponse } from "next/server";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ── Anasayfaya düşen auth code'unu ERKEN yakala ──────────────────
+  // getUser() çağrısından ÖNCE yapılır; böylece PKCE verifier cookie'sine
+  // dokunulmadan /auth/callback'e yönlendirilir (server-side exchange).
+  if (pathname === "/") {
+    const code = request.nextUrl.searchParams.get("code");
+    if (code) {
+      const callbackUrl = new URL("/auth/callback", request.url);
+      callbackUrl.searchParams.set("code", code);
+      callbackUrl.searchParams.set("next", "/sifre-guncelle");
+      return NextResponse.redirect(callbackUrl);
+    }
+  }
+
   // ── Supabase session refresh ─────────────────────────────────────
   // Must run on every request to keep JWT tokens fresh.
   // Creates a response object that can have cookies set on it.
@@ -49,20 +62,6 @@ export async function middleware(request: NextRequest) {
 
   // ── Auth callback — her zaman geçsin (PKCE code exchange) ──────
   if (pathname.startsWith("/auth/callback")) return response;
-
-  // ── Anasayfaya düşen PKCE code'unu yakala ───────────────────────
-  // Supabase, redirectTo'yu görmezden gelip ?code=xxx'i Site URL'ine (/) ekler.
-  // Şifre sıfırlama kodu için: verifier browser localStorage'ında olduğundan
-  // server-side exchange ÇALIŞMAZ. Direkt /sifre-guncelle?code=xxx'e yönlendir;
-  // PasswordUpdateForm client-side exchange yapar.
-  if (pathname === "/") {
-    const code = request.nextUrl.searchParams.get("code");
-    if (code) {
-      const sifreUrl = new URL("/sifre-guncelle", request.url);
-      sifreUrl.searchParams.set("code", code);
-      return NextResponse.redirect(sifreUrl);
-    }
-  }
 
   // ── Protected member routes ──────────────────────────────────────
   const memberRoutes = ["/uye/panel", "/tarif-ekle"];

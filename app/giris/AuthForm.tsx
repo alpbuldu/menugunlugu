@@ -53,9 +53,21 @@ export default function AuthForm({ defaultTab, from, isNewAccount }: Props) {
     if (err || !data.user) {
       if (err?.message?.toLowerCase().includes("email not confirmed")) {
         setError("E-posta adresiniz henüz doğrulanmamış. Lütfen gelen kutunuzu kontrol edin.");
-      } else {
-        setError("E-posta veya şifre hatalı.");
+        return;
       }
+      // Email var mı kontrol et — kayıtlı değilse özel mesaj göster
+      try {
+        const chk = await fetch("/api/auth/reset-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: loginEmail.trim() }),
+        });
+        if (chk.status === 404) {
+          setError("Bu e-posta adresiyle kayıtlı bir hesap bulunamadı.");
+          return;
+        }
+      } catch { /* sessizce geç */ }
+      setError("Şifreniz hatalı. Lütfen tekrar deneyin.");
       return;
     }
 

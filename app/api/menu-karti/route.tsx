@@ -18,7 +18,15 @@ const SLOTS = [
 ];
 
 type Key = "soup" | "main" | "side" | "dessert";
-interface Card { title: string; author: string; cat: string; img: string | null }
+interface Card { title: string; author: string; cat: string; img: string | null; ingredients: string[] }
+
+function parseIngredients(html: string): string[] {
+  const text = html
+    .replace(/<\/li>/gi, "\n").replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n").replace(/<\/div>/gi, "\n")
+    .replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
+  return text.split("\n").map(l => l.trim()).filter(l => l.length > 2 && !l.endsWith(":"));
+}
 
 /* ── Image fetch ─────────────────────────────────────────────── */
 function nodeGet(url: string, hops = 5): Promise<Buffer | null> {
@@ -59,7 +67,9 @@ async function getImg(url: string | null): Promise<string | null> {
 /* ── Route ───────────────────────────────────────────────────── */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const isStory = searchParams.get("format") === "story";
+  const isStory  = searchParams.get("format") === "story";
+  const slideStr = searchParams.get("slide");
+  const slideIdx = slideStr !== null ? parseInt(slideStr, 10) : -1; // -1 = kapak
 
   const ids: Record<Key, string> = {
     soup:    searchParams.get("soup")    ?? "",
@@ -71,7 +81,7 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient();
   const { data: rows } = await supabase
-    .from("recipes").select("id, title, image_url, submitted_by")
+    .from("recipes").select("id, title, image_url, submitted_by, ingredients")
     .in("id", Object.values(ids));
   if (!rows?.length) return new Response("Not found", { status: 404 });
 
@@ -92,7 +102,8 @@ export async function GET(request: NextRequest) {
     const r = byId[ids[s.key]];
     const author = !r?.submitted_by ? adminName : (profileMap[r.submitted_by!] ?? "");
     const img = await getImg(r?.image_url ?? null);
-    cards.push({ title: r?.title ?? "—", author, cat: s.cat, img });
+    const ingredients = parseIngredients(r?.ingredients ?? "").slice(0, 10);
+    cards.push({ title: r?.title ?? "—", author, cat: s.cat, img, ingredients });
   }
 
   const dateStr = new Date().toLocaleDateString("tr-TR", {
@@ -102,10 +113,18 @@ export async function GET(request: NextRequest) {
   const fontR = readFileSync(path.join(process.cwd(), "public", "fonts", "Roboto-Regular.ttf"));
   const fontB = readFileSync(path.join(process.cwd(), "public", "fonts", "Roboto-Medium.ttf"));
 
+  // slide=1..4 → bireysel tarif görseli; slide=-1 veya yok → kapak/story
+  const isSlide = slideIdx >= 1 && slideIdx <= 4;
+  const slideCard = isSlide ? cards[slideIdx - 1] : null;
+
   return new ImageResponse(
-    isStory ? <StoryView cards={cards} date={dateStr} /> : <PostView cards={cards} date={dateStr} />,
+    isSlide && slideCard
+      ? <SlideView card={slideCard} date={dateStr} />
+      : isStory
+        ? <StoryView cards={cards} date={dateStr} />
+        : <PostView cards={cards} date={dateStr} />,
     {
-      width: 1080, height: isStory ? 1920 : 1350,
+      width: 1080, height: isStory && !isSlide ? 1920 : 1350,
       fonts: [
         { name: "Roboto", data: fontR, weight: 400, style: "normal" },
         { name: "Roboto", data: fontB, weight: 700, style: "normal" },
@@ -163,6 +182,121 @@ function ImageCell({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Shared header & footer (kapakla aynı tasarım dili)
+════════════════════════════════════════════════════════════════ */
+function SharedHeader({ date }: { date: string }) {
+  return (
+    <div style={{ height: 108, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", flexShrink: 0 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <div style={{ color: "#FCD34D", fontSize: 12, display: "flex" }}>{date}</div>
+        <div style={{ color: "#FEF3E2", fontSize: 33, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 7 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FEF3E2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+          <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="#FCD34D" stroke="none"/>
+          </svg>
+          <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SharedFooter() {
+  return (
+    <div style={{ height: 70, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, flexShrink: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
+        <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
+        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
+      </div>
+      <div style={{ color: "#FCD34D", fontSize: 10, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SLIDE  1080 × 1350
+   Tek tarif — tam arka plan görsel · sağda malzeme paneli
+════════════════════════════════════════════════════════════════ */
+function SlideView({ card, date }: { card: Card; date: string }) {
+  const DIV        = 3;
+  const PANEL_W    = 330;
+  const maxIngr    = card.ingredients.slice(0, 10);
+  const hasMore    = card.ingredients.length > 10;
+
+  return (
+    <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+      <SharedHeader date={date} />
+      <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+
+      {/* İçerik: tam arka plan görsel */}
+      <div style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}>
+        {/* Arka plan görsel */}
+        {card.img
+          ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+          : <div style={{ position: "absolute", inset: 0, backgroundColor: "#C8A97A", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ fontSize: 80, display: "flex" }}>🍽️</div>
+            </div>
+        }
+
+        {/* Sol alt gradyan */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: PANEL_W, height: "65%", background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.45) 55%, transparent 100%)", display: "flex" }} />
+
+        {/* Sol alt: kategori, isim, yazar */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: PANEL_W, padding: "28px 32px", display: "flex", flexDirection: "column", gap: 8 }}>
+          <div style={{ color: "#FCD34D", fontSize: 22, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
+          <div style={{ color: "#FFFFFF", fontSize: 38, fontWeight: 700, lineHeight: 1.15, display: "flex" }}>{card.title}</div>
+          {card.author && (
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, display: "flex" }}>Yazar:</div>
+              <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 15, fontWeight: 700, display: "flex" }}>{card.author}</div>
+            </div>
+          )}
+        </div>
+
+        {/* Sağ panel: malzemeler */}
+        <div style={{ position: "absolute", top: 0, right: 0, bottom: 0, width: PANEL_W, background: "rgba(10,4,0,0.82)", display: "flex", flexDirection: "column", padding: "28px 22px" }}>
+          {/* Başlık */}
+          <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex", marginBottom: 10 }}>MALZEMELER</div>
+          <div style={{ height: 1, backgroundColor: "#D97706", display: "flex", marginBottom: 14 }} />
+
+          {/* Liste */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
+            {maxIngr.map((item, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#D97706", marginTop: 6, flexShrink: 0, display: "flex" }} />
+                <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 14, lineHeight: 1.35, display: "flex" }}>{item}</div>
+              </div>
+            ))}
+            {hasMore && (
+              <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, display: "flex", marginTop: 2 }}>…</div>
+            )}
+          </div>
+
+          {/* Alt: site linki */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 16 }}>
+            <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.15)", display: "flex", marginBottom: 6 }} />
+            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, letterSpacing: 0.5, display: "flex" }}>tarif detayları için</div>
+            <div style={{ color: "#FCD34D", fontSize: 14, fontWeight: 700, letterSpacing: 0.5, display: "flex" }}>menugunlugu.com</div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+      <SharedFooter />
     </div>
   );
 }

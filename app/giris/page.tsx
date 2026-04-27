@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 export default async function GirisPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; tab?: string; mesaj?: string; new?: string }>;
+  searchParams: Promise<{ from?: string; tab?: string; mesaj?: string; new?: string; deleted?: string }>;
 }) {
-  const { from: rawFrom, tab, mesaj, new: isNew } = await searchParams;
+  const { from: rawFrom, tab, mesaj, new: isNew, deleted } = await searchParams;
   // Sadece site-içi yollara izin ver
   const from = rawFrom && rawFrom.startsWith("/") && !rawFrom.startsWith("//") ? rawFrom : undefined;
 
@@ -44,6 +44,12 @@ export default async function GirisPage({
         {mesaj === "email-onaylandi" && (
           <div className="mb-4 px-4 py-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm text-center">
             ✅ E-posta adresiniz onaylandı! Aşağıdan giriş yapabilirsiniz.
+          </div>
+        )}
+
+        {deleted === "1" && (
+          <div className="mb-4 px-4 py-3 rounded-xl bg-orange-50 border border-orange-200 text-orange-700 text-sm text-center">
+            Hesabınız silinmiş. Lütfen tekrar kayıt olun.
           </div>
         )}
 

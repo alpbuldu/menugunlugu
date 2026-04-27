@@ -232,6 +232,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   const topRef = useRef<HTMLDivElement>(null);
   const touchRef = useRef<{ x: number; y: number } | null>(null);
   const [scrollTick, setScrollTick] = useState(0);
+  const [downloading, setDownloading] = useState(false);
 
   const allFilled = SLOTS.every(({ key }) => !!selection[key]);
   const filledCount = SLOTS.filter(({ key }) => !!selection[key]).length;
@@ -286,17 +287,61 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     });
   }
 
-  function handleCard(format: "post" | "story") {
-    if (!allFilled) return;
+  async function handleCard(format: "post" | "story") {
+    if (!allFilled || downloading) return;
     const sel = selection as Record<Category, MenuRecipe>;
-    const params = new URLSearchParams({
+    const baseParams = new URLSearchParams({
       soup:    sel.soup.id,
       main:    sel.main.id,
       side:    sel.side.id,
       dessert: sel.dessert.id,
       format,
     });
-    window.open(`/api/menu-karti?${params.toString()}`, "_blank");
+
+    if (format === "story") {
+      window.open(`/api/menu-karti?${baseParams.toString()}`, "_blank");
+      return;
+    }
+
+    // Post: 5 görsel — kapak + 4 slide
+    setDownloading(true);
+    try {
+      const labels = ["kapak", "corba", "ana-yemek", "yardimci", "tatli"];
+      const coverUrl = `/api/menu-karti?${baseParams.toString()}`;
+      const slideUrls = [1, 2, 3, 4].map(i => {
+        const p = new URLSearchParams(baseParams);
+        p.set("slide", String(i));
+        return `/api/menu-karti?${p.toString()}`;
+      });
+      const allUrls = [coverUrl, ...slideUrls];
+
+      // Tüm görselleri paralel olarak oluştur
+      const blobs = await Promise.all(
+        allUrls.map(async url => {
+          try {
+            const res = await fetch(url);
+            if (!res.ok) return null;
+            return res.blob();
+          } catch { return null; }
+        })
+      );
+
+      // Sırayla indir
+      for (let i = 0; i < blobs.length; i++) {
+        const blob = blobs[i];
+        if (!blob) continue;
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `menu-${labels[i]}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+        if (i < blobs.length - 1) await new Promise(r => setTimeout(r, 400));
+      }
+    } finally {
+      setDownloading(false);
+    }
   }
 
   function handlePdf() {
@@ -382,16 +427,25 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                 <button
                   type="button"
                   onClick={() => handleCard("post")}
-                  disabled={!allFilled}
-                  title={allFilled ? "Post kartı indir (1080×1350)" : "4 yemek seç"}
+                  disabled={!allFilled || downloading}
+                  title={allFilled ? "5 post görseli indir (kapak + 4 tarif)" : "4 yemek seç"}
                   className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors shadow-sm ${
-                    allFilled
+                    allFilled && !downloading
                       ? "bg-brand-600 text-white hover:bg-brand-700 cursor-pointer"
                       : "bg-warm-200 text-warm-400 cursor-not-allowed"
                   }`}
                 >
-                  <span>📸</span>
-                  <span className="whitespace-nowrap">Paylaş · Post</span>
+                  {downloading ? (
+                    <>
+                      <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><circle cx="12" cy="12" r="10" strokeOpacity={0.3}/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/></svg>
+                      <span className="whitespace-nowrap">İndiriliyor…</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>📸</span>
+                      <span className="whitespace-nowrap">Paylaş · Post</span>
+                    </>
+                  )}
                 </button>
                 <button
                   type="button"
@@ -414,7 +468,9 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                   ? "text-brand-600 font-medium"
                   : "text-warm-400"
               }`}>
-                {allFilled
+                {downloading
+                  ? "⏳ 5 görsel hazırlanıyor, lütfen bekleyin…"
+                  : allFilled
                   ? "🎉 Menü hazır — indir ve paylaş!"
                   : `${4 - filledCount} yemek daha seç → kartı oluştur`}
               </p>

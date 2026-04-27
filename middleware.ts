@@ -50,6 +50,19 @@ export async function middleware(request: NextRequest) {
   // ── Auth callback — her zaman geçsin (PKCE code exchange) ──────
   if (pathname.startsWith("/auth/callback")) return response;
 
+  // ── Anasayfaya düşen PKCE code'unu yakala ───────────────────────
+  // Supabase zaman zaman redirectTo'yu görmezden gelip ?code=xxx'i
+  // Site URL'ine (/) ekler. Bu durumda kodu auth/callback'e ilet.
+  if (pathname === "/") {
+    const code = request.nextUrl.searchParams.get("code");
+    if (code) {
+      const callbackUrl = new URL("/auth/callback", request.url);
+      callbackUrl.searchParams.set("code", code);
+      callbackUrl.searchParams.set("next", "/sifre-guncelle");
+      return NextResponse.redirect(callbackUrl);
+    }
+  }
+
   // ── Protected member routes ──────────────────────────────────────
   const memberRoutes = ["/uye/panel", "/tarif-ekle"];
   const isMemberRoute = memberRoutes.some((r) => pathname.startsWith(r));

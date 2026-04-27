@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 export default async function GirisPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; tab?: string; mesaj?: string }>;
+  searchParams: Promise<{ from?: string; tab?: string; mesaj?: string; new?: string }>;
 }) {
-  const { from: rawFrom, tab, mesaj } = await searchParams;
+  const { from: rawFrom, tab, mesaj, new: isNew } = await searchParams;
   // Sadece site-içi yollara izin ver
   const from = rawFrom && rawFrom.startsWith("/") && !rawFrom.startsWith("//") ? rawFrom : undefined;
 
@@ -47,7 +47,11 @@ export default async function GirisPage({
           </div>
         )}
 
-        <AuthForm defaultTab={tab === "kayit" ? "kayit" : "giris"} from={from} />
+        <AuthForm
+          defaultTab={tab === "kayit" ? "kayit" : tab === "sifre" ? "sifre" : "giris"}
+          from={from}
+          isNewAccount={isNew === "1"}
+        />
       </div>
     </div>
   );

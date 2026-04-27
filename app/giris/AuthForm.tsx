@@ -106,10 +106,26 @@ export default function AuthForm({ defaultTab, from, isNewAccount }: Props) {
     });
 
     const resData = await res.json().catch(() => ({}));
-    setLoading(false);
 
     if (!res.ok) {
+      setLoading(false);
       setError((resData as { error?: string }).error ?? "Şifre sıfırlama e-postası gönderilemedi. Lütfen tekrar deneyin.");
+      return;
+    }
+
+    // Kullanıcı var → tarayıcıdan resetPasswordForEmail çağır.
+    // PKCE verifier browser cookie'sine yazılır; linke tıklayınca /auth/callback okur.
+    const supabase = createClient();
+    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent("/sifre-guncelle")}`;
+    const { error: resetErr } = await supabase.auth.resetPasswordForEmail(
+      trimmedEmail,
+      { redirectTo }
+    );
+
+    setLoading(false);
+
+    if (resetErr) {
+      setError("Şifre sıfırlama e-postası gönderilemedi. Lütfen tekrar deneyin.");
       return;
     }
 

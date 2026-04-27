@@ -3,9 +3,9 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 /**
- * Supabase PKCE auth callback.
- * E-posta onayı ve şifre sıfırlama linkleri buraya gelir,
- * `code` parametresi session'a çevrilir, ardından `next` URL'ye yönlendirilir.
+ * Supabase auth callback — PKCE olmadan exchange (implicit flow override).
+ * resetPasswordForEmail implicit flow ile çağrıldığında code_challenge yoktur;
+ * bu nedenle exchange da verifier gerektirmez.
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -15,10 +15,13 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const cookieStore = await cookies();
+
+    // flowType: 'implicit' override → exchangeCodeForSession verifier aramaz
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
+        auth: { flowType: "implicit" },
         cookies: {
           getAll() { return cookieStore.getAll(); },
           setAll(cookiesToSet) {
@@ -31,18 +34,13 @@ export async function GET(request: NextRequest) {
     );
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    console.error("[auth/callback] exchangeCodeForSession result:", error ? `ERROR: ${error.message}` : "OK");
+    console.error("[auth/callback] exchange result:", error ? `ERROR: ${error.message}` : "OK");
 
     if (!error) {
-      // logout=1 → e-posta onayı akışı: session kur, hemen çıkış yap
-      // Kullanıcı login formunu doldurmak zorunda kalır → mg_new_user flag çalışır
-      if (logout) {
-        await supabase.auth.signOut();
-      }
+      if (logout) await supabase.auth.signOut();
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
 
-  // Hata → giriş sayfasına yönlendir
   return NextResponse.redirect(`${origin}/giris?mesaj=onay-hatasi`);
 }

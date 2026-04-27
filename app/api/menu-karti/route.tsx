@@ -298,7 +298,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
             {card.ingredients.map((item, i) => (
               <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
                 <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#D97706", marginTop: 5, flexShrink: 0, display: "flex" }} />
-                <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 11, lineHeight: 1.25, display: "flex" }}>{item}</div>
+                <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 12.5, lineHeight: 1.25, display: "flex" }}>{item}</div>
               </div>
             ))}
           </div>
@@ -315,7 +315,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
                     <div style={{ minWidth: 15, height: 15, borderRadius: 2, backgroundColor: "rgba(217,119,6,0.75)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
                       <div style={{ color: "#FFF", fontSize: 9, fontWeight: 700, display: "flex" }}>{i + 1}</div>
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 10.5, lineHeight: 1.3, display: "flex" }}>{step}</div>
+                    <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 12, lineHeight: 1.3, display: "flex" }}>{step}</div>
                   </div>
                 ))}
               </div>

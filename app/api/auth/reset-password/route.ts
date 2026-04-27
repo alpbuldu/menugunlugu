@@ -109,10 +109,12 @@ export async function POST(request: NextRequest) {
   });
 
   if (!emailRes.ok) {
-    const errBody = await emailRes.json().catch(() => ({}));
+    const errBody = await emailRes.json().catch(() => ({})) as Record<string, unknown>;
     console.error("[reset-password] Resend error:", errBody);
+    // Geçici: debug için hata detayını döndür
+    const detail = (errBody?.message ?? errBody?.name ?? JSON.stringify(errBody)) as string;
     return NextResponse.json(
-      { error: "E-posta gönderilemedi. Lütfen tekrar deneyin." },
+      { error: `E-posta gönderilemedi: ${detail}` },
       { status: 500 }
     );
   }

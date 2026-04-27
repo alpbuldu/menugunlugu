@@ -17,6 +17,15 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // ── Auth callback — PKCE cookie'lerine dokunmadan geçir ──────────
+  // createServerClient/getUser() çağrısından ÖNCE yapılır; böylece
+  // tarayıcının PKCE verifier cookie'si bozulmaz.
+  if (pathname.startsWith("/auth/callback")) {
+    const h = new Headers(request.headers);
+    h.set("x-pathname", pathname);
+    return NextResponse.next({ request: { headers: h } });
+  }
+
   // ── Supabase session refresh ─────────────────────────────────────
   // Must run on every request to keep JWT tokens fresh.
   // Creates a response object that can have cookies set on it.
@@ -59,9 +68,6 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  // ── Auth callback — her zaman geçsin (PKCE code exchange) ──────
-  if (pathname.startsWith("/auth/callback")) return response;
 
   // ── Protected member routes ──────────────────────────────────────
   const memberRoutes = ["/uye/panel", "/tarif-ekle"];

@@ -112,7 +112,18 @@ export default function AuthForm({ defaultTab, from, isNewAccount }: Props) {
       return;
     }
 
+    // 2) Browser: PKCE verifier cookie tarayıcıda saklanır, sonra auth/callback okur
+    const supabase = createClient();
+    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent("/sifre-guncelle")}`;
+    const { error: resetErr } = await supabase.auth.resetPasswordForEmail(trimmedEmail, { redirectTo });
+
     setLoading(false);
+
+    if (resetErr) {
+      setError("Şifre sıfırlama e-postası gönderilemedi. Lütfen tekrar deneyin.");
+      return;
+    }
+
     setSuccess("Şifre sıfırlama linki e-postanıza gönderildi. Gelen kutunuzu ve spam klasörünü kontrol edin.");
   }
 

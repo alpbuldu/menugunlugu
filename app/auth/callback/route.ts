@@ -3,9 +3,9 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 /**
- * Supabase auth callback — PKCE olmadan exchange (implicit flow override).
- * resetPasswordForEmail implicit flow ile çağrıldığında code_challenge yoktur;
- * bu nedenle exchange da verifier gerektirmez.
+ * Supabase auth callback — PKCE code exchange.
+ * resetPasswordForEmail tarayıcı tarafında çağrılır; verifier cookie'de saklanır.
+ * Bu route server-side olarak verifier'ı cookie'den okur, code'u exchange eder.
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
@@ -16,12 +16,10 @@ export async function GET(request: NextRequest) {
   if (code) {
     const cookieStore = await cookies();
 
-    // flowType: 'implicit' override → exchangeCodeForSession verifier aramaz
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        auth: { flowType: "implicit" },
         cookies: {
           getAll() { return cookieStore.getAll(); },
           setAll(cookiesToSet) {

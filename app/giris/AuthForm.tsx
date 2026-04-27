@@ -125,7 +125,7 @@ export default function AuthForm({ defaultTab, from, isNewAccount }: Props) {
     setLoading(false);
 
     if (resetErr) {
-      setError("Şifre sıfırlama e-postası gönderilemedi. Lütfen tekrar deneyin.");
+      setError(`Hata: ${resetErr.message}`);
       return;
     }
 

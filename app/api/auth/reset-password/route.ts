@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
   const supabaseUrl  = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const serviceKey   = process.env.SUPABASE_SERVICE_ROLE_KEY!;
   const resendKey    = process.env.RESEND_API_KEY ?? "";
+  const resendFrom   = process.env.RESEND_FROM ?? "Menü Günlüğü <noreply@menugunlugu.com>";
   const siteOrigin   = request.nextUrl.origin; // https://menugunlugu.com
 
   // ── 1) GoTrue Admin: generate_link ─────────────────────────────
@@ -68,7 +69,7 @@ export async function POST(request: NextRequest) {
       Authorization:  `Bearer ${resendKey}`,
     },
     body: JSON.stringify({
-      from:    "Menü Günlüğü <noreply@menugunlugu.com>",
+      from:    resendFrom,
       to:      [normalEmail],
       subject: "Şifrenizi sıfırlayın — Menü Günlüğü",
       html: `

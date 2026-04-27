@@ -51,15 +51,16 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith("/auth/callback")) return response;
 
   // ── Anasayfaya düşen PKCE code'unu yakala ───────────────────────
-  // Supabase zaman zaman redirectTo'yu görmezden gelip ?code=xxx'i
-  // Site URL'ine (/) ekler. Bu durumda kodu auth/callback'e ilet.
+  // Supabase, redirectTo'yu görmezden gelip ?code=xxx'i Site URL'ine (/) ekler.
+  // Şifre sıfırlama kodu için: verifier browser localStorage'ında olduğundan
+  // server-side exchange ÇALIŞMAZ. Direkt /sifre-guncelle?code=xxx'e yönlendir;
+  // PasswordUpdateForm client-side exchange yapar.
   if (pathname === "/") {
     const code = request.nextUrl.searchParams.get("code");
     if (code) {
-      const callbackUrl = new URL("/auth/callback", request.url);
-      callbackUrl.searchParams.set("code", code);
-      callbackUrl.searchParams.set("next", "/sifre-guncelle");
-      return NextResponse.redirect(callbackUrl);
+      const sifreUrl = new URL("/sifre-guncelle", request.url);
+      sifreUrl.searchParams.set("code", code);
+      return NextResponse.redirect(sifreUrl);
     }
   }
 

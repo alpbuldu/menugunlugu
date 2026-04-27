@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
 /**
  * Şifre sıfırlama:
- * 1) GoTrue Admin API'sinin generate_link endpoint'i ile recovery linki üretir.
- *    Kullanıcı yoksa 422 döner → "kayıtlı değil" hatası gösterilir.
- * 2) Linki Resend API üzerinden e-posta olarak gönderir.
- * PKCE flow yok — tarayıcıda verifier saklamak gerekmez.
+ * 1) GoTrue Admin generate_link → kullanıcı varlık kontrolü (422 = kayıtlı değil).
+ * 2) createServerClient ile resetPasswordForEmail → Supabase kendi SMTP'siyle
+ *    (Brevo) maili gönderir; PKCE verifier'ı Set-Cookie ile browser'a yazar.
+ *    Browser linke tıkladığında cookie hazır olduğu için /auth/callback exchange'i başarır.
  */
 export async function POST(request: NextRequest) {
   const { email } = await request.json();
@@ -14,22 +15,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "E-posta gerekli" }, { status: 400 });
   }
 
-  const normalEmail  = email.trim().toLowerCase();
-  const supabaseUrl  = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceKey   = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-  const resendKey    = process.env.RESEND_API_KEY ?? "";
-  const resendFrom   = process.env.RESEND_FROM ?? "Menü Günlüğü <noreply@menugunlugu.com>";
-  const siteOrigin   = request.nextUrl.origin; // https://menugunlugu.com
+  const normalEmail = email.trim().toLowerCase();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const anonKey     = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const siteOrigin  = request.nextUrl.origin;
 
-  // ── 1) GoTrue Admin: generate_link ─────────────────────────────
-  // redirect_to: kullanıcı linke tıkladıktan sonra GoTrue'nun
-  // yönlendireceği URL. Hash'te access_token + type=recovery gelir.
+  // ── 1) Kullanıcı varlık kontrolü ──────────────────────────────────
+  // generate_link başarılı olursa kullanıcı var demektir; linki kullanmıyoruz.
   const genRes = await fetch(`${supabaseUrl}/auth/v1/admin/generate_link`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization:  `Bearer ${serviceKey}`,
-      apikey:         serviceKey,
+      Authorization: `Bearer ${serviceKey}`,
+      apikey:        serviceKey,
     },
     body: JSON.stringify({
       type:        "recovery",
@@ -39,85 +38,49 @@ export async function POST(request: NextRequest) {
   });
 
   if (!genRes.ok) {
-    let msg = "";
-    try { msg = ((await genRes.json()) as { message?: string; error?: string }).message ?? ""; } catch { /* ignore */ }
-    // GoTrue 422 döner → kullanıcı bulunamadı
     return NextResponse.json(
       { error: "Bu e-posta adresiyle kayıtlı bir hesap bulunamadı." },
       { status: 404 }
     );
   }
 
-  const genData   = (await genRes.json()) as { action_link?: string };
-  const actionLink = genData.action_link ?? "";
+  // ── 2) Supabase SMTP (Brevo) ile mail gönder ───────────────────────
+  // createServerClient PKCE verifier'ı cookiesToSet listesine yazar.
+  const cookiesToSet: Array<{
+    name: string;
+    value: string;
+    options: Record<string, unknown>;
+  }> = [];
 
-  if (!actionLink) {
-    return NextResponse.json({ error: "Link oluşturulamadı. Lütfen tekrar deneyin." }, { status: 500 });
-  }
-
-  // ── 2) Resend ile e-posta gönder ───────────────────────────────
-  if (!resendKey) {
-    // Geliştirme ortamı: anahtarı konsola yaz
-    console.log("[reset-password] action_link:", actionLink);
-    return NextResponse.json({ ok: true });
-  }
-
-  const emailRes = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization:  `Bearer ${resendKey}`,
+  const supabase = createServerClient(supabaseUrl, anonKey, {
+    cookies: {
+      getAll() { return []; },
+      setAll(list) { cookiesToSet.push(...list); },
     },
-    body: JSON.stringify({
-      from:    resendFrom,
-      to:      [normalEmail],
-      subject: "Şifrenizi sıfırlayın — Menü Günlüğü",
-      html: `
-<!DOCTYPE html>
-<html lang="tr">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#fafaf8;font-family:sans-serif;">
-  <div style="max-width:480px;margin:40px auto;background:#fff;border-radius:12px;border:1px solid #e5e5e0;overflow:hidden;">
-    <div style="background:#b45309;padding:24px 32px;">
-      <h1 style="margin:0;color:#fff;font-size:22px;font-weight:700;">🍽️ Menü Günlüğü</h1>
-    </div>
-    <div style="padding:32px;">
-      <h2 style="margin:0 0 16px;color:#1c1917;font-size:18px;">Şifre Sıfırlama</h2>
-      <p style="margin:0 0 16px;color:#44403c;font-size:15px;line-height:1.6;">
-        Menü Günlüğü hesabınız için şifre sıfırlama isteği aldık.<br>
-        Aşağıdaki butona tıklayarak yeni şifrenizi belirleyebilirsiniz.
-      </p>
-      <p style="margin:24px 0;">
-        <a href="${actionLink}"
-           style="display:inline-block;background:#d97706;color:#fff;padding:13px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;">
-          Şifremi Sıfırla
-        </a>
-      </p>
-      <p style="margin:0 0 8px;color:#78716c;font-size:13px;">
-        Butona tıklayamıyorsanız bu linki kopyalayıp tarayıcınıza yapıştırın:
-      </p>
-      <p style="margin:0 0 24px;word-break:break-all;font-size:12px;color:#a8a29e;">${actionLink}</p>
-      <hr style="border:none;border-top:1px solid #e5e5e0;margin:0 0 16px;">
-      <p style="margin:0;color:#a8a29e;font-size:12px;">
-        Bu isteği siz yapmadıysanız bu e-postayı dikkate almayınız. Link 1 saat geçerlidir.
-      </p>
-    </div>
-  </div>
-</body>
-</html>`,
-    }),
   });
 
-  if (!emailRes.ok) {
-    const errBody = await emailRes.json().catch(() => ({})) as Record<string, unknown>;
-    console.error("[reset-password] Resend error:", errBody);
-    // Geçici: debug için hata detayını döndür
-    const detail = (errBody?.message ?? errBody?.name ?? JSON.stringify(errBody)) as string;
+  // redirectTo: GoTrue bu URL'ye &code=xxx ekler → /auth/callback next=/sifre-guncelle
+  const redirectTo =
+    `${siteOrigin}/auth/callback?next=${encodeURIComponent("/sifre-guncelle")}`;
+
+  const { error: resetErr } = await supabase.auth.resetPasswordForEmail(
+    normalEmail,
+    { redirectTo }
+  );
+
+  if (resetErr) {
+    console.error("[reset-password] resetPasswordForEmail error:", resetErr.message);
     return NextResponse.json(
-      { error: `E-posta gönderilemedi: ${detail}` },
+      { error: "E-posta gönderilemedi. Lütfen tekrar deneyin." },
       { status: 500 }
     );
   }
 
-  return NextResponse.json({ ok: true });
+  // PKCE verifier'ı browser'a cookie olarak ilet (Set-Cookie header)
+  const response = NextResponse.json({ ok: true });
+  cookiesToSet.forEach(({ name, value, options }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    response.cookies.set(name, value, options as any);
+  });
+  return response;
 }

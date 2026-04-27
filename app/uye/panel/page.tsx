@@ -12,6 +12,7 @@ import DeleteRecipeButton from "./DeleteRecipeButton";
 import DeletePostButton from "./DeletePostButton";
 import UnfollowButton from "./UnfollowButton";
 import LogoutButton from "./LogoutButton";
+import ProfileWatcher from "./ProfileWatcher";
 import FollowButton from "@/components/ui/FollowButton";
 import AvatarUpload from "./AvatarUpload";
 
@@ -196,6 +197,8 @@ export default async function UyePanelPage({ searchParams }: Props) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+      {/* Admin silme tespiti — Realtime + auth state watcher */}
+      <ProfileWatcher userId={user.id} />
 
       {/* ── Profil başlık ── */}
       <div className="mb-8">

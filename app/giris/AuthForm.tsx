@@ -94,11 +94,28 @@ export default function AuthForm({ defaultTab, from, isNewAccount }: Props) {
 
     if (destination) {
       window.location.href = destination;
-    } else if (isNewUser) {
-      window.location.href = "/uye/panel?tab=panelim";
-    } else {
-      window.location.href = "/uye/panel";
+      return;
     }
+
+    if (isNewUser) {
+      window.location.href = "/uye/panel?tab=panelim";
+      return;
+    }
+
+    // Profil dolu_name kontrol — ilk kez giriş yapan (localStorage temizlenmiş olabilir)
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", data.user.id)
+        .maybeSingle();
+      if (!profile?.full_name) {
+        window.location.href = "/uye/panel?tab=panelim";
+        return;
+      }
+    } catch { /* sessizce geç */ }
+
+    window.location.href = "/uye/panel";
   }
 
   // ── Forgot Password ────────────────────────────────────────────

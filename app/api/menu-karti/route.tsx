@@ -18,7 +18,7 @@ const SLOTS = [
 ];
 
 type Key = "soup" | "main" | "side" | "dessert";
-interface Card { title: string; author: string; cat: string; img: string | null; ingredients: string[] }
+interface Card { title: string; author: string; cat: string; img: string | null; ingredients: string[]; steps: string[] }
 
 function parseIngredients(html: string): string[] {
   const text = html
@@ -26,6 +26,14 @@ function parseIngredients(html: string): string[] {
     .replace(/<\/p>/gi, "\n").replace(/<\/div>/gi, "\n")
     .replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
   return text.split("\n").map(l => l.trim()).filter(l => l.length > 2 && !l.endsWith(":"));
+}
+
+function parseSteps(html: string): string[] {
+  const text = html
+    .replace(/<\/li>/gi, "\n").replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n").replace(/<\/div>/gi, "\n")
+    .replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&gt;/g, ">").replace(/&lt;/g, "<");
+  return text.split("\n").map(l => l.trim()).filter(l => l.length > 6);
 }
 
 /* ── Image fetch ─────────────────────────────────────────────── */
@@ -81,7 +89,7 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient();
   const { data: rows } = await supabase
-    .from("recipes").select("id, title, image_url, submitted_by, ingredients")
+    .from("recipes").select("id, title, image_url, submitted_by, ingredients, instructions")
     .in("id", Object.values(ids));
   if (!rows?.length) return new Response("Not found", { status: 404 });
 
@@ -102,8 +110,9 @@ export async function GET(request: NextRequest) {
     const r = byId[ids[s.key]];
     const author = !r?.submitted_by ? adminName : (profileMap[r.submitted_by!] ?? "");
     const img = await getImg(r?.image_url ?? null);
-    const ingredients = parseIngredients(r?.ingredients ?? "").slice(0, 10);
-    cards.push({ title: r?.title ?? "—", author, cat: s.cat, img, ingredients });
+    const ingredients = parseIngredients(r?.ingredients ?? "").slice(0, 6);
+    const steps       = parseSteps(r?.instructions ?? "").slice(0, 5);
+    cards.push({ title: r?.title ?? "—", author, cat: s.cat, img, ingredients, steps });
   }
 
   const dateStr = new Date().toLocaleDateString("tr-TR", {
@@ -234,8 +243,8 @@ function SharedFooter() {
 function SlideView({ card, date }: { card: Card; date: string }) {
   const DIV        = 3;
   const PANEL_W    = 330;
-  const maxIngr    = card.ingredients.slice(0, 10);
-  const hasMore    = card.ingredients.length > 10;
+  const maxIngr    = card.ingredients.slice(0, 6);
+  const maxSteps   = card.steps.slice(0, 5);
 
   return (
     <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
@@ -273,23 +282,39 @@ function SlideView({ card, date }: { card: Card; date: string }) {
           <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex", marginBottom: 10 }}>MALZEMELER</div>
           <div style={{ height: 1, backgroundColor: "#D97706", display: "flex", marginBottom: 14 }} />
 
-          {/* Liste */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, flex: 1 }}>
+          {/* Malzeme listesi */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
             {maxIngr.map((item, i) => (
               <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#D97706", marginTop: 6, flexShrink: 0, display: "flex" }} />
-                <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 14, lineHeight: 1.35, display: "flex" }}>{item}</div>
+                <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#D97706", marginTop: 5, flexShrink: 0, display: "flex" }} />
+                <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 13, lineHeight: 1.3, display: "flex" }}>{item}</div>
               </div>
             ))}
-            {hasMore && (
-              <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, display: "flex", marginTop: 2 }}>…</div>
-            )}
           </div>
 
+          {/* Hazırlanış */}
+          {maxSteps.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.2)", display: "flex", margin: "12px 0 10px" }} />
+              <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex", marginBottom: 8 }}>HAZIRLANIŞ</div>
+              <div style={{ height: 1, backgroundColor: "#D97706", display: "flex", marginBottom: 10 }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {maxSteps.map((step, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
+                    <div style={{ minWidth: 17, height: 17, borderRadius: 3, backgroundColor: "rgba(217,119,6,0.7)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                      <div style={{ color: "#FFF", fontSize: 10, fontWeight: 700, display: "flex" }}>{i + 1}</div>
+                    </div>
+                    <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 12, lineHeight: 1.3, display: "flex" }}>{step}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Alt: site linki */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 16 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: "auto" }}>
             <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.15)", display: "flex", marginBottom: 6 }} />
-            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, letterSpacing: 0.5, display: "flex" }}>tarif detayları için</div>
+            <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, letterSpacing: 0.5, display: "flex" }}>Detaylar için</div>
             <div style={{ color: "#FCD34D", fontSize: 14, fontWeight: 700, letterSpacing: 0.5, display: "flex" }}>menugunlugu.com</div>
           </div>
         </div>

@@ -32,12 +32,19 @@ export async function GET(request: NextRequest) {
     );
 
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    console.error("[auth/callback] exchange result:", error ? `ERROR: ${error.message}` : "OK");
 
     if (!error) {
       if (logout) await supabase.auth.signOut();
       return NextResponse.redirect(`${origin}${next}`);
     }
+
+    // Server-side exchange başarısız → browser-side /auth/confirm'e yönlendir.
+    // Tarayıcı kendi cookie/storage'ındaki PKCE verifier ile yeniden dener.
+    const confirmUrl = new URL("/auth/confirm", origin);
+    confirmUrl.searchParams.set("code", code);
+    if (logout) confirmUrl.searchParams.set("logout", "1");
+    if (next && next !== "/") confirmUrl.searchParams.set("next", next);
+    return NextResponse.redirect(confirmUrl);
   }
 
   return NextResponse.redirect(`${origin}/giris?mesaj=onay-hatasi`);

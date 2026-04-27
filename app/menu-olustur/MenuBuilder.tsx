@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { zipSync } from "fflate";
 import Image from "next/image";
 import type { Category } from "@/lib/types";
 import type { MenuRecipe } from "./page";
@@ -306,7 +307,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     // Post: 5 görsel — kapak + 4 slide
     setDownloading(true);
     try {
-      const labels = ["kapak", "corba", "ana-yemek", "yardimci", "tatli"];
+      const labels   = ["kapak", "corba", "ana-yemek", "yardimci", "tatli"];
       const coverUrl = `/api/menu-karti?${baseParams.toString()}`;
       const slideUrls = [1, 2, 3, 4].map(i => {
         const p = new URLSearchParams(baseParams);
@@ -326,19 +327,27 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
         })
       );
 
-      // Sırayla indir
-      for (let i = 0; i < blobs.length; i++) {
-        const blob = blobs[i];
-        if (!blob) continue;
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `menu-${labels[i]}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(a.href);
-        if (i < blobs.length - 1) await new Promise(r => setTimeout(r, 400));
+      // ArrayBuffer'lara dönüştür
+      const buffers = await Promise.all(
+        blobs.map(b => b ? b.arrayBuffer() : Promise.resolve(null))
+      );
+
+      // ZIP olarak tek dosyada paketle (PNG zaten sıkıştırılmış → level 0)
+      const zipFiles: Record<string, Uint8Array> = {};
+      for (let i = 0; i < buffers.length; i++) {
+        const buf = buffers[i];
+        if (buf) zipFiles[`${labels[i]}.png`] = new Uint8Array(buf);
       }
+      const zipped  = zipSync(zipFiles, { level: 0 });
+      const zipBlob = new Blob([zipped], { type: "application/zip" });
+
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(zipBlob);
+      a.download = "gunun-menusu.zip";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
     } finally {
       setDownloading(false);
     }
@@ -428,7 +437,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                   type="button"
                   onClick={() => handleCard("post")}
                   disabled={!allFilled || downloading}
-                  title={allFilled ? "5 post görseli indir (kapak + 4 tarif)" : "4 yemek seç"}
+                  title={allFilled ? "5 görsel tek ZIP olarak indir (kapak + 4 tarif)" : "4 yemek seç"}
                   className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors shadow-sm ${
                     allFilled && !downloading
                       ? "bg-brand-600 text-white hover:bg-brand-700 cursor-pointer"
@@ -469,7 +478,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                   : "text-warm-400"
               }`}>
                 {downloading
-                  ? "⏳ 5 görsel hazırlanıyor, lütfen bekleyin…"
+                  ? "⏳ 5 görsel hazırlanıyor, ZIP indiriliyor…"
                   : allFilled
                   ? "🎉 Menü hazır — indir ve paylaş!"
                   : `${4 - filledCount} yemek daha seç → kartı oluştur`}

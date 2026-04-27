@@ -23,13 +23,14 @@ export default function ConfirmPage() {
       const token_hash = params.get("token_hash");
       const type       = params.get("type");
       const code       = params.get("code");
+      const logout     = params.get("logout") === "1";
 
       if (token_hash && type) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { error } = await supabase.auth.verifyOtp({ type: type as any, token_hash });
         if (!error) {
-          // Sign out immediately so user has to log in fresh via the form below
-          await supabase.auth.signOut();
+          if (logout) await supabase.auth.signOut();
+          else await supabase.auth.signOut(); // email onayı — her zaman çıkış yap
           setState("confirmed");
           return;
         }
@@ -38,7 +39,7 @@ export default function ConfirmPage() {
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (!error) {
-          await supabase.auth.signOut();
+          await supabase.auth.signOut(); // email onayı — her zaman çıkış yap
           setState("confirmed");
           return;
         }

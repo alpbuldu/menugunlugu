@@ -203,9 +203,11 @@ export default function PostOlusturClient({ recipes }: Props) {
   const [postLoading, setPostLoading] = useState(false);
 
   /* ── Kapak state ── */
-  const [kapakType,  setKapakType]  = useState<CoverType>("yazili");
-  const [kapakColor, setKapakColor] = useState<string>("#92400E");
-  const [kapakSlots, setKapakSlots] = useState<SlotState>({ soup: null, main: null, side: null, dessert: null });
+  const [kapakType,    setKapakType]    = useState<CoverType>("yazili");
+  const [kapakColor,   setKapakColor]   = useState<string>("#92400E");
+  const [kapakBaslik,  setKapakBaslik]  = useState("");
+  const [kapakTarih,   setKapakTarih]   = useState("");
+  const [kapakSlots,   setKapakSlots]   = useState<SlotState>({ soup: null, main: null, side: null, dessert: null });
   const [kapakLoading, setKapakLoading] = useState(false);
 
   /* ── Story state ── */
@@ -263,15 +265,25 @@ export default function PostOlusturClient({ recipes }: Props) {
     return `soup=${slots.soup!.id}&main=${slots.main!.id}&side=${slots.side!.id}&dessert=${slots.dessert!.id}`;
   }
 
+  /* ── Kapak URL helper ── */
+  function buildKapakUrl() {
+    const mode = kapakType === "yazili" ? "cover-yazili" : "cover-yazisiz";
+    let url = `/api/admin-gorsel?mode=${mode}&${slotParams(kapakSlots)}`;
+    if (kapakType === "yazili") {
+      url += `&color=${encodeURIComponent(kapakColor)}`;
+      if (kapakBaslik) url += `&headerTitle=${encodeURIComponent(kapakBaslik)}`;
+      if (kapakTarih)  url += `&headerDate=${encodeURIComponent(kapakTarih)}`;
+    }
+    return url;
+  }
+
   /* ── Kapak: download ── */
   async function downloadKapak() {
     if (!slotsComplete(kapakSlots)) return;
     setKapakLoading(true);
     try {
-      const mode = kapakType === "yazili" ? "cover-yazili" : "cover-yazisiz";
-      let url = `/api/admin-gorsel?mode=${mode}&${slotParams(kapakSlots)}`;
-      if (kapakType === "yazili") url += `&color=${encodeURIComponent(kapakColor)}`;
-      const resp = await fetch(url);
+      const url = buildKapakUrl();
+      const resp = await fetch(buildKapakUrl());
       if (!resp.ok) return;
       const buf = await resp.arrayBuffer();
       const blob = new Blob([new Uint8Array(buf)], { type: "image/png" });
@@ -490,12 +502,46 @@ export default function PostOlusturClient({ recipes }: Props) {
             </div>
           </div>
 
-          {/* Color picker (yazılı only) */}
+          {/* Yazılı-only: renk + özel başlık/tarih */}
           {kapakType === "yazili" && (
-            <div>
-              <div className="text-sm font-semibold text-warm-700 mb-2">Renk Teması</div>
-              <ColorPicker value={kapakColor} onChange={setKapakColor} />
-            </div>
+            <>
+              <div>
+                <div className="text-sm font-semibold text-warm-700 mb-2">Renk Teması</div>
+                <ColorPicker value={kapakColor} onChange={setKapakColor} />
+              </div>
+
+              <div>
+                <div className="text-sm font-semibold text-warm-700 mb-1">Başlık</div>
+                <p className="text-xs text-warm-400 mb-2">
+                  Boş bırakılırsa "Günün Menüsü" + bugünün tarihi kullanılır.
+                  Sadece birini doldurursan diğeri ortalı gelir.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-warm-500 mb-1 block">Başlık metni</label>
+                    <input
+                      type="text"
+                      value={kapakBaslik}
+                      onChange={e => setKapakBaslik(e.target.value)}
+                      placeholder="Günün Menüsü"
+                      className="w-full border border-warm-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-400"
+                      style={{ fontSize: 16 }}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-warm-500 mb-1 block">Tarih / alt metin</label>
+                    <input
+                      type="text"
+                      value={kapakTarih}
+                      onChange={e => setKapakTarih(e.target.value)}
+                      placeholder="29 Nisan 2026 Çarşamba"
+                      className="w-full border border-warm-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-400"
+                      style={{ fontSize: 16 }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </>
           )}
 
           {/* 4-slot selector */}
@@ -516,12 +562,7 @@ export default function PostOlusturClient({ recipes }: Props) {
           {/* Preview */}
           {slotsComplete(kapakSlots) && (
             <button
-              onClick={() => {
-                const mode = kapakType === "yazili" ? "cover-yazili" : "cover-yazisiz";
-                let url = `/api/admin-gorsel?mode=${mode}&${slotParams(kapakSlots)}`;
-                if (kapakType === "yazili") url += `&color=${encodeURIComponent(kapakColor)}`;
-                window.open(url, "_blank");
-              }}
+              onClick={() => window.open(buildKapakUrl(), "_blank")}
               className="w-full text-sm text-brand-600 hover:text-brand-800 underline text-center"
             >
               Önizle →

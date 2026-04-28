@@ -246,8 +246,13 @@ export async function GET(request: NextRequest) {
   }
 
   /* cover-yazili (default) */
+  const headerTitle = searchParams.get("headerTitle") ?? "";
+  const headerDate  = searchParams.get("headerDate")  ?? "";
   return new ImageResponse(
-    <AdminCoverYaziliView cards={cards} date={getSlideDate()} theme={theme} />,
+    <AdminCoverYaziliView
+      cards={cards} autoDate={getSlideDate()} theme={theme}
+      headerTitle={headerTitle} headerDate={headerDate}
+    />,
     { width: 1080, height: 1440, fonts }
   );
 }
@@ -299,12 +304,19 @@ function AdminPostView({
   return (
     <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
-      {/* Header */}
-      <div style={{ height: 130, backgroundColor: theme.headerBg, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 28px", flexShrink: 0 }}>
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 20 }}>
-          <div style={{ color: theme.mainTxt, fontSize: 42, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
-          <div style={{ width: 2, height: 40, backgroundColor: "rgba(255,255,255,0.3)", display: "flex" }} />
-          <div style={{ color: theme.mainTxt, fontSize: 24, display: "flex" }}>{date}</div>
+      {/* Header: tarif adı solda, yazar bloğu sağda */}
+      <div style={{ height: 130, backgroundColor: theme.headerBg, display: "flex", alignItems: "center", padding: "0 36px", flexShrink: 0 }}>
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 24, width: "100%" }}>
+          <div style={{ color: theme.mainTxt, fontSize: 34, fontWeight: 700, lineHeight: 1.2, flex: 1, display: "flex" }}>{card.title}</div>
+          {card.author && (
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 18, flexShrink: 0 }}>
+              <div style={{ width: 2, height: 52, backgroundColor: "rgba(255,255,255,0.3)", flexShrink: 0, display: "flex" }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                <div style={{ color: theme.subTxt, fontSize: 13, letterSpacing: 0.5, display: "flex" }}>{"Yazar:"}</div>
+                <div style={{ color: theme.mainTxt, fontSize: 20, fontWeight: 700, display: "flex" }}>{card.author}</div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <div style={{ height: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
@@ -450,18 +462,35 @@ function ThemedImageCell({ card, theme }: { card: Card; theme: Theme }) {
   );
 }
 
-function AdminCoverYaziliView({ cards, date, theme }: { cards: Card[]; date: string; theme: Theme }) {
+function AdminCoverYaziliView({
+  cards, autoDate, theme, headerTitle, headerDate,
+}: {
+  cards: Card[]; autoDate: string; theme: Theme; headerTitle: string; headerDate: string;
+}) {
   const DIV = 3;
+
+  // Hangi değerler gösterilecek
+  const useDefault = !headerTitle && !headerDate;
+  const effTitle   = useDefault ? "Günün Menüsü" : headerTitle;
+  const effDate    = useDefault ? autoDate : headerDate;
+  const showBoth   = !!(effTitle && effDate);
+
   return (
     <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
       {/* Header */}
       <div style={{ height: 130, backgroundColor: theme.headerBg, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 28px", flexShrink: 0 }}>
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 20 }}>
-          <div style={{ color: theme.mainTxt, fontSize: 42, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
-          <div style={{ width: 2, height: 40, backgroundColor: "rgba(255,255,255,0.3)", display: "flex" }} />
-          <div style={{ color: theme.mainTxt, fontSize: 24, display: "flex" }}>{date}</div>
-        </div>
+        {showBoth ? (
+          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 20 }}>
+            <div style={{ color: theme.mainTxt, fontSize: 42, fontWeight: 700, lineHeight: 1, display: "flex" }}>{effTitle}</div>
+            <div style={{ width: 2, height: 40, backgroundColor: "rgba(255,255,255,0.3)", display: "flex" }} />
+            <div style={{ color: theme.mainTxt, fontSize: 24, display: "flex" }}>{effDate}</div>
+          </div>
+        ) : effTitle ? (
+          <div style={{ color: theme.mainTxt, fontSize: 42, fontWeight: 700, lineHeight: 1, display: "flex" }}>{effTitle}</div>
+        ) : effDate ? (
+          <div style={{ color: theme.mainTxt, fontSize: 28, display: "flex" }}>{effDate}</div>
+        ) : null}
       </div>
       <div style={{ height: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
 

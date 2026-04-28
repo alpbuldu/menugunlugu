@@ -359,13 +359,12 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     window.open(`/api/menu-karti?${baseParams.toString()}`, "_blank");
   }
 
-  async function handleShare(platform: "instagram" | "tiktok" | "x") {
+  function handleShare(platform: "instagram" | "tiktok" | "x") {
     if (!allFilled || downloading) return;
     setShowPlatformMenu(false);
     const sel = selection as Record<Category, MenuRecipe>;
-    const caption = generateCaption(sel);
 
-    // X → tweet intent (sadece metin, görsel manuel eklenir)
+    // X → tweet intent
     if (platform === "x") {
       const today = new Date().toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long" });
       const xText = `🍽️ ${today} günün menüsü!\n\n${sel.soup.title} · ${sel.main.title} · ${sel.side.title} · ${sel.dessert.title}\n\nmenugunlugu.com\n\n#GününMenüsü #MenüGünlüğü`;
@@ -373,73 +372,72 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
       return;
     }
 
-    // Instagram & TikTok → görselleri oluştur
-    setDownloading(true);
-    try {
-      const labels = ["kapak", "corba", "ana-yemek", "yardimci", "tatli"];
-      const baseParams = new URLSearchParams({
-        soup: sel.soup.id, main: sel.main.id, side: sel.side.id, dessert: sel.dessert.id, format: "post",
-      });
-      const allUrls = [
-        `/api/menu-karti?${baseParams.toString()}`,
-        ...[1, 2, 3, 4].map(i => {
-          const p = new URLSearchParams(baseParams); p.set("slide", String(i)); return `/api/menu-karti?${p.toString()}`;
-        }),
-      ];
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
-      const blobs = await Promise.all(
-        allUrls.map(async url => {
-          try { const r = await fetch(url); return r.ok ? r.blob() : null; } catch { return null; }
-        })
-      );
+    // ── MOBİL ──────────────────────────────────────────────────────────
+    if (isMobile) {
+      if (!navigator.share) return; // desteklenmiyor
 
-      const files = blobs
-        .map((b, i) => b ? new File([b], `${labels[i]}.png`, { type: "image/png" }) : null)
-        .filter(Boolean) as File[];
-
-        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-
-      if (isMobile) {
-        // Görseller hazırsa: navigator.share() ANINDA çağır (gesture bağlamı korunur)
-        if (prefetchRef.current && navigator.share) {
-          const { files: pFiles, caption: pCaption } = prefetchRef.current;
-          navigator.share({ files: pFiles, text: pCaption }).catch(err => {
-            if ((err as Error).name !== "AbortError") {
-              navigator.share({ text: pCaption, url: "https://menugunlugu.com" }).catch(() => {});
-            }
-          });
-        } else if (navigator.share) {
-          // Henüz hazır değil: fetch sonrası dene (gesture kaybedilmiş olabilir ama yine dene)
+      if (prefetchRef.current) {
+        // Pre-fetch tamam → SIFIR await, gesture bağlamı korunuyor
+        const { files, caption } = prefetchRef.current;
+        navigator.share({ files, text: caption }).catch(err => {
+          if ((err as Error).name !== "AbortError") {
+            // Dosya paylaşımı desteklenmiyorsa sadece metin paylaş
+            navigator.share({ text: caption, url: "https://menugunlugu.com" }).catch(() => {});
+          }
+        });
+      } else {
+        // Pre-fetch henüz bitmedi → spinner göster, bitince tekrar dene
+        setDownloading(true);
+        const poll = setInterval(() => {
+          if (!prefetchRef.current) return;
+          clearInterval(poll);
+          setDownloading(false);
+          const { files, caption } = prefetchRef.current!;
+          // Burada gesture bağlamı kaybolmuş olabilir ama yine de dene
           navigator.share({ files, text: caption }).catch(err => {
             if ((err as Error).name !== "AbortError") {
               navigator.share({ text: caption, url: "https://menugunlugu.com" }).catch(() => {});
             }
           });
-        }
-        return;
+        }, 200);
+        // 15 saniye sonra iptal et
+        setTimeout(() => { clearInterval(poll); setDownloading(false); }, 15000);
       }
-
-      // Masaüstü fallback: görselleri indir + platformu aç
-      for (const file of files) {
-        await new Promise<void>(resolve => {
-          const url = URL.createObjectURL(file);
-          const a = document.createElement("a");
-          a.href = url; a.download = file.name;
-          document.body.appendChild(a); a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-          setTimeout(resolve, 300);
-        });
-      }
-
-      if (platform === "instagram") {
-        window.open("https://www.instagram.com/create/select", "_blank");
-      } else if (platform === "tiktok") {
-        window.open("https://www.tiktok.com/upload", "_blank");
-      }
-    } finally {
-      setDownloading(false);
+      return;
     }
+
+    // ── MASAÜSTÜ ───────────────────────────────────────────────────────
+    // Görselleri indir + platform upload sayfasını aç
+    setDownloading(true);
+    const caption = generateCaption(sel);
+    const labels = ["kapak", "corba", "ana-yemek", "yardimci", "tatli"];
+    const baseParams = new URLSearchParams({
+      soup: sel.soup.id, main: sel.main.id, side: sel.side.id, dessert: sel.dessert.id, format: "post",
+    });
+    const allUrls = [
+      `/api/menu-karti?${baseParams.toString()}`,
+      ...[1, 2, 3, 4].map(i => {
+        const p = new URLSearchParams(baseParams); p.set("slide", String(i)); return `/api/menu-karti?${p.toString()}`;
+      }),
+    ];
+    Promise.all(allUrls.map(async (url, i) => {
+      try {
+        const r = await fetch(url);
+        if (!r.ok) return;
+        const blob = await r.blob();
+        const objUrl = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = objUrl; a.download = `${labels[i]}.png`;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(objUrl), 1000);
+      } catch { /* skip */ }
+    })).then(() => {
+      if (platform === "instagram") window.open("https://www.instagram.com/create/select", "_blank");
+      else if (platform === "tiktok") window.open("https://www.tiktok.com/upload", "_blank");
+    }).finally(() => setDownloading(false));
   }
 
   function handlePdf() {

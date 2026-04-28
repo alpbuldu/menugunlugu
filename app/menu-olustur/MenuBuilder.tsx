@@ -233,13 +233,14 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   const topRef = useRef<HTMLDivElement>(null);
   const touchRef = useRef<{ x: number; y: number } | null>(null);
   const platformMenuRef = useRef<HTMLDivElement>(null);
+  const storyMenuRef = useRef<HTMLDivElement>(null);
   const prefetchRef = useRef<{ files: File[]; caption: string } | null>(null);
   const storyPrefetchRef = useRef<File | null>(null);
   const [scrollTick, setScrollTick] = useState(0);
   const [downloading, setDownloading] = useState(false);
   const [prefetching, setPrefetching] = useState(false);
   const [showPlatformMenu, setShowPlatformMenu] = useState(false);
-  const [toast, setToast] = useState("");
+  const [showStoryMenu, setShowStoryMenu] = useState(false);
 
   const allFilled = SLOTS.every(({ key }) => !!selection[key]);
   const filledCount = SLOTS.filter(({ key }) => !!selection[key]).length;
@@ -280,17 +281,16 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   // Reset page + search when category changes
   useEffect(() => { setPage(0); setSearchTitle(""); setSearchAuthor(""); }, [activeCategory]);
 
-  // Platform menüsü dışarı tıklayınca kapat
+  // Platform menüleri dışarı tıklayınca kapat
   useEffect(() => {
-    if (!showPlatformMenu) return;
+    if (!showPlatformMenu && !showStoryMenu) return;
     function handleClick(e: MouseEvent) {
-      if (platformMenuRef.current && !platformMenuRef.current.contains(e.target as Node)) {
-        setShowPlatformMenu(false);
-      }
+      if (showPlatformMenu && platformMenuRef.current && !platformMenuRef.current.contains(e.target as Node)) setShowPlatformMenu(false);
+      if (showStoryMenu && storyMenuRef.current && !storyMenuRef.current.contains(e.target as Node)) setShowStoryMenu(false);
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
-  }, [showPlatformMenu]);
+  }, [showPlatformMenu, showStoryMenu]);
 
   // Dropdown açılınca görselleri arka planda önceden oluştur
   // Böylece platforma basınca navigator.share() anında çağrılabilir
@@ -369,135 +369,116 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     ].join("\n\n");
   }
 
-  function handleCard(format: "story") {
-    if (!allFilled) return;
-    const s = selection as Record<Category, MenuRecipe>;
-    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+  const isMobile = typeof navigator !== "undefined" && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
-    // Mobil → Web Share API (post ile aynı akış)
-    if (isMobile && navigator.share) {
-      const caption = generateCaption(s);
-      const copyCaption = (cap: string) => {
-        navigator.clipboard?.writeText(cap).then(() => {
-          setToast("📋 Başlık panoya kopyalandı — yapıştır ve paylaş!");
-          setTimeout(() => setToast(""), 4000);
-        }).catch(() => {});
-      };
-      if (storyPrefetchRef.current) {
-        copyCaption(caption);
-        navigator.share({ files: [storyPrefetchRef.current], text: caption }).catch(err => {
+  // Mobilde share tetikle — dosyalar hazırsa anında, değilse poll et
+  function mobileShare(getFiles: () => File[] | null, caption?: string) {
+    if (!navigator.share) return;
+    const files = getFiles();
+    if (files) {
+      if (caption) navigator.clipboard?.writeText(caption).catch(() => {});
+      navigator.share({ files, ...(caption ? { text: caption } : {}) }).catch(err => {
+        if ((err as Error).name !== "AbortError") {
+          navigator.share({ ...(caption ? { text: caption } : {}), url: "https://menugunlugu.com" }).catch(() => {});
+        }
+      });
+    } else {
+      setDownloading(true);
+      const poll = setInterval(() => {
+        const f = getFiles();
+        if (!f) return;
+        clearInterval(poll);
+        setDownloading(false);
+        if (caption) navigator.clipboard?.writeText(caption).catch(() => {});
+        navigator.share({ files: f, ...(caption ? { text: caption } : {}) }).catch(err => {
           if ((err as Error).name !== "AbortError") {
-            navigator.share({ text: caption, url: "https://menugunlugu.com" }).catch(() => {});
+            navigator.share({ ...(caption ? { text: caption } : {}), url: "https://menugunlugu.com" }).catch(() => {});
           }
         });
-      } else {
-        setDownloading(true);
-        const poll = setInterval(() => {
-          if (!storyPrefetchRef.current) return;
-          clearInterval(poll);
-          setDownloading(false);
-          copyCaption(caption);
-          navigator.share({ files: [storyPrefetchRef.current!], text: caption }).catch(err => {
-            if ((err as Error).name !== "AbortError") {
-              navigator.share({ text: caption, url: "https://menugunlugu.com" }).catch(() => {});
-            }
-          });
-        }, 200);
-        setTimeout(() => { clearInterval(poll); setDownloading(false); }, 15000);
-      }
-      return;
+      }, 200);
+      setTimeout(() => { clearInterval(poll); setDownloading(false); }, 15000);
     }
-
-    // Masaüstü → direkt yeni sekmede aç (eski davranış)
-    const baseParams = new URLSearchParams({ soup: s.soup.id, main: s.main.id, side: s.side.id, dessert: s.dessert.id, format });
-    window.open(`/api/menu-karti?${baseParams.toString()}`, "_blank");
   }
 
+  // ── POST PAYLAŞ ────────────────────────────────────────────────────────
   function handleShare(platform: "instagram" | "tiktok" | "x") {
     if (!allFilled || downloading) return;
     setShowPlatformMenu(false);
     const sel = selection as Record<Category, MenuRecipe>;
+    const today = new Date().toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long" });
+    const xText = `🍽️ ${today} günün menüsü!\n\n${sel.soup.title} · ${sel.main.title} · ${sel.side.title} · ${sel.dessert.title}\n\nmenugunlugu.com\n\n#GününMenüsü #MenüGünlüğü`;
 
-    // X → tweet intent
     if (platform === "x") {
-      const today = new Date().toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long" });
-      const xText = `🍽️ ${today} günün menüsü!\n\n${sel.soup.title} · ${sel.main.title} · ${sel.side.title} · ${sel.dessert.title}\n\nmenugunlugu.com\n\n#GününMenüsü #MenüGünlüğü`;
-      window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}`, "_blank");
-      return;
-    }
-
-    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-
-    // ── MOBİL ──────────────────────────────────────────────────────────
-    if (isMobile) {
-      if (!navigator.share) return;
-
-      const copyCaption = (cap: string) => {
-        navigator.clipboard?.writeText(cap).then(() => {
-          setToast("📋 Başlık panoya kopyalandı — yapıştır ve paylaş!");
-          setTimeout(() => setToast(""), 4000);
-        }).catch(() => {});
-      };
-
-      if (prefetchRef.current) {
-        const { files, caption } = prefetchRef.current;
-        copyCaption(caption);
-        navigator.share({ files, text: caption }).catch(err => {
-          if ((err as Error).name !== "AbortError") {
-            navigator.share({ text: caption, url: "https://menugunlugu.com" }).catch(() => {});
-          }
-        });
+      // Mobil: Web Share API ile kapak görsel + caption; masaüstü: tweet intent
+      if (isMobile && navigator.share) {
+        mobileShare(
+          () => prefetchRef.current ? [prefetchRef.current.files[0]] : null,
+          prefetchRef.current?.caption
+        );
       } else {
-        setDownloading(true);
-        const poll = setInterval(() => {
-          if (!prefetchRef.current) return;
-          clearInterval(poll);
-          setDownloading(false);
-          const { files, caption } = prefetchRef.current!;
-          copyCaption(caption);
-          navigator.share({ files, text: caption }).catch(err => {
-            if ((err as Error).name !== "AbortError") {
-              navigator.share({ text: caption, url: "https://menugunlugu.com" }).catch(() => {});
-            }
-          });
-        }, 200);
-        setTimeout(() => { clearInterval(poll); setDownloading(false); }, 15000);
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}`, "_blank");
       }
       return;
     }
 
-    // ── MASAÜSTÜ → ZIP indir ───────────────────────────────────────────
+    // Instagram / TikTok
+    if (isMobile) {
+      mobileShare(
+        () => prefetchRef.current?.files ?? null,
+        prefetchRef.current?.caption
+      );
+      return;
+    }
+
+    // Masaüstü → ZIP indir
     setDownloading(true);
     const caption = generateCaption(sel);
     const labels = ["kapak", "corba", "ana-yemek", "yardimci", "tatli"];
-    const baseParams = new URLSearchParams({
-      soup: sel.soup.id, main: sel.main.id, side: sel.side.id, dessert: sel.dessert.id, format: "post",
-    });
+    const baseParams = new URLSearchParams({ soup: sel.soup.id, main: sel.main.id, side: sel.side.id, dessert: sel.dessert.id, format: "post" });
     const allUrls = [
       `/api/menu-karti?${baseParams.toString()}`,
-      ...[1, 2, 3, 4].map(i => {
-        const p = new URLSearchParams(baseParams); p.set("slide", String(i)); return `/api/menu-karti?${p.toString()}`;
-      }),
+      ...[1, 2, 3, 4].map(i => { const p = new URLSearchParams(baseParams); p.set("slide", String(i)); return `/api/menu-karti?${p.toString()}`; }),
     ];
     Promise.all(allUrls.map(async url => {
       try { const r = await fetch(url); return r.ok ? r.blob() : null; } catch { return null; }
     })).then(async blobs => {
       const buffers = await Promise.all(blobs.map(b => b ? b.arrayBuffer() : Promise.resolve(null)));
       const zipFiles: Record<string, Uint8Array> = {};
-      for (let i = 0; i < buffers.length; i++) {
-        const buf = buffers[i];
-        if (buf) zipFiles[`${labels[i]}.png`] = new Uint8Array(buf);
-      }
+      for (let i = 0; i < buffers.length; i++) { const buf = buffers[i]; if (buf) zipFiles[`${labels[i]}.png`] = new Uint8Array(buf); }
       zipFiles["caption.txt"] = new TextEncoder().encode(caption);
       const zipped = zipSync(zipFiles, { level: 0 });
       const zipBlob = new Blob([zipped], { type: "application/zip" });
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(zipBlob);
-      a.download = "gunun-menusu.zip";
-      document.body.appendChild(a); a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(a.href);
+      a.href = URL.createObjectURL(zipBlob); a.download = "gunun-menusu.zip";
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href);
     }).finally(() => setDownloading(false));
+  }
+
+  // ── STORY PAYLAŞ ───────────────────────────────────────────────────────
+  function handleStory(platform: "instagram" | "tiktok" | "x") {
+    if (!allFilled) return;
+    setShowStoryMenu(false);
+    const s = selection as Record<Category, MenuRecipe>;
+
+    if (platform === "x") {
+      if (isMobile && navigator.share) {
+        mobileShare(() => storyPrefetchRef.current ? [storyPrefetchRef.current] : null);
+      } else {
+        const xText = `🍽️ Günün menüsü menugunlugu.com'da!\n\n#GününMenüsü #MenüGünlüğü`;
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}`, "_blank");
+      }
+      return;
+    }
+
+    // Instagram / TikTok
+    if (isMobile) {
+      mobileShare(() => storyPrefetchRef.current ? [storyPrefetchRef.current] : null);
+      return;
+    }
+
+    // Masaüstü → direkt aç
+    const baseParams = new URLSearchParams({ soup: s.soup.id, main: s.main.id, side: s.side.id, dessert: s.dessert.id, format: "story" });
+    window.open(`/api/menu-karti?${baseParams.toString()}`, "_blank");
   }
 
   function handlePdf() {
@@ -532,7 +513,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
               Seçimleriniz
             </h2>
 
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2 lg:grid-cols-1">
               {SLOTS.map((slot) => (
                 <SlotCard
                   key={slot.key}
@@ -586,54 +567,40 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                     type="button"
                     onClick={() => allFilled && !downloading && setShowPlatformMenu(v => !v)}
                     disabled={!allFilled || downloading}
-                    title={allFilled ? "Platform seç ve paylaş" : "4 yemek seç"}
                     className={`w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors shadow-sm ${
-                      allFilled && !downloading
-                        ? "bg-brand-600 text-white hover:bg-brand-700 cursor-pointer"
-                        : "bg-warm-200 text-warm-400 cursor-not-allowed"
+                      allFilled && !downloading ? "bg-brand-600 text-white hover:bg-brand-700 cursor-pointer" : "bg-warm-200 text-warm-400 cursor-not-allowed"
                     }`}
                   >
                     {downloading ? (
-                      <>
-                        <svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><circle cx="12" cy="12" r="10" strokeOpacity={0.3}/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/></svg>
-                        <span className="whitespace-nowrap">Hazırlanıyor…</span>
-                      </>
+                      <><svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><circle cx="12" cy="12" r="10" strokeOpacity={0.3}/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/></svg><span className="whitespace-nowrap">Hazırlanıyor…</span></>
                     ) : (
-                      <>
-                        <span>📸</span>
-                        <span className="whitespace-nowrap">Paylaş · Post</span>
-                        <svg className={`w-3 h-3 transition-transform ${showPlatformMenu ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                      </>
+                      <><span>📸</span><span className="whitespace-nowrap">Paylaş · Post</span><svg className={`w-3 h-3 transition-transform ${showPlatformMenu ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg></>
                     )}
                   </button>
 
-                  {/* Dropdown */}
                   {showPlatformMenu && (
                     <div className="absolute bottom-full mb-1.5 left-0 right-0 bg-white rounded-xl border border-warm-200 shadow-xl overflow-hidden z-20">
-                      {/* Prefetch durumu */}
                       {prefetching && (
                         <div className="flex items-center gap-2 px-3 py-2 bg-warm-50 border-b border-warm-100">
                           <svg className="w-3 h-3 animate-spin text-brand-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><circle cx="12" cy="12" r="10" strokeOpacity={0.3}/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/></svg>
                           <span className="text-[10px] text-warm-500">Görseller hazırlanıyor…</span>
                         </div>
                       )}
-                      <button
-                        type="button"
-                        onClick={() => handleShare("instagram")}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-warm-50 transition-colors text-left"
-                      >
+                      {/* Ön bilgi — share açılmadan önce kullanıcı görür */}
+                      {!prefetching && (
+                        <div className="px-3 py-2 bg-brand-50 border-b border-brand-100 text-[10px] text-brand-600">
+                          📋 Paylaşınca başlık otomatik kopyalanır — caption alanına yapıştır
+                        </div>
+                      )}
+                      <button type="button" onClick={() => handleShare("instagram")} className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-warm-50 transition-colors text-left">
                         <span className="text-base">📷</span>
                         <div>
                           <div className="text-xs font-semibold text-warm-800">Instagram</div>
-                          <div className="text-[10px] text-warm-400">{prefetching ? "Hazırlanıyor…" : "Carousel post"}</div>
+                          <div className="text-[10px] text-warm-400">{prefetching ? "Hazırlanıyor…" : "Carousel · Dikey için ↔ simgesine bas"}</div>
                         </div>
                       </button>
                       <div className="h-px bg-warm-100 mx-3" />
-                      <button
-                        type="button"
-                        onClick={() => handleShare("tiktok")}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-warm-50 transition-colors text-left"
-                      >
+                      <button type="button" onClick={() => handleShare("tiktok")} className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-warm-50 transition-colors text-left">
                         <span className="text-base">🎵</span>
                         <div>
                           <div className="text-xs font-semibold text-warm-800">TikTok</div>
@@ -641,55 +608,65 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                         </div>
                       </button>
                       <div className="h-px bg-warm-100 mx-3" />
-                      <button
-                        type="button"
-                        onClick={() => handleShare("x")}
-                        className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-warm-50 transition-colors text-left"
-                      >
+                      <button type="button" onClick={() => handleShare("x")} className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-warm-50 transition-colors text-left">
                         <span className="text-base font-bold text-warm-800">𝕏</span>
                         <div>
                           <div className="text-xs font-semibold text-warm-800">X (Twitter)</div>
-                          <div className="text-[10px] text-warm-400">Caption hazır açılır</div>
+                          <div className="text-[10px] text-warm-400">Kapak görsel + caption</div>
                         </div>
                       </button>
                     </div>
                   )}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleCard("story")}
-                  disabled={!allFilled}
-                  title={allFilled ? "Story kartı indir (1080×1920)" : "4 yemek seç"}
-                  className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors shadow-sm ${
-                    allFilled
-                      ? "bg-brand-600 text-white hover:bg-brand-700 cursor-pointer"
-                      : "bg-warm-200 text-warm-400 cursor-not-allowed"
-                  }`}
-                >
-                  <span>📱</span>
-                  <span className="whitespace-nowrap">Paylaş · Story</span>
-                </button>
+                {/* Paylaş · Story — platform picker */}
+                <div ref={storyMenuRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => allFilled && !downloading && setShowStoryMenu(v => !v)}
+                    disabled={!allFilled || downloading}
+                    className={`w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors shadow-sm ${
+                      allFilled && !downloading ? "bg-brand-600 text-white hover:bg-brand-700 cursor-pointer" : "bg-warm-200 text-warm-400 cursor-not-allowed"
+                    }`}
+                  >
+                    <span>📱</span>
+                    <span className="whitespace-nowrap">Paylaş · Story</span>
+                    <svg className={`w-3 h-3 transition-transform ${showStoryMenu ? "rotate-180" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+
+                  {showStoryMenu && (
+                    <div className="absolute bottom-full mb-1.5 left-0 right-0 bg-white rounded-xl border border-warm-200 shadow-xl overflow-hidden z-20">
+                      <button type="button" onClick={() => handleStory("instagram")} className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-warm-50 transition-colors text-left">
+                        <span className="text-base">📷</span>
+                        <div>
+                          <div className="text-xs font-semibold text-warm-800">Instagram</div>
+                          <div className="text-[10px] text-warm-400">Story (1080×1920)</div>
+                        </div>
+                      </button>
+                      <div className="h-px bg-warm-100 mx-3" />
+                      <button type="button" onClick={() => handleStory("tiktok")} className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-warm-50 transition-colors text-left">
+                        <span className="text-base">🎵</span>
+                        <div>
+                          <div className="text-xs font-semibold text-warm-800">TikTok</div>
+                          <div className="text-[10px] text-warm-400">Dikey video / fotoğraf</div>
+                        </div>
+                      </button>
+                      <div className="h-px bg-warm-100 mx-3" />
+                      <button type="button" onClick={() => handleStory("x")} className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-warm-50 transition-colors text-left">
+                        <span className="text-base font-bold text-warm-800">𝕏</span>
+                        <div>
+                          <div className="text-xs font-semibold text-warm-800">X (Twitter)</div>
+                          <div className="text-[10px] text-warm-400">Story görseli</div>
+                        </div>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <p className={`text-center text-[11px] pt-0.5 transition-colors ${
-                allFilled
-                  ? "text-brand-600 font-medium"
-                  : "text-warm-400"
-              }`}>
-                {downloading
-                  ? "⏳ 5 görsel hazırlanıyor…"
-                  : allFilled
-                  ? "🎉 Menü hazır — platform seç ve paylaş!"
-                  : `${4 - filledCount} yemek daha seç → kartı oluştur`}
+              <p className={`text-center text-[11px] pt-0.5 transition-colors ${allFilled ? "text-brand-600 font-medium" : "text-warm-400"}`}>
+                {downloading ? "⏳ Görseller hazırlanıyor…" : allFilled ? "🎉 Menü hazır — platform seç ve paylaş!" : `${4 - filledCount} yemek daha seç → kartı oluştur`}
               </p>
-
-              {/* Caption kopyalandı toast */}
-              {toast && (
-                <div className="mt-1 px-3 py-2 rounded-xl bg-brand-50 border border-brand-200 text-center text-[11px] text-brand-700 font-medium">
-                  {toast}
-                </div>
-              )}
             </div>
           </div>
         </div>

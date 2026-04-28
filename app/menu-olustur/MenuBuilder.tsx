@@ -233,8 +233,10 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   const topRef = useRef<HTMLDivElement>(null);
   const touchRef = useRef<{ x: number; y: number } | null>(null);
   const platformMenuRef = useRef<HTMLDivElement>(null);
+  const prefetchRef = useRef<{ files: File[]; caption: string } | null>(null);
   const [scrollTick, setScrollTick] = useState(0);
   const [downloading, setDownloading] = useState(false);
+  const [prefetching, setPrefetching] = useState(false);
   const [showPlatformMenu, setShowPlatformMenu] = useState(false);
 
   const allFilled = SLOTS.every(({ key }) => !!selection[key]);
@@ -270,6 +272,39 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [showPlatformMenu]);
+
+  // Dropdown açılınca görselleri arka planda önceden oluştur
+  // Böylece platforma basınca navigator.share() anında çağrılabilir
+  useEffect(() => {
+    if (!showPlatformMenu || !allFilled) { prefetchRef.current = null; return; }
+    prefetchRef.current = null;
+    setPrefetching(true);
+    const sel = selection as Record<Category, MenuRecipe>;
+    const caption = generateCaption(sel);
+    const labels = ["kapak", "corba", "ana-yemek", "yardimci", "tatli"];
+    const baseParams = new URLSearchParams({
+      soup: sel.soup.id, main: sel.main.id, side: sel.side.id, dessert: sel.dessert.id, format: "post",
+    });
+    const allUrls = [
+      `/api/menu-karti?${baseParams.toString()}`,
+      ...[1, 2, 3, 4].map(i => {
+        const p = new URLSearchParams(baseParams); p.set("slide", String(i)); return `/api/menu-karti?${p.toString()}`;
+      }),
+    ];
+    let cancelled = false;
+    Promise.all(allUrls.map(async url => {
+      try { const r = await fetch(url); return r.ok ? r.blob() : null; } catch { return null; }
+    })).then(blobs => {
+      if (cancelled) return;
+      const files = blobs
+        .map((b, i) => b ? new File([b], `${labels[i]}.png`, { type: "image/png" }) : null)
+        .filter(Boolean) as File[];
+      if (files.length > 0) prefetchRef.current = { files, caption };
+      setPrefetching(false);
+    }).catch(() => { if (!cancelled) setPrefetching(false); });
+    return () => { cancelled = true; setPrefetching(false); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showPlatformMenu, allFilled]);
 
   function selectRecipe(recipe: MenuRecipe) {
     setSelection((prev) => ({ ...prev, [activeCategory]: recipe }));
@@ -362,23 +397,26 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
         .map((b, i) => b ? new File([b], `${labels[i]}.png`, { type: "image/png" }) : null)
         .filter(Boolean) as File[];
 
-      const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+        const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
 
-      // Mobil: SADECE Web Share API — hata olursa indir değil, tekrar dene mesajı
       if (isMobile) {
-        if (navigator.share) {
-          try {
-            await navigator.share({ files, text: caption });
-          } catch (err) {
+        // Görseller hazırsa: navigator.share() ANINDA çağır (gesture bağlamı korunur)
+        if (prefetchRef.current && navigator.share) {
+          const { files: pFiles, caption: pCaption } = prefetchRef.current;
+          navigator.share({ files: pFiles, text: pCaption }).catch(err => {
             if ((err as Error).name !== "AbortError") {
-              // Dosyalar çok büyük olabilir, sadece metin+link paylaş
-              try {
-                await navigator.share({ text: caption, url: "https://menugunlugu.com" });
-              } catch { /* kullanıcı iptal */ }
+              navigator.share({ text: pCaption, url: "https://menugunlugu.com" }).catch(() => {});
             }
-          }
+          });
+        } else if (navigator.share) {
+          // Henüz hazır değil: fetch sonrası dene (gesture kaybedilmiş olabilir ama yine dene)
+          navigator.share({ files, text: caption }).catch(err => {
+            if ((err as Error).name !== "AbortError") {
+              navigator.share({ text: caption, url: "https://menugunlugu.com" }).catch(() => {});
+            }
+          });
         }
-        return; // mobilden asla download fallback'e gitme
+        return;
       }
 
       // Masaüstü fallback: görselleri indir + platformu aç
@@ -514,6 +552,13 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                   {/* Dropdown */}
                   {showPlatformMenu && (
                     <div className="absolute bottom-full mb-1.5 left-0 right-0 bg-white rounded-xl border border-warm-200 shadow-xl overflow-hidden z-20">
+                      {/* Prefetch durumu */}
+                      {prefetching && (
+                        <div className="flex items-center gap-2 px-3 py-2 bg-warm-50 border-b border-warm-100">
+                          <svg className="w-3 h-3 animate-spin text-brand-500 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><circle cx="12" cy="12" r="10" strokeOpacity={0.3}/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/></svg>
+                          <span className="text-[10px] text-warm-500">Görseller hazırlanıyor…</span>
+                        </div>
+                      )}
                       <button
                         type="button"
                         onClick={() => handleShare("instagram")}
@@ -522,7 +567,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                         <span className="text-base">📷</span>
                         <div>
                           <div className="text-xs font-semibold text-warm-800">Instagram</div>
-                          <div className="text-[10px] text-warm-400">Carousel post</div>
+                          <div className="text-[10px] text-warm-400">{prefetching ? "Hazırlanıyor…" : "Carousel post"}</div>
                         </div>
                       </button>
                       <div className="h-px bg-warm-100 mx-3" />
@@ -534,7 +579,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                         <span className="text-base">🎵</span>
                         <div>
                           <div className="text-xs font-semibold text-warm-800">TikTok</div>
-                          <div className="text-[10px] text-warm-400">Fotoğraf serisi</div>
+                          <div className="text-[10px] text-warm-400">{prefetching ? "Hazırlanıyor…" : "Fotoğraf serisi"}</div>
                         </div>
                       </button>
                       <div className="h-px bg-warm-100 mx-3" />

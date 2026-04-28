@@ -402,7 +402,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     setShowPlatformMenu(false);
     const sel = selection as Record<Category, MenuRecipe>;
     const today = new Date().toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long" });
-    const xText = `🍽️ ${today} günün menüsü!\n\n${sel.soup.title} · ${sel.main.title} · ${sel.side.title} · ${sel.dessert.title}\n\nmenugunlugu.com\n\n#GününMenüsü #MenüGünlüğü`;
+    const xText = `🍽️ ${today} günün menüsü!\n\n${sel.soup.title} · ${sel.main.title} · ${sel.side.title} · ${sel.dessert.title}\n\nmenugunlugu.com`;
 
     if (platform === "x") {
       // Mobil: Web Share API ile kapak görsel + caption; masaüstü: tweet intent
@@ -460,7 +460,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
       if (isMobile && navigator.share) {
         mobileShare(() => storyPrefetchRef.current ? [storyPrefetchRef.current] : null);
       } else {
-        const xText = `🍽️ Günün menüsü menugunlugu.com'da!\n\n#GününMenüsü #MenüGünlüğü`;
+        const xText = `🍽️ Günün menüsü menugunlugu.com'da!`;
         window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}`, "_blank");
       }
       return;

@@ -239,6 +239,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   const [downloading, setDownloading] = useState(false);
   const [prefetching, setPrefetching] = useState(false);
   const [showPlatformMenu, setShowPlatformMenu] = useState(false);
+  const [toast, setToast] = useState("");
 
   const allFilled = SLOTS.every(({ key }) => !!selection[key]);
   const filledCount = SLOTS.filter(({ key }) => !!selection[key]).length;
@@ -376,19 +377,26 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     // Mobil → Web Share API (post ile aynı akış)
     if (isMobile && navigator.share) {
       const caption = generateCaption(s);
+      const copyCaption = (cap: string) => {
+        navigator.clipboard?.writeText(cap).then(() => {
+          setToast("📋 Başlık panoya kopyalandı — yapıştır ve paylaş!");
+          setTimeout(() => setToast(""), 4000);
+        }).catch(() => {});
+      };
       if (storyPrefetchRef.current) {
+        copyCaption(caption);
         navigator.share({ files: [storyPrefetchRef.current], text: caption }).catch(err => {
           if ((err as Error).name !== "AbortError") {
             navigator.share({ text: caption, url: "https://menugunlugu.com" }).catch(() => {});
           }
         });
       } else {
-        // Henüz hazır değil → poll et
         setDownloading(true);
         const poll = setInterval(() => {
           if (!storyPrefetchRef.current) return;
           clearInterval(poll);
           setDownloading(false);
+          copyCaption(caption);
           navigator.share({ files: [storyPrefetchRef.current!], text: caption }).catch(err => {
             if ((err as Error).name !== "AbortError") {
               navigator.share({ text: caption, url: "https://menugunlugu.com" }).catch(() => {});
@@ -422,33 +430,37 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
 
     // ── MOBİL ──────────────────────────────────────────────────────────
     if (isMobile) {
-      if (!navigator.share) return; // desteklenmiyor
+      if (!navigator.share) return;
+
+      const copyCaption = (cap: string) => {
+        navigator.clipboard?.writeText(cap).then(() => {
+          setToast("📋 Başlık panoya kopyalandı — yapıştır ve paylaş!");
+          setTimeout(() => setToast(""), 4000);
+        }).catch(() => {});
+      };
 
       if (prefetchRef.current) {
-        // Pre-fetch tamam → SIFIR await, gesture bağlamı korunuyor
         const { files, caption } = prefetchRef.current;
+        copyCaption(caption);
         navigator.share({ files, text: caption }).catch(err => {
           if ((err as Error).name !== "AbortError") {
-            // Dosya paylaşımı desteklenmiyorsa sadece metin paylaş
             navigator.share({ text: caption, url: "https://menugunlugu.com" }).catch(() => {});
           }
         });
       } else {
-        // Pre-fetch henüz bitmedi → spinner göster, bitince tekrar dene
         setDownloading(true);
         const poll = setInterval(() => {
           if (!prefetchRef.current) return;
           clearInterval(poll);
           setDownloading(false);
           const { files, caption } = prefetchRef.current!;
-          // Burada gesture bağlamı kaybolmuş olabilir ama yine de dene
+          copyCaption(caption);
           navigator.share({ files, text: caption }).catch(err => {
             if ((err as Error).name !== "AbortError") {
               navigator.share({ text: caption, url: "https://menugunlugu.com" }).catch(() => {});
             }
           });
         }, 200);
-        // 15 saniye sonra iptal et
         setTimeout(() => { clearInterval(poll); setDownloading(false); }, 15000);
       }
       return;
@@ -671,6 +683,13 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                   ? "🎉 Menü hazır — platform seç ve paylaş!"
                   : `${4 - filledCount} yemek daha seç → kartı oluştur`}
               </p>
+
+              {/* Caption kopyalandı toast */}
+              {toast && (
+                <div className="mt-1 px-3 py-2 rounded-xl bg-brand-50 border border-brand-200 text-center text-[11px] text-brand-700 font-medium">
+                  {toast}
+                </div>
+              )}
             </div>
           </div>
         </div>

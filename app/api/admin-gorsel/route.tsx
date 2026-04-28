@@ -274,6 +274,7 @@ function AdminPostView({
   const ING_HEADER_H  = 30;
   const STEP_HEADER_H = 44;
 
+  const showPanel = content !== "none";
   const showIng   = content === "ingredients" || content === "both";
   const showSteps = content === "steps"       || content === "both";
 
@@ -319,22 +320,23 @@ function AdminPostView({
             </div>
         }
 
-        {/* Left gradient */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: PANEL_W, height: "62%", background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)", display: "flex" }} />
+        {/* Left gradient — full width when no panel */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: showPanel ? PANEL_W : 0, height: "62%", background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)", display: "flex" }} />
 
-        {/* Left overlay: category · title · author */}
-        <div style={{ position: "absolute", bottom: 90, left: 0, right: PANEL_W, padding: "0 28px", display: "flex", flexDirection: "column", gap: 13 }}>
-          <div style={{ color: theme.accentClr, fontSize: 22, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
+        {/* Left overlay: title · divider · author (no category label) */}
+        <div style={{ position: "absolute", bottom: 90, left: 0, right: showPanel ? PANEL_W : 0, padding: "0 28px", display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ color: "#FFFFFF", fontSize: 39, fontWeight: 700, lineHeight: 1.15, display: "flex" }}>{card.title}</div>
           {card.author && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 19, display: "flex" }}>{"Yazar:"}</div>
-              <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 19, fontWeight: 700, display: "flex" }}>{card.author}</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.35)", display: "flex" }} />
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, letterSpacing: 0.5, display: "flex" }}>{"Yazar:"}</div>
+              <div style={{ color: "rgba(255,255,255,0.9)", fontSize: 19, fontWeight: 700, display: "flex" }}>{card.author}</div>
             </div>
           )}
         </div>
 
-        {/* Right panel */}
+        {/* Right panel — hidden when content=none */}
+        {showPanel && (
         <div style={{
           position: "absolute", top: 0, right: 0, bottom: 0, width: PANEL_W,
           background: theme.panelBg,
@@ -345,7 +347,7 @@ function AdminPostView({
 
           {/* MALZEMELER */}
           {showIng && (
-            <>
+            <div style={{ display: "flex", flexDirection: "column" }}>
               <div style={{ color: theme.accentClr, fontSize: 12, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>{"MALZEMELER"}</div>
               <div style={{ height: 1, backgroundColor: theme.divColor, display: "flex", marginBottom: 9 }} />
               <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
@@ -377,7 +379,7 @@ function AdminPostView({
                   );
                 })}
               </div>
-            </>
+            </div>
           )}
 
           {/* HAZIRLANIŞ */}
@@ -405,6 +407,7 @@ function AdminPostView({
             <div style={{ color: theme.accentClr, fontSize: 17, fontWeight: 700, display: "flex" }}>{"menugunlugu.com"}</div>
           </div>
         </div>
+        )}
       </div>
 
       <div style={{ height: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />

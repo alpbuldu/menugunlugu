@@ -14,7 +14,7 @@ interface Props {
   recipes: SimpleRecipe[];
 }
 
-type ContentMode = "both" | "ingredients" | "steps";
+type ContentMode = "both" | "ingredients" | "steps" | "none";
 type CoverType   = "yazili" | "yazisiz";
 type Section     = "post" | "kapak" | "story";
 
@@ -354,7 +354,7 @@ export default function PostOlusturClient({ recipes }: Props) {
           <div>
             <div className="text-sm font-semibold text-warm-700 mb-2">İçerik</div>
             <div className="flex gap-2">
-              {(["both", "ingredients", "steps"] as ContentMode[]).map((m) => (
+              {(["both", "ingredients", "steps", "none"] as ContentMode[]).map((m) => (
                 <button
                   key={m}
                   onClick={() => setContentMode(m)}
@@ -364,7 +364,7 @@ export default function PostOlusturClient({ recipes }: Props) {
                       : "bg-warm-50 text-warm-600 hover:bg-warm-100 border border-warm-200"
                   }`}
                 >
-                  {m === "both" ? "Malzeme + Yapılış" : m === "ingredients" ? "Malzeme" : "Yapılış"}
+                  {m === "both" ? "Malzeme + Yapılış" : m === "ingredients" ? "Malzeme" : m === "steps" ? "Yapılış" : "Hiçbiri"}
                 </button>
               ))}
             </div>

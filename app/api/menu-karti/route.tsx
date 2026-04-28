@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
 
   return new ImageResponse(
     isSlide && slideCard
-      ? <SlideView card={slideCard} date={slideDateStr} />
+      ? <SlideView card={slideCard} date={slideDateStr} slideNum={slideIdx} />
       : isStory
         ? <StoryView cards={cards} date={dateStr} />
         : <PostView cards={cards} date={slideDateStr} />,
@@ -230,95 +230,108 @@ function SharedFooter() {
 }
 
 /* ════════════════════════════════════════════════════════════════
-   SLIDE  1080 × 1350
-   Sol: tam görsel + sol-alt overlay (kategori, başlık, yazar, detaylar)
-   Sağ: 400px panel — malzemeler + hazırlanış, overflow: hidden ile kliplenmiş
+   SLIDE  1080 × 1440  — infografik / sosyal medya post tarzı
+   Tam kare görsel arka plan · soluk overlay · pill malzemeler
 ════════════════════════════════════════════════════════════════ */
-function SlideView({ card, date }: { card: Card; date: string }) {
-  const DIV     = 3;
-  const PANEL_W = 400; // 330 → 400: daha geniş panel, daha az satır kırılması
+const CAT_EMOJI: Record<string, string> = {
+  "Çorba": "🍲", "Ana Yemek": "🥘", "Yardımcı Lezzet": "🥗", "Tatlı": "🍮",
+};
+
+function SlideView({ card, date, slideNum }: { card: Card; date: string; slideNum: number }) {
+  const emoji    = CAT_EMOJI[card.cat] ?? "🍽️";
+  const MAX_ING  = 7;
+  const topIng   = card.ingredients.slice(0, MAX_ING);
+  const extraCnt = card.ingredients.length - MAX_ING;
 
   return (
-    <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+    <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#1A0F08" }}>
       <SharedHeader date={date} />
-      <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 3, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
 
-      {/* Ana içerik alanı */}
+      {/* ── Tam kare içerik ── */}
       <div style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}>
 
-        {/* Arka plan görsel */}
+        {/* Arka plan — tarif görseli */}
         {card.img
-          ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-          : <div style={{ position: "absolute", inset: 0, backgroundColor: "#C8A97A", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <div style={{ fontSize: 80, display: "flex" }}>🍽️</div>
+          ? <img src={card.img} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+          : <div style={{ position: "absolute", inset: 0, backgroundColor: "#8B5E3C", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ fontSize: 100, display: "flex" }}>🍽️</div>
             </div>
         }
 
-        {/* Sol-alt gradyan (panel genişliği kadar içe çekik) */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: PANEL_W, height: "62%", background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)", display: "flex" }} />
+        {/* Overlay: üstte hafif, altta yoğun — görsel üstte görünsün */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(170deg, rgba(26,15,8,0.38) 0%, rgba(26,15,8,0.22) 28%, rgba(26,15,8,0.70) 58%, rgba(26,15,8,0.96) 100%)", display: "flex" }} />
 
-        {/* Sol-alt: kategori · başlık · yazar · Detaylar için */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: PANEL_W, padding: "24px 28px", display: "flex", flexDirection: "column", gap: 6 }}>
-          <div style={{ color: "#FCD34D", fontSize: 18, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
-          <div style={{ color: "#FFFFFF", fontSize: 34, fontWeight: 700, lineHeight: 1.15, display: "flex" }}>{card.title}</div>
-          {card.author && (
-            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 15, display: "flex" }}>Yazar:</div>
-              <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 15, fontWeight: 700, display: "flex" }}>{card.author}</div>
+        {/* ── Üst satır: kategori badge + slayt numarası ── */}
+        <div style={{ position: "absolute", top: 28, left: 28, right: 28, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+
+          {/* Kategori pill */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: "#E07A2F", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <div style={{ fontSize: 24, display: "flex" }}>{emoji}</div>
             </div>
-          )}
-          {/* Detaylar için — tek satır yan yana */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, display: "flex" }}>Detaylar için</div>
-            <div style={{ color: "#FCD34D", fontSize: 15, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
+            <div style={{ backgroundColor: "rgba(0,0,0,0.48)", border: "1.5px solid rgba(255,255,255,0.22)", paddingLeft: 18, paddingRight: 18, paddingTop: 10, paddingBottom: 10, borderRadius: 28, display: "flex" }}>
+              <div style={{ color: "#FFFFFF", fontSize: 18, fontWeight: 700, letterSpacing: 1.8, display: "flex" }}>{card.cat.toUpperCase()}</div>
+            </div>
+          </div>
+
+          {/* Slayt numarası */}
+          <div style={{ backgroundColor: "rgba(0,0,0,0.42)", border: "1.5px solid rgba(255,255,255,0.18)", width: 56, height: 56, borderRadius: 28, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ color: "rgba(255,255,255,0.75)", fontSize: 20, fontWeight: 700, display: "flex" }}>{slideNum}<span style={{ color: "rgba(255,255,255,0.35)", fontSize: 14, display: "flex" }}>/4</span></div>
           </div>
         </div>
 
-        {/* ── Sağ panel ── */}
-        <div style={{
-          position: "absolute", top: 0, right: 0, bottom: 0, width: PANEL_W,
-          background: "rgba(10,4,0,0.87)",
-          display: "flex", flexDirection: "column",
-          padding: "20px 16px",
-          overflow: "hidden", // taşan içerik düzgün kliplensin
-        }}>
+        {/* ── Alt içerik bloğu ── */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 36px 44px", display: "flex", flexDirection: "column", gap: 18 }}>
 
-          {/* MALZEMELER */}
-          <div style={{ color: "#FCD34D", fontSize: 11, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>MALZEMELER</div>
-          <div style={{ height: 1, backgroundColor: "#D97706", display: "flex", marginBottom: 9 }} />
+          {/* Başlık */}
+          <div style={{ color: "#FFFFFF", fontSize: 52, fontWeight: 700, lineHeight: 1.18, display: "flex" }}>{card.title}</div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-            {card.ingredients.map((item, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
-                <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#D97706", marginTop: 5, flexShrink: 0, display: "flex" }} />
-                <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 13.5, lineHeight: 1.25, display: "flex" }}>{item}</div>
-              </div>
-            ))}
-          </div>
+          {/* Yazar */}
+          {card.author && (
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 3, height: 26, backgroundColor: "#E07A2F", borderRadius: 2, flexShrink: 0, display: "flex" }} />
+              <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 20, display: "flex" }}>{card.author}</div>
+            </div>
+          )}
 
-          {/* HAZIRLANIŞ */}
-          {card.steps.length > 0 && (
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.18)", display: "flex", margin: "10px 0 8px" }} />
-              <div style={{ color: "#FCD34D", fontSize: 11, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>HAZIRLANIŞ</div>
-              <div style={{ height: 1, backgroundColor: "#D97706", display: "flex", marginBottom: 9 }} />
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {card.steps.map((step, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-                    <div style={{ minWidth: 15, height: 15, borderRadius: 2, backgroundColor: "rgba(217,119,6,0.75)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                      <div style={{ color: "#FFF", fontSize: 9, fontWeight: 700, display: "flex" }}>{i + 1}</div>
-                    </div>
-                    <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 14, lineHeight: 1.3, display: "flex" }}>{step}</div>
+          {/* Malzemeler pill */}
+          {topIng.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ color: "#FCD34D", fontSize: 12, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>MALZEMELER</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                {topIng.map((ing, i) => (
+                  <div key={i} style={{ backgroundColor: "rgba(255,255,255,0.10)", border: "1px solid rgba(255,255,255,0.22)", paddingLeft: 16, paddingRight: 16, paddingTop: 9, paddingBottom: 9, borderRadius: 24, display: "flex" }}>
+                    <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 16, lineHeight: 1, display: "flex" }}>{ing}</div>
                   </div>
                 ))}
+                {extraCnt > 0 && (
+                  <div style={{ backgroundColor: "rgba(224,122,47,0.25)", border: "1px solid rgba(224,122,47,0.55)", paddingLeft: 16, paddingRight: 16, paddingTop: 9, paddingBottom: 9, borderRadius: 24, display: "flex" }}>
+                    <div style={{ color: "#FCD34D", fontSize: 16, display: "flex" }}>+{extraCnt} daha</div>
+                  </div>
+                )}
               </div>
             </div>
           )}
+
+          {/* Ayırıcı çizgi */}
+          <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.14)", display: "flex" }} />
+
+          {/* CTA + malzeme sayısı */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ color: "rgba(255,255,255,0.48)", fontSize: 18, display: "flex" }}>Tam tarif →</div>
+              <div style={{ color: "#FCD34D", fontSize: 18, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
+            </div>
+            <div style={{ backgroundColor: "rgba(224,122,47,0.22)", border: "1px solid rgba(224,122,47,0.45)", paddingLeft: 14, paddingRight: 14, paddingTop: 7, paddingBottom: 7, borderRadius: 20, display: "flex" }}>
+              <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 15, display: "flex" }}>{card.ingredients.length} malzeme</div>
+            </div>
+          </div>
 
         </div>
       </div>
 
-      <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 3, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
       <SharedFooter />
     </div>
   );

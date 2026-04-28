@@ -374,9 +374,9 @@ function SlideView({ card, date }: { card: Card; date: string }) {
             </div>
           )}
 
-          {/* Link — her slayta sabit olarak gösterilir */}
-          <div style={{ marginTop: 14, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.18)", display: "flex", flexDirection: "column", gap: 4 }}>
-            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 13, display: "flex" }}>Tarifin tamamı ve daha fazla tarif için:</div>
+          {/* Link — absolute, sol "Yazar:" etiketiyle hizalı (bottom: 90) */}
+          <div style={{ position: "absolute", bottom: 90, left: 16, right: 16, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.25)", display: "flex", flexDirection: "column", gap: 4 }}>
+            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, display: "flex" }}>Tarifin tamamı ve daha fazla tarif için:</div>
             <div style={{ color: "#FCD34D", fontSize: 17, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
           </div>
 

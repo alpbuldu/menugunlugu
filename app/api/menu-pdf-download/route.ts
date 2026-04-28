@@ -40,13 +40,17 @@ function parseInstructions(html: string): string[] {
   return parseHtmlLines(html);
 }
 
+const TR_DAYS   = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
+const TR_MONTHS = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+
 function formatDate(d: Date): string {
-  return d.toLocaleDateString("tr-TR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    weekday: "long",
-  });
+  // Intl tr-TR bazı Node ortamlarında Türkçe karakterleri düz ASCII verebiliyor;
+  // güvenli manuel formatlama kullan.
+  const weekday = TR_DAYS[d.getDay()];
+  const day     = d.getDate();
+  const month   = TR_MONTHS[d.getMonth()];
+  const year    = d.getFullYear();
+  return `${weekday}, ${day} ${month} ${year}`;
 }
 
 /* ── Route ───────────────────────────────────────────────────── */

@@ -145,10 +145,10 @@ interface Props {
 }
 
 const SLOTS = [
-  { key: "soup"    as const, label: "Corba",           cat: "CORBA" },
+  { key: "soup"    as const, label: "Çorba",            cat: "ÇORBA" },
   { key: "main"    as const, label: "Ana Yemek",        cat: "ANA YEMEK" },
-  { key: "side"    as const, label: "Yardimci Lezzet",  cat: "YARDIMCI LEZZET" },
-  { key: "dessert" as const, label: "Tatli",            cat: "TATLI" },
+  { key: "side"    as const, label: "Yardımcı Lezzet",  cat: "YARDIMCI LEZZET" },
+  { key: "dessert" as const, label: "Tatlı",            cat: "TATLI" },
 ];
 
 /* -- Helpers ------------------------------------------------------------- */

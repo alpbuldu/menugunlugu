@@ -362,15 +362,23 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
         .map((b, i) => b ? new File([b], `${labels[i]}.png`, { type: "image/png" }) : null)
         .filter(Boolean) as File[];
 
-      // Mobil: Web Share API → native share sheet (Instagram/TikTok buradan seçilir)
-      if (typeof navigator !== "undefined" && navigator.share) {
-        try {
-          await navigator.share({ files, text: caption });
-          return;
-        } catch (err) {
-          // Kullanıcı iptal ettiyse dur, başka hata varsa masaüstü fallback'e geç
-          if ((err as Error).name === "AbortError") return;
+      const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+      // Mobil: SADECE Web Share API — hata olursa indir değil, tekrar dene mesajı
+      if (isMobile) {
+        if (navigator.share) {
+          try {
+            await navigator.share({ files, text: caption });
+          } catch (err) {
+            if ((err as Error).name !== "AbortError") {
+              // Dosyalar çok büyük olabilir, sadece metin+link paylaş
+              try {
+                await navigator.share({ text: caption, url: "https://menugunlugu.com" });
+              } catch { /* kullanıcı iptal */ }
+            }
+          }
         }
+        return; // mobilden asla download fallback'e gitme
       }
 
       // Masaüstü fallback: görselleri indir + platformu aç
@@ -382,11 +390,10 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
           document.body.appendChild(a); a.click();
           document.body.removeChild(a);
           URL.revokeObjectURL(url);
-          setTimeout(resolve, 300); // tarayıcının birden fazla indirmeyi kabul etmesi için
+          setTimeout(resolve, 300);
         });
       }
 
-      // İndirmeler başladıktan sonra platformu aç
       if (platform === "instagram") {
         window.open("https://www.instagram.com/create/select", "_blank");
       } else if (platform === "tiktok") {

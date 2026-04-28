@@ -87,9 +87,9 @@ function SlotCard({ slot, recipe, isActive, onClick, onClear }: SlotCardProps) {
           : "border-dashed border-warm-300 hover:border-brand-300"
       }`}
     >
-      <div className="flex items-center gap-3 p-3">
+      <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3">
         {/* Thumbnail */}
-        <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-warm-100 flex-shrink-0">
+        <div className="relative w-10 h-10 sm:w-14 sm:h-14 rounded-xl overflow-hidden bg-warm-100 flex-shrink-0">
           {recipe?.image_url ? (
             <Image
               src={recipe.image_url}
@@ -108,7 +108,7 @@ function SlotCard({ slot, recipe, isActive, onClick, onClear }: SlotCardProps) {
         {/* Info */}
         <div className="flex-1 min-w-0">
           <p className="text-[9px] font-semibold text-brand-600 uppercase tracking-wider mb-0.5">
-            {slot.emoji} {slot.label}
+            {slot.label}
           </p>
           {recipe ? (
             <p className="text-xs font-semibold text-warm-800 leading-snug line-clamp-2">{recipe.title}</p>
@@ -122,7 +122,7 @@ function SlotCard({ slot, recipe, isActive, onClick, onClear }: SlotCardProps) {
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onClear(); }}
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-warm-400 hover:bg-red-50 hover:text-red-400 transition-colors flex-shrink-0"
+            className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center rounded-lg text-warm-400 hover:bg-red-50 hover:text-red-400 transition-colors flex-shrink-0"
             aria-label={`${slot.label} seçimini kaldır`}
           >
             <CloseIcon />

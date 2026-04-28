@@ -269,17 +269,13 @@ function SlideView({ card, date }: { card: Card; date: string }) {
   const ING_HEADER_H  = 30;  // "MALZEMELER" + divider
   const STEP_HEADER_H = 44;  // separator + "HAZIRLANIŞ" + divider
 
-  let usedH = ING_HEADER_H;
-  const visibleIngs: string[] = [];
-  for (const item of card.ingredients) {
-    const h = estIngH(item);
-    if (usedH + h > MAX_CONTENT_H) break;
-    visibleIngs.push(item);
-    usedH += h;
-  }
+  // Malzemelerin tamamı her zaman gösterilir
+  const visibleIngs = card.ingredients;
 
+  // Yapılış adımları yazar hizasına kadar sığanlar kadar gösterilir
+  let usedH = ING_HEADER_H + visibleIngs.reduce((s, i) => s + estIngH(i), 0);
   const visibleSteps: string[] = [];
-  if (card.steps.length > 0 && visibleIngs.length === card.ingredients.length) {
+  if (card.steps.length > 0) {
     usedH += STEP_HEADER_H;
     if (usedH <= MAX_CONTENT_H) {
       for (const step of card.steps) {
@@ -291,9 +287,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
     }
   }
 
-  const hasOverflow =
-    visibleIngs.length < card.ingredients.length ||
-    (card.steps.length > 0 && visibleSteps.length < card.steps.length);
+  const hasOverflow = card.steps.length > 0 && visibleSteps.length < card.steps.length;
 
   return (
     <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
@@ -381,7 +375,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
           {hasOverflow && (
             <div style={{ marginTop: "auto", paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.15)", display: "flex", flexDirection: "column", gap: 3 }}>
               <div style={{ color: "rgba(255,255,255,0.50)", fontSize: 11, display: "flex" }}>Tarifin devamı için</div>
-              <div style={{ color: "#FCD34D", fontSize: 12.5, fontWeight: 700, display: "flex" }}>menugunlugu.com/tarifler/{card.id}</div>
+              <div style={{ color: "#FCD34D", fontSize: 12.5, fontWeight: 700, display: "flex" }}>menugunlugu.com/tarifler</div>
             </div>
           )}
 

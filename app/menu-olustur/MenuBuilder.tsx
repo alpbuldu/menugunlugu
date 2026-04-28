@@ -107,13 +107,13 @@ function SlotCard({ slot, recipe, isActive, onClick, onClear }: SlotCardProps) {
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <p className="text-[10px] font-semibold text-brand-600 uppercase tracking-wider mb-0.5">
+          <p className="text-[9px] font-semibold text-brand-600 uppercase tracking-wider mb-0.5">
             {slot.emoji} {slot.label}
           </p>
           {recipe ? (
-            <p className="text-sm font-semibold text-warm-800 truncate">{recipe.title}</p>
+            <p className="text-xs font-semibold text-warm-800 leading-snug line-clamp-2">{recipe.title}</p>
           ) : (
-            <p className="text-sm text-warm-400 italic">Seçilmedi</p>
+            <p className="text-xs text-warm-400 italic">Seçilmedi</p>
           )}
         </div>
 
@@ -359,7 +359,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     return [
       `🍽️ ${today} günün menüsü hazır!`,
       `Bugün sofrada: ${sel.soup.title}, ${sel.main.title}, ${sel.side.title} ve ${sel.dessert.title} var.`,
-      `Tariflerin detaylarına ve daha fazlasına menugunlugu.com üzerinden ulaşabilir, kendi günlük menünüzü oluşturabilirsiniz.`,
+      `📌 Görsellerde tariflerin tamamı yer almayabilir. Tarifin tamamı ve daha fazlası için menugunlugu.com'u ziyaret edin.`,
       `Afiyet olsun! 😊`,
       `#Tarif #Yemek #GününMenüsü #MenüGünlüğü`,
     ].join("\n\n");
@@ -733,7 +733,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                 value={searchTitle}
                 onChange={(e) => { setSearchTitle(e.target.value); setPage(0); }}
                 placeholder="Tarif ara..."
-                className="w-full text-sm pl-3 pr-7 py-2 rounded-xl border border-warm-200 bg-white focus:outline-none focus:border-brand-400 text-warm-800 placeholder:text-warm-400"
+                className="w-full text-[16px] leading-tight pl-3 pr-7 py-2 rounded-xl border border-warm-200 bg-white focus:outline-none focus:border-brand-400 text-warm-800 placeholder:text-warm-400"
               />
               {searchTitle && (
                 <button
@@ -752,7 +752,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                 value={searchAuthor}
                 onChange={(e) => { setSearchAuthor(e.target.value); setPage(0); }}
                 placeholder="Yazar ara..."
-                className="w-full text-sm pl-3 pr-7 py-2 rounded-xl border border-warm-200 bg-white focus:outline-none focus:border-brand-400 text-warm-800 placeholder:text-warm-400"
+                className="w-full text-[16px] leading-tight pl-3 pr-7 py-2 rounded-xl border border-warm-200 bg-white focus:outline-none focus:border-brand-400 text-warm-800 placeholder:text-warm-400"
               />
               {searchAuthor && (
                 <button

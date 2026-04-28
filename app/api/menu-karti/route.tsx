@@ -46,7 +46,7 @@ function estIngH(item: string): number {
 
 // Sağ panelde bir hazırlanış adımının yaklaşık piksel yüksekliği
 function estStepH(step: string): number {
-  const lines = Math.max(1, Math.ceil(step.length / 42));
+  const lines = Math.max(1, Math.ceil(step.length / 52));
   return lines * 22 + 6; // fontSize 16 * lineHeight 1.3 ≈ 21px + gap 6
 }
 
@@ -264,7 +264,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
   // Panel toplam yüksekliği: 1440 - header(130) - sep(3) - footer(130) - sep(3) = 1174
   // Sol "Yazar:" satırı yaklaşık y ≈ 1020 → sağ panel içerik oraya kadar gidebilir
   // Altta "devamı için" linki + boşluk için 52px rezerv
-  const MAX_CONTENT_H = 1020 - 20 /* top pad */ - 52 /* link area */ ; // ≈ 948px
+  const MAX_CONTENT_H = 1050 - 20 /* top pad */ - 40 /* link area */ ; // ≈ 990px
 
   const ING_HEADER_H  = 30;  // "MALZEMELER" + divider
   const STEP_HEADER_H = 44;  // separator + "HAZIRLANIŞ" + divider
@@ -342,7 +342,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
             {visibleIngs.map((item, i) => {
               const isHeader = item.endsWith(":");
               return isHeader ? (
-                <div key={i} style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 0.5, marginTop: 4, display: "flex" }}>{item}</div>
+                <div key={i} style={{ color: "rgba(255,255,255,0.52)", fontSize: 12.5, marginTop: 5, display: "flex" }}>{item}</div>
               ) : (
                 <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
                   <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#D97706", marginTop: 6, flexShrink: 0, display: "flex" }} />

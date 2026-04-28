@@ -264,10 +264,10 @@ export function MenuPdfDocument({ recipes, dateStr }: Props) {
               {/* Section band */}
               <View style={s.sectionBand}>
                 <View>
-                  <Text style={s.sectionLabel}>{cat}{!isFirst ? " - DEVAM" : ""}</Text>
+                  <Text style={s.sectionLabel}>{cat}</Text>
                   <Text style={s.sectionTitle}>{r.title}</Text>
                 </View>
-                {r.servings ? <Text style={s.sectionRight}>{r.servings} kisilik</Text> : null}
+                {r.servings ? <Text style={s.sectionRight}>{r.servings} kişilik</Text> : null}
               </View>
               <View style={s.sectionAccent} />
 
@@ -306,12 +306,12 @@ export function MenuPdfDocument({ recipes, dateStr }: Props) {
                     <View style={s.colLeft} />
                   )}
 
-                  {/* Yapilisi */}
+                  {/* Yapılışı */}
                   <View style={s.colRight}>
                     <Text style={s.colHeading}>
                       {isFirst
-                        ? "Yapilisi"
-                        : `Yapilisi - ${globalStart + 1}. adimdan devam`}
+                        ? "Yapılışı"
+                        : `Yapılışı (${globalStart + 1}. adımdan devam)`}
                     </Text>
                     {chunk.map((step, i) => (
                       <View key={i} style={s.stepRow}>
@@ -328,7 +328,7 @@ export function MenuPdfDocument({ recipes, dateStr }: Props) {
               <View style={s.footer}>
                 <Link src="https://menugunlugu.com" style={s.footerSite}>menugunlugu.com</Link>
                 <Text style={s.footerInfo}>
-                  {label}{!isFirst ? " - devam" : ""}{" - "}{dateStr}
+                  {label}{" · "}{dateStr}
                 </Text>
               </View>
             </Page>

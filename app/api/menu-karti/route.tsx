@@ -38,10 +38,22 @@ function parseSteps(html: string): string[] {
 }
 
 // Sağ panelde bir malzeme satırının yaklaşık piksel yüksekliği
+// ":"nin ilk 20 karakterde olması → bölüm başlığı (ör. "Servisi için:", "Hamuru için:")
+function ingHeaderIdx(item: string): number {
+  const i = item.indexOf(":");
+  return i > 1 && i <= 20 ? i : -1;
+}
 function estIngH(item: string): number {
-  if (item.endsWith(":")) return 26; // bölüm başlığı — tek satır
+  if (item.endsWith(":")) return 26; // sadece başlık — tek satır
+  const ci = ingHeaderIdx(item);
+  if (ci !== -1) {
+    // "Servisi için:Lavaş tortilla ekmeği" → başlık + malzeme satırı
+    const rest = item.slice(ci + 1).trim();
+    const restLines = Math.max(1, Math.ceil(rest.length / 46));
+    return 26 + restLines * 21 + 5;
+  }
   const lines = Math.max(1, Math.ceil(item.length / 46));
-  return lines * 21 + 5; // fontSize 15.5 * lineHeight 1.25 ≈ 20px + gap 5
+  return lines * 21 + 5;
 }
 
 // Sağ panelde bir hazırlanış adımının yaklaşık piksel yüksekliği
@@ -343,10 +355,29 @@ function SlideView({ card, date }: { card: Card; date: string }) {
 
           <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
             {visibleIngs.map((item, i) => {
-              const isHeader = item.endsWith(":");
-              return isHeader ? (
-                <div key={i} style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 0.5, marginTop: 4, display: "flex" }}>{item}</div>
-              ) : (
+              // "Hamuru için:" — sadece başlık
+              if (item.endsWith(":")) {
+                return <div key={i} style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 0.5, marginTop: 4, display: "flex" }}>{item}</div>;
+              }
+              // "Servisi için:Lavaş tortilla ekmeği" — başlık + malzeme
+              const ci = ingHeaderIdx(item);
+              if (ci !== -1) {
+                const header = item.slice(0, ci + 1); // "Servisi için:"
+                const rest   = item.slice(ci + 1).trim(); // "Lavaş tortilla ekmeği"
+                return (
+                  <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                    <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 0.5, marginTop: 4, display: "flex" }}>{header}</div>
+                    {rest && (
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
+                        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#D97706", marginTop: 6, flexShrink: 0, display: "flex" }} />
+                        <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 15.5, lineHeight: 1.25, display: "flex" }}>{rest}</div>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              // Normal malzeme
+              return (
                 <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
                   <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#D97706", marginTop: 6, flexShrink: 0, display: "flex" }} />
                   <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 15.5, lineHeight: 1.25, display: "flex" }}>{item}</div>

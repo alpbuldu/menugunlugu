@@ -263,17 +263,16 @@ function SlideView({ card, date }: { card: Card; date: string }) {
   const PANEL_W = 520; // sayfanın ortasına (~540) yakın şeffaf alan
 
   // ── Overflow sınırı: sol "Yazar:" etiketi hizasına kadar ────────
-  // Content area yüksekliği: 1440 - 130(header) - 3(sep) - 130(footer) - 3(sep) = 1174px
-  // Sol overlay: bottom=90 → overlay'ın altı = 1174-90 = 1084px
-  // Overlay içi (aşağıdan yukarı): "Detaylar için"(19px) + gap(13) + "Yazar:"(19px)
-  // → Yazar satırı üstü = 1084 - 19 - 13 - 19 = 1033px (içerik alanı tepesinden)
-  // Sağ panel top padding = 20px → kullanılabilir alan = 1033 - 20 = 1013px
-  // "Tarifin devamı için" linki marginTop:auto ile panelin en altına itildiğinden
-  // bu sınırın içinde rezerv gerekmez.
-  const CONTENT_AREA_H = 1440 - 130 - 3 - 130 - 3;          // 1174
-  const OVERLAY_BOTTOM = CONTENT_AREA_H - 90;                  // 1084
-  const YAZAR_TOP      = OVERLAY_BOTTOM - 19 - 13 - 19;        // 1033
-  const MAX_CONTENT_H  = YAZAR_TOP - 20;                        // 1013
+  // Content area: 1440 - 130(header) - 3 - 130(footer) - 3 = 1174px
+  // Sol overlay: bottom=90 → alt kenar = 1174-90 = 1084px
+  // "Detaylar için" satırı kaldırıldı → Yazar: artık son satır
+  // Yazar üstü = 1084 - 19 = 1065px
+  // Sağ panel: top pad 20px + link bloğu rezervi 62px
+  const CONTENT_AREA_H = 1440 - 130 - 3 - 130 - 3;   // 1174
+  const OVERLAY_BOTTOM = CONTENT_AREA_H - 90;           // 1084
+  const YAZAR_TOP      = OVERLAY_BOTTOM - 19;            // 1065
+  const LINK_H         = 62;                             // link bloğu: separator+padding+iki satır
+  const MAX_CONTENT_H  = YAZAR_TOP - 20 - LINK_H;       // 983
 
   const ING_HEADER_H  = 30;  // "MALZEMELER" + divider
   const STEP_HEADER_H = 44;  // separator + "HAZIRLANIŞ" + divider
@@ -296,7 +295,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
     }
   }
 
-  const hasOverflow = card.steps.length > 0 && visibleSteps.length < card.steps.length;
+  // link her zaman gösterilecek — hasOverflow artık kullanılmıyor
 
   return (
     <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
@@ -317,7 +316,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
         {/* Sol-alt gradyan (panel genişliği kadar içe çekik) */}
         <div style={{ position: "absolute", bottom: 0, left: 0, right: PANEL_W, height: "62%", background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)", display: "flex" }} />
 
-        {/* Sol-alt: kategori · başlık · yazar · Detaylar için */}
+        {/* Sol-alt: kategori · başlık · yazar */}
         <div style={{ position: "absolute", bottom: 90, left: 0, right: PANEL_W, padding: "0 28px", display: "flex", flexDirection: "column", gap: 13 }}>
           <div style={{ color: "#FCD34D", fontSize: 22, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
           <div style={{ color: "#FFFFFF", fontSize: 39, fontWeight: 700, lineHeight: 1.15, display: "flex" }}>{card.title}</div>
@@ -327,11 +326,6 @@ function SlideView({ card, date }: { card: Card; date: string }) {
               <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 19, fontWeight: 700, display: "flex" }}>{card.author}</div>
             </div>
           )}
-          {/* Detaylar için — tek satır yan yana */}
-          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 19, display: "flex" }}>Detaylar için</div>
-            <div style={{ color: "#FCD34D", fontSize: 19, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
-          </div>
         </div>
 
         {/* ── Sağ panel ── */}
@@ -380,13 +374,11 @@ function SlideView({ card, date }: { card: Card; date: string }) {
             </div>
           )}
 
-          {/* Taşan içerik varsa "devamı için" linki */}
-          {hasOverflow && (
-            <div style={{ marginTop: "auto", paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.15)", display: "flex", flexDirection: "column", gap: 3 }}>
-              <div style={{ color: "rgba(255,255,255,0.50)", fontSize: 11, display: "flex" }}>Tarifin devamı için</div>
-              <div style={{ color: "#FCD34D", fontSize: 12.5, fontWeight: 700, display: "flex" }}>menugunlugu.com/tarifler</div>
-            </div>
-          )}
+          {/* Link — her slayta sabit olarak gösterilir */}
+          <div style={{ marginTop: 14, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.18)", display: "flex", flexDirection: "column", gap: 4 }}>
+            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 13, display: "flex" }}>Tarifin tamamı ve daha fazla tarif için:</div>
+            <div style={{ color: "#FCD34D", fontSize: 17, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
+          </div>
 
         </div>
       </div>

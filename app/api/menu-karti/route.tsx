@@ -152,13 +152,21 @@ export async function GET(request: NextRequest) {
 function ImageCell({
   card,
   fontSize = 21,
+  catFontSize = 26,
+  authorFontSize = 19,
   authorPrefix = false,
   textPosition = "bottom",
+  bottomPad = 28,
+  textGap = 5,
 }: {
   card: Card;
   fontSize?: number;
+  catFontSize?: number;
+  authorFontSize?: number;
   authorPrefix?: boolean;
   textPosition?: "bottom" | "top-left" | "top-right";
+  bottomPad?: number;
+  textGap?: number;
 }) {
   const isTop   = textPosition !== "bottom";
   const isRight = textPosition === "top-right";
@@ -180,19 +188,19 @@ function ImageCell({
       {/* Text */}
       <div style={{
         position: "absolute",
-        ...(isTop ? { top: 0 } : { bottom: 0 }),
+        ...(isTop ? { top: 0 } : { bottom: bottomPad }),
         ...(isRight ? { right: 0 } : { left: 0 }),
-        padding: "28px 26px",
+        padding: "0 26px",
         display: "flex",
         flexDirection: "column",
         alignItems: isRight ? "flex-end" : "flex-start",
-        gap: 5,
-        maxWidth: "85%",
+        gap: textGap,
+        maxWidth: "90%",
       }}>
-        <div style={{ color: "#FCD34D", fontSize: 26, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{card.cat.toUpperCase()}</div>
+        <div style={{ color: "#FCD34D", fontSize: catFontSize, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{card.cat.toUpperCase()}</div>
         <div style={{ color: "#FFFFFF", fontSize, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
         {card.author && (
-          <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 19, display: "flex" }}>
+          <div style={{ color: "rgba(255,255,255,0.68)", fontSize: authorFontSize, display: "flex" }}>
             {authorPrefix ? `Yazar: ${card.author}` : card.author}
           </div>
         )}
@@ -258,19 +266,19 @@ function SlideView({ card, date }: { card: Card; date: string }) {
         <div style={{ position: "absolute", bottom: 0, left: 0, right: PANEL_W, height: "62%", background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)", display: "flex" }} />
 
         {/* Sol-alt: kategori · başlık · yazar · Detaylar için */}
-        <div style={{ position: "absolute", bottom: 44, left: 0, right: PANEL_W, padding: "28px 28px 0", display: "flex", flexDirection: "column", gap: 11 }}>
-          <div style={{ color: "#FCD34D", fontSize: 20, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
-          <div style={{ color: "#FFFFFF", fontSize: 36, fontWeight: 700, lineHeight: 1.15, display: "flex" }}>{card.title}</div>
+        <div style={{ position: "absolute", bottom: 90, left: 0, right: PANEL_W, padding: "0 28px", display: "flex", flexDirection: "column", gap: 13 }}>
+          <div style={{ color: "#FCD34D", fontSize: 22, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
+          <div style={{ color: "#FFFFFF", fontSize: 39, fontWeight: 700, lineHeight: 1.15, display: "flex" }}>{card.title}</div>
           {card.author && (
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 17, display: "flex" }}>Yazar:</div>
-              <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 17, fontWeight: 700, display: "flex" }}>{card.author}</div>
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 19, display: "flex" }}>Yazar:</div>
+              <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 19, fontWeight: 700, display: "flex" }}>{card.author}</div>
             </div>
           )}
           {/* Detaylar için — tek satır yan yana */}
           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 17, display: "flex" }}>Detaylar için</div>
-            <div style={{ color: "#FCD34D", fontSize: 17, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
+            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 19, display: "flex" }}>Detaylar için</div>
+            <div style={{ color: "#FCD34D", fontSize: 19, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
           </div>
         </div>
 
@@ -284,14 +292,14 @@ function SlideView({ card, date }: { card: Card; date: string }) {
         }}>
 
           {/* MALZEMELER */}
-          <div style={{ color: "#FCD34D", fontSize: 11, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>MALZEMELER</div>
+          <div style={{ color: "#FCD34D", fontSize: 12, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>MALZEMELER</div>
           <div style={{ height: 1, backgroundColor: "#D97706", display: "flex", marginBottom: 9 }} />
 
           <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
             {card.ingredients.map((item, i) => (
               <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
-                <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#D97706", marginTop: 5, flexShrink: 0, display: "flex" }} />
-                <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 13.5, lineHeight: 1.25, display: "flex" }}>{item}</div>
+                <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#D97706", marginTop: 6, flexShrink: 0, display: "flex" }} />
+                <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 15.5, lineHeight: 1.25, display: "flex" }}>{item}</div>
               </div>
             ))}
           </div>
@@ -300,15 +308,15 @@ function SlideView({ card, date }: { card: Card; date: string }) {
           {card.steps.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column" }}>
               <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.18)", display: "flex", margin: "10px 0 8px" }} />
-              <div style={{ color: "#FCD34D", fontSize: 11, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>HAZIRLANIŞ</div>
+              <div style={{ color: "#FCD34D", fontSize: 12, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>HAZIRLANIŞ</div>
               <div style={{ height: 1, backgroundColor: "#D97706", display: "flex", marginBottom: 9 }} />
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {card.steps.map((step, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
-                    <div style={{ minWidth: 15, height: 15, borderRadius: 2, backgroundColor: "rgba(217,119,6,0.75)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                      <div style={{ color: "#FFF", fontSize: 9, fontWeight: 700, display: "flex" }}>{i + 1}</div>
+                    <div style={{ minWidth: 17, height: 17, borderRadius: 2, backgroundColor: "rgba(217,119,6,0.75)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                      <div style={{ color: "#FFF", fontSize: 10, fontWeight: 700, display: "flex" }}>{i + 1}</div>
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 14, lineHeight: 1.3, display: "flex" }}>{step}</div>
+                    <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 16, lineHeight: 1.3, display: "flex" }}>{step}</div>
                   </div>
                 ))}
               </div>
@@ -349,17 +357,17 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {/* Row 1 */}
           <div style={{ flex: 1, display: "flex" }}>
-            <ImageCell card={cards[0]} fontSize={19} authorPrefix />
+            <ImageCell card={cards[0]} fontSize={23} catFontSize={29} authorFontSize={22} authorPrefix bottomPad={46} textGap={8} />
             <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-            <ImageCell card={cards[1]} fontSize={19} authorPrefix />
+            <ImageCell card={cards[1]} fontSize={23} catFontSize={29} authorFontSize={22} authorPrefix bottomPad={46} textGap={8} />
           </div>
           {/* Row divider */}
           <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
           {/* Row 2 */}
           <div style={{ flex: 1, display: "flex" }}>
-            <ImageCell card={cards[2]} fontSize={19} authorPrefix />
+            <ImageCell card={cards[2]} fontSize={23} catFontSize={29} authorFontSize={22} authorPrefix bottomPad={46} textGap={8} />
             <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-            <ImageCell card={cards[3]} fontSize={19} authorPrefix />
+            <ImageCell card={cards[3]} fontSize={23} catFontSize={29} authorFontSize={22} authorPrefix bottomPad={46} textGap={8} />
           </div>
         </div>
         {/* Right amber border */}

@@ -21,6 +21,7 @@ export default function ProfileWatcher({ userId }: { userId: string }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         dead = true;
+        await supabase.auth.signOut();
         window.location.href = "/giris?deleted=1";
         return;
       }
@@ -45,10 +46,11 @@ export default function ProfileWatcher({ userId }: { userId: string }) {
 
     // Auth state change: SIGNED_OUT (token refresh başarısız olunca tetiklenir)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         if (event === "SIGNED_OUT" || (!session && event !== "INITIAL_SESSION")) {
           if (!dead) {
             dead = true;
+            await supabase.auth.signOut();
             window.location.href = "/giris?deleted=1";
           }
         }

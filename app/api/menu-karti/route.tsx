@@ -119,6 +119,12 @@ export async function GET(request: NextRequest) {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
 
+  // Slide header formatı: "27 Nisan 2026 Pazartesi"
+  const _d = new Date();
+  const _dayPart = _d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
+  const _weekdayPart = _d.toLocaleDateString("tr-TR", { weekday: "long" });
+  const slideDateStr = `${_dayPart} ${_weekdayPart}`;
+
   const fontR = readFileSync(path.join(process.cwd(), "public", "fonts", "Roboto-Regular.ttf"));
   const fontB = readFileSync(path.join(process.cwd(), "public", "fonts", "Roboto-Medium.ttf"));
 
@@ -128,7 +134,7 @@ export async function GET(request: NextRequest) {
 
   return new ImageResponse(
     isSlide && slideCard
-      ? <SlideView card={slideCard} date={dateStr} />
+      ? <SlideView card={slideCard} date={slideDateStr} />
       : isStory
         ? <StoryView cards={cards} date={dateStr} />
         : <PostView cards={cards} date={dateStr} />,
@@ -200,24 +206,10 @@ function ImageCell({
 ════════════════════════════════════════════════════════════════ */
 function SharedHeader({ date }: { date: string }) {
   return (
-    <div style={{ height: 108, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", flexShrink: 0 }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        <div style={{ color: "#FCD34D", fontSize: 12, display: "flex" }}>{date}</div>
-        <div style={{ color: "#FEF3E2", fontSize: 33, fontWeight: 700, display: "flex" }}>Günün Menüsü</div>
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 7 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FEF3E2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-          </svg>
-          <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#FCD34D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="#FCD34D" stroke="none"/>
-          </svg>
-          <div style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, display: "flex" }}>@menugunlugu</div>
-        </div>
+    <div style={{ height: 108, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 28px", flexShrink: 0 }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
+        <div style={{ color: "#FFFFFF", fontSize: 18, display: "flex" }}>{date}</div>
+        <div style={{ color: "#FFFFFF", fontSize: 40, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
       </div>
     </div>
   );
@@ -270,14 +262,14 @@ function SlideView({ card, date }: { card: Card; date: string }) {
           <div style={{ color: "#FFFFFF", fontSize: 34, fontWeight: 700, lineHeight: 1.15, display: "flex" }}>{card.title}</div>
           {card.author && (
             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 13, display: "flex" }}>Yazar:</div>
-              <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 13, fontWeight: 700, display: "flex" }}>{card.author}</div>
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 15, display: "flex" }}>Yazar:</div>
+              <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 15, fontWeight: 700, display: "flex" }}>{card.author}</div>
             </div>
           )}
-          {/* Detaylar için — yazarın hemen altı */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 2 }}>
-            <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 10, letterSpacing: 0.5, display: "flex" }}>Detaylar için</div>
-            <div style={{ color: "#FCD34D", fontSize: 12, fontWeight: 700, letterSpacing: 0.5, display: "flex" }}>menugunlugu.com</div>
+          {/* Detaylar için — tek satır yan yana */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, display: "flex" }}>Detaylar için</div>
+            <div style={{ color: "#FCD34D", fontSize: 15, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
           </div>
         </div>
 
@@ -298,7 +290,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
             {card.ingredients.map((item, i) => (
               <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
                 <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#D97706", marginTop: 5, flexShrink: 0, display: "flex" }} />
-                <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 12.5, lineHeight: 1.25, display: "flex" }}>{item}</div>
+                <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 13.5, lineHeight: 1.25, display: "flex" }}>{item}</div>
               </div>
             ))}
           </div>
@@ -315,7 +307,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
                     <div style={{ minWidth: 15, height: 15, borderRadius: 2, backgroundColor: "rgba(217,119,6,0.75)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
                       <div style={{ color: "#FFF", fontSize: 9, fontWeight: 700, display: "flex" }}>{i + 1}</div>
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 13, lineHeight: 1.3, display: "flex" }}>{step}</div>
+                    <div style={{ color: "rgba(255,255,255,0.78)", fontSize: 14, lineHeight: 1.3, display: "flex" }}>{step}</div>
                   </div>
                 ))}
               </div>

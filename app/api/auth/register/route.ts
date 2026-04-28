@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     { auth: { flowType: "implicit", persistSession: false } }
   );
-  const emailRedirectTo = `${origin}/auth/confirm`;
+  const emailRedirectTo = `${origin}/auth/callback?logout=1&next=${encodeURIComponent("/giris?mesaj=email-onaylandi&new=1")}`;
   const { data, error } = await signUpClient.auth.signUp({
     email: email.trim(),
     password,

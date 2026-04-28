@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 
 /**
- * Kullanıcı varlık kontrolü — GoTrue rate limit'ini tetiklemeden
- * service role ile auth admin API'sini kullanır.
+ * Kullanıcı varlık kontrolü — service role ile auth.users tablosunu sorgular.
+ * GoTrue rate limit'ini tetiklemeden e-posta kontrolü yapar.
  */
 export async function POST(request: NextRequest) {
   const { email } = await request.json();
@@ -13,13 +13,14 @@ export async function POST(request: NextRequest) {
   }
 
   const normalEmail = email.trim().toLowerCase();
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
   try {
-    // Admin users list — email ile filtrele (per_page=1 yeterli)
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+    // GoTrue admin users — filter sadece arama stringi alır (SQL syntax değil)
     const res = await fetch(
-      `${supabaseUrl}/auth/v1/admin/users?filter=${encodeURIComponent(`email eq "${normalEmail}"`)}&per_page=1`,
+      `${supabaseUrl}/auth/v1/admin/users?filter=${encodeURIComponent(normalEmail)}&per_page=10`,
       {
         headers: {
           Authorization: `Bearer ${serviceKey}`,
@@ -30,8 +31,8 @@ export async function POST(request: NextRequest) {
 
     if (res.ok) {
       const body = await res.json();
-      const found = Array.isArray(body?.users) && body.users.length > 0
-        && body.users[0]?.email?.toLowerCase() === normalEmail;
+      const users: { email?: string }[] = body?.users ?? [];
+      const found = users.some(u => u.email?.toLowerCase() === normalEmail);
 
       if (!found) {
         return NextResponse.json(
@@ -40,9 +41,9 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-    // res.ok değilse sessizce geç — browser tarafı resetPasswordForEmail çağırır
+    // res.ok değilse sessizce geç
   } catch {
-    // ağ hatası vb. → sessizce geç
+    // ağ hatası → sessizce geç
   }
 
   return NextResponse.json({ ok: true });

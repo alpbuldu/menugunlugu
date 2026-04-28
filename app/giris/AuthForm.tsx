@@ -10,9 +10,10 @@ interface Props {
   defaultTab: Tab;
   from?: string;
   isNewAccount?: boolean;
+  topMesaj?: "email-onaylandi" | "onay-hatasi" | "deleted" | null;
 }
 
-export default function AuthForm({ defaultTab, from, isNewAccount }: Props) {
+export default function AuthForm({ defaultTab, from, isNewAccount, topMesaj }: Props) {
   const [tab, setTab] = useState<Tab>(defaultTab);
 
   // Login state
@@ -71,11 +72,15 @@ export default function AuthForm({ defaultTab, from, isNewAccount }: Props) {
       return;
     }
 
-    // İlk giriş: URL'deki new=1 (email onay mailinden geldi) veya localStorage flag
-    const isNewUser = isNewAccount || localStorage.getItem("mg_new_user") === "1";
-    localStorage.removeItem("mg_new_user"); // Her başarılı girişte temizle
+    localStorage.removeItem("mg_new_user");
 
-    // Önce sessionStorage'a bak (action bar goLogin() buraya yazar)
+    // Email onay mailinden gelen ilk girişte new=1 URL parametresi vardır
+    if (isNewAccount) {
+      window.location.href = "/uye/panel?tab=panelim";
+      return;
+    }
+
+    // Geri dönüş adresi — sessionStorage (action bar) veya URL ?from=
     let destination = "";
     try {
       const stored = sessionStorage.getItem("mg_login_return") ?? "";
@@ -84,38 +89,15 @@ export default function AuthForm({ defaultTab, from, isNewAccount }: Props) {
         sessionStorage.removeItem("mg_login_return");
       }
     } catch {}
-
-    // Fallback: URL param
     if (!destination) {
       const urlParams = new URLSearchParams(window.location.search);
       const rawFrom   = urlParams.get("from") ?? "";
-      if (rawFrom.startsWith("/") && !rawFrom.startsWith("//")) destination = rawFrom;
-    }
-
-    if (destination) {
-      window.location.href = destination;
-      return;
-    }
-
-    if (isNewUser) {
-      window.location.href = "/uye/panel?tab=panelim";
-      return;
-    }
-
-    // Profil dolu_name kontrol — ilk kez giriş yapan (localStorage temizlenmiş olabilir)
-    try {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", data.user.id)
-        .maybeSingle();
-      if (!profile?.full_name) {
-        window.location.href = "/uye/panel?tab=panelim";
-        return;
+      if (rawFrom.startsWith("/") && !rawFrom.startsWith("//")) {
+        destination = rawFrom;
       }
-    } catch { /* sessizce geç */ }
+    }
 
-    window.location.href = "/uye/panel";
+    window.location.href = destination || "/uye/panel";
   }
 
   // ── Forgot Password ────────────────────────────────────────────
@@ -217,6 +199,23 @@ export default function AuthForm({ defaultTab, from, isNewAccount }: Props) {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-warm-200 overflow-hidden">
+      {/* Üst mesaj (email onay / hata / silindi) */}
+      {topMesaj === "email-onaylandi" && (
+        <div className="px-6 py-3 bg-green-50 border-b border-green-100 text-green-700 text-sm text-center font-medium">
+          ✅ E-posta adresiniz onaylandı, giriş yapabilirsiniz.
+        </div>
+      )}
+      {topMesaj === "onay-hatasi" && (
+        <div className="px-6 py-3 bg-red-50 border-b border-red-100 text-red-700 text-sm text-center">
+          Onay linki geçersiz veya süresi dolmuş. Lütfen tekrar kayıt olmayı deneyin.
+        </div>
+      )}
+      {topMesaj === "deleted" && (
+        <div className="px-6 py-3 bg-orange-50 border-b border-orange-100 text-orange-700 text-sm text-center">
+          Hesabınız silinmiş. Lütfen tekrar kayıt olun.
+        </div>
+      )}
+
       {/* Tab bar */}
       <div className="flex border-b border-warm-100">
         {(["giris", "kayit"] as Tab[]).map((t) => (

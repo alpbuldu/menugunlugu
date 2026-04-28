@@ -35,28 +35,16 @@ export default async function GirisPage({
           </p>
         </div>
 
-        {mesaj === "onay-hatasi" && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm text-center">
-            E-posta onay linki geçersiz veya süresi dolmuş. Lütfen tekrar kayıt olmayı deneyin.
-          </div>
-        )}
-
-        {mesaj === "email-onaylandi" && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-sm text-center">
-            ✅ E-posta adresiniz onaylandı! Aşağıdan giriş yapabilirsiniz.
-          </div>
-        )}
-
-        {deleted === "1" && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-orange-50 border border-orange-200 text-orange-700 text-sm text-center">
-            Hesabınız silinmiş. Lütfen tekrar kayıt olun.
-          </div>
-        )}
-
         <AuthForm
           defaultTab={tab === "kayit" ? "kayit" : tab === "sifre" ? "sifre" : "giris"}
           from={from}
           isNewAccount={isNew === "1"}
+          topMesaj={
+            mesaj === "email-onaylandi" ? "email-onaylandi"
+            : mesaj === "onay-hatasi"  ? "onay-hatasi"
+            : deleted === "1"          ? "deleted"
+            : null
+          }
         />
       </div>
     </div>

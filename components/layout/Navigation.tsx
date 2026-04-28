@@ -188,26 +188,31 @@ function useAuthUser() {
 
   useEffect(() => {
     const supabase = createClient();
+    let verified = false;
 
     async function fetchProfile(uid: string) {
       try {
         const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", uid).maybeSingle();
-        // data null ise (profil yok) ya da hata varsa sadece devam et — asla anasayfaya atma
         if (data) setProfile(data);
       } catch {
-        // Ağ hatası vb. — sessizce geç, kullanıcıyı oturumundan çıkarma
+        // Ağ hatası vb. — sessizce geç
       } finally {
         setLoading(false);
       }
     }
 
+    // getUser() sunucuya istek atar — gerçek doğrulama kaynağı
     supabase.auth.getUser().then(({ data: { user } }) => {
+      verified = true;
       setUser(user);
       if (user) fetchProfile(user.id);
-      else { setLoading(false); }
+      else { setProfile(null); setLoading(false); }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    // onAuthStateChange önce cached session ile tetiklenebilir;
+    // getUser() sonucu geldikten sonra (verified=true) tekrar tetiklenirse güncelle
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!verified && event === "INITIAL_SESSION") return; // getUser() sonucunu bekle
       setUser(session?.user ?? null);
       if (session?.user) fetchProfile(session.user.id);
       else { setProfile(null); setLoading(false); }

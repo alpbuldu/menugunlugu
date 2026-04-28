@@ -15,23 +15,36 @@ export default function ConfirmPage() {
       const type       = params.get("type");
       const code       = params.get("code");
 
-      // token_hash tabanlı doğrulama (implicit flow — kayıt onayı)
-      if (token_hash && type) {
+      // token_hash tabanlı doğrulama
+      if (token_hash) {
+        // signup/email → 'email' olarak gönder; recovery/invite olduğu gibi geçer
+        const otpType = (type === "signup" || !type) ? "email" : type;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const { error } = await supabase.auth.verifyOtp({ type: type as any, token_hash });
+        const { error } = await supabase.auth.verifyOtp({ type: otpType as any, token_hash });
         if (!error) {
-          await supabase.auth.signOut(); // oturum açılmadan önce temizle
-          router.replace("/giris?mesaj=email-onaylandi&new=1");
+          if (type === "recovery") {
+            // Şifre sıfırlama — oturumu koru, şifre güncelleme sayfasına git
+            router.replace("/sifre-guncelle");
+          } else {
+            // E-posta onayı — oturumu kapat, giriş sayfasına yönlendir
+            await supabase.auth.signOut();
+            router.replace("/giris?mesaj=email-onaylandi&new=1");
+          }
           return;
         }
       }
 
-      // code tabanlı doğrulama (PKCE fallback)
+      // code tabanlı doğrulama (PKCE fallback — şifre sıfırlama için)
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (!error) {
-          await supabase.auth.signOut();
-          router.replace("/giris?mesaj=email-onaylandi&new=1");
+          // code akışı şifre sıfırlama için kullanılır → /sifre-guncelle
+          if (type === "recovery") {
+            router.replace("/sifre-guncelle");
+          } else {
+            await supabase.auth.signOut();
+            router.replace("/giris?mesaj=email-onaylandi&new=1");
+          }
           return;
         }
       }

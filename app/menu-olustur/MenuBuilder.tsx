@@ -440,7 +440,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     const today = new Date().toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long" });
     const xText = `🍽️ ${today} günün menüsü!\n\n${sel.soup.title} · ${sel.main.title} · ${sel.side.title} · ${sel.dessert.title}\n\nmenugunlugu.com`;
     if (platform === "x") {
-      if (navigator.share) {
+      if (typeof navigator.share === "function") {
         mobileShare(() => prefetchRef.current ? [prefetchRef.current.files[0]] : null, prefetchRef.current?.caption);
       } else {
         window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(xText)}`, "_blank");
@@ -599,7 +599,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                     {downloading ? (
                       <><svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><circle cx="12" cy="12" r="10" strokeOpacity={0.3}/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/></svg><span className="whitespace-nowrap">Hazırlanıyor…</span></>
                     ) : (
-                      <><span>📥</span><span className="whitespace-nowrap">İndir · Post</span></>
+                      <><span>📥</span><span className="whitespace-nowrap">İndir ve Paylaş · Post</span></>
                     )}
                   </button>
                 )}
@@ -629,7 +629,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                     }`}
                   >
                     <span>📥</span>
-                    <span className="whitespace-nowrap">İndir · Story</span>
+                    <span className="whitespace-nowrap">İndir ve Paylaş · Story</span>
                   </button>
                 )}
               </div>

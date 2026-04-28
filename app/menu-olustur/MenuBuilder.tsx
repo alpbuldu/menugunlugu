@@ -234,6 +234,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   const touchRef = useRef<{ x: number; y: number } | null>(null);
   const platformMenuRef = useRef<HTMLDivElement>(null);
   const prefetchRef = useRef<{ files: File[]; caption: string } | null>(null);
+  const storyPrefetchRef = useRef<File | null>(null);
   const [scrollTick, setScrollTick] = useState(0);
   const [downloading, setDownloading] = useState(false);
   const [prefetching, setPrefetching] = useState(false);
@@ -241,6 +242,23 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
 
   const allFilled = SLOTS.every(({ key }) => !!selection[key]);
   const filledCount = SLOTS.filter(({ key }) => !!selection[key]).length;
+
+  // allFilled olunca story görselini arka planda önceden oluştur
+  const sel = selection as Partial<Record<Category, MenuRecipe>>;
+  const selKey = `${sel.soup?.id ?? ""}-${sel.main?.id ?? ""}-${sel.side?.id ?? ""}-${sel.dessert?.id ?? ""}`;
+  useEffect(() => {
+    if (!allFilled) { storyPrefetchRef.current = null; return; }
+    const s = selection as Record<Category, MenuRecipe>;
+    storyPrefetchRef.current = null;
+    const params = new URLSearchParams({ soup: s.soup.id, main: s.main.id, side: s.side.id, dessert: s.dessert.id, format: "story" });
+    let cancelled = false;
+    fetch(`/api/menu-karti?${params.toString()}`)
+      .then(r => r.ok ? r.blob() : null)
+      .then(blob => { if (!cancelled && blob) storyPrefetchRef.current = new File([blob], "story.png", { type: "image/png" }); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allFilled, selKey]);
 
   // Scroll to top on mobile on every recipe selection
   useEffect(() => {
@@ -350,12 +368,40 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     ].join("\n\n");
   }
 
-  async function handleCard(format: "story") {
+  function handleCard(format: "story") {
     if (!allFilled) return;
-    const sel = selection as Record<Category, MenuRecipe>;
-    const baseParams = new URLSearchParams({
-      soup: sel.soup.id, main: sel.main.id, side: sel.side.id, dessert: sel.dessert.id, format,
-    });
+    const s = selection as Record<Category, MenuRecipe>;
+    const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+    // Mobil → Web Share API (post ile aynı akış)
+    if (isMobile && navigator.share) {
+      const caption = generateCaption(s);
+      if (storyPrefetchRef.current) {
+        navigator.share({ files: [storyPrefetchRef.current], text: caption }).catch(err => {
+          if ((err as Error).name !== "AbortError") {
+            navigator.share({ text: caption, url: "https://menugunlugu.com" }).catch(() => {});
+          }
+        });
+      } else {
+        // Henüz hazır değil → poll et
+        setDownloading(true);
+        const poll = setInterval(() => {
+          if (!storyPrefetchRef.current) return;
+          clearInterval(poll);
+          setDownloading(false);
+          navigator.share({ files: [storyPrefetchRef.current!], text: caption }).catch(err => {
+            if ((err as Error).name !== "AbortError") {
+              navigator.share({ text: caption, url: "https://menugunlugu.com" }).catch(() => {});
+            }
+          });
+        }, 200);
+        setTimeout(() => { clearInterval(poll); setDownloading(false); }, 15000);
+      }
+      return;
+    }
+
+    // Masaüstü → direkt yeni sekmede aç (eski davranış)
+    const baseParams = new URLSearchParams({ soup: s.soup.id, main: s.main.id, side: s.side.id, dessert: s.dessert.id, format });
     window.open(`/api/menu-karti?${baseParams.toString()}`, "_blank");
   }
 
@@ -408,8 +454,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
       return;
     }
 
-    // ── MASAÜSTÜ ───────────────────────────────────────────────────────
-    // Görselleri indir + platform upload sayfasını aç
+    // ── MASAÜSTÜ → ZIP indir ───────────────────────────────────────────
     setDownloading(true);
     const caption = generateCaption(sel);
     const labels = ["kapak", "corba", "ana-yemek", "yardimci", "tatli"];
@@ -422,21 +467,24 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
         const p = new URLSearchParams(baseParams); p.set("slide", String(i)); return `/api/menu-karti?${p.toString()}`;
       }),
     ];
-    Promise.all(allUrls.map(async (url, i) => {
-      try {
-        const r = await fetch(url);
-        if (!r.ok) return;
-        const blob = await r.blob();
-        const objUrl = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = objUrl; a.download = `${labels[i]}.png`;
-        document.body.appendChild(a); a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(objUrl), 1000);
-      } catch { /* skip */ }
-    })).then(() => {
-      if (platform === "instagram") window.open("https://www.instagram.com/create/select", "_blank");
-      else if (platform === "tiktok") window.open("https://www.tiktok.com/upload", "_blank");
+    Promise.all(allUrls.map(async url => {
+      try { const r = await fetch(url); return r.ok ? r.blob() : null; } catch { return null; }
+    })).then(async blobs => {
+      const buffers = await Promise.all(blobs.map(b => b ? b.arrayBuffer() : Promise.resolve(null)));
+      const zipFiles: Record<string, Uint8Array> = {};
+      for (let i = 0; i < buffers.length; i++) {
+        const buf = buffers[i];
+        if (buf) zipFiles[`${labels[i]}.png`] = new Uint8Array(buf);
+      }
+      zipFiles["caption.txt"] = new TextEncoder().encode(caption);
+      const zipped = zipSync(zipFiles, { level: 0 });
+      const zipBlob = new Blob([zipped], { type: "application/zip" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(zipBlob);
+      a.download = "gunun-menusu.zip";
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
     }).finally(() => setDownloading(false));
   }
 

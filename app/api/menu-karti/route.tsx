@@ -45,9 +45,11 @@ function estIngH(item: string): number {
 }
 
 // Sağ panelde bir hazırlanış adımının yaklaşık piksel yüksekliği
+// Panel content width: 520 - 32(pad) = 488 → number(17) + gap(6) = 465px text area
+// Roboto 16px: avg char ≈ 7.4px (boşluk dahil) → 465/7.4 ≈ 62 char/satır
 function estStepH(step: string): number {
-  const lines = Math.max(1, Math.ceil(step.length / 56));
-  return lines * 22 + 6; // fontSize 16 * lineHeight 1.3 ≈ 21px + gap 6
+  const lines = Math.max(1, Math.ceil(step.length / 62));
+  return lines * 21 + 6; // fontSize 16 * lineHeight 1.3 = 20.8px + gap 6
 }
 
 /* ── Image fetch ─────────────────────────────────────────────── */
@@ -260,11 +262,18 @@ function SlideView({ card, date }: { card: Card; date: string }) {
   const DIV     = 3;
   const PANEL_W = 520; // sayfanın ortasına (~540) yakın şeffaf alan
 
-  // ── Overflow hesabı ──────────────────────────────────────────
-  // Panel toplam yüksekliği: 1440 - header(130) - sep(3) - footer(130) - sep(3) = 1174
-  // Sol "Yazar:" satırı yaklaşık y ≈ 1020 → sağ panel içerik oraya kadar gidebilir
-  // Altta "devamı için" linki + boşluk için 52px rezerv
-  const MAX_CONTENT_H = 1080 - 20 /* top pad */ - 40 /* link area */ ; // ≈ 1020px
+  // ── Overflow sınırı: sol "Yazar:" etiketi hizasına kadar ────────
+  // Content area yüksekliği: 1440 - 130(header) - 3(sep) - 130(footer) - 3(sep) = 1174px
+  // Sol overlay: bottom=90 → overlay'ın altı = 1174-90 = 1084px
+  // Overlay içi (aşağıdan yukarı): "Detaylar için"(19px) + gap(13) + "Yazar:"(19px)
+  // → Yazar satırı üstü = 1084 - 19 - 13 - 19 = 1033px (içerik alanı tepesinden)
+  // Sağ panel top padding = 20px → kullanılabilir alan = 1033 - 20 = 1013px
+  // "Tarifin devamı için" linki marginTop:auto ile panelin en altına itildiğinden
+  // bu sınırın içinde rezerv gerekmez.
+  const CONTENT_AREA_H = 1440 - 130 - 3 - 130 - 3;          // 1174
+  const OVERLAY_BOTTOM = CONTENT_AREA_H - 90;                  // 1084
+  const YAZAR_TOP      = OVERLAY_BOTTOM - 19 - 13 - 19;        // 1033
+  const MAX_CONTENT_H  = YAZAR_TOP - 20;                        // 1013
 
   const ING_HEADER_H  = 30;  // "MALZEMELER" + divider
   const STEP_HEADER_H = 44;  // separator + "HAZIRLANIŞ" + divider

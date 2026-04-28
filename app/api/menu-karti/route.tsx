@@ -206,11 +206,11 @@ function ImageCell({
 ════════════════════════════════════════════════════════════════ */
 function SharedHeader({ date }: { date: string }) {
   return (
-    <div style={{ height: 108, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 28px", flexShrink: 0 }}>
+    <div style={{ height: 130, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 28px", flexShrink: 0 }}>
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 20 }}>
-        <div style={{ color: "#FFFFFF", fontSize: 40, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
-        <div style={{ width: 2, height: 36, backgroundColor: "rgba(255,255,255,0.3)", display: "flex" }} />
-        <div style={{ color: "#FFFFFF", fontSize: 22, display: "flex" }}>{date}</div>
+        <div style={{ color: "#FFFFFF", fontSize: 42, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
+        <div style={{ width: 2, height: 40, backgroundColor: "rgba(255,255,255,0.3)", display: "flex" }} />
+        <div style={{ color: "#FFFFFF", fontSize: 24, display: "flex" }}>{date}</div>
       </div>
     </div>
   );
@@ -218,13 +218,13 @@ function SharedHeader({ date }: { date: string }) {
 
 function SharedFooter() {
   return (
-    <div style={{ height: 70, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, flexShrink: 0 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
-        <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
-        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
+    <div style={{ height: 130, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, flexShrink: 0 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#FCD34D", display: "flex" }} />
+        <div style={{ color: "#FEF3E2", fontSize: 18, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
+        <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#FCD34D", display: "flex" }} />
       </div>
-      <div style={{ color: "#FCD34D", fontSize: 10, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
+      <div style={{ color: "#FFFFFF", fontSize: 14, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
     </div>
   );
 }
@@ -236,7 +236,7 @@ function SharedFooter() {
 ════════════════════════════════════════════════════════════════ */
 function SlideView({ card, date }: { card: Card; date: string }) {
   const DIV     = 3;
-  const PANEL_W = 400; // 330 → 400: daha geniş panel, daha az satır kırılması
+  const PANEL_W = 520; // sayfanın ortasına (~540) yakın şeffaf alan
 
   return (
     <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
@@ -258,19 +258,19 @@ function SlideView({ card, date }: { card: Card; date: string }) {
         <div style={{ position: "absolute", bottom: 0, left: 0, right: PANEL_W, height: "62%", background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)", display: "flex" }} />
 
         {/* Sol-alt: kategori · başlık · yazar · Detaylar için */}
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: PANEL_W, padding: "24px 28px", display: "flex", flexDirection: "column", gap: 6 }}>
-          <div style={{ color: "#FCD34D", fontSize: 18, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
-          <div style={{ color: "#FFFFFF", fontSize: 34, fontWeight: 700, lineHeight: 1.15, display: "flex" }}>{card.title}</div>
+        <div style={{ position: "absolute", bottom: 44, left: 0, right: PANEL_W, padding: "28px 28px 0", display: "flex", flexDirection: "column", gap: 11 }}>
+          <div style={{ color: "#FCD34D", fontSize: 20, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{card.cat.toUpperCase()}</div>
+          <div style={{ color: "#FFFFFF", fontSize: 36, fontWeight: 700, lineHeight: 1.15, display: "flex" }}>{card.title}</div>
           {card.author && (
-            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 15, display: "flex" }}>Yazar:</div>
-              <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 15, fontWeight: 700, display: "flex" }}>{card.author}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 17, display: "flex" }}>Yazar:</div>
+              <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 17, fontWeight: 700, display: "flex" }}>{card.author}</div>
             </div>
           )}
           {/* Detaylar için — tek satır yan yana */}
-          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, display: "flex" }}>Detaylar için</div>
-            <div style={{ color: "#FCD34D", fontSize: 15, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 17, display: "flex" }}>Detaylar için</div>
+            <div style={{ color: "#FCD34D", fontSize: 17, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
           </div>
         </div>
 
@@ -329,8 +329,8 @@ function SlideView({ card, date }: { card: Card; date: string }) {
    Slim cream header · full-bleed 2×2 image grid · amber dividers
 ════════════════════════════════════════════════════════════════ */
 function PostView({ cards, date }: { cards: Card[]; date: string }) {
-  const HEAD = 108;
-  const FOOT = 70;
+  const HEAD = 130;
+  const FOOT = 130;
   const DIV  = 3;   // amber divider thickness
 
   return (
@@ -369,15 +369,7 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
       {/* Bottom amber line */}
       <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
 
-      {/* Footer */}
-      <div style={{ height: FOOT, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
-          <div style={{ color: "#FEF3E2", fontSize: 13, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
-          <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
-        </div>
-        <div style={{ color: "#FCD34D", fontSize: 10, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
-      </div>
+      <SharedFooter />
 
     </div>
   );

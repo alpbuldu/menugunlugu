@@ -139,7 +139,7 @@ export async function GET(request: NextRequest) {
         ? <StoryView cards={cards} date={dateStr} />
         : <PostView cards={cards} date={slideDateStr} />,
     {
-      width: 1080, height: isStory && !isSlide ? 1920 : 1440,
+      width: 1080, height: isStory && !isSlide ? 1920 : 1350,
       fonts: [
         { name: "Roboto", data: fontR, weight: 400, style: "normal" },
         { name: "Roboto", data: fontB, weight: 700, style: "normal" },
@@ -239,7 +239,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
   const PANEL_W = 400; // 330 → 400: daha geniş panel, daha az satır kırılması
 
   return (
-    <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+    <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
       <SharedHeader date={date} />
       <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
 
@@ -334,7 +334,7 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
   const DIV  = 3;   // amber divider thickness
 
   return (
-    <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+    <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
       <SharedHeader date={date} />
 

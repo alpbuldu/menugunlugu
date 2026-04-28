@@ -143,10 +143,6 @@ function SlotCard({ slot, recipe, isActive, onClick, onClear }: SlotCardProps) {
         )}
       </div>
 
-      {/* Active indicator bar */}
-      {isActive && (
-        <div className="h-0.5 bg-brand-400 w-full" />
-      )}
     </button>
   );
 }
@@ -589,14 +585,14 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                       {/* Ön bilgi — share açılmadan önce kullanıcı görür */}
                       {!prefetching && (
                         <div className="px-3 py-2 bg-brand-50 border-b border-brand-100 text-[10px] text-brand-600">
-                          📋 Paylaşınca başlık otomatik kopyalanır — caption alanına yapıştır
+                          📋 Caption otomatik olarak kopyalanır
                         </div>
                       )}
                       <button type="button" onClick={() => handleShare("instagram")} className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-warm-50 transition-colors text-left">
                         <span className="text-base">📷</span>
                         <div>
                           <div className="text-xs font-semibold text-warm-800">Instagram</div>
-                          <div className="text-[10px] text-warm-400">{prefetching ? "Hazırlanıyor…" : "Carousel · Dikey için ↔ simgesine bas"}</div>
+                          <div className="text-[10px] text-warm-400">{prefetching ? "Hazırlanıyor…" : "Boyut uyumu için paylaşırken dikey seç"}</div>
                         </div>
                       </button>
                       <div className="h-px bg-warm-100 mx-3" />

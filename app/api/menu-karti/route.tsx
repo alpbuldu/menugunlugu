@@ -208,9 +208,9 @@ function SharedHeader({ date }: { date: string }) {
   return (
     <div style={{ height: 108, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 28px", flexShrink: 0 }}>
       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 20 }}>
-        <div style={{ color: "#FFFFFF", fontSize: 22, display: "flex" }}>{date}</div>
-        <div style={{ width: 2, height: 36, backgroundColor: "rgba(255,255,255,0.3)", display: "flex" }} />
         <div style={{ color: "#FFFFFF", fontSize: 40, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
+        <div style={{ width: 2, height: 36, backgroundColor: "rgba(255,255,255,0.3)", display: "flex" }} />
+        <div style={{ color: "#FFFFFF", fontSize: 22, display: "flex" }}>{date}</div>
       </div>
     </div>
   );

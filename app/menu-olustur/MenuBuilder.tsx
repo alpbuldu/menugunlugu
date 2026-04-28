@@ -338,10 +338,10 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
       return;
     }
 
-    // Instagram & TikTok → görselleri oluştur, Web Share API ile paylaş
+    // Instagram & TikTok → görselleri oluştur
     setDownloading(true);
     try {
-      const labels  = ["kapak", "corba", "ana-yemek", "yardimci", "tatli"];
+      const labels = ["kapak", "corba", "ana-yemek", "yardimci", "tatli"];
       const baseParams = new URLSearchParams({
         soup: sel.soup.id, main: sel.main.id, side: sel.side.id, dessert: sel.dessert.id, format: "post",
       });
@@ -362,28 +362,36 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
         .map((b, i) => b ? new File([b], `${labels[i]}.png`, { type: "image/png" }) : null)
         .filter(Boolean) as File[];
 
-      // Web Share API destekliyorsa (mobil Chrome/Safari) → native share sheet
-      if (typeof navigator !== "undefined" && navigator.canShare && navigator.canShare({ files })) {
-        await navigator.share({ files, text: caption });
-        return;
+      // Mobil: Web Share API → native share sheet (Instagram/TikTok buradan seçilir)
+      if (typeof navigator !== "undefined" && navigator.share) {
+        try {
+          await navigator.share({ files, text: caption });
+          return;
+        } catch (err) {
+          // Kullanıcı iptal ettiyse dur, başka hata varsa masaüstü fallback'e geç
+          if ((err as Error).name === "AbortError") return;
+        }
       }
 
-      // Fallback: ZIP indir (masaüstü tarayıcı)
-      const buffers = await Promise.all(blobs.map(b => b ? b.arrayBuffer() : Promise.resolve(null)));
-      const zipFiles: Record<string, Uint8Array> = {};
-      for (let i = 0; i < buffers.length; i++) {
-        const buf = buffers[i];
-        if (buf) zipFiles[`${labels[i]}.png`] = new Uint8Array(buf);
+      // Masaüstü fallback: görselleri indir + platformu aç
+      for (const file of files) {
+        await new Promise<void>(resolve => {
+          const url = URL.createObjectURL(file);
+          const a = document.createElement("a");
+          a.href = url; a.download = file.name;
+          document.body.appendChild(a); a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          setTimeout(resolve, 300); // tarayıcının birden fazla indirmeyi kabul etmesi için
+        });
       }
-      zipFiles["caption.txt"] = new TextEncoder().encode(caption);
-      const zipped  = zipSync(zipFiles, { level: 0 });
-      const zipBlob = new Blob([zipped], { type: "application/zip" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(zipBlob);
-      a.download = "gunun-menusu.zip";
-      document.body.appendChild(a); a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(a.href);
+
+      // İndirmeler başladıktan sonra platformu aç
+      if (platform === "instagram") {
+        window.open("https://www.instagram.com/create/select", "_blank");
+      } else if (platform === "tiktok") {
+        window.open("https://www.tiktok.com/upload", "_blank");
+      }
     } finally {
       setDownloading(false);
     }

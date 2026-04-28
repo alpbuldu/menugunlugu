@@ -18,14 +18,15 @@ const SLOTS = [
 ];
 
 type Key = "soup" | "main" | "side" | "dessert";
-interface Card { title: string; author: string; cat: string; img: string | null; ingredients: string[]; steps: string[] }
+interface Card { id: string; title: string; author: string; cat: string; img: string | null; ingredients: string[]; steps: string[] }
 
 function parseIngredients(html: string): string[] {
   const text = html
     .replace(/<\/li>/gi, "\n").replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/p>/gi, "\n").replace(/<\/div>/gi, "\n")
     .replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
-  return text.split("\n").map(l => l.trim()).filter(l => l.length > 2 && !l.endsWith(":"));
+  // ":" ile bitenler bölüm başlığı — bunları koru (bold render edilecek)
+  return text.split("\n").map(l => l.trim()).filter(l => l.length > 2);
 }
 
 function parseSteps(html: string): string[] {
@@ -34,6 +35,19 @@ function parseSteps(html: string): string[] {
     .replace(/<\/p>/gi, "\n").replace(/<\/div>/gi, "\n")
     .replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&gt;/g, ">").replace(/&lt;/g, "<");
   return text.split("\n").map(l => l.trim()).filter(l => l.length > 6);
+}
+
+// Sağ panelde bir malzeme satırının yaklaşık piksel yüksekliği
+function estIngH(item: string): number {
+  if (item.endsWith(":")) return 26; // bölüm başlığı — tek satır
+  const lines = Math.max(1, Math.ceil(item.length / 46));
+  return lines * 21 + 5; // fontSize 15.5 * lineHeight 1.25 ≈ 20px + gap 5
+}
+
+// Sağ panelde bir hazırlanış adımının yaklaşık piksel yüksekliği
+function estStepH(step: string): number {
+  const lines = Math.max(1, Math.ceil(step.length / 42));
+  return lines * 22 + 6; // fontSize 16 * lineHeight 1.3 ≈ 21px + gap 6
 }
 
 /* ── Image fetch ─────────────────────────────────────────────── */
@@ -112,7 +126,7 @@ export async function GET(request: NextRequest) {
     const img = await getImg(r?.image_url ?? null);
     const ingredients = parseIngredients(r?.ingredients ?? "");
     const steps       = parseSteps(r?.instructions ?? "");
-    cards.push({ title: r?.title ?? "—", author, cat: s.cat, img, ingredients, steps });
+    cards.push({ id: r?.id ?? "", title: r?.title ?? "—", author, cat: s.cat, img, ingredients, steps });
   }
 
   const dateStr = new Date().toLocaleDateString("tr-TR", {
@@ -246,6 +260,41 @@ function SlideView({ card, date }: { card: Card; date: string }) {
   const DIV     = 3;
   const PANEL_W = 520; // sayfanın ortasına (~540) yakın şeffaf alan
 
+  // ── Overflow hesabı ──────────────────────────────────────────
+  // Panel toplam yüksekliği: 1440 - header(130) - sep(3) - footer(130) - sep(3) = 1174
+  // Sol "Yazar:" satırı yaklaşık y ≈ 1020 → sağ panel içerik oraya kadar gidebilir
+  // Altta "devamı için" linki + boşluk için 52px rezerv
+  const MAX_CONTENT_H = 1020 - 20 /* top pad */ - 52 /* link area */ ; // ≈ 948px
+
+  const ING_HEADER_H  = 30;  // "MALZEMELER" + divider
+  const STEP_HEADER_H = 44;  // separator + "HAZIRLANIŞ" + divider
+
+  let usedH = ING_HEADER_H;
+  const visibleIngs: string[] = [];
+  for (const item of card.ingredients) {
+    const h = estIngH(item);
+    if (usedH + h > MAX_CONTENT_H) break;
+    visibleIngs.push(item);
+    usedH += h;
+  }
+
+  const visibleSteps: string[] = [];
+  if (card.steps.length > 0 && visibleIngs.length === card.ingredients.length) {
+    usedH += STEP_HEADER_H;
+    if (usedH <= MAX_CONTENT_H) {
+      for (const step of card.steps) {
+        const h = estStepH(step);
+        if (usedH + h > MAX_CONTENT_H) break;
+        visibleSteps.push(step);
+        usedH += h;
+      }
+    }
+  }
+
+  const hasOverflow =
+    visibleIngs.length < card.ingredients.length ||
+    (card.steps.length > 0 && visibleSteps.length < card.steps.length);
+
   return (
     <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
       <SharedHeader date={date} />
@@ -296,22 +345,27 @@ function SlideView({ card, date }: { card: Card; date: string }) {
           <div style={{ height: 1, backgroundColor: "#D97706", display: "flex", marginBottom: 9 }} />
 
           <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-            {card.ingredients.map((item, i) => (
-              <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
-                <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#D97706", marginTop: 6, flexShrink: 0, display: "flex" }} />
-                <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 15.5, lineHeight: 1.25, display: "flex" }}>{item}</div>
-              </div>
-            ))}
+            {visibleIngs.map((item, i) => {
+              const isHeader = item.endsWith(":");
+              return isHeader ? (
+                <div key={i} style={{ color: "#FCD34D", fontSize: 13, fontWeight: 700, letterSpacing: 0.5, marginTop: 4, display: "flex" }}>{item}</div>
+              ) : (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
+                  <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#D97706", marginTop: 6, flexShrink: 0, display: "flex" }} />
+                  <div style={{ color: "rgba(255,255,255,0.88)", fontSize: 15.5, lineHeight: 1.25, display: "flex" }}>{item}</div>
+                </div>
+              );
+            })}
           </div>
 
           {/* HAZIRLANIŞ */}
-          {card.steps.length > 0 && (
+          {visibleSteps.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column" }}>
               <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.18)", display: "flex", margin: "10px 0 8px" }} />
               <div style={{ color: "#FCD34D", fontSize: 12, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>HAZIRLANIŞ</div>
               <div style={{ height: 1, backgroundColor: "#D97706", display: "flex", marginBottom: 9 }} />
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {card.steps.map((step, i) => (
+                {visibleSteps.map((step, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
                     <div style={{ minWidth: 17, height: 17, borderRadius: 2, backgroundColor: "rgba(217,119,6,0.75)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
                       <div style={{ color: "#FFF", fontSize: 10, fontWeight: 700, display: "flex" }}>{i + 1}</div>
@@ -320,6 +374,14 @@ function SlideView({ card, date }: { card: Card; date: string }) {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Taşan içerik varsa "devamı için" linki */}
+          {hasOverflow && (
+            <div style={{ marginTop: "auto", paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.15)", display: "flex", flexDirection: "column", gap: 3 }}>
+              <div style={{ color: "rgba(255,255,255,0.50)", fontSize: 11, display: "flex" }}>Tarifin devamı için</div>
+              <div style={{ color: "#FCD34D", fontSize: 12.5, fontWeight: 700, display: "flex" }}>menugunlugu.com/tarifler/{card.id}</div>
             </div>
           )}
 

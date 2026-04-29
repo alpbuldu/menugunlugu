@@ -75,13 +75,20 @@ function scoreRecipe(
   return { score: matched.length, matched };
 }
 
+/* ── Malzeme olmayan kullanıcı kelimeleri — eşleşmeden çıkar ─── */
+const USER_STOP_WORDS = new Set([
+  "servis", "sunum", "için", "ile", "üzeri", "garnitür",
+  "hazırlama", "pişirme", "marine", "terbiye", "kaplama",
+  "hamur", "harç", "sos", "krema", "dolgu", "şurup", "şerbet",
+]);
+
 /* ── POST /api/chatbot ─────────────────────────────────────────── */
 export async function POST(request: NextRequest) {
   const body = await request.json();
 
   const userIngredients: string[] = (body.ingredients ?? [])
     .map((s: string) => s.toLowerCase().trim())
-    .filter(Boolean);
+    .filter((s: string) => s.length > 1 && !USER_STOP_WORDS.has(s));
 
   const excludeIds: Record<string, string[]> = body.excludeIds ?? {};
   const onlyCategory: string | null = body.category ?? null;

@@ -648,7 +648,7 @@ function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; t
 
       {/* Başlık */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: theme.mainTxt, fontSize: 64, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
+        <div style={{ color: theme.mainTxt, fontSize: 66, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
       </div>
 
       {/* Başlık → kartlar arası belirgin boşluk */}
@@ -676,7 +676,7 @@ function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; t
         <div style={{
           borderRadius: 999,
           border: `2px solid ${theme.accentClr}`,
-          paddingLeft: 52, paddingRight: 52, paddingTop: 18, paddingBottom: 18,
+          paddingLeft: 64, paddingRight: 64, paddingTop: 24, paddingBottom: 24,
           display: "flex", alignItems: "center", gap: 14,
         }}>
           <div style={{ color: theme.accentClr, fontSize: 24, display: "flex" }}>{"🔗"}</div>

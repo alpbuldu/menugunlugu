@@ -531,7 +531,7 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
 
       {/* Başlık */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: "#FFFFFF", fontSize: 64, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
+        <div style={{ color: "#FFFFFF", fontSize: 66, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
       </div>
 
       <div style={{ height: 56, flexShrink: 0, display: "flex" }} />
@@ -558,7 +558,7 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
         <div style={{
           borderRadius: 999,
           border: "2px solid #FCD34D",
-          paddingLeft: 52, paddingRight: 52, paddingTop: 18, paddingBottom: 18,
+          paddingLeft: 64, paddingRight: 64, paddingTop: 24, paddingBottom: 24,
           display: "flex", alignItems: "center", gap: 14,
         }}>
           <div style={{ color: "#FCD34D", fontSize: 24, display: "flex" }}>🔗</div>

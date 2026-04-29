@@ -407,7 +407,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
 
           {/* Link — absolute, sol "Yazar:" etiketiyle hizalı (bottom: 90) */}
           <div style={{ position: "absolute", bottom: 90, left: 16, right: 16, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.25)", display: "flex", flexDirection: "column", gap: 4 }}>
-            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, display: "flex" }}>Tarifin tamamı ve daha fazla tarif için:</div>
+            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, display: "flex" }}>Tarifin tamamına ulaşmak ve daha fazla içerik için:</div>
             <div style={{ color: "#FCD34D", fontSize: 17, fontWeight: 700, display: "flex" }}>menugunlugu.com</div>
           </div>
 
@@ -473,88 +473,114 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
 
 /* ════════════════════════════════════════════════════════════════
    STORY  1080 × 1920
-   Instagram safe zones:
-     top ~200px  → UI (progress bar + profil)
-     bottom ~150px → reply bar
-   → Header ayrı blok yok; ilk fotoğrafın üstüne gradient, metin y≥215'te
-   → Footer yok (kapatılıyordu); @menugunlugu header gradient'inde
+   2×2 grid layout:
+     3 (top border) + 140 (header) + 3 + 780 (top row) + 3 + 100 (link band)
+     + 3 + 780 (bottom row) + 3 + 102 (footer) + 3 (bottom border) = 1920
 ════════════════════════════════════════════════════════════════ */
+function StoryCellKarti({ card, align }: { card: Card; align: "left" | "right" }) {
+  return (
+    <div style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}>
+      {card.img
+        ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#C8A97A", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ fontSize: 60, display: "flex" }}>🍽️</div>
+          </div>
+      }
+      {/* Bottom gradient */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "70%", background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 58%, transparent 100%)", display: "flex" }} />
+      {/* Text overlay */}
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0,
+        padding: "0 22px 26px",
+        display: "flex", flexDirection: "column",
+        alignItems: align === "right" ? "flex-end" : "flex-start",
+        gap: 5,
+      }}>
+        <div style={{ color: "#FCD34D", fontSize: 16, fontWeight: 700, letterSpacing: 2, display: "flex" }}>{card.cat.toUpperCase()}</div>
+        <div style={{ color: "#FFFFFF", fontSize: 22, fontWeight: 700, lineHeight: 1.2, display: "flex", textAlign: align }}>{card.title}</div>
+        {card.author && (
+          <div style={{ color: "rgba(255,255,255,0.62)", fontSize: 15, display: "flex" }}>Yazar: {card.author}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function StoryView({ cards, date }: { cards: Card[]; date: string }) {
   const DIV     = 3;
-  // 522 + 3 + 463 + 3 + 463 + 3 + 463 = 1920
-  const FIRST_H = 522;
-  const OTHER_H = 463;
+  const HEADER_H = 140;
+  const ROW_H    = 780;
+  const LINK_H   = 100;
+  const FOOTER_H = 102;
+  // Total: 3+140+3+780+3+100+3+780+3+102+3 = 1920 ✓
 
   return (
-    <div style={{ width: 1080, height: 1920, display: "flex", position: "relative", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+    <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
-      {/* Left amber border */}
-      <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+      {/* Top outer border */}
+      <div style={{ height: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
 
-      {/* Strips column */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-
-        {/* ── Strip 1 — gradient header overlay ── */}
-        <div style={{ height: FIRST_H, position: "relative", display: "flex", overflow: "hidden", flexShrink: 0 }}>
-          {/* Background image */}
-          {cards[0].img
-            ? <img src={cards[0].img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#C8A97A", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ fontSize: 80, display: "flex" }}>🍽️</div>
-              </div>
-          }
-          {/* Top gradient (header area) */}
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "78%", background: "linear-gradient(to bottom, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.55) 55%, transparent 100%)", display: "flex" }} />
-          {/* Bottom gradient (recipe info) */}
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "55%", background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.4) 55%, transparent 100%)", display: "flex" }} />
-
-          {/* Header text — ortalı, y≥215 (Instagram safe zone altı) */}
-          <div style={{ position: "absolute", top: 215, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-            <div style={{ color: "#FCD34D", fontSize: 24, letterSpacing: 1, display: "flex" }}>{date}</div>
-            <div style={{ color: "#FFFFFF", fontSize: 58, fontWeight: 700, lineHeight: 1.1, display: "flex" }}>Günün Menüsü</div>
-          </div>
-
-          {/* Recipe info — bottom */}
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 26px 28px", display: "flex", flexDirection: "column", gap: 6 }}>
-            <div style={{ color: "#FCD34D", fontSize: 22, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{cards[0].cat.toUpperCase()}</div>
-            <div style={{ color: "#FFFFFF", fontSize: 30, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{cards[0].title}</div>
-            {cards[0].author && (
-              <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 19, display: "flex" }}>Yazar: {cards[0].author}</div>
-            )}
-          </div>
-        </div>
-
-        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-
-        {/* ── Strip 2: Ana Yemek — sağ üst ── */}
-        <div style={{ height: OTHER_H, display: "flex", flexShrink: 0, overflow: "hidden" }}>
-          <ImageCell card={cards[1]} fontSize={28} authorPrefix textPosition="top-right" />
-        </div>
-        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-        {/* ── Strip 3: Yardımcı Lezzet — sol üst ── */}
-        <div style={{ height: OTHER_H, display: "flex", flexShrink: 0, overflow: "hidden" }}>
-          <ImageCell card={cards[2]} fontSize={28} authorPrefix textPosition="top-left" />
-        </div>
-        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-        {/* ── Strip 4: Tatlı — sağ üst ── */}
-        <div style={{ height: OTHER_H, display: "flex", flexShrink: 0, overflow: "hidden" }}>
-          <ImageCell card={cards[3]} fontSize={28} authorPrefix textPosition="top-right" />
-        </div>
-
+      {/* Header */}
+      <div style={{ height: HEADER_H, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, flexShrink: 0 }}>
+        <div style={{ color: "#FCD34D", fontSize: 20, letterSpacing: 1.5, display: "flex" }}>{date}</div>
+        <div style={{ color: "#FFFFFF", fontSize: 52, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
       </div>
 
-      {/* Right amber border */}
-      <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+      {/* Divider */}
+      <div style={{ height: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
 
-      {/* Alt karartı — URL ve slogan okunabilsin */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 320, background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.5) 50%, transparent 100%)", display: "flex" }} />
-
-      {/* Site URL + slogan — en son render → şeritlerin üstünde; reply bar (~150px) kapatmaz */}
-      <div style={{ position: "absolute", bottom: 162, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-        <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 22, fontWeight: 700, letterSpacing: 2, display: "flex" }}>www.menugunlugu.com</div>
-        <div style={{ color: "#FFFFFF", fontSize: 14, fontWeight: 700, letterSpacing: 1.8, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
+      {/* Top row: Çorba (left) | Ana Yemek (right) */}
+      <div style={{ height: ROW_H, display: "flex", flexShrink: 0 }}>
+        <div style={{ width: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+        <StoryCellKarti card={cards[0]} align="left" />
+        <div style={{ width: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+        <StoryCellKarti card={cards[1]} align="right" />
+        <div style={{ width: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
       </div>
 
+      {/* Divider */}
+      <div style={{ height: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+
+      {/* Link band */}
+      <div style={{ height: LINK_H, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <div style={{
+          paddingLeft: 40, paddingRight: 40, paddingTop: 12, paddingBottom: 12,
+          border: "2px solid #FCD34D",
+          borderRadius: 999,
+          display: "flex", alignItems: "center", gap: 14,
+        }}>
+          <div style={{ color: "#FCD34D", fontSize: 22, display: "flex" }}>🔗</div>
+          <div style={{ color: "#FFFFFF", fontSize: 24, fontWeight: 700, letterSpacing: 1.5, display: "flex" }}>menugunlugu.com</div>
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+
+      {/* Bottom row: Yardımcı Lezzet (left) | Tatlı (right) */}
+      <div style={{ height: ROW_H, display: "flex", flexShrink: 0 }}>
+        <div style={{ width: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+        <StoryCellKarti card={cards[2]} align="left" />
+        <div style={{ width: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+        <StoryCellKarti card={cards[3]} align="right" />
+        <div style={{ width: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+
+      {/* Footer */}
+      <div style={{ height: FOOTER_H, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#FCD34D", display: "flex" }} />
+          <div style={{ color: "#FEF3E2", fontSize: 16, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
+          <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#FCD34D", display: "flex" }} />
+        </div>
+        <div style={{ color: "#FFFFFF", fontSize: 13, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
+      </div>
+
+      {/* Bottom outer border */}
+      <div style={{ height: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
     </div>
   );
 }

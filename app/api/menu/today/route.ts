@@ -13,8 +13,8 @@ const MENU_WITH_RECIPES = `
 `.trim();
 
 export async function GET() {
-  // Use local-timezone date (YYYY-MM-DD) — avoids UTC-offset mismatches
-  const today = new Date().toLocaleDateString("en-CA");
+  // Use Turkey timezone (UTC+3) — Vercel runs in UTC, this prevents off-by-one-day issues
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Istanbul" });
 
   const supabase = await createClient();
 

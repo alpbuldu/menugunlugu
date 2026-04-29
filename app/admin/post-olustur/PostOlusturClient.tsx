@@ -16,7 +16,7 @@ interface Props {
 
 type ContentMode = "both" | "ingredients" | "steps" | "none";
 type CoverType   = "yazili" | "yazisiz";
-type Section     = "post" | "kapak" | "story";
+type Section     = "post" | "kapak" | "story" | "gunmenu";
 
 interface SlotState {
   soup:    SimpleRecipe | null;
@@ -198,21 +198,36 @@ export default function PostOlusturClient({ recipes }: Props) {
   /* ── Post state ── */
   const [postColor,   setPostColor]   = useState<string>("#92400E");
   const [contentMode, setContentMode] = useState<ContentMode>("both");
+  const [postBaslik,  setPostBaslik]  = useState("");
+  const [postAltMetin, setPostAltMetin] = useState("");
   const [postSearch,  setPostSearch]  = useState("");
   const [selectedRecipes, setSelectedRecipes] = useState<SimpleRecipe[]>([]);
-  const [postLoading, setPostLoading] = useState(false);
+  const [postLoading,    setPostLoading]    = useState(false);
+  const [postMenuFetch,  setPostMenuFetch]  = useState(false);
 
   /* ── Kapak state ── */
-  const [kapakType,    setKapakType]    = useState<CoverType>("yazili");
-  const [kapakColor,   setKapakColor]   = useState<string>("#92400E");
-  const [kapakBaslik,  setKapakBaslik]  = useState("");
-  const [kapakTarih,   setKapakTarih]   = useState("");
-  const [kapakSlots,   setKapakSlots]   = useState<SlotState>({ soup: null, main: null, side: null, dessert: null });
-  const [kapakLoading, setKapakLoading] = useState(false);
+  const [kapakType,         setKapakType]         = useState<CoverType>("yazili");
+  const [kapakColor,        setKapakColor]        = useState<string>("#92400E");
+  const [kapakYazisizColor, setKapakYazisizColor] = useState<string>("#92400E");
+  const [kapakBaslik,       setKapakBaslik]       = useState("");
+  const [kapakTarih,        setKapakTarih]        = useState("");
+  const [kapakSlots,        setKapakSlots]        = useState<SlotState>({ soup: null, main: null, side: null, dessert: null });
+  const [kapakLoading,      setKapakLoading]      = useState(false);
+  const [kapakMenuFetch,    setKapakMenuFetch]    = useState(false);
 
   /* ── Story state ── */
-  const [storySlots, setStorySlots] = useState<SlotState>({ soup: null, main: null, side: null, dessert: null });
-  const [storyLoading, setStoryLoading] = useState(false);
+  const [storyColor,      setStoryColor]      = useState<string>("#92400E");
+  const [storySlots,      setStorySlots]      = useState<SlotState>({ soup: null, main: null, side: null, dessert: null });
+  const [storyLoading,    setStoryLoading]    = useState(false);
+  const [storyMenuFetch,  setStoryMenuFetch]  = useState(false);
+
+  /* ── Günün Menüsü (all-in-one) state ── */
+  const [gunColor,    setGunColor]    = useState<string>("#92400E");
+  const [gunSlots,    setGunSlots]    = useState<SlotState>({ soup: null, main: null, side: null, dessert: null });
+  const [gunNot,      setGunNot]      = useState("");
+  const [gunLoading,  setGunLoading]  = useState(false);
+  const [gunFetch,    setGunFetch]    = useState(false);
+  const [gunCopied,   setGunCopied]   = useState(false);
 
   /* ── Post: filtered recipe list ── */
   const selectedIds = selectedRecipes.map(r => r.id);
@@ -230,6 +245,14 @@ export default function PostOlusturClient({ recipes }: Props) {
     }
   }
 
+  /* ── Post: build URL helper ── */
+  function buildPostUrl(recipeId: string) {
+    let url = `/api/admin-gorsel?mode=post&recipeId=${recipeId}&color=${encodeURIComponent(postColor)}&content=${contentMode}`;
+    if (postBaslik)   url += `&headerTitle=${encodeURIComponent(postBaslik)}`;
+    if (postAltMetin) url += `&headerDate=${encodeURIComponent(postAltMetin)}`;
+    return url;
+  }
+
   /* ── Post: ZIP download ── */
   async function downloadPostZip() {
     if (selectedRecipes.length === 0) return;
@@ -237,7 +260,7 @@ export default function PostOlusturClient({ recipes }: Props) {
     try {
       const files: Record<string, Uint8Array> = {};
       for (const recipe of selectedRecipes) {
-        const url = `/api/admin-gorsel?mode=post&recipeId=${recipe.id}&color=${encodeURIComponent(postColor)}&content=${contentMode}`;
+        const url = buildPostUrl(recipe.id);
         const resp = await fetch(url);
         if (!resp.ok) continue;
         const buf = await resp.arrayBuffer();
@@ -273,6 +296,8 @@ export default function PostOlusturClient({ recipes }: Props) {
       url += `&color=${encodeURIComponent(kapakColor)}`;
       if (kapakBaslik) url += `&headerTitle=${encodeURIComponent(kapakBaslik)}`;
       if (kapakTarih)  url += `&headerDate=${encodeURIComponent(kapakTarih)}`;
+    } else {
+      url += `&color=${encodeURIComponent(kapakYazisizColor)}`;
     }
     return url;
   }
@@ -302,7 +327,7 @@ export default function PostOlusturClient({ recipes }: Props) {
     if (!slotsComplete(storySlots)) return;
     setStoryLoading(true);
     try {
-      const url = `/api/admin-gorsel?mode=story&${slotParams(storySlots)}`;
+      const url = `/api/admin-gorsel?mode=story&color=${encodeURIComponent(storyColor)}&${slotParams(storySlots)}`;
       const resp = await fetch(url);
       if (!resp.ok) return;
       const buf = await resp.arrayBuffer();
@@ -325,6 +350,102 @@ export default function PostOlusturClient({ recipes }: Props) {
     setStorySlots(prev => ({ ...prev, [key]: r }));
   }
 
+  /* ── Günün menüsünü getir ── */
+  async function fetchTodaysMenu(
+    setSlots: (s: SlotState) => void,
+    setLoading: (v: boolean) => void,
+  ) {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/menu/today");
+      if (!res.ok) { alert("Bugün için yayınlanmış menü bulunamadı."); return; }
+      const { menu } = await res.json();
+      const toSimple = (r: { id: string; title: string; category: string } | null) =>
+        r ? { id: r.id, title: r.title, category: r.category } : null;
+      setSlots({
+        soup:    toSimple(menu.soup),
+        main:    toSimple(menu.main),
+        side:    toSimple(menu.side),
+        dessert: toSimple(menu.dessert),
+      });
+    } catch {
+      alert("Menü getirilemedi, lütfen tekrar deneyin.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  /* ── Günün Menüsü: caption ── */
+  function generateGunCaption(slots: SlotState, not: string): string {
+    const today = new Date().toLocaleDateString("tr-TR", {
+      timeZone: "Europe/Istanbul",
+      day: "numeric", month: "long", weekday: "long",
+    });
+    const menu = [
+      slots.soup    ? `🥣 ${slots.soup.title}`    : null,
+      slots.main    ? `🥘 ${slots.main.title}`    : null,
+      slots.side    ? `🥗 ${slots.side.title}`    : null,
+      slots.dessert ? `🍮 ${slots.dessert.title}` : null,
+    ].filter(Boolean).join("\n");
+
+    const lines = [
+      `🍽️ ${today} | Günün Menüsü Hazır!`,
+      menu,
+      `📖 Menü Günlüğü; günlük menüler keşfedebileceğin, tariflere ulaşabileceğin, kendi menünü oluşturabileceğin ve gastronomiye dair içerikleri takip edebileceğin dijital bir gastronomi platformudur.`,
+      `📌 Görsellerde tariflerin tamamı yer almayabilir. Tarifin tamamı ve daha fazlası için menugunlugu.com'u ziyaret edin.`,
+    ];
+    if (not.trim()) lines.push(not.trim());
+    lines.push(`#GününMenüsü #MenüGünlüğü`);
+    return lines.join("\n\n");
+  }
+
+  /* ── Günün Menüsü: ZIP download ── */
+  async function downloadGunZip() {
+    if (!slotsComplete(gunSlots)) return;
+    setGunLoading(true);
+    try {
+      const files: Record<string, Uint8Array> = {};
+      const sp = slotParams(gunSlots);
+      const col = encodeURIComponent(gunColor);
+
+      // 1. Yazılı kapak
+      const kapakResp = await fetch(`/api/admin-gorsel?mode=cover-yazili&${sp}&color=${col}`);
+      if (kapakResp.ok) files["kapak-yazili.png"] = new Uint8Array(await kapakResp.arrayBuffer());
+
+      // 2. Yazısız kapak
+      const yazisizResp = await fetch(`/api/admin-gorsel?mode=cover-yazisiz&${sp}&color=${col}`);
+      if (yazisizResp.ok) files["kapak-yazisiz.png"] = new Uint8Array(await yazisizResp.arrayBuffer());
+
+      // 3. 4 recipe posts
+      const slotEntries: [string, SimpleRecipe | null][] = [
+        ["corba",           gunSlots.soup],
+        ["ana-yemek",       gunSlots.main],
+        ["yardimci-lezzet", gunSlots.side],
+        ["tatli",           gunSlots.dessert],
+      ];
+      for (const [label, recipe] of slotEntries) {
+        if (!recipe) continue;
+        const postResp = await fetch(`/api/admin-gorsel?mode=post&recipeId=${recipe.id}&color=${col}&content=both`);
+        if (postResp.ok) files[`post-${label}.png`] = new Uint8Array(await postResp.arrayBuffer());
+      }
+
+      // 3. Caption
+      const caption = generateGunCaption(gunSlots, gunNot);
+      files["caption.txt"] = new TextEncoder().encode(caption);
+
+      if (Object.keys(files).length === 0) return;
+      const zip = zipSync(files);
+      const blob = new Blob([zip as unknown as BlobPart], { type: "application/zip" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "gunun-menusu.zip";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } finally {
+      setGunLoading(false);
+    }
+  }
+
   /* ── Section tab button ── */
   const TabBtn = ({ s, label }: { s: Section; label: string }) => (
     <button
@@ -343,9 +464,10 @@ export default function PostOlusturClient({ recipes }: Props) {
     <div className="space-y-6">
       {/* Section tabs */}
       <div className="flex gap-2 flex-wrap">
-        <TabBtn s="post"  label="📸 Post" />
-        <TabBtn s="kapak" label="🖼️ Kapak" />
-        <TabBtn s="story" label="📱 Story" />
+        <TabBtn s="post"    label="📸 Post" />
+        <TabBtn s="kapak"   label="🖼️ Kapak" />
+        <TabBtn s="story"   label="📱 Story" />
+        <TabBtn s="gunmenu" label="🍽️ Günün Menüsü" />
       </div>
 
       {/* ── POST ── */}
@@ -360,6 +482,39 @@ export default function PostOlusturClient({ recipes }: Props) {
           <div>
             <div className="text-sm font-semibold text-warm-700 mb-2">Renk Teması</div>
             <ColorPicker value={postColor} onChange={setPostColor} />
+          </div>
+
+          {/* Header başlık */}
+          <div>
+            <div className="text-sm font-semibold text-warm-700 mb-1">Başlık (Header)</div>
+            <p className="text-xs text-warm-400 mb-2">
+              Boş bırakılırsa "Günün Menüsü" + bugünün tarihi kullanılır.
+              Sadece birini doldurursan diğeri ortalı gelir.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-warm-500 mb-1 block">Başlık metni</label>
+                <input
+                  type="text"
+                  value={postBaslik}
+                  onChange={e => setPostBaslik(e.target.value)}
+                  placeholder="Günün Menüsü"
+                  className="w-full border border-warm-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-400"
+                  style={{ fontSize: 16 }}
+                />
+              </div>
+              <div>
+                <label className="text-xs text-warm-500 mb-1 block">Alt metin / tarih</label>
+                <input
+                  type="text"
+                  value={postAltMetin}
+                  onChange={e => setPostAltMetin(e.target.value)}
+                  placeholder="29 Nisan 2026 Çarşamba"
+                  className="w-full border border-warm-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-400"
+                  style={{ fontSize: 16 }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Content toggle */}
@@ -389,11 +544,33 @@ export default function PostOlusturClient({ recipes }: Props) {
                 Tarifler
                 <span className="ml-1 text-warm-400 font-normal">({selectedRecipes.length}/10)</span>
               </div>
-              {selectedRecipes.length > 0 && (
-                <button onClick={() => setSelectedRecipes([])} className="text-xs text-warm-400 hover:text-warm-700">
-                  Temizle
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={async () => {
+                    setPostMenuFetch(true);
+                    try {
+                      const res = await fetch("/api/menu/today");
+                      if (!res.ok) { alert("Bugün için yayınlanmış menü bulunamadı."); return; }
+                      const { menu } = await res.json();
+                      const slots = [menu.soup, menu.main, menu.side, menu.dessert];
+                      const toAdd: SimpleRecipe[] = slots
+                        .filter(Boolean)
+                        .map((r: { id: string; title: string; category: string }) => ({ id: r.id, title: r.title, category: r.category }));
+                      setSelectedRecipes(toAdd);
+                    } catch { alert("Menü getirilemedi."); }
+                    finally { setPostMenuFetch(false); }
+                  }}
+                  disabled={postMenuFetch}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200 hover:bg-brand-100 disabled:opacity-50 transition-colors"
+                >
+                  {postMenuFetch ? "Getiriliyor…" : "📅 Günün Menüsü"}
                 </button>
-              )}
+                {selectedRecipes.length > 0 && (
+                  <button onClick={() => setSelectedRecipes([])} className="text-xs text-warm-400 hover:text-warm-700">
+                    Temizle
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Selected chips */}
@@ -468,7 +645,7 @@ export default function PostOlusturClient({ recipes }: Props) {
           {/* Preview link */}
           {selectedRecipes.length > 0 && (
             <button
-              onClick={() => window.open(`/api/admin-gorsel?mode=post&recipeId=${selectedRecipes[0].id}&color=${encodeURIComponent(postColor)}&content=${contentMode}`, "_blank")}
+              onClick={() => window.open(buildPostUrl(selectedRecipes[0].id), "_blank")}
               className="w-full text-sm text-brand-600 hover:text-brand-800 underline text-center"
             >
               İlk tarifi önizle →
@@ -501,6 +678,14 @@ export default function PostOlusturClient({ recipes }: Props) {
               ))}
             </div>
           </div>
+
+          {/* Yazısız-only: renk */}
+          {kapakType === "yazisiz" && (
+            <div>
+              <div className="text-sm font-semibold text-warm-700 mb-2">Grid Rengi</div>
+              <ColorPicker value={kapakYazisizColor} onChange={setKapakYazisizColor} />
+            </div>
+          )}
 
           {/* Yazılı-only: renk + özel başlık/tarih */}
           {kapakType === "yazili" && (
@@ -546,7 +731,16 @@ export default function PostOlusturClient({ recipes }: Props) {
 
           {/* 4-slot selector */}
           <div>
-            <div className="text-sm font-semibold text-warm-700 mb-3">Yemekler</div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm font-semibold text-warm-700">Yemekler</div>
+              <button
+                onClick={() => fetchTodaysMenu(setKapakSlots, setKapakMenuFetch)}
+                disabled={kapakMenuFetch}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200 hover:bg-brand-100 disabled:opacity-50 transition-colors"
+              >
+                {kapakMenuFetch ? "Getiriliyor…" : "📅 Günün Menüsünü Getir"}
+              </button>
+            </div>
             <FourSlotSelector recipes={recipes} slots={kapakSlots} onChange={updateKapakSlot} />
           </div>
 
@@ -579,9 +773,24 @@ export default function PostOlusturClient({ recipes }: Props) {
             1080 × 1920 Instagram story formatı
           </p>
 
+          {/* Renk */}
+          <div>
+            <div className="text-sm font-semibold text-warm-700 mb-2">Renk Teması</div>
+            <ColorPicker value={storyColor} onChange={setStoryColor} />
+          </div>
+
           {/* 4-slot selector */}
           <div>
-            <div className="text-sm font-semibold text-warm-700 mb-3">Yemekler</div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm font-semibold text-warm-700">Yemekler</div>
+              <button
+                onClick={() => fetchTodaysMenu(setStorySlots, setStoryMenuFetch)}
+                disabled={storyMenuFetch}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200 hover:bg-brand-100 disabled:opacity-50 transition-colors"
+              >
+                {storyMenuFetch ? "Getiriliyor…" : "📅 Günün Menüsünü Getir"}
+              </button>
+            </div>
             <FourSlotSelector recipes={recipes} slots={storySlots} onChange={updateStorySlot} />
           </div>
 
@@ -597,10 +806,115 @@ export default function PostOlusturClient({ recipes }: Props) {
           {/* Preview */}
           {slotsComplete(storySlots) && (
             <button
-              onClick={() => window.open(`/api/admin-gorsel?mode=story&${slotParams(storySlots)}`, "_blank")}
+              onClick={() => window.open(`/api/admin-gorsel?mode=story&color=${encodeURIComponent(storyColor)}&${slotParams(storySlots)}`, "_blank")}
               className="w-full text-sm text-brand-600 hover:text-brand-800 underline text-center"
             >
               Önizle →
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* ── GÜNÜN MENÜSÜ (all-in-one) ── */}
+      {activeSection === "gunmenu" && (
+        <div className="bg-white rounded-2xl border border-warm-100 shadow-sm p-6 space-y-6">
+          <div>
+            <h2 className="text-lg font-bold text-warm-900">Günün Menüsü Paketi</h2>
+            <p className="text-sm text-warm-400 mt-1">
+              1 yazılı kapak + 4 tarif postu + caption.txt → tek ZIP
+            </p>
+          </div>
+
+          {/* Renk + Günün Menüsünü Getir */}
+          <div className="flex flex-col sm:flex-row sm:items-end gap-4">
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-warm-700 mb-2">Renk Teması</div>
+              <ColorPicker value={gunColor} onChange={setGunColor} />
+            </div>
+            <button
+              onClick={() => fetchTodaysMenu(setGunSlots, setGunFetch)}
+              disabled={gunFetch}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-brand-600 text-white hover:bg-brand-700 disabled:opacity-50 transition-colors"
+            >
+              {gunFetch ? "Getiriliyor…" : "📅 Günün Menüsünü Getir"}
+            </button>
+          </div>
+
+          {/* Seçili yemekler özeti */}
+          {slotsComplete(gunSlots) && (
+            <div className="bg-brand-50 border border-brand-100 rounded-xl p-4 space-y-1.5">
+              {([["🥣", gunSlots.soup], ["🥘", gunSlots.main], ["🥗", gunSlots.side], ["🍮", gunSlots.dessert]] as [string, SimpleRecipe | null][]).map(([emoji, r]) =>
+                r ? (
+                  <div key={r.id} className="flex items-center gap-2 text-sm text-warm-800">
+                    <span>{emoji}</span>
+                    <span className="font-medium">{r.title}</span>
+                  </div>
+                ) : null
+              )}
+            </div>
+          )}
+
+          {/* Manuel düzenleme */}
+          {!slotsComplete(gunSlots) && (
+            <div>
+              <div className="text-sm font-semibold text-warm-700 mb-3">Yemekler</div>
+              <FourSlotSelector
+                recipes={recipes}
+                slots={gunSlots}
+                onChange={(key, r) => setGunSlots(prev => ({ ...prev, [key]: r }))}
+              />
+            </div>
+          )}
+
+          {/* Caption */}
+          <div>
+            <div className="text-sm font-semibold text-warm-700 mb-2">Caption</div>
+            <div className="bg-warm-50 border border-warm-200 rounded-xl p-4 text-xs text-warm-600 whitespace-pre-wrap leading-relaxed mb-3 font-mono">
+              {generateGunCaption(gunSlots, gunNot)}
+            </div>
+            <div>
+              <label className="text-xs text-warm-500 mb-1 block">📝 Not (opsiyonel — caption&#39;a eklenir)</label>
+              <textarea
+                value={gunNot}
+                onChange={e => setGunNot(e.target.value)}
+                placeholder="Örn: Bu haftanın özel menüsü, afiyet olsun!"
+                rows={2}
+                className="w-full border border-warm-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-400 resize-none"
+                style={{ fontSize: 16 }}
+              />
+            </div>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(generateGunCaption(gunSlots, gunNot));
+                setGunCopied(true);
+                setTimeout(() => setGunCopied(false), 2000);
+              }}
+              className="mt-2 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-warm-100 text-warm-700 hover:bg-warm-200 transition-colors"
+            >
+              {gunCopied ? "✅ Kopyalandı!" : "📋 Caption'ı Kopyala"}
+            </button>
+          </div>
+
+          {/* ZIP İndir */}
+          <button
+            onClick={downloadGunZip}
+            disabled={!slotsComplete(gunSlots) || gunLoading}
+            className="w-full bg-brand-600 text-white rounded-xl py-3 font-semibold text-sm disabled:opacity-40 hover:bg-brand-700 transition-colors"
+          >
+            {gunLoading
+              ? "İndiriliyor… (7 dosya)"
+              : !slotsComplete(gunSlots)
+              ? "Önce menüyü getirin"
+              : "📦 ZIP İndir (2 kapak + 4 post + caption)"}
+          </button>
+
+          {/* Kapak önizle */}
+          {slotsComplete(gunSlots) && (
+            <button
+              onClick={() => window.open(`/api/admin-gorsel?mode=cover-yazili&${slotParams(gunSlots)}&color=${encodeURIComponent(gunColor)}`, "_blank")}
+              className="w-full text-sm text-brand-600 hover:text-brand-800 underline text-center"
+            >
+              Kapağı önizle →
             </button>
           )}
         </div>

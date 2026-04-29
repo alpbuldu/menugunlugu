@@ -359,7 +359,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     return [
       `🍽️ ${today} günün menüsü hazır!`,
       `Bugün sofrada: ${sel.soup.title}, ${sel.main.title}, ${sel.side.title} ve ${sel.dessert.title} var.`,
-      `📌 Görsellerde tariflerin tamamı yer almayabilir. Tarifin tamamı ve daha fazlası için menugunlugu.com'u ziyaret edin.`,
+      `Tarifin tamamına ulaşmak ve daha fazla içerik için:\nmenugunlugu.com`,
       `Afiyet olsun! 😊`,
       `#Tarif #Yemek #GününMenüsü #MenüGünlüğü`,
     ].join("\n\n");

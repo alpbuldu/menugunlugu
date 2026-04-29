@@ -23,23 +23,30 @@ interface Card {
 
 interface Theme {
   headerBg: string;
-  divColor: string;
-  accentClr: string;
-  mainTxt: string;
-  subTxt: string;
-  bulletClr: string;
-  badgeBg: string;
-  panelBg: string;
+  divColor: string;   // grid/divider lines — visible on both dark photos and header bg
+  accentClr: string;  // accents on HEADER/FOOTER background (dots, footer text)
+  imgAccent: string;  // accents on DARK backgrounds (photo overlays, right panel)
+  mainTxt: string;    // primary text on header/footer bg
+  subTxt: string;     // secondary text on header/footer bg
+  bulletClr: string;  // ingredient bullet on dark panel
+  badgeBg: string;    // step number badge on dark panel
+  panelBg: string;    // right panel background
 }
 
 /* ── Color themes ───────────────────────────────────────────── */
 const THEMES: Record<string, Theme> = {
-  "#D2740B": { headerBg:"#D2740B", divColor:"#D2740B", accentClr:"#FCD34D", mainTxt:"#FFFFFF", subTxt:"#FEF3E2", bulletClr:"#D2740B", badgeBg:"rgba(210,116,11,0.75)", panelBg:"rgba(10,4,0,0.87)" },
-  "#92400E": { headerBg:"#92400E", divColor:"#D97706", accentClr:"#FCD34D", mainTxt:"#FFFFFF", subTxt:"#FEF3E2", bulletClr:"#D97706", badgeBg:"rgba(217,119,6,0.75)",  panelBg:"rgba(10,4,0,0.87)" },
-  "#3D412A": { headerBg:"#3D412A", divColor:"#948E5C", accentClr:"#D0B88D", mainTxt:"#FFFFFF", subTxt:"#E8E0D0", bulletClr:"#948E5C", badgeBg:"rgba(148,142,92,0.75)", panelBg:"rgba(8,10,6,0.88)"  },
-  "#B8B3AE": { headerBg:"#B8B3AE", divColor:"#B8B3AE", accentClr:"#3D2B1F", mainTxt:"#1C1917", subTxt:"#44403C", bulletClr:"#7C5C47", badgeBg:"rgba(100,80,70,0.75)",  panelBg:"rgba(0,0,0,0.87)"  },
-  "#D0B88D": { headerBg:"#D0B88D", divColor:"#C4A070", accentClr:"#3D2B1F", mainTxt:"#1C1917", subTxt:"#44403C", bulletClr:"#7C5C47", badgeBg:"rgba(100,80,70,0.75)",  panelBg:"rgba(0,0,0,0.87)"  },
-  "#948E5C": { headerBg:"#948E5C", divColor:"#948E5C", accentClr:"#FFF8EE", mainTxt:"#FFFFFF", subTxt:"#F5EDD8", bulletClr:"#948E5C", badgeBg:"rgba(148,142,92,0.75)", panelBg:"rgba(8,6,0,0.88)"  },
+  // Turuncu — koyu yanmış kahve grid; header turuncunun üstünde belirgin
+  "#D2740B": { headerBg:"#D2740B", divColor:"#5C2800", accentClr:"#FCD34D", imgAccent:"#FCD34D", mainTxt:"#FFFFFF", subTxt:"#FEF3E2", bulletClr:"#E09A30", badgeBg:"rgba(210,116,11,0.8)",  panelBg:"rgba(10,4,0,0.87)" },
+  // Kahve — bakır/terrakota grid; koyu kahveyle ton uyumu sağlar
+  "#92400E": { headerBg:"#92400E", divColor:"#B8600A", accentClr:"#FCD34D", imgAccent:"#FCD34D", mainTxt:"#FFFFFF", subTxt:"#FEF3E2", bulletClr:"#D97706", badgeBg:"rgba(217,119,6,0.75)", panelBg:"rgba(10,4,0,0.87)" },
+  // Zeytin — warm tan accents on olive background
+  "#3D412A": { headerBg:"#3D412A", divColor:"#6B6B40", accentClr:"#D0B88D", imgAccent:"#D0B88D", mainTxt:"#FFFFFF", subTxt:"#E8E0D0", bulletClr:"#A09A6A", badgeBg:"rgba(120,115,70,0.8)", panelBg:"rgba(6,8,4,0.88)"  },
+  // Gri — visible dark grid; light panel uses warm gold accents
+  "#B8B3AE": { headerBg:"#B8B3AE", divColor:"#787370", accentClr:"#3D2B1F", imgAccent:"#E8D5A3", mainTxt:"#1C1917", subTxt:"#44403C", bulletClr:"#C8A070", badgeBg:"rgba(150,120,80,0.8)",  panelBg:"rgba(0,0,0,0.87)"  },
+  // Kum — visible brown grid; panel uses amber accents
+  "#D0B88D": { headerBg:"#D0B88D", divColor:"#9A7845", accentClr:"#3D2B1F", imgAccent:"#FCD34D", mainTxt:"#1C1917", subTxt:"#44403C", bulletClr:"#D2740B", badgeBg:"rgba(210,116,11,0.75)", panelBg:"rgba(0,0,0,0.87)"  },
+  // Haki — çok koyu zeytin grid; haki header üstünde yüksek kontrast
+  "#948E5C": { headerBg:"#948E5C", divColor:"#2E2B18", accentClr:"#FFF8EE", imgAccent:"#FFF8EE", mainTxt:"#FFFFFF", subTxt:"#F5EDD8", bulletClr:"#BEB890", badgeBg:"rgba(140,135,75,0.8)",  panelBg:"rgba(6,6,0,0.88)"  },
 };
 const DEFAULT_THEME = THEMES["#92400E"];
 
@@ -125,14 +132,15 @@ async function getImg(url: string | null): Promise<string | null> {
 }
 
 /* ── Date helpers ───────────────────────────────────────────── */
+const TZ = "Europe/Istanbul";
 function getSlideDate(): string {
   const d = new Date();
-  const day  = d.toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
-  const week = d.toLocaleDateString("tr-TR", { weekday: "long" });
+  const day  = d.toLocaleDateString("tr-TR", { timeZone: TZ, day: "numeric", month: "long", year: "numeric" });
+  const week = d.toLocaleDateString("tr-TR", { timeZone: TZ, weekday: "long" });
   return `${day} ${week}`;
 }
 function getStoryDate(): string {
-  return new Date().toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  return new Date().toLocaleDateString("tr-TR", { timeZone: TZ, weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
 /* ── Route ──────────────────────────────────────────────────── */
@@ -181,8 +189,10 @@ export async function GET(request: NextRequest) {
       steps: parseSteps(r.instructions ?? ""),
     };
 
+    const postHeaderTitle = searchParams.get("headerTitle") ?? "";
+    const postHeaderDate  = searchParams.get("headerDate")  ?? "";
     return new ImageResponse(
-      <AdminPostView card={card} date={getSlideDate()} theme={theme} content={content} />,
+      <AdminPostView card={card} theme={theme} content={content} headerTitle={postHeaderTitle} headerDate={postHeaderDate} autoDate={getSlideDate()} />,
       { width: 1080, height: 1440, fonts }
     );
   }
@@ -233,14 +243,14 @@ export async function GET(request: NextRequest) {
 
   if (mode === "cover-yazisiz") {
     return new ImageResponse(
-      <AdminCoverYazisizView cards={cards} />,
+      <AdminCoverYazisizView cards={cards} divColor={theme.divColor} />,
       { width: 1080, height: 1440, fonts }
     );
   }
 
   if (mode === "story") {
     return new ImageResponse(
-      <AdminStoryView cards={cards} date={getStoryDate()} />,
+      <AdminStoryView cards={cards} date={getStoryDate()} theme={theme} />,
       { width: 1080, height: 1920, fonts }
     );
   }
@@ -262,14 +272,20 @@ export async function GET(request: NextRequest) {
    1080 × 1440
 ════════════════════════════════════════════════════════════════ */
 function AdminPostView({
-  card, date, theme, content,
+  card, theme, content, headerTitle, headerDate, autoDate,
 }: {
-  card: Card; date: string; theme: Theme; content: string;
+  card: Card; theme: Theme; content: string; headerTitle: string; headerDate: string; autoDate: string;
 }) {
   const DIV    = 3;
   const PANEL_W = 520;
 
-  // Max content height (same layout constants as menu-karti SlideView)
+  // Header logic — same 3-state as AdminCoverYaziliView; default is "Günün Menüsü" + today's date
+  const useDefault = !headerTitle && !headerDate;
+  const effTitle   = useDefault ? "Günün Menüsü" : headerTitle;
+  const effDate    = useDefault ? autoDate : headerDate;
+  const showBoth   = !!(effTitle && effDate);
+
+  // Max content height
   const CONTENT_AREA_H = 1440 - 130 - DIV - 130 - DIV; // 1174
   const OVERLAY_BOTTOM = CONTENT_AREA_H - 90;            // 1084
   const YAZAR_TOP      = OVERLAY_BOTTOM - 19;             // 1065
@@ -304,20 +320,19 @@ function AdminPostView({
   return (
     <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
-      {/* Header: tarif adı solda, yazar bloğu sağda */}
-      <div style={{ height: 130, backgroundColor: theme.headerBg, display: "flex", alignItems: "center", padding: "0 36px", flexShrink: 0 }}>
-        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 24, width: "100%" }}>
-          <div style={{ color: theme.mainTxt, fontSize: 34, fontWeight: 700, lineHeight: 1.2, flex: 1, display: "flex" }}>{card.title}</div>
-          {card.author && (
-            <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 18, flexShrink: 0 }}>
-              <div style={{ width: 2, height: 52, backgroundColor: "rgba(255,255,255,0.3)", flexShrink: 0, display: "flex" }} />
-              <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                <div style={{ color: theme.subTxt, fontSize: 13, letterSpacing: 0.5, display: "flex" }}>{"Yazar:"}</div>
-                <div style={{ color: theme.mainTxt, fontSize: 20, fontWeight: 700, display: "flex" }}>{card.author}</div>
-              </div>
-            </div>
-          )}
-        </div>
+      {/* Header — same 3-state logic as kapak yazılı */}
+      <div style={{ height: 130, backgroundColor: theme.headerBg, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 36px", flexShrink: 0 }}>
+        {showBoth ? (
+          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 20 }}>
+            <div style={{ color: theme.mainTxt, fontSize: 42, fontWeight: 700, lineHeight: 1, display: "flex" }}>{effTitle}</div>
+            <div style={{ width: 2, height: 40, backgroundColor: "rgba(255,255,255,0.3)", display: "flex" }} />
+            <div style={{ color: theme.mainTxt, fontSize: 24, display: "flex" }}>{effDate}</div>
+          </div>
+        ) : effTitle ? (
+          <div style={{ color: theme.mainTxt, fontSize: 42, fontWeight: 700, lineHeight: 1, display: "flex" }}>{effTitle}</div>
+        ) : effDate ? (
+          <div style={{ color: theme.mainTxt, fontSize: 28, display: "flex" }}>{effDate}</div>
+        ) : null}
       </div>
       <div style={{ height: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
 
@@ -335,14 +350,15 @@ function AdminPostView({
         {/* Left gradient — full width when no panel */}
         <div style={{ position: "absolute", bottom: 0, left: 0, right: showPanel ? PANEL_W : 0, height: "62%", background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.5) 55%, transparent 100%)", display: "flex" }} />
 
-        {/* Left overlay: title · divider · author (no category label) */}
+        {/* Left overlay: title · gradient-fade divider · author */}
         <div style={{ position: "absolute", bottom: 90, left: 0, right: showPanel ? PANEL_W : 0, padding: "0 28px", display: "flex", flexDirection: "column", gap: 10 }}>
           <div style={{ color: "#FFFFFF", fontSize: 39, fontWeight: 700, lineHeight: 1.15, display: "flex" }}>{card.title}</div>
           {card.author && (
             <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-              <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.35)", display: "flex" }} />
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, letterSpacing: 0.5, display: "flex" }}>{"Yazar:"}</div>
-              <div style={{ color: "rgba(255,255,255,0.9)", fontSize: 19, fontWeight: 700, display: "flex" }}>{card.author}</div>
+              {/* Gradient-fade divider — fades out so it appears to end under the title */}
+              <div style={{ height: 1, width: "80%", background: "linear-gradient(to right, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.45) 55%, transparent 85%)", display: "flex" }} />
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 16, letterSpacing: 0.5, display: "flex" }}>{"Yazar:"}</div>
+              <div style={{ color: "rgba(255,255,255,0.9)", fontSize: 22, fontWeight: 700, display: "flex" }}>{card.author}</div>
             </div>
           )}
         </div>
@@ -360,12 +376,12 @@ function AdminPostView({
           {/* MALZEMELER */}
           {showIng && (
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ color: theme.accentClr, fontSize: 12, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>{"MALZEMELER"}</div>
+              <div style={{ color: theme.imgAccent, fontSize: 12, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>{"MALZEMELER"}</div>
               <div style={{ height: 1, backgroundColor: theme.divColor, display: "flex", marginBottom: 9 }} />
               <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                 {visibleIngs.map((item, i) => {
                   if (item.endsWith(":")) {
-                    return <div key={i} style={{ color: theme.accentClr, fontSize: 13, fontWeight: 700, letterSpacing: 0.5, marginTop: 4, display: "flex" }}>{item}</div>;
+                    return <div key={i} style={{ color: theme.imgAccent, fontSize: 13, fontWeight: 700, letterSpacing: 0.5, marginTop: 4, display: "flex" }}>{item}</div>;
                   }
                   const ci = ingHeaderIdx(item);
                   if (ci !== -1) {
@@ -373,7 +389,7 @@ function AdminPostView({
                     const rest   = item.slice(ci + 1).trim();
                     return (
                       <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                        <div style={{ color: theme.accentClr, fontSize: 13, fontWeight: 700, letterSpacing: 0.5, marginTop: 4, display: "flex" }}>{header}</div>
+                        <div style={{ color: theme.imgAccent, fontSize: 13, fontWeight: 700, letterSpacing: 0.5, marginTop: 4, display: "flex" }}>{header}</div>
                         {rest && (
                           <div style={{ display: "flex", alignItems: "flex-start", gap: 7 }}>
                             <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: theme.bulletClr, marginTop: 6, flexShrink: 0, display: "flex" }} />
@@ -398,7 +414,7 @@ function AdminPostView({
           {showSteps && visibleSteps.length > 0 && (
             <div style={{ display: "flex", flexDirection: "column" }}>
               {showIng && <div style={{ height: 1, backgroundColor: "rgba(255,255,255,0.18)", display: "flex", margin: "10px 0 8px" }} />}
-              <div style={{ color: theme.accentClr, fontSize: 12, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>{"HAZIRLANIŞ"}</div>
+              <div style={{ color: theme.imgAccent, fontSize: 12, fontWeight: 700, letterSpacing: 2, display: "flex", marginBottom: 7 }}>{"HAZIRLANIŞ"}</div>
               <div style={{ height: 1, backgroundColor: theme.divColor, display: "flex", marginBottom: 9 }} />
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {visibleSteps.map((step, i) => (
@@ -413,10 +429,10 @@ function AdminPostView({
             </div>
           )}
 
-          {/* Link — sabit, sol "Yazar:" hizasında (bottom: 90) */}
+          {/* Link — sabit */}
           <div style={{ position: "absolute", bottom: 90, left: 16, right: 16, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.25)", display: "flex", flexDirection: "column", gap: 4 }}>
-            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, display: "flex" }}>{"Tarifin tamamı ve daha fazla tarif için:"}</div>
-            <div style={{ color: theme.accentClr, fontSize: 17, fontWeight: 700, display: "flex" }}>{"menugunlugu.com"}</div>
+            <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 15, display: "flex" }}>{"Tarifin tamamına ulaşmak ve daha fazla içerik için:"}</div>
+            <div style={{ color: theme.imgAccent, fontSize: 17, fontWeight: 700, display: "flex" }}>{"menugunlugu.com"}</div>
           </div>
         </div>
         )}
@@ -452,7 +468,7 @@ function ThemedImageCell({ card, theme }: { card: Card; theme: Theme }) {
       }
       <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "70%", background: "linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.35) 48%, transparent 100%)", display: "flex" }} />
       <div style={{ position: "absolute", bottom: 46, left: 0, padding: "0 26px", display: "flex", flexDirection: "column", gap: 8, maxWidth: "90%" }}>
-        <div style={{ color: theme.accentClr, fontSize: 29, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{card.cat.toUpperCase()}</div>
+        <div style={{ color: theme.imgAccent, fontSize: 29, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{card.cat.toUpperCase()}</div>
         <div style={{ color: "#FFFFFF", fontSize: 23, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
         {card.author && (
           <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 22, display: "flex" }}>{"Yazar: "}{card.author}</div>
@@ -545,125 +561,141 @@ function PhotoCell({ card }: { card: Card }) {
   );
 }
 
-function AdminCoverYazisizView({ cards }: { cards: Card[] }) {
-  const DIV    = 3;
-  const ORANGE = "#D97706";
+function AdminCoverYazisizView({ cards, divColor = "#D97706" }: { cards: Card[]; divColor?: string }) {
+  const DIV = 3;
   return (
-    <div style={{ width: 1080, height: 1440, display: "flex", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
-      <div style={{ width: DIV, backgroundColor: ORANGE, flexShrink: 0, display: "flex" }} />
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <div style={{ flex: 1, display: "flex" }}>
-          <PhotoCell card={cards[0]} />
-          <div style={{ width: DIV, backgroundColor: ORANGE, flexShrink: 0, display: "flex" }} />
-          <PhotoCell card={cards[1]} />
+    <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+      <div style={{ height: DIV, backgroundColor: divColor, flexShrink: 0, display: "flex" }} />
+      <div style={{ flex: 1, display: "flex" }}>
+        <div style={{ width: DIV, backgroundColor: divColor, flexShrink: 0, display: "flex" }} />
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <div style={{ flex: 1, display: "flex" }}>
+            <PhotoCell card={cards[0]} />
+            <div style={{ width: DIV, backgroundColor: divColor, flexShrink: 0, display: "flex" }} />
+            <PhotoCell card={cards[1]} />
+          </div>
+          <div style={{ height: DIV, backgroundColor: divColor, flexShrink: 0, display: "flex" }} />
+          <div style={{ flex: 1, display: "flex" }}>
+            <PhotoCell card={cards[2]} />
+            <div style={{ width: DIV, backgroundColor: divColor, flexShrink: 0, display: "flex" }} />
+            <PhotoCell card={cards[3]} />
+          </div>
         </div>
-        <div style={{ height: DIV, backgroundColor: ORANGE, flexShrink: 0, display: "flex" }} />
-        <div style={{ flex: 1, display: "flex" }}>
-          <PhotoCell card={cards[2]} />
-          <div style={{ width: DIV, backgroundColor: ORANGE, flexShrink: 0, display: "flex" }} />
-          <PhotoCell card={cards[3]} />
-        </div>
+        <div style={{ width: DIV, backgroundColor: divColor, flexShrink: 0, display: "flex" }} />
       </div>
-      <div style={{ width: DIV, backgroundColor: ORANGE, flexShrink: 0, display: "flex" }} />
+      <div style={{ height: DIV, backgroundColor: divColor, flexShrink: 0, display: "flex" }} />
     </div>
   );
 }
 
 /* ════════════════════════════════════════════════════════════════
-   ADMIN STORY — same as menu-karti StoryView (fixed amber theme)
+   ADMIN STORY — 2×2 grid layout with header, link band, footer
    1080 × 1920
 ════════════════════════════════════════════════════════════════ */
-function AdminStoryView({ cards, date }: { cards: Card[]; date: string }) {
-  const DIV     = 3;
-  const FIRST_H = 522;
-  const OTHER_H = 463;
+function StoryCell({ card, theme, align }: { card: Card; theme: Theme; align: "left" | "right" }) {
+  return (
+    <div style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}>
+      {card.img
+        ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+        : <div style={{ position: "absolute", inset: 0, backgroundColor: "#C8A97A", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ fontSize: 60, display: "flex" }}>{"🍽️"}</div>
+          </div>
+      }
+      {/* Bottom gradient */}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "70%", background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 58%, transparent 100%)", display: "flex" }} />
+      {/* Text overlay */}
+      <div style={{
+        position: "absolute", bottom: 0, left: 0, right: 0,
+        padding: "0 22px 26px",
+        display: "flex", flexDirection: "column",
+        alignItems: align === "right" ? "flex-end" : "flex-start",
+        gap: 5,
+      }}>
+        <div style={{ color: theme.imgAccent, fontSize: 16, fontWeight: 700, letterSpacing: 2, display: "flex" }}>{card.cat.toUpperCase()}</div>
+        <div style={{ color: "#FFFFFF", fontSize: 22, fontWeight: 700, lineHeight: 1.2, display: "flex", textAlign: align }}>{card.title}</div>
+        {card.author && (
+          <div style={{ color: "rgba(255,255,255,0.62)", fontSize: 15, display: "flex" }}>{"Yazar: "}{card.author}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; theme: Theme }) {
+  const DIV = 3;
+  // Total: 3+140+3+780+3+100+3+780+3+102+3 = 1920
+  const HEADER_H = 140;
+  const ROW_H    = 780;
+  const LINK_H   = 100;
+  const FOOTER_H = 102;
 
   return (
-    <div style={{ width: 1080, height: 1920, display: "flex", position: "relative", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+    <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
-      <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+      {/* Top outer border */}
+      <div style={{ height: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-
-        {/* Strip 1 — çorba + header overlay */}
-        <div style={{ height: FIRST_H, position: "relative", display: "flex", overflow: "hidden", flexShrink: 0 }}>
-          {cards[0].img
-            ? <img src={cards[0].img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            : <div style={{ position: "absolute", inset: 0, backgroundColor: "#C8A97A", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <div style={{ fontSize: 80, display: "flex" }}>{"🍽️"}</div>
-              </div>
-          }
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "78%", background: "linear-gradient(to bottom, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.55) 55%, transparent 100%)", display: "flex" }} />
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "55%", background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.4) 55%, transparent 100%)", display: "flex" }} />
-          <div style={{ position: "absolute", top: 215, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 10 }}>
-            <div style={{ color: "#FCD34D", fontSize: 24, letterSpacing: 1, display: "flex" }}>{date}</div>
-            <div style={{ color: "#FFFFFF", fontSize: 58, fontWeight: 700, lineHeight: 1.1, display: "flex" }}>{"Günün Menüsü"}</div>
-          </div>
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 26px 28px", display: "flex", flexDirection: "column", gap: 6 }}>
-            <div style={{ color: "#FCD34D", fontSize: 22, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{cards[0].cat.toUpperCase()}</div>
-            <div style={{ color: "#FFFFFF", fontSize: 30, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{cards[0].title}</div>
-            {cards[0].author && <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 19, display: "flex" }}>{"Yazar: "}{cards[0].author}</div>}
-          </div>
-        </div>
-
-        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-
-        {/* Strip 2 — ana yemek, text top-right */}
-        <div style={{ height: OTHER_H, position: "relative", display: "flex", overflow: "hidden", flexShrink: 0 }}>
-          {cards[1].img
-            ? <img src={cards[1].img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            : <div style={{ position: "absolute", inset: 0, backgroundColor: "#C8A97A", display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ fontSize: 60, display: "flex" }}>{"🍽️"}</div></div>
-          }
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "65%", background: "linear-gradient(to bottom, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.35) 55%, transparent 100%)", display: "flex" }} />
-          <div style={{ position: "absolute", top: 0, right: 0, padding: "0 26px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 5 }}>
-            <div style={{ color: "#FCD34D", fontSize: 26, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{cards[1].cat.toUpperCase()}</div>
-            <div style={{ color: "#FFFFFF", fontSize: 28, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{cards[1].title}</div>
-            {cards[1].author && <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 19, display: "flex" }}>{"Yazar: "}{cards[1].author}</div>}
-          </div>
-        </div>
-
-        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-
-        {/* Strip 3 — yardimci lezzet, text top-left */}
-        <div style={{ height: OTHER_H, position: "relative", display: "flex", overflow: "hidden", flexShrink: 0 }}>
-          {cards[2].img
-            ? <img src={cards[2].img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            : <div style={{ position: "absolute", inset: 0, backgroundColor: "#C8A97A", display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ fontSize: 60, display: "flex" }}>{"🍽️"}</div></div>
-          }
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "65%", background: "linear-gradient(to bottom, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.35) 55%, transparent 100%)", display: "flex" }} />
-          <div style={{ position: "absolute", top: 0, left: 0, padding: "0 26px", display: "flex", flexDirection: "column", gap: 5 }}>
-            <div style={{ color: "#FCD34D", fontSize: 26, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{cards[2].cat.toUpperCase()}</div>
-            <div style={{ color: "#FFFFFF", fontSize: 28, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{cards[2].title}</div>
-            {cards[2].author && <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 19, display: "flex" }}>{"Yazar: "}{cards[2].author}</div>}
-          </div>
-        </div>
-
-        <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-
-        {/* Strip 4 — tatlı, text top-right */}
-        <div style={{ height: OTHER_H, position: "relative", display: "flex", overflow: "hidden", flexShrink: 0 }}>
-          {cards[3].img
-            ? <img src={cards[3].img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-            : <div style={{ position: "absolute", inset: 0, backgroundColor: "#C8A97A", display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ fontSize: 60, display: "flex" }}>{"🍽️"}</div></div>
-          }
-          <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "65%", background: "linear-gradient(to bottom, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.35) 55%, transparent 100%)", display: "flex" }} />
-          <div style={{ position: "absolute", top: 0, right: 0, padding: "0 26px", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 5 }}>
-            <div style={{ color: "#FCD34D", fontSize: 26, fontWeight: 700, letterSpacing: 2.2, display: "flex" }}>{cards[3].cat.toUpperCase()}</div>
-            <div style={{ color: "#FFFFFF", fontSize: 28, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{cards[3].title}</div>
-            {cards[3].author && <div style={{ color: "rgba(255,255,255,0.68)", fontSize: 19, display: "flex" }}>{"Yazar: "}{cards[3].author}</div>}
-          </div>
-        </div>
-
+      {/* Header */}
+      <div style={{ height: HEADER_H, backgroundColor: theme.headerBg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, flexShrink: 0 }}>
+        <div style={{ color: theme.accentClr, fontSize: 20, letterSpacing: 1.5, display: "flex" }}>{date}</div>
+        <div style={{ color: theme.mainTxt, fontSize: 52, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
       </div>
 
-      <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
+      {/* Divider */}
+      <div style={{ height: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
 
-      {/* Bottom fade + URL */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 320, background: "linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.5) 50%, transparent 100%)", display: "flex" }} />
-      <div style={{ position: "absolute", bottom: 162, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-        <div style={{ color: "rgba(255,255,255,0.85)", fontSize: 22, fontWeight: 700, letterSpacing: 2, display: "flex" }}>{"www.menugunlugu.com"}</div>
-        <div style={{ color: "#FFFFFF", fontSize: 14, fontWeight: 700, letterSpacing: 1.8, display: "flex" }}>{"TARİFİNİ YÜKLE & TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!"}</div>
+      {/* Top row: Çorba (left) | Ana Yemek (right) */}
+      <div style={{ height: ROW_H, display: "flex", flexShrink: 0 }}>
+        <div style={{ width: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
+        <StoryCell card={cards[0]} theme={theme} align="left" />
+        <div style={{ width: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
+        <StoryCell card={cards[1]} theme={theme} align="right" />
+        <div style={{ width: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
       </div>
+
+      {/* Divider */}
+      <div style={{ height: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
+
+      {/* Link band */}
+      <div style={{ height: LINK_H, backgroundColor: theme.headerBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <div style={{
+          paddingLeft: 40, paddingRight: 40, paddingTop: 12, paddingBottom: 12,
+          border: `2px solid ${theme.accentClr}`,
+          borderRadius: 999,
+          display: "flex", alignItems: "center", gap: 14,
+        }}>
+          <div style={{ color: theme.accentClr, fontSize: 22, display: "flex" }}>{"🔗"}</div>
+          <div style={{ color: theme.mainTxt, fontSize: 24, fontWeight: 700, letterSpacing: 1.5, display: "flex" }}>{"menugunlugu.com"}</div>
+        </div>
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
+
+      {/* Bottom row: Yardımcı Lezzet (left) | Tatlı (right) */}
+      <div style={{ height: ROW_H, display: "flex", flexShrink: 0 }}>
+        <div style={{ width: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
+        <StoryCell card={cards[2]} theme={theme} align="left" />
+        <div style={{ width: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
+        <StoryCell card={cards[3]} theme={theme} align="right" />
+        <div style={{ width: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
+      </div>
+
+      {/* Divider */}
+      <div style={{ height: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
+
+      {/* Footer */}
+      <div style={{ height: FOOTER_H, backgroundColor: theme.headerBg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: theme.accentClr, display: "flex" }} />
+          <div style={{ color: theme.subTxt, fontSize: 16, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>{"MENUGUNLUGU.COM"}</div>
+          <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: theme.accentClr, display: "flex" }} />
+        </div>
+        <div style={{ color: theme.mainTxt, fontSize: 13, letterSpacing: 1.5, display: "flex" }}>{"TARİFİNİ YÜKLE & TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!"}</div>
+      </div>
+
+      {/* Bottom outer border */}
+      <div style={{ height: DIV, backgroundColor: theme.divColor, flexShrink: 0, display: "flex" }} />
     </div>
   );
 }

@@ -473,33 +473,38 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
 
 /* ════════════════════════════════════════════════════════════════
    STORY  1080 × 1920
-   2×2 grid layout:
-     3 (top border) + 140 (header) + 3 + 780 (top row) + 3 + 100 (link band)
-     + 3 + 780 (bottom row) + 3 + 102 (footer) + 3 (bottom border) = 1920
+   Kart tasarımı — sabit kahve rengi (#92400E)
 ════════════════════════════════════════════════════════════════ */
-function StoryCellKarti({ card, align }: { card: Card; align: "left" | "right" }) {
+function StoryCardKarti({ card, align }: { card: Card; align: "left" | "right" }) {
   return (
-    <div style={{ flex: 1, position: "relative", display: "flex", overflow: "hidden" }}>
+    <div style={{
+      flex: 1,
+      borderRadius: 20,
+      overflow: "hidden",
+      position: "relative",
+      display: "flex",
+      border: "2px solid #B8600A",
+    }}>
       {card.img
         ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
         : <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#C8A97A", display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <div style={{ fontSize: 60, display: "flex" }}>🍽️</div>
+            <div style={{ fontSize: 50, display: "flex" }}>🍽️</div>
           </div>
       }
       {/* Bottom gradient */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "70%", background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 58%, transparent 100%)", display: "flex" }} />
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "72%", background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.5) 52%, transparent 100%)", display: "flex" }} />
       {/* Text overlay */}
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0,
-        padding: "0 22px 26px",
+        paddingLeft: 20, paddingRight: 20, paddingBottom: 28,
         display: "flex", flexDirection: "column",
         alignItems: align === "right" ? "flex-end" : "flex-start",
         gap: 5,
       }}>
-        <div style={{ color: "#FCD34D", fontSize: 16, fontWeight: 700, letterSpacing: 2, display: "flex" }}>{card.cat.toUpperCase()}</div>
-        <div style={{ color: "#FFFFFF", fontSize: 22, fontWeight: 700, lineHeight: 1.2, display: "flex", textAlign: align }}>{card.title}</div>
+        <div style={{ color: "#FCD34D", fontSize: 20, fontWeight: 700, letterSpacing: 2, display: "flex" }}>{card.cat.toUpperCase()}</div>
+        <div style={{ color: "#FFFFFF", fontSize: 29, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
         {card.author && (
-          <div style={{ color: "rgba(255,255,255,0.62)", fontSize: 15, display: "flex" }}>Yazar: {card.author}</div>
+          <div style={{ color: "rgba(255,255,255,0.62)", fontSize: 20, display: "flex" }}>Yazar: {card.author}</div>
         )}
       </div>
     </div>
@@ -507,80 +512,70 @@ function StoryCellKarti({ card, align }: { card: Card; align: "left" | "right" }
 }
 
 function StoryView({ cards, date }: { cards: Card[]; date: string }) {
-  const DIV     = 3;
-  const HEADER_H = 140;
-  const ROW_H    = 780;
-  const LINK_H   = 100;
-  const FOOTER_H = 102;
-  // Total: 3+140+3+780+3+100+3+780+3+102+3 = 1920 ✓
+  const PAD_H  = 44;
+  const CARD_G = 16;
+  const ROW_H  = 550;
 
   return (
-    <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+    <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#92400E" }}>
 
-      {/* Top outer border */}
-      <div style={{ height: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+      {/* Instagram safe zone */}
+      <div style={{ height: 200, flexShrink: 0, display: "flex" }} />
 
-      {/* Header */}
-      <div style={{ height: HEADER_H, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6, flexShrink: 0 }}>
+      {/* Tarih */}
+      <div style={{ display: "flex", justifyContent: "center" }}>
         <div style={{ color: "#FCD34D", fontSize: 20, letterSpacing: 1.5, display: "flex" }}>{date}</div>
+      </div>
+
+      <div style={{ height: 10, flexShrink: 0, display: "flex" }} />
+
+      {/* Başlık */}
+      <div style={{ display: "flex", justifyContent: "center" }}>
         <div style={{ color: "#FFFFFF", fontSize: 52, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
       </div>
 
-      {/* Divider */}
-      <div style={{ height: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 52, flexShrink: 0, display: "flex" }} />
 
-      {/* Top row: Çorba (left) | Ana Yemek (right) */}
-      <div style={{ height: ROW_H, display: "flex", flexShrink: 0 }}>
-        <div style={{ width: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
-        <StoryCellKarti card={cards[0]} align="left" />
-        <div style={{ width: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
-        <StoryCellKarti card={cards[1]} align="right" />
-        <div style={{ width: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+      {/* Üst sıra: Çorba | Ana Yemek */}
+      <div style={{ height: ROW_H, paddingLeft: PAD_H, paddingRight: PAD_H, display: "flex", gap: CARD_G, flexShrink: 0 }}>
+        <StoryCardKarti card={cards[0]} align="left" />
+        <StoryCardKarti card={cards[1]} align="right" />
       </div>
 
-      {/* Divider */}
-      <div style={{ height: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 16, flexShrink: 0, display: "flex" }} />
 
-      {/* Link band */}
-      <div style={{ height: LINK_H, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      {/* Alt sıra: Yardımcı Lezzet | Tatlı */}
+      <div style={{ height: ROW_H, paddingLeft: PAD_H, paddingRight: PAD_H, display: "flex", gap: CARD_G, flexShrink: 0 }}>
+        <StoryCardKarti card={cards[2]} align="left" />
+        <StoryCardKarti card={cards[3]} align="right" />
+      </div>
+
+      <div style={{ height: 36, flexShrink: 0, display: "flex" }} />
+
+      {/* Link kutusu */}
+      <div style={{ display: "flex", justifyContent: "center" }}>
         <div style={{
-          paddingLeft: 40, paddingRight: 40, paddingTop: 12, paddingBottom: 12,
-          border: "2px solid #FCD34D",
           borderRadius: 999,
-          display: "flex", alignItems: "center", gap: 14,
+          border: "2px solid #FCD34D",
+          paddingLeft: 40, paddingRight: 40, paddingTop: 14, paddingBottom: 14,
+          display: "flex", alignItems: "center", gap: 12,
         }}>
           <div style={{ color: "#FCD34D", fontSize: 22, display: "flex" }}>🔗</div>
-          <div style={{ color: "#FFFFFF", fontSize: 24, fontWeight: 700, letterSpacing: 1.5, display: "flex" }}>menugunlugu.com</div>
+          <div style={{ color: "#FFFFFF", fontSize: 24, fontWeight: 700, letterSpacing: 1.2, display: "flex" }}>menugunlugu.com</div>
         </div>
       </div>
 
-      {/* Divider */}
-      <div style={{ height: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 24, flexShrink: 0, display: "flex" }} />
 
-      {/* Bottom row: Yardımcı Lezzet (left) | Tatlı (right) */}
-      <div style={{ height: ROW_H, display: "flex", flexShrink: 0 }}>
-        <div style={{ width: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
-        <StoryCellKarti card={cards[2]} align="left" />
-        <div style={{ width: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
-        <StoryCellKarti card={cards[3]} align="right" />
-        <div style={{ width: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+      {/* Slogan */}
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
+        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
+        <div style={{ color: "#FEF3E2", fontSize: 13, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
+        <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
       </div>
 
-      {/* Divider */}
-      <div style={{ height: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
-
-      {/* Footer */}
-      <div style={{ height: FOOTER_H, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#FCD34D", display: "flex" }} />
-          <div style={{ color: "#FEF3E2", fontSize: 16, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
-          <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#FCD34D", display: "flex" }} />
-        </div>
-        <div style={{ color: "#FFFFFF", fontSize: 13, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
-      </div>
-
-      {/* Bottom outer border */}
-      <div style={{ height: DIV, backgroundColor: "#B8600A", flexShrink: 0, display: "flex" }} />
+      {/* Alt boşluk — Instagram reply bar */}
+      <div style={{ flex: 1, display: "flex" }} />
     </div>
   );
 }

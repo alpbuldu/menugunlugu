@@ -618,10 +618,10 @@ function StoryCard({ card, theme, align }: { card: Card; theme: Theme; align: "l
         alignItems: align === "right" ? "flex-end" : "flex-start",
         gap: 5,
       }}>
-        <div style={{ color: theme.imgAccent, fontSize: 17, fontWeight: 700, letterSpacing: 2, display: "flex" }}>{card.cat.toUpperCase()}</div>
-        <div style={{ color: "#FFFFFF", fontSize: 26, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
+        <div style={{ color: theme.imgAccent, fontSize: 20, fontWeight: 700, letterSpacing: 2, display: "flex" }}>{card.cat.toUpperCase()}</div>
+        <div style={{ color: "#FFFFFF", fontSize: 29, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
         {card.author && (
-          <div style={{ color: "rgba(255,255,255,0.62)", fontSize: 17, display: "flex" }}>{"Yazar: "}{card.author}</div>
+          <div style={{ color: "rgba(255,255,255,0.62)", fontSize: 20, display: "flex" }}>{"Yazar: "}{card.author}</div>
         )}
       </div>
     </div>
@@ -631,13 +631,13 @@ function StoryCard({ card, theme, align }: { card: Card; theme: Theme; align: "l
 function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; theme: Theme }) {
   const PAD_H  = 44;   // horizontal padding her iki yanda
   const CARD_G = 16;   // kartlar arası boşluk
-  const ROW_H  = 580;  // kart yüksekliği (daha küçük)
+  const ROW_H  = 550;  // kart yüksekliği
 
   return (
-    <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+    <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: theme.headerBg }}>
 
-      {/* Instagram safe zone — profil fotoğrafı bu alanda (~160px) */}
-      <div style={{ height: 160, flexShrink: 0, display: "flex" }} />
+      {/* Instagram safe zone — profil fotoğrafı / ilerleme çubuğu */}
+      <div style={{ height: 200, flexShrink: 0, display: "flex" }} />
 
       {/* Tarih */}
       <div style={{ display: "flex", justifyContent: "center" }}>
@@ -648,7 +648,7 @@ function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; t
 
       {/* Başlık */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: "#FFFFFF", fontSize: 52, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
+        <div style={{ color: theme.mainTxt, fontSize: 52, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
       </div>
 
       {/* Başlık → kartlar arası belirgin boşluk */}
@@ -679,16 +679,17 @@ function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; t
           display: "flex", alignItems: "center", gap: 12,
         }}>
           <div style={{ color: theme.accentClr, fontSize: 22, display: "flex" }}>{"🔗"}</div>
-          <div style={{ color: "#FFFFFF", fontSize: 24, fontWeight: 700, letterSpacing: 1.2, display: "flex" }}>{"menugunlugu.com"}</div>
+          <div style={{ color: theme.mainTxt, fontSize: 24, fontWeight: 700, letterSpacing: 1.2, display: "flex" }}>{"menugunlugu.com"}</div>
         </div>
       </div>
 
-      <div style={{ height: 16, flexShrink: 0, display: "flex" }} />
+      {/* URL → Slogan arası boşluk */}
+      <div style={{ height: 24, flexShrink: 0, display: "flex" }} />
 
       {/* Slogan */}
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
         <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: theme.accentClr, display: "flex" }} />
-        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, letterSpacing: 1.5, display: "flex" }}>{"TARİFİNİ YÜKLE & TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!"}</div>
+        <div style={{ color: theme.subTxt, fontSize: 13, letterSpacing: 1.5, display: "flex" }}>{"TARİFİNİ YÜKLE & TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!"}</div>
         <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: theme.accentClr, display: "flex" }} />
       </div>
 

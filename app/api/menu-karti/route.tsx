@@ -483,7 +483,7 @@ function StoryCardKarti({ card, align }: { card: Card; align: "left" | "right" }
       overflow: "hidden",
       position: "relative",
       display: "flex",
-      border: "2px solid #B8600A",
+      border: "3px solid #FCD34D80",
     }}>
       {card.img
         ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
@@ -520,21 +520,21 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
     <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#92400E" }}>
 
       {/* Instagram safe zone */}
-      <div style={{ height: 200, flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 240, flexShrink: 0, display: "flex" }} />
 
       {/* Tarih */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: "#FCD34D", fontSize: 20, letterSpacing: 1.5, display: "flex" }}>{date}</div>
+        <div style={{ color: "#FCD34D", fontSize: 24, letterSpacing: 1.5, display: "flex" }}>{date}</div>
       </div>
 
-      <div style={{ height: 10, flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 12, flexShrink: 0, display: "flex" }} />
 
       {/* Başlık */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: "#FFFFFF", fontSize: 52, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
+        <div style={{ color: "#FFFFFF", fontSize: 60, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
       </div>
 
-      <div style={{ height: 52, flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 56, flexShrink: 0, display: "flex" }} />
 
       {/* Üst sıra: Çorba | Ana Yemek */}
       <div style={{ height: ROW_H, paddingLeft: PAD_H, paddingRight: PAD_H, display: "flex", gap: CARD_G, flexShrink: 0 }}>
@@ -550,7 +550,8 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
         <StoryCardKarti card={cards[3]} align="right" />
       </div>
 
-      <div style={{ height: 36, flexShrink: 0, display: "flex" }} />
+      {/* Kartlar → Link arası boşluk */}
+      <div style={{ height: 52, flexShrink: 0, display: "flex" }} />
 
       {/* Link kutusu */}
       <div style={{ display: "flex", justifyContent: "center" }}>
@@ -565,7 +566,8 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
         </div>
       </div>
 
-      <div style={{ height: 24, flexShrink: 0, display: "flex" }} />
+      {/* URL → Slogan arası boşluk */}
+      <div style={{ height: 36, flexShrink: 0, display: "flex" }} />
 
       {/* Slogan */}
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>

@@ -102,9 +102,10 @@ export default function Chatbot() {
 
       if (found?.recipe) {
         setSuggestion(found);
+        const ingList = found.matchedIngredients.join(", ");
         const matchMsg = found.matchedCount === found.userIngCount
-          ? `Tüm malzemelerine uygun bir ${found.categoryTr.toLowerCase()} tarifi buldum:`
-          : `${found.userIngCount} malzemenden ${found.matchedCount} tanesini (${found.matchedIngredients.join(", ")}) içeren bir tarif buldum:`;
+          ? `Tüm malzemelerine uygun (${ingList}) bir ${found.categoryTr.toLowerCase()} tarifi buldum:`
+          : `${found.userIngCount} malzemenden ${found.matchedCount} tanesini (${ingList}) içeren bir tarif buldum:`;
         setMsgs(prev => [...prev, bot(matchMsg)]);
         setStep("suggestion");
       } else {
@@ -318,7 +319,7 @@ export default function Chatbot() {
                     className="text-sm font-semibold hover:underline block leading-snug" style={{ color: "#3D2B1F" }}>
                     {suggestion.recipe.title}
                   </a>
-                  {suggestion.matchedCount < suggestion.userIngCount && (
+                  {suggestion.matchedIngredients.length > 0 && (
                     <div className="text-xs mt-1.5" style={{ color: "#7C5C47" }}>
                       İçerdiği malzemeler: {suggestion.matchedIngredients.join(", ")}
                     </div>

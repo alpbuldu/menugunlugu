@@ -600,7 +600,7 @@ function StoryCard({ card, theme, align }: { card: Card; theme: Theme; align: "l
       overflow: "hidden",
       position: "relative",
       display: "flex",
-      border: `2px solid ${theme.divColor}`,
+      border: `3px solid ${theme.accentClr}80`,
     }}>
       {card.img
         ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />
@@ -629,30 +629,30 @@ function StoryCard({ card, theme, align }: { card: Card; theme: Theme; align: "l
 }
 
 function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; theme: Theme }) {
-  const PAD_H  = 44;   // horizontal padding her iki yanda
-  const CARD_G = 16;   // kartlar arası boşluk
-  const ROW_H  = 550;  // kart yüksekliği
+  const PAD_H  = 44;
+  const CARD_G = 16;
+  const ROW_H  = 550;
 
   return (
     <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: theme.headerBg }}>
 
       {/* Instagram safe zone — profil fotoğrafı / ilerleme çubuğu */}
-      <div style={{ height: 200, flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 240, flexShrink: 0, display: "flex" }} />
 
       {/* Tarih */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: theme.accentClr, fontSize: 20, letterSpacing: 1.5, display: "flex" }}>{date}</div>
+        <div style={{ color: theme.accentClr, fontSize: 24, letterSpacing: 1.5, display: "flex" }}>{date}</div>
       </div>
 
-      <div style={{ height: 10, flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 12, flexShrink: 0, display: "flex" }} />
 
       {/* Başlık */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: theme.mainTxt, fontSize: 52, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
+        <div style={{ color: theme.mainTxt, fontSize: 60, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
       </div>
 
       {/* Başlık → kartlar arası belirgin boşluk */}
-      <div style={{ height: 52, flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 56, flexShrink: 0, display: "flex" }} />
 
       {/* Üst sıra: Çorba | Ana Yemek */}
       <div style={{ height: ROW_H, paddingLeft: PAD_H, paddingRight: PAD_H, display: "flex", gap: CARD_G, flexShrink: 0 }}>
@@ -668,7 +668,8 @@ function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; t
         <StoryCard card={cards[3]} theme={theme} align="right" />
       </div>
 
-      <div style={{ height: 36, flexShrink: 0, display: "flex" }} />
+      {/* Kartlar → Link arası boşluk */}
+      <div style={{ height: 52, flexShrink: 0, display: "flex" }} />
 
       {/* Link kutusu */}
       <div style={{ display: "flex", justifyContent: "center" }}>
@@ -684,7 +685,7 @@ function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; t
       </div>
 
       {/* URL → Slogan arası boşluk */}
-      <div style={{ height: 24, flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 36, flexShrink: 0, display: "flex" }} />
 
       {/* Slogan */}
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
@@ -693,7 +694,7 @@ function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; t
         <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: theme.accentClr, display: "flex" }} />
       </div>
 
-      {/* Alt boşluk — Instagram reply bar + breathing room */}
+      {/* Alt boşluk — Instagram reply bar */}
       <div style={{ flex: 1, display: "flex" }} />
     </div>
   );

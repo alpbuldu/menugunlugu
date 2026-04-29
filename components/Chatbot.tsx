@@ -261,6 +261,14 @@ export default function Chatbot() {
             {/* Ingredient input */}
             {step === "ingredient-input" && (
               <div className="space-y-2 pt-1">
+                {/* Kullanım notu */}
+                <div className="flex items-start gap-1.5 px-1" style={{ color: "#7C5C47" }}>
+                  <span className="text-sm flex-shrink-0">💡</span>
+                  <p className="text-xs leading-relaxed">
+                    Her malzemeyi <strong>tek tek</strong> yaz.<br/>
+                    Yazdıktan sonra <strong>Enter</strong>&apos;a bas ya da alandan çık → sonrakini yaz.
+                  </p>
+                </div>
                 <div
                   className="rounded-xl border-2 p-2.5 cursor-text"
                   style={{ borderColor: "#E8D5B7", backgroundColor: "#FFFCF9" }}

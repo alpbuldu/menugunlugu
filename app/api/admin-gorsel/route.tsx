@@ -600,7 +600,7 @@ function StoryCard({ card, theme, align }: { card: Card; theme: Theme; align: "l
       overflow: "hidden",
       position: "relative",
       display: "flex",
-      border: `3px solid ${theme.accentClr}80`,
+      border: `5px solid ${theme.accentClr}80`,
     }}>
       {card.img
         ? <img src={card.img} style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }} />

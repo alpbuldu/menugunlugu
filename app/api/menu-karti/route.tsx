@@ -524,14 +524,14 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
 
       {/* Tarih */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: "#FCD34D", fontSize: 24, letterSpacing: 1.5, display: "flex" }}>{date}</div>
+        <div style={{ color: "#FCD34D", fontSize: 26, letterSpacing: 1.5, display: "flex" }}>{date}</div>
       </div>
 
       <div style={{ height: 12, flexShrink: 0, display: "flex" }} />
 
       {/* Başlık */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: "#FFFFFF", fontSize: 60, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
+        <div style={{ color: "#FFFFFF", fontSize: 62, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
       </div>
 
       <div style={{ height: 56, flexShrink: 0, display: "flex" }} />
@@ -567,12 +567,12 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
       </div>
 
       {/* URL → Slogan arası boşluk */}
-      <div style={{ height: 36, flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 46, flexShrink: 0, display: "flex" }} />
 
       {/* Slogan */}
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
         <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
-        <div style={{ color: "#FEF3E2", fontSize: 13, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
+        <div style={{ color: "#FEF3E2", fontSize: 15, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
         <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
       </div>
 

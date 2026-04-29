@@ -641,14 +641,14 @@ function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; t
 
       {/* Tarih */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: theme.accentClr, fontSize: 24, letterSpacing: 1.5, display: "flex" }}>{date}</div>
+        <div style={{ color: theme.accentClr, fontSize: 26, letterSpacing: 1.5, display: "flex" }}>{date}</div>
       </div>
 
       <div style={{ height: 12, flexShrink: 0, display: "flex" }} />
 
       {/* Başlık */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: theme.mainTxt, fontSize: 60, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
+        <div style={{ color: theme.mainTxt, fontSize: 62, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
       </div>
 
       {/* Başlık → kartlar arası belirgin boşluk */}
@@ -685,12 +685,12 @@ function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; t
       </div>
 
       {/* URL → Slogan arası boşluk */}
-      <div style={{ height: 36, flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 46, flexShrink: 0, display: "flex" }} />
 
       {/* Slogan */}
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
         <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: theme.accentClr, display: "flex" }} />
-        <div style={{ color: theme.subTxt, fontSize: 13, letterSpacing: 1.5, display: "flex" }}>{"TARİFİNİ YÜKLE & TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!"}</div>
+        <div style={{ color: theme.subTxt, fontSize: 15, letterSpacing: 1.5, display: "flex" }}>{"TARİFİNİ YÜKLE & TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!"}</div>
         <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: theme.accentClr, display: "flex" }} />
       </div>
 

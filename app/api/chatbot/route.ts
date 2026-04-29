@@ -17,6 +17,9 @@ const PANTRY = new Set([
   "soda", "maden suyu",
 ]);
 
+/* ── Bölüm başlığı kalıpları: "Servis için", "Hamur için:", "Sos için" vb. ── */
+const SECTION_HEADER_RE = /^(servis|sunum|garnitür|üzeri|sos|hamur|iç|harç|iç harç|kaplama|marine|terbiye|şurup|şerbet|krema|dolgu|süsleme|beşamel|tatlandırma|tatlandırmak)(\s+için)?:?$/;
+
 /* ── HTML'den malzeme satırlarını çıkar ─────────────────────── */
 function extractIngredientLines(html: string): string[] {
   const text = html
@@ -35,7 +38,12 @@ function extractIngredientLines(html: string): string[] {
         .replace(/\s+/g, " ")
         .trim()
     )
-    .filter(line => line.length > 1 && !line.endsWith(":"));
+    .filter(line =>
+      line.length > 1 &&
+      !line.endsWith(":") &&          // "Servis için:" gibi
+      !line.endsWith(" için") &&      // "Servis için" (kolonsuz)
+      !SECTION_HEADER_RE.test(line)   // bilinen bölüm başlığı kelimeleri
+    );
 }
 
 /* ── Kullanıcı malzemesi → tarif satırı eşleşmesi ────────────── */

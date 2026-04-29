@@ -5,7 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import CookieBanner from "@/components/ui/CookieBanner";
-import Chatbot from "@/components/Chatbot";
+import ChatbotConditional from "@/components/ui/ChatbotConditional";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { createClient } from "@/lib/supabase/server";
@@ -79,7 +79,7 @@ export default function RootLayout({
         <Footer />
         <ScrollToTop />
         <CookieBanner />
-        <Chatbot />
+        <ChatbotConditional />
         <SpeedInsights />
         <Analytics />
       </body>

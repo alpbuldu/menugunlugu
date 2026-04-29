@@ -17,8 +17,37 @@ const PANTRY = new Set([
   "soda", "maden suyu",
 ]);
 
-/* ── Bölüm başlığı kalıpları: "Servis için", "Hamur için:", "Sos için" vb. ── */
-const SECTION_HEADER_RE = /^(servis|sunum|garnitür|üzeri|sos|hamur|iç|harç|iç harç|kaplama|marine|terbiye|şurup|şerbet|krema|dolgu|süsleme|beşamel|tatlandırma|tatlandırmak)(\s+için)?:?$/;
+/* ── Bölüm başlığı kökleri — Türkçe ses değişimi alternatifleriyle ─────
+   Örn: "Harcı için:" → "harc" kökü (ç→c yumuşaması) + suffix "ı"
+        "Servisi:"    → "servis" kökü + suffix "i"
+   Suffix pattern: [a-zçğışöü]* → en fazla 4 Türkçe harf                ── */
+const _HDR_STEMS = [
+  "servis",           // servisi, servise …
+  "sunum",            // sunumu …
+  "garnitür",         // garnitürü …
+  "üzeri?",           // üzer, üzeri …
+  "sos",              // sosu …
+  "hamur",            // hamuru …
+  "iç\\s+harç",       // iç harç için
+  "iç\\s+harc",       // iç harcı (ç→c)
+  "harç",             // harç için
+  "harc",             // harcı (ç→c yumuşaması)
+  "iç",               // iç için
+  "kaplama",
+  "marine",
+  "terbiye",
+  "şurup",
+  "şerbet",
+  "krema",
+  "dolgu",
+  "süsleme",
+  "beşamel",
+  "tatlandırma",
+  "tatlandırmak",
+];
+const SECTION_HEADER_RE = new RegExp(
+  `^(${_HDR_STEMS.join("|")})[a-zçğışöü]*(?:\\s+için)?:?$`
+);
 
 /* ── HTML'den malzeme satırlarını çıkar ─────────────────────── */
 function extractIngredientLines(html: string): string[] {
@@ -75,12 +104,30 @@ function scoreRecipe(
   return { score: matched.length, matched };
 }
 
-/* ── Malzeme olmayan kullanıcı kelimeleri — eşleşmeden çıkar ─── */
-const USER_STOP_WORDS = new Set([
-  "servis", "sunum", "için", "ile", "üzeri", "garnitür",
-  "hazırlama", "pişirme", "marine", "terbiye", "kaplama",
-  "hamur", "harç", "sos", "krema", "dolgu", "şurup", "şerbet",
-]);
+/* ── Kullanıcı girişi — bölüm başlığı stop-word köklerı ────────────
+   Hem tam eşleşme hem de kök + Türkçe ek kombinasyonu kontrol edilir.
+   Örn: "harcı"    → "harc" kökü (ç→c) + "ı"   → dur
+        "servisi"  → "servis" kökü + "i"         → dur
+        "hamuru"   → "hamur" kökü + "u"          → dur           ── */
+const _STOP_STEMS = [
+  "servis", "sunum", "garnitür", "üzer",
+  "sos", "hamur",
+  "harç", "harc",          // harc: ç→c yumuşaması (harcı, harca …)
+  "kaplama", "marine", "terbiye",
+  "şurup", "şerbet", "krema", "dolgu",
+  "süsleme", "beşamel", "tatlandırma", "hazırlama", "pişirme",
+];
+const _STOP_EXACT = new Set(["için", "ile", "iç", "üzeri", "üzerine"]);
+
+function isUserStopWord(s: string): boolean {
+  if (_STOP_EXACT.has(s)) return true;
+  for (const stem of _STOP_STEMS) {
+    if (s === stem) return true;
+    // Kök prefix + en fazla 4 karakterlik Türkçe ek
+    if (s.startsWith(stem) && s.length - stem.length > 0 && s.length - stem.length <= 4) return true;
+  }
+  return false;
+}
 
 /* ── POST /api/chatbot ─────────────────────────────────────────── */
 export async function POST(request: NextRequest) {
@@ -88,7 +135,7 @@ export async function POST(request: NextRequest) {
 
   const userIngredients: string[] = (body.ingredients ?? [])
     .map((s: string) => s.toLowerCase().trim())
-    .filter((s: string) => s.length > 1 && !USER_STOP_WORDS.has(s));
+    .filter((s: string) => s.length > 1 && !isUserStopWord(s));
 
   const excludeIds: Record<string, string[]> = body.excludeIds ?? {};
   const onlyCategory: string | null = body.category ?? null;

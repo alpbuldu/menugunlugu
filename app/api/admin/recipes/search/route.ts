@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   let query = supabase
     .from("recipes")
     .select("id, title, slug, category")
-    .eq("approved", true)
+    .or("approval_status.eq.approved,approval_status.is.null")
     .order("title")
     .limit(12);
 

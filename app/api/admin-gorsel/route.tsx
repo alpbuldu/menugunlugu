@@ -591,7 +591,6 @@ function AdminCoverYazisizView({ cards, divColor = "#D97706" }: { cards: Card[];
 /* ════════════════════════════════════════════════════════════════
    ADMIN STORY — kart tasarımı, kenarlardan boşluklu, yuvarlak köşeler
    1080 × 1920
-   Layout (px): 85+~24+8+~50+28+700+16+700+20+~48+14+~22+flex≈190 = 1920
 ════════════════════════════════════════════════════════════════ */
 function StoryCard({ card, theme, align }: { card: Card; theme: Theme; align: "left" | "right" }) {
   return (
@@ -610,19 +609,19 @@ function StoryCard({ card, theme, align }: { card: Card; theme: Theme; align: "l
           </div>
       }
       {/* Bottom gradient */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "68%", background: "linear-gradient(to top, rgba(0,0,0,0.90) 0%, rgba(0,0,0,0.48) 52%, transparent 100%)", display: "flex" }} />
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: "72%", background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.5) 52%, transparent 100%)", display: "flex" }} />
       {/* Text overlay */}
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0,
-        paddingLeft: 18, paddingRight: 18, paddingBottom: 22,
+        paddingLeft: 20, paddingRight: 20, paddingBottom: 28,
         display: "flex", flexDirection: "column",
         alignItems: align === "right" ? "flex-end" : "flex-start",
-        gap: 4,
+        gap: 5,
       }}>
-        <div style={{ color: theme.imgAccent, fontSize: 13, fontWeight: 700, letterSpacing: 1.8, display: "flex" }}>{card.cat.toUpperCase()}</div>
-        <div style={{ color: "#FFFFFF", fontSize: 19, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
+        <div style={{ color: theme.imgAccent, fontSize: 17, fontWeight: 700, letterSpacing: 2, display: "flex" }}>{card.cat.toUpperCase()}</div>
+        <div style={{ color: "#FFFFFF", fontSize: 26, fontWeight: 700, lineHeight: 1.2, display: "flex" }}>{card.title}</div>
         {card.author && (
-          <div style={{ color: "rgba(255,255,255,0.58)", fontSize: 13, display: "flex" }}>{"Yazar: "}{card.author}</div>
+          <div style={{ color: "rgba(255,255,255,0.62)", fontSize: 17, display: "flex" }}>{"Yazar: "}{card.author}</div>
         )}
       </div>
     </div>
@@ -630,29 +629,30 @@ function StoryCard({ card, theme, align }: { card: Card; theme: Theme; align: "l
 }
 
 function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; theme: Theme }) {
-  const PAD_H  = 44;   // horizontal padding for card rows (each side)
-  const CARD_G = 16;   // gap between cards in a row
-  const ROW_H  = 700;  // card row height
+  const PAD_H  = 44;   // horizontal padding her iki yanda
+  const CARD_G = 16;   // kartlar arası boşluk
+  const ROW_H  = 580;  // kart yüksekliği (daha küçük)
 
   return (
     <div style={{ width: 1080, height: 1920, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
-      {/* Instagram safe zone (profil fotoğrafı / ilerleme çubuğu alanı) */}
-      <div style={{ height: 85, flexShrink: 0, display: "flex" }} />
+      {/* Instagram safe zone — profil fotoğrafı bu alanda (~160px) */}
+      <div style={{ height: 160, flexShrink: 0, display: "flex" }} />
 
       {/* Tarih */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: theme.accentClr, fontSize: 19, letterSpacing: 1.5, display: "flex" }}>{date}</div>
+        <div style={{ color: theme.accentClr, fontSize: 20, letterSpacing: 1.5, display: "flex" }}>{date}</div>
       </div>
 
-      <div style={{ height: 8, flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 10, flexShrink: 0, display: "flex" }} />
 
       {/* Başlık */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: "#FFFFFF", fontSize: 48, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
+        <div style={{ color: "#FFFFFF", fontSize: 52, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
       </div>
 
-      <div style={{ height: 28, flexShrink: 0, display: "flex" }} />
+      {/* Başlık → kartlar arası belirgin boşluk */}
+      <div style={{ height: 52, flexShrink: 0, display: "flex" }} />
 
       {/* Üst sıra: Çorba | Ana Yemek */}
       <div style={{ height: ROW_H, paddingLeft: PAD_H, paddingRight: PAD_H, display: "flex", gap: CARD_G, flexShrink: 0 }}>
@@ -668,31 +668,31 @@ function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; t
         <StoryCard card={cards[3]} theme={theme} align="right" />
       </div>
 
-      <div style={{ height: 22, flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 36, flexShrink: 0, display: "flex" }} />
 
       {/* Link kutusu */}
       <div style={{ display: "flex", justifyContent: "center" }}>
         <div style={{
           borderRadius: 999,
           border: `2px solid ${theme.accentClr}`,
-          paddingLeft: 36, paddingRight: 36, paddingTop: 13, paddingBottom: 13,
+          paddingLeft: 40, paddingRight: 40, paddingTop: 14, paddingBottom: 14,
           display: "flex", alignItems: "center", gap: 12,
         }}>
-          <div style={{ color: theme.accentClr, fontSize: 20, display: "flex" }}>{"🔗"}</div>
-          <div style={{ color: "#FFFFFF", fontSize: 22, fontWeight: 700, letterSpacing: 1.2, display: "flex" }}>{"menugunlugu.com"}</div>
+          <div style={{ color: theme.accentClr, fontSize: 22, display: "flex" }}>{"🔗"}</div>
+          <div style={{ color: "#FFFFFF", fontSize: 24, fontWeight: 700, letterSpacing: 1.2, display: "flex" }}>{"menugunlugu.com"}</div>
         </div>
       </div>
 
-      <div style={{ height: 14, flexShrink: 0, display: "flex" }} />
+      <div style={{ height: 16, flexShrink: 0, display: "flex" }} />
 
       {/* Slogan */}
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
         <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: theme.accentClr, display: "flex" }} />
-        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, letterSpacing: 1.5, display: "flex" }}>{"TARİFİNİ YÜKLE & TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!"}</div>
+        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, letterSpacing: 1.5, display: "flex" }}>{"TARİFİNİ YÜKLE & TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!"}</div>
         <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: theme.accentClr, display: "flex" }} />
       </div>
 
-      {/* Alt boşluk (Instagram reply bar alanı ~190px) */}
+      {/* Alt boşluk — Instagram reply bar + breathing room */}
       <div style={{ flex: 1, display: "flex" }} />
     </div>
   );

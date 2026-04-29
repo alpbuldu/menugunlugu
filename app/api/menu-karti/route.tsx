@@ -531,7 +531,7 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
 
       {/* Başlık */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: "#FFFFFF", fontSize: 62, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
+        <div style={{ color: "#FFFFFF", fontSize: 64, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
       </div>
 
       <div style={{ height: 56, flexShrink: 0, display: "flex" }} />
@@ -558,11 +558,11 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
         <div style={{
           borderRadius: 999,
           border: "2px solid #FCD34D",
-          paddingLeft: 40, paddingRight: 40, paddingTop: 14, paddingBottom: 14,
-          display: "flex", alignItems: "center", gap: 12,
+          paddingLeft: 52, paddingRight: 52, paddingTop: 18, paddingBottom: 18,
+          display: "flex", alignItems: "center", gap: 14,
         }}>
-          <div style={{ color: "#FCD34D", fontSize: 22, display: "flex" }}>🔗</div>
-          <div style={{ color: "#FFFFFF", fontSize: 24, fontWeight: 700, letterSpacing: 1.2, display: "flex" }}>menugunlugu.com</div>
+          <div style={{ color: "#FCD34D", fontSize: 24, display: "flex" }}>🔗</div>
+          <div style={{ color: "#FFFFFF", fontSize: 26, fontWeight: 700, letterSpacing: 1.2, display: "flex" }}>menugunlugu.com</div>
         </div>
       </div>
 
@@ -572,7 +572,7 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
       {/* Slogan */}
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
         <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
-        <div style={{ color: "#FEF3E2", fontSize: 15, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
+        <div style={{ color: "#FEF3E2", fontSize: 16, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
         <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: "#FCD34D", display: "flex" }} />
       </div>
 

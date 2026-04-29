@@ -648,7 +648,7 @@ function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; t
 
       {/* Başlık */}
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: theme.mainTxt, fontSize: 62, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
+        <div style={{ color: theme.mainTxt, fontSize: 64, fontWeight: 700, lineHeight: 1, display: "flex" }}>{"Günün Menüsü"}</div>
       </div>
 
       {/* Başlık → kartlar arası belirgin boşluk */}
@@ -676,11 +676,11 @@ function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; t
         <div style={{
           borderRadius: 999,
           border: `2px solid ${theme.accentClr}`,
-          paddingLeft: 40, paddingRight: 40, paddingTop: 14, paddingBottom: 14,
-          display: "flex", alignItems: "center", gap: 12,
+          paddingLeft: 52, paddingRight: 52, paddingTop: 18, paddingBottom: 18,
+          display: "flex", alignItems: "center", gap: 14,
         }}>
-          <div style={{ color: theme.accentClr, fontSize: 22, display: "flex" }}>{"🔗"}</div>
-          <div style={{ color: theme.mainTxt, fontSize: 24, fontWeight: 700, letterSpacing: 1.2, display: "flex" }}>{"menugunlugu.com"}</div>
+          <div style={{ color: theme.accentClr, fontSize: 24, display: "flex" }}>{"🔗"}</div>
+          <div style={{ color: theme.mainTxt, fontSize: 26, fontWeight: 700, letterSpacing: 1.2, display: "flex" }}>{"menugunlugu.com"}</div>
         </div>
       </div>
 
@@ -690,7 +690,7 @@ function AdminStoryView({ cards, date, theme }: { cards: Card[]; date: string; t
       {/* Slogan */}
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 10 }}>
         <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: theme.accentClr, display: "flex" }} />
-        <div style={{ color: theme.subTxt, fontSize: 15, letterSpacing: 1.5, display: "flex" }}>{"TARİFİNİ YÜKLE & TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!"}</div>
+        <div style={{ color: theme.subTxt, fontSize: 16, letterSpacing: 1.5, display: "flex" }}>{"TARİFİNİ YÜKLE & TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!"}</div>
         <div style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: theme.accentClr, display: "flex" }} />
       </div>
 

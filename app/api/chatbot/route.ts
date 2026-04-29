@@ -35,7 +35,7 @@ function extractIngredientLines(html: string): string[] {
         .replace(/\s+/g, " ")
         .trim()
     )
-    .filter(line => line.length > 1);
+    .filter(line => line.length > 1 && !line.endsWith(":"));
 }
 
 /* ── Kullanıcı malzemesi → tarif satırı eşleşmesi ────────────── */

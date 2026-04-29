@@ -10,7 +10,8 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { createClient } from "@/lib/supabase/server";
 
-export const dynamic = "force-dynamic";
+// Layout metadata 1 saatte bir yenilenir — force-dynamic kaldırıldı (crawl budget için)
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = await createClient();

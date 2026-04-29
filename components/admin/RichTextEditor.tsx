@@ -72,6 +72,13 @@ function Divider() {
 
 interface RecipeHit { id: string; title: string; slug: string; category: string; }
 
+const RECIPE_EMOJI: Record<string, string> = {
+  soup: "🥣", main: "🥘", side: "🥗", dessert: "🍮",
+};
+const RECIPE_CAT_TR: Record<string, string> = {
+  soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı",
+};
+
 export default function RichTextEditor({
   value,
   onChange,
@@ -84,6 +91,7 @@ export default function RichTextEditor({
   const [recipeQ, setRecipeQ] = useState("");
   const [recipeHits, setRecipeHits] = useState<RecipeHit[]>([]);
   const [recipeLoading, setRecipeLoading] = useState(false);
+  const [recipeError, setRecipeError] = useState("");
   const linkInputRef = useRef<HTMLInputElement>(null);
   const recipeInputRef = useRef<HTMLInputElement>(null);
 
@@ -130,11 +138,20 @@ export default function RichTextEditor({
   // Tarif arama
   const searchRecipes = useCallback(async (q: string) => {
     setRecipeLoading(true);
+    setRecipeError("");
     try {
       const res = await fetch(`/api/admin/recipes/search?q=${encodeURIComponent(q)}`);
       const data = await res.json();
-      setRecipeHits(Array.isArray(data) ? data : []);
-    } catch { setRecipeHits([]); }
+      if (!res.ok) {
+        setRecipeError(data?.error ?? "Arama başarısız");
+        setRecipeHits([]);
+      } else {
+        setRecipeHits(Array.isArray(data) ? data : []);
+      }
+    } catch {
+      setRecipeError("Bağlantı hatası");
+      setRecipeHits([]);
+    }
     finally { setRecipeLoading(false); }
   }, []);
 
@@ -154,6 +171,8 @@ export default function RichTextEditor({
     }
     if (panel === "recipe") {
       setRecipeQ("");
+      setRecipeError("");
+      setRecipeHits([]);
       searchRecipes("");
       setTimeout(() => recipeInputRef.current?.focus(), 50);
     }
@@ -175,15 +194,25 @@ export default function RichTextEditor({
   const applyRecipeLink = (recipe: RecipeHit) => {
     if (!editor) return;
     const href = `/tarifler/${recipe.slug}`;
-    const { from, to, empty } = editor.state.selection;
+    const { empty } = editor.state.selection;
     if (empty) {
-      // Seçili metin yoksa tarif adını yaz
       editor.chain().focus()
         .insertContent(`<a href="${href}">${recipe.title}</a> `)
         .run();
     } else {
       editor.chain().focus().setLink({ href, target: "_self" }).run();
     }
+    setPanel("none");
+    setRecipeQ("");
+  };
+
+  const insertRecipeCard = (recipe: RecipeHit) => {
+    if (!editor) return;
+    const emoji = RECIPE_EMOJI[recipe.category] ?? "🍽️";
+    const catTr = RECIPE_CAT_TR[recipe.category] ?? recipe.category;
+    const href  = `/tarifler/${recipe.slug}`;
+    const html  = `<div style="display:flex;align-items:center;gap:12px;border:1.5px solid #edd8bc;border-radius:12px;padding:13px 16px;background:#fdf8f0;margin:14px 0;"><span style="font-size:1.5rem;flex-shrink:0;">${emoji}</span><div style="flex:1;min-width:0;"><p style="font-size:10px;font-weight:700;color:#b86515;text-transform:uppercase;letter-spacing:.06em;margin:0 0 3px 0;">${catTr}</p><a href="${href}" style="font-size:.95rem;font-weight:700;color:#3d2b1f;text-decoration:none;display:block;line-height:1.3;">${recipe.title}</a></div><span style="font-size:.75rem;color:#b86515;font-weight:600;flex-shrink:0;white-space:nowrap;">Tarife Git →</span></div>`;
+    editor.chain().focus().insertContent(html + "<p></p>").run();
     setPanel("none");
     setRecipeQ("");
   };
@@ -304,24 +333,39 @@ export default function RichTextEditor({
             <button type="button" onClick={() => setPanel("none")}
               className="px-2 py-1 text-xs text-amber-500 hover:text-amber-700 shrink-0">✕</button>
           </div>
-          <div className="max-h-40 overflow-y-auto rounded border border-amber-100 bg-white divide-y divide-amber-50">
-            {recipeLoading ? (
+          <div className="max-h-52 overflow-y-auto rounded border border-amber-100 bg-white divide-y divide-amber-50">
+            {recipeError ? (
+              <p className="text-xs text-center text-red-500 py-3">⚠️ {recipeError}</p>
+            ) : recipeLoading ? (
               <p className="text-xs text-center text-warm-400 py-3">Aranıyor…</p>
             ) : recipeHits.length === 0 ? (
               <p className="text-xs text-center text-warm-400 py-3">Sonuç yok</p>
             ) : recipeHits.map(r => (
-              <button
-                key={r.id}
-                type="button"
-                onMouseDown={e => { e.preventDefault(); applyRecipeLink(r); }}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-amber-50 transition-colors flex items-center gap-2"
-              >
-                <span className="text-warm-800 font-medium flex-1 truncate">{r.title}</span>
-                <span className="text-xs text-warm-400 shrink-0">{r.category}</span>
-              </button>
+              <div key={r.id} className="flex items-center gap-1.5 px-3 py-2 hover:bg-amber-50 transition-colors">
+                <span className="text-base shrink-0">{RECIPE_EMOJI[r.category] ?? "🍽️"}</span>
+                <span className="text-warm-800 font-medium flex-1 truncate text-xs">{r.title}</span>
+                <button
+                  type="button"
+                  onMouseDown={e => { e.preventDefault(); applyRecipeLink(r); }}
+                  title="Metin olarak link ekle"
+                  className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 hover:bg-amber-200 shrink-0 font-medium"
+                >
+                  🔗 Link
+                </button>
+                <button
+                  type="button"
+                  onMouseDown={e => { e.preventDefault(); insertRecipeCard(r); }}
+                  title="Tarif kartı olarak ekle"
+                  className="text-[10px] px-1.5 py-0.5 rounded bg-orange-100 text-orange-800 hover:bg-orange-200 shrink-0 font-medium"
+                >
+                  🃏 Kart
+                </button>
+              </div>
             ))}
           </div>
-          <p className="text-[10px] text-amber-600 mt-1.5">Seçili metin varsa ona link eklenir, yoksa tarif adı yazılır.</p>
+          <p className="text-[10px] text-amber-600 mt-1.5">
+            🔗 Link — seçili metne veya satır içine ekler &nbsp;·&nbsp; 🃏 Kart — tarif kutucuğu ekler
+          </p>
         </div>
       )}
 
@@ -384,6 +428,10 @@ export default function RichTextEditor({
         }
         .tiptap-editor tr:nth-child(even) td { background: #fdf8f0; }
         .tiptap-editor .selectedCell { background: #fef3db !important; }
+        /* Tarif kartı önizleme (editör içi) */
+        .tiptap-editor [style*="background:#fdf8f0"] { border-radius: 12px; }
+        .tiptap-editor [style*="background:#fdf8f0"] p { margin: 0; line-height: 1.2; }
+        .tiptap-editor [style*="background:#fdf8f0"] a { text-decoration: none; }
       `}</style>
       <EditorContent
         editor={editor}

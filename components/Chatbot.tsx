@@ -81,7 +81,7 @@ export default function Chatbot() {
     setMsgs(prev => [
       ...prev,
       user(`${CAT_EMOJI[cat]} ${CAT_TR[cat]}`),
-      bot(`Güzel! ${CAT_TR[cat]} için evindeki malzemeleri yaz. 🍳\nEn fazla 10 malzeme ekleyebilirsin.`),
+      bot(`Güzel! ${CAT_TR[cat]} için evindeki malzemeleri yaz. 🍳\n\nHer malzemeyi tek tek yaz → Enter'a bas → sonraki malzemeyi yaz.\n(En fazla 10 malzeme)`),
     ]);
     setStep("ingredient-input");
   }

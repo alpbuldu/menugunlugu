@@ -271,6 +271,7 @@ export default function PostOlusturClient({ recipes }: Props) {
   const gunMenuRef    = useRef<HTMLDivElement>(null);
   const gunPrefetchRef  = useRef<{ files: File[]; caption: string } | null>(null);
   const gunStoryRef     = useRef<File | null>(null);
+  const gunYazisizRef   = useRef<File | null>(null);
   const gunComplete = slotsComplete(gunSlots);
 
   /* ── Günün Menüsü: prefetch post files when platform menu opens ── */
@@ -304,15 +305,21 @@ export default function PostOlusturClient({ recipes }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showGunMenu, gunSlotKey, gunColor]);
 
-  /* ── Günün Menüsü: prefetch story when slots complete ── */
+  /* ── Günün Menüsü: prefetch story + yazısız kapak when slots complete ── */
   useEffect(() => {
-    if (!gunComplete) { gunStoryRef.current = null; return; }
+    if (!gunComplete) { gunStoryRef.current = null; gunYazisizRef.current = null; return; }
     gunStoryRef.current = null;
-    const url = `/api/admin-gorsel?mode=story&${slotParams(gunSlots)}&color=${encodeURIComponent(gunColor)}`;
+    gunYazisizRef.current = null;
+    const sp  = slotParams(gunSlots);
+    const col = encodeURIComponent(gunColor);
     let cancelled = false;
-    fetch(url)
+    fetch(`/api/admin-gorsel?mode=story&${sp}&color=${col}`)
       .then(r => r.ok ? r.blob() : null)
       .then(blob => { if (!cancelled && blob) gunStoryRef.current = new File([blob], "story.png", { type: "image/png" }); })
+      .catch(() => {});
+    fetch(`/api/admin-gorsel?mode=cover-yazisiz&${sp}&color=${col}`)
+      .then(r => r.ok ? r.blob() : null)
+      .then(blob => { if (!cancelled && blob) gunYazisizRef.current = new File([blob], "kapak-yazisiz.png", { type: "image/png" }); })
       .catch(() => {});
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -621,6 +628,10 @@ export default function PostOlusturClient({ recipes }: Props) {
     mobileShare(() => gunStoryRef.current ? [gunStoryRef.current] : null);
   }
 
+  function handleGunYazisizMobile() {
+    mobileShare(() => gunYazisizRef.current ? [gunYazisizRef.current] : null);
+  }
+
   async function fetchGunToday() {
     setGunFetch(true);
     try {
@@ -877,6 +888,14 @@ export default function PostOlusturClient({ recipes }: Props) {
                 className="w-full bg-warm-800 text-white rounded-xl py-3 font-semibold text-sm disabled:opacity-40 hover:bg-warm-900 transition-colors"
               >
                 📱 Story Paylaş
+              </button>
+              {/* Yazısız kapak: ayrı paylaş */}
+              <button
+                onClick={handleGunYazisizMobile}
+                disabled={!gunComplete}
+                className="w-full bg-warm-100 text-warm-700 rounded-xl py-3 font-semibold text-sm disabled:opacity-40 hover:bg-warm-200 transition-colors"
+              >
+                📷 Yazısız Kapak Paylaş
               </button>
             </div>
           ) : (

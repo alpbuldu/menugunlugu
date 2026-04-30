@@ -262,6 +262,8 @@ export default function PostOlusturClient({ recipes }: Props) {
   /* ════ GÜNÜN MENÜSÜ state ════════════════════════════════════ */
   const [gunColor,        setGunColor]        = useState("#92400E");
   const [gunSlots,        setGunSlots]        = useState<SlotState>({ soup: null, main: null, side: null, dessert: null });
+  const [gunBaslik,       setGunBaslik]       = useState("");
+  const [gunAltMetin,     setGunAltMetin]     = useState("");
   const [gunNot,          setGunNot]          = useState("");
   const [gunLoading,      setGunLoading]      = useState(false);
   const [gunFetch,        setGunFetch]        = useState(false);
@@ -283,12 +285,14 @@ export default function PostOlusturClient({ recipes }: Props) {
     const sp  = slotParams(gunSlots);
     const col = encodeURIComponent(gunColor);
     const caption = generateGunCaption(gunSlots, gunNot);
+    const baslik  = gunBaslik   ? `&headerTitle=${encodeURIComponent(gunBaslik)}`   : "";
+    const alt     = gunAltMetin ? `&headerDate=${encodeURIComponent(gunAltMetin)}`  : "";
     const urls = [
-      `/api/admin-gorsel?mode=cover-yazili&${sp}&color=${col}`,
-      `/api/admin-gorsel?mode=post&recipeId=${gunSlots.soup!.id}&color=${col}&content=both`,
-      `/api/admin-gorsel?mode=post&recipeId=${gunSlots.main!.id}&color=${col}&content=both`,
-      `/api/admin-gorsel?mode=post&recipeId=${gunSlots.side!.id}&color=${col}&content=both`,
-      `/api/admin-gorsel?mode=post&recipeId=${gunSlots.dessert!.id}&color=${col}&content=both`,
+      `/api/admin-gorsel?mode=cover-yazili&${sp}&color=${col}${baslik}${alt}`,
+      `/api/admin-gorsel?mode=post&recipeId=${gunSlots.soup!.id}&color=${col}&content=both${baslik}${alt}`,
+      `/api/admin-gorsel?mode=post&recipeId=${gunSlots.main!.id}&color=${col}&content=both${baslik}${alt}`,
+      `/api/admin-gorsel?mode=post&recipeId=${gunSlots.side!.id}&color=${col}&content=both${baslik}${alt}`,
+      `/api/admin-gorsel?mode=post&recipeId=${gunSlots.dessert!.id}&color=${col}&content=both${baslik}${alt}`,
     ];
     const labels = ["kapak", "corba", "ana-yemek", "yardimci", "tatli"];
     let cancelled = false;
@@ -303,7 +307,7 @@ export default function PostOlusturClient({ recipes }: Props) {
     }).catch(() => { if (!cancelled) setGunPrefetching(false); });
     return () => { cancelled = true; setGunPrefetching(false); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showGunMenu, gunSlotKey, gunColor]);
+  }, [showGunMenu, gunSlotKey, gunColor, gunBaslik, gunAltMetin]);
 
   /* ── Günün Menüsü: prefetch story + yazısız kapak when slots complete ── */
   useEffect(() => {
@@ -568,12 +572,14 @@ export default function PostOlusturClient({ recipes }: Props) {
       const files: Record<string, Uint8Array> = {};
       const sp  = slotParams(gunSlots);
       const col = encodeURIComponent(gunColor);
+      const baslik = gunBaslik   ? `&headerTitle=${encodeURIComponent(gunBaslik)}`  : "";
+      const alt    = gunAltMetin ? `&headerDate=${encodeURIComponent(gunAltMetin)}` : "";
       const entries: [string, string][] = [
-        [`/api/admin-gorsel?mode=cover-yazili&${sp}&color=${col}`,  "kapak-yazili.png"],
-        [`/api/admin-gorsel?mode=post&recipeId=${gunSlots.soup!.id}&color=${col}&content=both`,    "post-corba.png"],
-        [`/api/admin-gorsel?mode=post&recipeId=${gunSlots.main!.id}&color=${col}&content=both`,    "post-ana-yemek.png"],
-        [`/api/admin-gorsel?mode=post&recipeId=${gunSlots.side!.id}&color=${col}&content=both`,    "post-yardimci.png"],
-        [`/api/admin-gorsel?mode=post&recipeId=${gunSlots.dessert!.id}&color=${col}&content=both`, "post-tatli.png"],
+        [`/api/admin-gorsel?mode=cover-yazili&${sp}&color=${col}${baslik}${alt}`,  "kapak-yazili.png"],
+        [`/api/admin-gorsel?mode=post&recipeId=${gunSlots.soup!.id}&color=${col}&content=both${baslik}${alt}`,    "post-corba.png"],
+        [`/api/admin-gorsel?mode=post&recipeId=${gunSlots.main!.id}&color=${col}&content=both${baslik}${alt}`,    "post-ana-yemek.png"],
+        [`/api/admin-gorsel?mode=post&recipeId=${gunSlots.side!.id}&color=${col}&content=both${baslik}${alt}`,    "post-yardimci.png"],
+        [`/api/admin-gorsel?mode=post&recipeId=${gunSlots.dessert!.id}&color=${col}&content=both${baslik}${alt}`, "post-tatli.png"],
         [`/api/admin-gorsel?mode=story&${sp}&color=${col}`, "story.png"],
       ];
       for (const [url, name] of entries) {
@@ -638,6 +644,12 @@ export default function PostOlusturClient({ recipes }: Props) {
       const s = await fetchTodaysMenuApi();
       if (!s) { alert("Bugün için yayınlanmış menü bulunamadı."); return; }
       setGunSlots(s);
+      // Başlık ve tarihi otomatik doldur
+      setGunBaslik("Günün Menüsü");
+      const today = new Date().toLocaleDateString("tr-TR", {
+        timeZone: "Europe/Istanbul", day: "numeric", month: "long", weekday: "long",
+      });
+      setGunAltMetin(today);
     } catch { alert("Menü getirilemedi."); }
     finally { setGunFetch(false); }
   }
@@ -750,6 +762,32 @@ export default function PostOlusturClient({ recipes }: Props) {
             >
               {gunFetch ? "Getiriliyor…" : "📅 Günün Menüsünü Getir"}
             </button>
+          </div>
+
+          {/* Başlık / Tarih */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-warm-500 mb-1 block">Başlık <span className="text-warm-300">(otomatik dolar)</span></label>
+              <input
+                type="text"
+                value={gunBaslik}
+                onChange={e => setGunBaslik(e.target.value)}
+                placeholder="Günün Menüsü"
+                className="w-full border border-warm-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-400"
+                style={{ fontSize: 16 }}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-warm-500 mb-1 block">Tarih / Alt metin <span className="text-warm-300">(otomatik dolar)</span></label>
+              <input
+                type="text"
+                value={gunAltMetin}
+                onChange={e => setGunAltMetin(e.target.value)}
+                placeholder="Çarşamba, 30 Nisan 2026"
+                className="w-full border border-warm-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-400"
+                style={{ fontSize: 16 }}
+              />
+            </div>
           </div>
 
           {/* Manuel slot (henüz tam değilse) */}
@@ -923,7 +961,7 @@ export default function PostOlusturClient({ recipes }: Props) {
               )}
               {gunComplete && (
                 <button
-                  onClick={() => window.open(`/api/admin-gorsel?mode=cover-yazili&${slotParams(gunSlots)}&color=${encodeURIComponent(gunColor)}`, "_blank")}
+                  onClick={() => window.open(`/api/admin-gorsel?mode=cover-yazili&${slotParams(gunSlots)}&color=${encodeURIComponent(gunColor)}${gunBaslik ? `&headerTitle=${encodeURIComponent(gunBaslik)}` : ""}${gunAltMetin ? `&headerDate=${encodeURIComponent(gunAltMetin)}` : ""}`, "_blank")}
                   className="w-full text-sm text-brand-600 hover:text-brand-800 underline text-center"
                 >
                   Yazılı kapağı önizle →

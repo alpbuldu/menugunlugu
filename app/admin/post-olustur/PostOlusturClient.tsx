@@ -610,7 +610,11 @@ export default function PostOlusturClient({ recipes }: Props) {
     const caption = platform === "x"
       ? generateGunXCaption(gunSlots)
       : generateGunCaption(gunSlots, gunNot);
-    mobileShare(() => gunPrefetchRef.current?.files ?? null, caption, setGunLoading);
+    // X'te sadece yazılı kapak (files[0]) + kısa caption
+    const getFiles = platform === "x"
+      ? () => { const f = gunPrefetchRef.current?.files; return f ? [f[0]] : null; }
+      : () => gunPrefetchRef.current?.files ?? null;
+    mobileShare(getFiles, caption, setGunLoading);
   }
 
   function handleGunStoryMobile() {

@@ -107,7 +107,7 @@ function scoreRecipe(
     if (hits) matched.push(ui);
   }
 
-  return { score: matched.length, matched, total: nonPantryLines.length };
+  return { score: matched.length, matched, total: nonPantryLines.length, allTotal: ingredientLines.length };
 }
 
 /* ── Kullanıcı stop-word'leri ─────────────────────────────────── */
@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
         // Oran: eşleşen/toplam — ne kadar yüksekse malzeme o tarifte o kadar "belirleyici"
         // total=0 → tüm tarif malzemeleri pantry (un helvası gibi) → eşleşme varsa ratio=1
         const ratio = total > 0 ? score / total : score > 0 ? 1 : 0;
-        return { id: r.id, title: r.title, slug: r.slug, score, matched, total, ratio };
+        return { id: r.id, title: r.title, slug: r.slug, score, matched, total, allTotal, ratio };
       });
 
     // Step-down: hedef skor'dan başla, 1'e kadar in
@@ -191,7 +191,8 @@ export async function POST(request: NextRequest) {
         .filter(r => r.score === s)
         .sort((a, b) =>
           b.ratio - a.ratio ||           // ratio yüksek önce
-          a.total - b.total ||           // eşit ratio'da az malzeme önce
+          a.total - b.total ||           // eşit ratio'da az non-pantry malzeme önce
+          a.allTotal - b.allTotal ||     // pantry dahil toplam — az malzemeli önce (un helvası gibi)
           Math.random() - 0.5            // son kalan rastgelelik
         );
       if (atLevel.length > 0) {

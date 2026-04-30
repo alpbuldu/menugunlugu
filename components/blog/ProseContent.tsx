@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 const PROSE_STYLES = `
   .prose-content {
     font-size: 0.9375rem;
@@ -130,10 +132,23 @@ interface Props {
 }
 
 export default function ProseContent({ html }: Props) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Tarif kartı linkleri yeni sekmede açılsın (eski içerik de dahil)
+  useEffect(() => {
+    if (!ref.current) return;
+    ref.current.querySelectorAll("[data-recipe-card] a").forEach((el) => {
+      const a = el as HTMLAnchorElement;
+      a.target = "_blank";
+      a.rel    = "noopener noreferrer";
+    });
+  }, [html]);
+
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: PROSE_STYLES }} />
       <div
+        ref={ref}
         className="prose-content max-w-[70ch]"
         dangerouslySetInnerHTML={{ __html: html }}
       />

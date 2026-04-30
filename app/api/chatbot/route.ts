@@ -83,8 +83,9 @@ function scoreRecipe(
   const matched: string[] = [];
 
   for (const ui of userIngs) {
-    if (PANTRY.has(ui)) continue;
-    const hits = nonPantryLines.some(line => matchesLine(ui, line));
+    // Kullanıcı bilinçli yazmış — pantry olsa da TÜM satırlarda ara
+    // (örn: "un" → un helvası, "tereyağı" → tereyağlı tarif)
+    const hits = ingredientLines.some(line => matchesLine(ui, line));
     if (hits) matched.push(ui);
   }
 
@@ -158,7 +159,8 @@ export async function POST(request: NextRequest) {
         const lines = extractIngredientLines(r.ingredients ?? "");
         const { score, matched, total } = scoreRecipe(lines, userIngredients);
         // Oran: eşleşen/toplam — ne kadar yüksekse malzeme o tarifte o kadar "belirleyici"
-        const ratio = total > 0 ? score / total : 0;
+        // total=0 → tüm tarif malzemeleri pantry (un helvası gibi) → eşleşme varsa ratio=1
+        const ratio = total > 0 ? score / total : score > 0 ? 1 : 0;
         return { id: r.id, title: r.title, slug: r.slug, score, matched, total, ratio };
       });
 

@@ -105,24 +105,20 @@ export default function Chatbot() {
       if (found?.recipe) {
         setSuggestion(found);
         const ingList = found.matchedIngredients.join(", ");
-        const matchMsg = found.matchedCount === found.userIngCount
+        const allPantry = found.userIngCount === 0;
+        const matchMsg = allPantry
+          ? `"${ingList}" içeren bir ${found.categoryTr.toLowerCase()} tarifi buldum:`
+          : found.matchedCount === found.userIngCount
           ? `Tüm malzemelerine uygun (${ingList}) bir ${found.categoryTr.toLowerCase()} tarifi buldum:`
           : `${found.userIngCount} malzemenden ${found.matchedCount} tanesini (${ingList}) içeren bir tarif buldum:`;
         setMsgs(prev => [...prev, bot(matchMsg)]);
         setStep("suggestion");
       } else {
         setSuggestion(null);
-        const isPantryOnly = (found?.userIngCount ?? 0) === 0 && ingredients.length > 0;
-        if (isPantryOnly) {
-          setMsgs(prev => [...prev, bot(
-            "Girdiğin malzemeler (tuz, şeker, su gibi) temel malzemeler olduğundan arama dışında tutulur.\n\nEkstra malzemeler ekleyerek tekrar deneyin! 🥕"
-          )]);
-        } else {
-          const ingList = ingredients.join(", ");
-          setMsgs(prev => [...prev, bot(
-            `"${ingList}" malzemelerine uygun ${found?.categoryTr?.toLowerCase() ?? activeCategory} tarifi bulunamadı.\n\nFarklı veya daha fazla malzeme ekleyerek tekrar deneyin.`
-          )]);
-        }
+        const ingList = ingredients.join(", ");
+        setMsgs(prev => [...prev, bot(
+          `"${ingList}" malzemelerine uygun ${found?.categoryTr?.toLowerCase() ?? activeCategory} tarifi bulunamadı.\n\nFarklı veya daha fazla malzeme ekleyerek tekrar deneyin.`
+        )]);
         setStep("no-match");
       }
     } catch {

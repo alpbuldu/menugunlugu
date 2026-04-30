@@ -28,10 +28,12 @@ interface Approved { category: Category; categoryTr: string; recipe: Recipe }
 type Step = "category-select" | "ingredient-input" | "loading" | "suggestion" | "no-match" | "continue-prompt" | "done";
 
 /* ── Message log ─────────────────────────────────────────── */
-interface Msg { id: number; role: "bot" | "user"; text: string }
+interface MsgCard { title: string; slug: string; category: Category; matchedIngredients: string[] }
+interface Msg { id: number; role: "bot" | "user"; text: string; card?: MsgCard }
 let _id = 0;
-const bot  = (t: string): Msg => ({ id: ++_id, role: "bot",  text: t });
-const user = (t: string): Msg => ({ id: ++_id, role: "user", text: t });
+const bot      = (t: string): Msg => ({ id: ++_id, role: "bot",  text: t });
+const user     = (t: string): Msg => ({ id: ++_id, role: "user", text: t });
+const botCard  = (card: MsgCard): Msg => ({ id: ++_id, role: "bot", text: "", card });
 
 /* ── Component ───────────────────────────────────────────── */
 export default function Chatbot() {
@@ -110,11 +112,17 @@ export default function Chatbot() {
         setStep("suggestion");
       } else {
         setSuggestion(null);
-        const ingList = ingredients.join(", ");
-        setMsgs(prev => [
-          ...prev,
-          bot(`"${ingList}" malzemelerine uygun ${found?.categoryTr?.toLowerCase() ?? activeCategory} tarifi bulunamadı 😔`),
-        ]);
+        const isPantryOnly = (found?.userIngCount ?? 0) === 0 && ingredients.length > 0;
+        if (isPantryOnly) {
+          setMsgs(prev => [...prev, bot(
+            "Girdiğin malzemeler (tuz, şeker, su gibi) temel malzemeler olduğundan arama dışında tutulur.\n\nEkstra malzemeler ekleyerek tekrar deneyin! 🥕"
+          )]);
+        } else {
+          const ingList = ingredients.join(", ");
+          setMsgs(prev => [...prev, bot(
+            `"${ingList}" malzemelerine uygun ${found?.categoryTr?.toLowerCase() ?? activeCategory} tarifi bulunamadı.\n\nFarklı veya daha fazla malzeme ekleyerek tekrar deneyin.`
+          )]);
+        }
         setStep("no-match");
       }
     } catch {
@@ -145,7 +153,12 @@ export default function Chatbot() {
     if (!activeCategory || !suggestion?.recipe) return;
     const newExcl = { ...excluded, [activeCategory]: [...(excluded[activeCategory] ?? []), suggestion.recipe.id] };
     setExcluded(newExcl);
-    setMsgs(prev => [...prev, user("🔄 Başka öner")]);
+    // Mevcut kartı chat geçmişinde bırak, sonra "başka öner" yaz
+    setMsgs(prev => [
+      ...prev,
+      botCard({ title: suggestion.recipe!.title, slug: suggestion.recipe!.slug, category: activeCategory, matchedIngredients: suggestion.matchedIngredients }),
+      user("🔄 Başka öner"),
+    ]);
     await fetchSuggestion(newExcl);
   }
 
@@ -230,13 +243,33 @@ export default function Chatbot() {
                 {m.role === "bot" && (
                   <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-sm mt-0.5" style={{ backgroundColor: "#FEE8C8" }}>🍳</div>
                 )}
-                <div
-                  className="rounded-2xl px-3 py-2 text-sm leading-relaxed max-w-[85%] whitespace-pre-line"
-                  style={m.role === "bot"
-                    ? { backgroundColor: "#FEF0DC", color: "#3D2B1F", borderTopLeftRadius: 4 }
-                    : { backgroundColor: "#D2740B", color: "#fff", borderTopRightRadius: 4 }}
-                >
-                  {m.text}
+                <div className="max-w-[85%] space-y-1.5">
+                  {m.text ? (
+                    <div
+                      className="rounded-2xl px-3 py-2 text-sm leading-relaxed whitespace-pre-line"
+                      style={m.role === "bot"
+                        ? { backgroundColor: "#FEF0DC", color: "#3D2B1F", borderTopLeftRadius: 4 }
+                        : { backgroundColor: "#D2740B", color: "#fff", borderTopRightRadius: 4 }}
+                    >
+                      {m.text}
+                    </div>
+                  ) : null}
+                  {m.card && (
+                    <div className="rounded-xl px-3 py-2.5" style={{ backgroundColor: "#FEF0DC", border: "1px solid #F5D9A8", opacity: 0.7 }}>
+                      <div className="text-[10px] font-bold mb-0.5" style={{ color: "#D2740B" }}>
+                        {CAT_EMOJI[m.card.category]} {CAT_TR[m.card.category]}
+                      </div>
+                      <a href={`/tarifler/${m.card.slug}`} target="_blank" rel="noopener noreferrer"
+                        className="text-xs font-semibold hover:underline block leading-snug" style={{ color: "#3D2B1F" }}>
+                        {m.card.title}
+                      </a>
+                      {m.card.matchedIngredients.length > 0 && (
+                        <div className="text-[10px] mt-1" style={{ color: "#7C5C47" }}>
+                          {m.card.matchedIngredients.join(", ")}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

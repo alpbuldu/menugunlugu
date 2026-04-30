@@ -56,10 +56,10 @@ const RecipeCard = TiptapNode.create({
       ["span", { style: "font-size:1.5rem;flex-shrink:0;line-height:1;" }, emoji ?? "🍽️"],
       ["div", { style: "flex:1;min-width:0;" },
         ["p", { style: "font-size:10px;font-weight:700;color:#b86515;text-transform:uppercase;letter-spacing:.06em;margin:0 0 2px 0;line-height:1.2;" }, catTr ?? ""],
-        ["a", { href: h, style: "font-size:.95rem;font-weight:700;color:#3d2b1f;text-decoration:none;display:block;line-height:1.3;margin:0 0 3px 0;" }, title ?? ""],
+        ["a", { href: h, target: "_blank", rel: "noopener noreferrer", style: "font-size:.95rem;font-weight:700;color:#3d2b1f;text-decoration:none;display:block;line-height:1.3;margin:0 0 3px 0;" }, title ?? ""],
         ["p", { style: "font-size:11px;color:#7c5c47;margin:0;line-height:1.2;" }, author ? `✍️ ${author}` : ""],
       ],
-      ["a", { href: h, style: "font-size:.75rem;color:#b86515;font-weight:600;flex-shrink:0;white-space:nowrap;text-decoration:none;border:1px solid #edd8bc;border-radius:6px;padding:4px 8px;" }, "Tarife Git →"],
+      ["a", { href: h, target: "_blank", rel: "noopener noreferrer", style: "font-size:.75rem;color:#b86515;font-weight:600;flex-shrink:0;white-space:nowrap;text-decoration:none;border:1px solid #edd8bc;border-radius:6px;padding:4px 8px;" }, "Tarife Git →"],
     ];
   },
 

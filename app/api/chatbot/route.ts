@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
       .filter(r => r.category === cat && !excluded.has(r.id))
       .map(r => {
         const lines = extractIngredientLines(r.ingredients ?? "");
-        const { score, matched, total } = scoreRecipe(lines, userIngredients);
+        const { score, matched, total, allTotal } = scoreRecipe(lines, userIngredients);
         // Oran: eşleşen/toplam — ne kadar yüksekse malzeme o tarifte o kadar "belirleyici"
         // total=0 → tüm tarif malzemeleri pantry (un helvası gibi) → eşleşme varsa ratio=1
         const ratio = total > 0 ? score / total : score > 0 ? 1 : 0;

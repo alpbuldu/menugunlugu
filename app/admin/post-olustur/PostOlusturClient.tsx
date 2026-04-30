@@ -511,7 +511,8 @@ export default function PostOlusturClient({ recipes }: Props) {
     const lines = [
       `🍽️ ${today} | Menü Hazır!`,
       list,
-      `📖 Tarifin tamamına ulaşmak ve daha fazla içerik için menugunlugu.com'u ziyaret edin.`,
+      `📖 Menü Günlüğü; günlük menüler keşfedebileceğin, tariflere ulaşabileceğin, kendi menünü oluşturabileceğin ve gastronomiye dair içerikleri takip edebileceğin dijital bir gastronomi platformudur. Sen de menugunlugu.com'a üye olarak kendi menülerini oluşturabilir, tariflerini paylaşarak yazar olmaya başlayabilirsin.`,
+      `📌 Görsellerde tariflerin tamamı yer almayabilir. Tarifin tamamı ve daha fazlası için menugunlugu.com'u ziyaret edin.`,
     ];
     if (not.trim()) lines.push(not.trim());
     lines.push("#GününMenüsü #MenüGünlüğü");

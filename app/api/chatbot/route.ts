@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 
-/* ── Temel malzemeler — eşleşmede sayılmaz ───────────────────── */
+/* ── Temel malzemeler — tarif satırlarında sayılmaz ─────────────
+   PANTRY: herkeste var, eşleşmede hiç kullanılmaz (tuz, su, şeker…)
+   STARRING_PANTRY: pantry ama tarif yıldızı olabilir (un, bal, maya…)
+   Kullanıcı STARRING_PANTRY yazdıysa eşleştir; PANTRY yazdıysa atla. ── */
 const PANTRY = new Set([
   "tuz", "karabiber", "pul biber", "kuru nane", "nane", "fesleğen", "kuru fesleğen",
   "kırmızı biber", "toz biber", "kırmızı toz biber", "toz kırmızı biber",
@@ -15,6 +18,21 @@ const PANTRY = new Set([
   "kabartma tozu", "karbonat", "maya", "instant maya",
   "tane karabiber", "beyaz biber", "hardal",
   "soda", "maden suyu",
+]);
+
+/* Kullanıcı bunları yazdıysa eşleştirmeye dahil et —
+   tarif yıldızı olabilirler (un helvası, ballı kek, mayalı hamur…) */
+const STARRING_PANTRY = new Set([
+  "un", "buğday unu", "mısır unu",
+  "nişasta", "mısır nişastası",
+  "tereyağı",
+  "bal",
+  "maya", "instant maya",
+  "zeytinyağı",
+  "soda", "maden suyu",
+  "limon suyu",
+  "kabartma tozu", "karbonat",
+  "pudra şekeri",
 ]);
 
 /* ── Bölüm başlığı kökleri ─────────────────────────────────────── */
@@ -83,8 +101,8 @@ function scoreRecipe(
   const matched: string[] = [];
 
   for (const ui of userIngs) {
-    // Kullanıcı bilinçli yazmış — pantry olsa da TÜM satırlarda ara
-    // (örn: "un" → un helvası, "tereyağı" → tereyağlı tarif)
+    if (PANTRY.has(ui) && !STARRING_PANTRY.has(ui)) continue; // tuz, su, şeker → her zaman atla
+    // STARRING_PANTRY (un, bal, maya…) veya normal malzeme → TÜM satırlarda ara
     const hits = ingredientLines.some(line => matchesLine(ui, line));
     if (hits) matched.push(ui);
   }
@@ -145,9 +163,9 @@ export async function POST(request: NextRequest) {
     soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı",
   };
 
-  // Kullanıcının gerçek (pantry dışı) malzeme sayısı
-  const nonPantryUserIngs = userIngredients.filter(u => !PANTRY.has(u));
-  const targetScore = nonPantryUserIngs.length;
+  // Eşleştirmeye dahil olan malzemeler: pantry dışı + starring pantry
+  const effectiveUserIngs = userIngredients.filter(u => !PANTRY.has(u) || STARRING_PANTRY.has(u));
+  const targetScore = effectiveUserIngs.length;
 
   const suggestions = CATEGORIES.map(cat => {
     const excluded = new Set(excludeIds[cat] ?? []);

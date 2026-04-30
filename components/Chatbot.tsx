@@ -105,11 +105,10 @@ export default function Chatbot() {
       if (found?.recipe) {
         setSuggestion(found);
         const ingList = found.matchedIngredients.join(", ");
-        const allPantry = found.userIngCount === 0;
-        const matchMsg = allPantry
-          ? `"${ingList}" içeren bir ${found.categoryTr.toLowerCase()} tarifi buldum:`
-          : found.matchedCount === found.userIngCount
+        const matchMsg = found.matchedCount === found.userIngCount
           ? `Tüm malzemelerine uygun (${ingList}) bir ${found.categoryTr.toLowerCase()} tarifi buldum:`
+          : found.userIngCount === 0
+          ? `"${ingList}" içeren bir ${found.categoryTr.toLowerCase()} tarifi buldum:`
           : `${found.userIngCount} malzemenden ${found.matchedCount} tanesini (${ingList}) içeren bir tarif buldum:`;
         setMsgs(prev => [...prev, bot(matchMsg)]);
         setStep("suggestion");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 
 const PROSE_STYLES = `
   .prose-content {
@@ -134,15 +134,15 @@ interface Props {
 export default function ProseContent({ html }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
-  // Tarif kartı linkleri yeni sekmede açılsın (eski içerik de dahil)
-  useEffect(() => {
-    if (!ref.current) return;
-    ref.current.querySelectorAll("[data-recipe-card] a").forEach((el) => {
-      const a = el as HTMLAnchorElement;
-      a.target = "_blank";
-      a.rel    = "noopener noreferrer";
-    });
-  }, [html]);
+  // Tarif kartı linkleri: tıklamayı yakalayıp window.open ile yeni sekme aç
+  // (dangerouslySetInnerHTML + Next.js router, target="_blank" ile çakışıyor)
+  function handleClick(e: React.MouseEvent<HTMLDivElement>) {
+    const a = (e.target as HTMLElement).closest<HTMLAnchorElement>("[data-recipe-card] a");
+    if (a?.href) {
+      e.preventDefault();
+      window.open(a.href, "_blank", "noopener,noreferrer");
+    }
+  }
 
   return (
     <>
@@ -151,6 +151,7 @@ export default function ProseContent({ html }: Props) {
         ref={ref}
         className="prose-content max-w-[70ch]"
         dangerouslySetInnerHTML={{ __html: html }}
+        onClick={handleClick}
       />
     </>
   );

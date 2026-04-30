@@ -115,12 +115,9 @@ const PROSE_STYLES = `
   .prose-content [data-recipe-card] p {
     margin: 0 !important;
     line-height: 1.2 !important;
-    font-size: 10px !important;
-    color: #b86515 !important;
   }
   .prose-content [data-recipe-card] a {
     text-decoration: none !important;
-    color: #3d2b1f !important;
     font-weight: 700 !important;
   }
   .prose-content [data-recipe-card] a:hover {

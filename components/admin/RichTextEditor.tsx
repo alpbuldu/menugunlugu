@@ -35,10 +35,11 @@ const RecipeCard = TiptapNode.create({
 
   addAttributes() {
     return {
-      href:  { default: null },
-      title: { default: null },
-      emoji: { default: "🍽️" },
-      catTr: { default: null },
+      href:   { default: null },
+      title:  { default: null },
+      emoji:  { default: "🍽️" },
+      catTr:  { default: null },
+      author: { default: null },
     };
   },
 
@@ -47,22 +48,24 @@ const RecipeCard = TiptapNode.create({
   },
 
   renderHTML({ node }) {
-    const { href, title, emoji, catTr } = node.attrs as Record<string, string>;
+    const { href, title, emoji, catTr, author } = node.attrs as Record<string, string>;
+    const h = href ?? "#";
     return [
       "div",
       { "data-recipe-card": "", style: "display:flex;align-items:center;gap:12px;border:1.5px solid #edd8bc;border-radius:12px;padding:13px 16px;background:#fdf8f0;margin:14px 0;" },
       ["span", { style: "font-size:1.5rem;flex-shrink:0;line-height:1;" }, emoji ?? "🍽️"],
       ["div", { style: "flex:1;min-width:0;" },
-        ["p", { style: "font-size:10px;font-weight:700;color:#b86515;text-transform:uppercase;letter-spacing:.06em;margin:0 0 3px 0;line-height:1.2;" }, catTr ?? ""],
-        ["a", { href: href ?? "#", style: "font-size:.95rem;font-weight:700;color:#3d2b1f;text-decoration:none;display:block;line-height:1.3;" }, title ?? ""],
+        ["p", { style: "font-size:10px;font-weight:700;color:#b86515;text-transform:uppercase;letter-spacing:.06em;margin:0 0 2px 0;line-height:1.2;" }, catTr ?? ""],
+        ["a", { href: h, style: "font-size:.95rem;font-weight:700;color:#3d2b1f;text-decoration:none;display:block;line-height:1.3;margin:0 0 3px 0;" }, title ?? ""],
+        ["p", { style: "font-size:11px;color:#7c5c47;margin:0;line-height:1.2;" }, author ? `✍️ ${author}` : ""],
       ],
-      ["span", { style: "font-size:.75rem;color:#b86515;font-weight:600;flex-shrink:0;white-space:nowrap;" }, "Tarife Git →"],
+      ["a", { href: h, style: "font-size:.75rem;color:#b86515;font-weight:600;flex-shrink:0;white-space:nowrap;text-decoration:none;border:1px solid #edd8bc;border-radius:6px;padding:4px 8px;" }, "Tarife Git →"],
     ];
   },
 
   addNodeView() {
     return ({ node }) => {
-      const { href: _href, title, emoji, catTr } = node.attrs as Record<string, string>;
+      const { href, title, emoji, catTr, author } = node.attrs as Record<string, string>;
       const dom = document.createElement("div");
       dom.setAttribute("data-recipe-card", "");
       dom.setAttribute("contenteditable", "false");
@@ -70,10 +73,11 @@ const RecipeCard = TiptapNode.create({
       dom.innerHTML = [
         `<span style="font-size:1.5rem;flex-shrink:0;line-height:1;">${emoji ?? "🍽️"}</span>`,
         `<div style="flex:1;min-width:0;">`,
-          `<p style="font-size:10px;font-weight:700;color:#b86515;text-transform:uppercase;letter-spacing:.06em;margin:0 0 3px 0;line-height:1.2;">${catTr ?? ""}</p>`,
-          `<span style="font-size:.95rem;font-weight:700;color:#3d2b1f;display:block;line-height:1.3;">${title ?? ""}</span>`,
+          `<p style="font-size:10px;font-weight:700;color:#b86515;text-transform:uppercase;letter-spacing:.06em;margin:0 0 2px 0;line-height:1.2;">${catTr ?? ""}</p>`,
+          `<span style="font-size:.95rem;font-weight:700;color:#3d2b1f;display:block;line-height:1.3;margin:0 0 3px 0;">${title ?? ""}</span>`,
+          author ? `<p style="font-size:11px;color:#7c5c47;margin:0;line-height:1.2;">✍️ ${author}</p>` : "",
         `</div>`,
-        `<span style="font-size:.75rem;color:#b86515;font-weight:600;flex-shrink:0;white-space:nowrap;">Tarife Git →</span>`,
+        `<span style="font-size:.75rem;color:#b86515;font-weight:600;flex-shrink:0;white-space:nowrap;border:1px solid #edd8bc;border-radius:6px;padding:4px 8px;">Tarife Git →</span>`,
       ].join("");
       return { dom };
     };
@@ -123,7 +127,7 @@ function Divider() {
   return <span className="w-px h-5 bg-warm-200 mx-0.5 shrink-0" />;
 }
 
-interface RecipeHit { id: string; title: string; slug: string; category: string; }
+interface RecipeHit { id: string; title: string; slug: string; category: string; author?: string; }
 
 const RECIPE_EMOJI: Record<string, string> = {
   soup: "🥣", main: "🥘", side: "🥗", dessert: "🍮",
@@ -262,11 +266,12 @@ export default function RichTextEditor({
 
   const insertRecipeCard = (recipe: RecipeHit) => {
     if (!editor) return;
-    const emoji = RECIPE_EMOJI[recipe.category] ?? "🍽️";
-    const catTr = RECIPE_CAT_TR[recipe.category] ?? recipe.category;
-    const href  = `/tarifler/${recipe.slug}`;
+    const emoji  = RECIPE_EMOJI[recipe.category] ?? "🍽️";
+    const catTr  = RECIPE_CAT_TR[recipe.category] ?? recipe.category;
+    const href   = `/tarifler/${recipe.slug}`;
+    const author = recipe.author ?? null;
     editor.chain().focus()
-      .insertContent({ type: "recipeCard", attrs: { href, title: recipe.title, emoji, catTr } })
+      .insertContent({ type: "recipeCard", attrs: { href, title: recipe.title, emoji, catTr, author } })
       .run();
     setPanel("none");
     setRecipeQ("");

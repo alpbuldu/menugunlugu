@@ -177,7 +177,10 @@ export default function Chatbot() {
   }
 
   function finish() {
-    setMsgs(prev => [...prev, user("Hayır, bu kadar yeter 😊"), bot("Harika seçimler! Afiyet olsun! 🍽️")]);
+    const msg = approved.length > 0
+      ? "Harika seçimler! Afiyet olsun! 🍽️"
+      : "Tamam, umarım ilham aldın! Afiyet olsun 😊";
+    setMsgs(prev => [...prev, user("Hayır, bu kadar yeter 😊"), bot(msg)]);
     setStep("done");
   }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEditor, EditorContent } from "@tiptap/react";
-import { Extension } from "@tiptap/core";
+import { Extension, Node as TiptapNode } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
@@ -23,6 +23,59 @@ const HeadingBreak = Extension.create({
         }
         return false;
       },
+    };
+  },
+});
+
+/* ── RecipeCard — custom atom node for styled recipe cards ─────── */
+const RecipeCard = TiptapNode.create({
+  name: "recipeCard",
+  group: "block",
+  atom: true,
+
+  addAttributes() {
+    return {
+      href:  { default: null },
+      title: { default: null },
+      emoji: { default: "🍽️" },
+      catTr: { default: null },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: "div[data-recipe-card]" }];
+  },
+
+  renderHTML({ node }) {
+    const { href, title, emoji, catTr } = node.attrs as Record<string, string>;
+    return [
+      "div",
+      { "data-recipe-card": "", style: "display:flex;align-items:center;gap:12px;border:1.5px solid #edd8bc;border-radius:12px;padding:13px 16px;background:#fdf8f0;margin:14px 0;" },
+      ["span", { style: "font-size:1.5rem;flex-shrink:0;line-height:1;" }, emoji ?? "🍽️"],
+      ["div", { style: "flex:1;min-width:0;" },
+        ["p", { style: "font-size:10px;font-weight:700;color:#b86515;text-transform:uppercase;letter-spacing:.06em;margin:0 0 3px 0;line-height:1.2;" }, catTr ?? ""],
+        ["a", { href: href ?? "#", style: "font-size:.95rem;font-weight:700;color:#3d2b1f;text-decoration:none;display:block;line-height:1.3;" }, title ?? ""],
+      ],
+      ["span", { style: "font-size:.75rem;color:#b86515;font-weight:600;flex-shrink:0;white-space:nowrap;" }, "Tarife Git →"],
+    ];
+  },
+
+  addNodeView() {
+    return ({ node }) => {
+      const { href: _href, title, emoji, catTr } = node.attrs as Record<string, string>;
+      const dom = document.createElement("div");
+      dom.setAttribute("data-recipe-card", "");
+      dom.setAttribute("contenteditable", "false");
+      dom.style.cssText = "display:flex;align-items:center;gap:12px;border:1.5px solid #edd8bc;border-radius:12px;padding:13px 16px;background:#fdf8f0;margin:14px 0;cursor:default;user-select:none;";
+      dom.innerHTML = [
+        `<span style="font-size:1.5rem;flex-shrink:0;line-height:1;">${emoji ?? "🍽️"}</span>`,
+        `<div style="flex:1;min-width:0;">`,
+          `<p style="font-size:10px;font-weight:700;color:#b86515;text-transform:uppercase;letter-spacing:.06em;margin:0 0 3px 0;line-height:1.2;">${catTr ?? ""}</p>`,
+          `<span style="font-size:.95rem;font-weight:700;color:#3d2b1f;display:block;line-height:1.3;">${title ?? ""}</span>`,
+        `</div>`,
+        `<span style="font-size:.75rem;color:#b86515;font-weight:600;flex-shrink:0;white-space:nowrap;">Tarife Git →</span>`,
+      ].join("");
+      return { dom };
     };
   },
 });
@@ -111,6 +164,7 @@ export default function RichTextEditor({
         openOnClick: false,
         HTMLAttributes: { target: "_blank", rel: "noopener noreferrer" },
       }),
+      RecipeCard,
     ],
     content: value || "",
     editorProps: {
@@ -211,8 +265,9 @@ export default function RichTextEditor({
     const emoji = RECIPE_EMOJI[recipe.category] ?? "🍽️";
     const catTr = RECIPE_CAT_TR[recipe.category] ?? recipe.category;
     const href  = `/tarifler/${recipe.slug}`;
-    const html  = `<div style="display:flex;align-items:center;gap:12px;border:1.5px solid #edd8bc;border-radius:12px;padding:13px 16px;background:#fdf8f0;margin:14px 0;"><span style="font-size:1.5rem;flex-shrink:0;">${emoji}</span><div style="flex:1;min-width:0;"><p style="font-size:10px;font-weight:700;color:#b86515;text-transform:uppercase;letter-spacing:.06em;margin:0 0 3px 0;">${catTr}</p><a href="${href}" style="font-size:.95rem;font-weight:700;color:#3d2b1f;text-decoration:none;display:block;line-height:1.3;">${recipe.title}</a></div><span style="font-size:.75rem;color:#b86515;font-weight:600;flex-shrink:0;white-space:nowrap;">Tarife Git →</span></div>`;
-    editor.chain().focus().insertContent(html + "<p></p>").run();
+    editor.chain().focus()
+      .insertContent({ type: "recipeCard", attrs: { href, title: recipe.title, emoji, catTr } })
+      .run();
     setPanel("none");
     setRecipeQ("");
   };
@@ -429,9 +484,9 @@ export default function RichTextEditor({
         .tiptap-editor tr:nth-child(even) td { background: #fdf8f0; }
         .tiptap-editor .selectedCell { background: #fef3db !important; }
         /* Tarif kartı önizleme (editör içi) */
-        .tiptap-editor [style*="background:#fdf8f0"] { border-radius: 12px; }
-        .tiptap-editor [style*="background:#fdf8f0"] p { margin: 0; line-height: 1.2; }
-        .tiptap-editor [style*="background:#fdf8f0"] a { text-decoration: none; }
+        .tiptap-editor [data-recipe-card] { border-radius: 12px; display: flex !important; align-items: center; margin: 14px 0; }
+        .tiptap-editor [data-recipe-card] p { margin: 0 !important; line-height: 1.2 !important; }
+        .tiptap-editor [data-recipe-card] a { text-decoration: none !important; }
       `}</style>
       <EditorContent
         editor={editor}

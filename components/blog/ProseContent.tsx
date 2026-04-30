@@ -100,6 +100,32 @@ const PROSE_STYLES = `
   .prose-content th p, .prose-content td p { margin: 0; font-size: 0.9375rem; line-height: 1.4; }
   .prose-content tr:nth-child(even) td { background: #fdf8f0; }
   .prose-content colgroup, .prose-content col { display: none; }
+  /* Tarif kartı */
+  .prose-content [data-recipe-card] {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    border: 1.5px solid #edd8bc !important;
+    border-radius: 12px !important;
+    padding: 13px 16px !important;
+    background: #fdf8f0 !important;
+    margin: 14px 0 !important;
+    text-decoration: none !important;
+  }
+  .prose-content [data-recipe-card] p {
+    margin: 0 !important;
+    line-height: 1.2 !important;
+    font-size: 10px !important;
+    color: #b86515 !important;
+  }
+  .prose-content [data-recipe-card] a {
+    text-decoration: none !important;
+    color: #3d2b1f !important;
+    font-weight: 700 !important;
+  }
+  .prose-content [data-recipe-card] a:hover {
+    color: #b86515 !important;
+  }
 `;
 
 interface Props {

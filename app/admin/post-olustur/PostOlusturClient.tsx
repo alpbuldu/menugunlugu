@@ -563,7 +563,6 @@ export default function PostOlusturClient({ recipes }: Props) {
       const col = encodeURIComponent(gunColor);
       const entries: [string, string][] = [
         [`/api/admin-gorsel?mode=cover-yazili&${sp}&color=${col}`,  "kapak-yazili.png"],
-        [`/api/admin-gorsel?mode=cover-yazisiz&${sp}&color=${col}`, "kapak-yazisiz.png"],
         [`/api/admin-gorsel?mode=post&recipeId=${gunSlots.soup!.id}&color=${col}&content=both`,    "post-corba.png"],
         [`/api/admin-gorsel?mode=post&recipeId=${gunSlots.main!.id}&color=${col}&content=both`,    "post-ana-yemek.png"],
         [`/api/admin-gorsel?mode=post&recipeId=${gunSlots.side!.id}&color=${col}&content=both`,    "post-yardimci.png"],
@@ -580,6 +579,25 @@ export default function PostOlusturClient({ recipes }: Props) {
       const a    = document.createElement("a");
       a.href     = URL.createObjectURL(blob);
       a.download = "gunun-menusu.zip";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } finally {
+      setGunLoading(false);
+    }
+  }
+
+  async function downloadGunYazisizKapak() {
+    if (!gunComplete) return;
+    setGunLoading(true);
+    try {
+      const sp  = slotParams(gunSlots);
+      const col = encodeURIComponent(gunColor);
+      const resp = await fetch(`/api/admin-gorsel?mode=cover-yazisiz&${sp}&color=${col}`);
+      if (!resp.ok) return;
+      const blob = await resp.blob();
+      const a    = document.createElement("a");
+      a.href     = URL.createObjectURL(blob);
+      a.download = "kapak-yazisiz.png";
       a.click();
       URL.revokeObjectURL(a.href);
     } finally {
@@ -700,7 +718,7 @@ export default function PostOlusturClient({ recipes }: Props) {
           <div>
             <h2 className="text-lg font-bold text-warm-900">Günün Menüsü Paketi</h2>
             <p className="text-sm text-warm-400 mt-1">
-              2 kapak + 4 tarif postu + 1 story + caption.txt → tek ZIP
+              1 yazılı kapak + 4 tarif postu + 1 story + caption.txt → ZIP · yazısız kapak ayrıca indirilir
             </p>
           </div>
 
@@ -866,17 +884,26 @@ export default function PostOlusturClient({ recipes }: Props) {
                 className="w-full bg-brand-600 text-white rounded-xl py-3 font-semibold text-sm disabled:opacity-40 hover:bg-brand-700 transition-colors"
               >
                 {gunLoading
-                  ? "İndiriliyor… (8 dosya)"
+                  ? "İndiriliyor…"
                   : !gunComplete
                   ? "Önce menüyü getirin"
-                  : "📦 ZIP İndir (2 kapak + 4 post + 1 story + caption)"}
+                  : "📦 ZIP İndir (1 yazılı kapak + 4 post + 1 story + caption)"}
               </button>
+              {gunComplete && (
+                <button
+                  onClick={downloadGunYazisizKapak}
+                  disabled={gunLoading}
+                  className="w-full bg-warm-100 text-warm-700 rounded-xl py-2.5 font-semibold text-sm disabled:opacity-40 hover:bg-warm-200 transition-colors"
+                >
+                  📷 Yazısız Kapağı İndir (ayrı)
+                </button>
+              )}
               {gunComplete && (
                 <button
                   onClick={() => window.open(`/api/admin-gorsel?mode=cover-yazili&${slotParams(gunSlots)}&color=${encodeURIComponent(gunColor)}`, "_blank")}
                   className="w-full text-sm text-brand-600 hover:text-brand-800 underline text-center"
                 >
-                  Kapağı önizle →
+                  Yazılı kapağı önizle →
                 </button>
               )}
             </div>

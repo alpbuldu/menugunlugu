@@ -78,6 +78,7 @@ export async function POST(request: NextRequest) {
       data: {
         username: uname,
         marketing_consent: !!marketing_consent,
+        first_login: true,
       },
     },
   });

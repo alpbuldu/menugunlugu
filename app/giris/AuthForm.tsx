@@ -63,8 +63,11 @@ export default function AuthForm({ defaultTab, from, isNewAccount, topMesaj }: P
 
     localStorage.removeItem("mg_new_user");
 
-    // Email onay mailinden gelen ilk girişte new=1 URL parametresi vardır
-    if (isNewAccount) {
+    // İlk giriş tespiti: URL ?new=1 VEYA user_metadata.first_login (cross-device güvenilir)
+    const isFirst = isNewAccount || data.user.user_metadata?.first_login === true;
+    if (isFirst) {
+      // Metadata'dan temizle (fire-and-forget)
+      supabase.auth.updateUser({ data: { first_login: false } }).catch(() => {});
       window.location.href = "/uye/panel?tab=panelim";
       return;
     }

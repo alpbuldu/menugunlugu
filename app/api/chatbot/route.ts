@@ -129,12 +129,44 @@ function isUserStopWord(s: string): boolean {
   return false;
 }
 
+/* ── Kullanıcı birim anahtar kelimeleri ────────────────────────
+   "2 yemek kaşığı tereyağı" → "tereyağı"
+   "gram" tek başına         → "" (atla)
+   Birim yoksa → doğrudan ürün adı                              ── */
+const _USER_UNITS: string[] = [
+  // Çok kelimeli birimler önce (uzunluğa göre azalan sıra)
+  "yemek kaşığı", "çorba kaşığı", "tatlı kaşığı", "çay kaşığı",
+  "su bardağı", "çay bardağı",
+  // Tek kelimeli birimler
+  "bardak", "kaşık", "demet", "dilim", "avuç", "ölçü",
+  "litre", "adet", "tane", "paket", "kutu", "tutam",
+  "diş", "dal", "gram", "kg", "gr", "ml", "lt", "cc",
+];
+const _USER_UNITS_SET = new Set(_USER_UNITS);
+
+function parseUserIngredient(raw: string): string {
+  let s = raw.toLowerCase().trim();
+  // 1. Baştaki sayıyı kaldır
+  s = s.replace(/^\d+[\d,.]*\s*/, "");
+  // 2. Sadece birim kelimesiyse → boş döndür (atla)
+  if (_USER_UNITS_SET.has(s)) return "";
+  // 3. Başta birim varsa → sonrasını al
+  for (const unit of _USER_UNITS) {
+    if (s.startsWith(unit + " ")) {
+      s = s.slice(unit.length).trim();
+      break;
+    }
+  }
+  // 4. Tanımlayıcı sıfatları temizle, sonucu döndür
+  return s.replace(DESCRIPTOR_RE, "").replace(/\s+/g, " ").trim();
+}
+
 /* ── POST /api/chatbot ─────────────────────────────────────────── */
 export async function POST(request: NextRequest) {
   const body = await request.json();
 
   const userIngredients: string[] = (body.ingredients ?? [])
-    .map((s: string) => s.toLowerCase().trim())
+    .map((s: string) => parseUserIngredient(s))
     .filter((s: string) => s.length > 1 && !isUserStopWord(s));
 
   const excludeIds: Record<string, string[]> = body.excludeIds ?? {};

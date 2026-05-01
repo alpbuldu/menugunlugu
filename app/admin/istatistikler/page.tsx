@@ -68,10 +68,10 @@ async function fetchTotals(supabase: ReturnType<typeof createAdminClient>) {
   const [recipes, menus, favorites, ratings, comments, shares, blog, users] = await Promise.all([
     supabase.from("recipes").select("id", { count: "exact", head: true }),
     supabase.from("menus").select("id", { count: "exact", head: true }).eq("status", "published"),
-    supabase.from("favorites").select("id", { count: "exact", head: true }),
-    supabase.from("ratings").select("id", { count: "exact", head: true }),
-    supabase.from("comments").select("id", { count: "exact", head: true }),
-    supabase.from("recipe_shares").select("id", { count: "exact", head: true }),
+    supabase.from("favorites").select("*", { count: "exact", head: true }),
+    supabase.from("ratings").select("*", { count: "exact", head: true }),
+    supabase.from("comments").select("*", { count: "exact", head: true }),
+    supabase.from("recipe_shares").select("*", { count: "exact", head: true }),
     supabase.from("blog_posts").select("id", { count: "exact", head: true }).eq("published", true),
     supabase.from("profiles").select("id", { count: "exact", head: true }),
   ]);

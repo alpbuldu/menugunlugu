@@ -13,13 +13,12 @@ import AdSlot from "@/components/ui/AdSlot";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import PagePopup from "@/components/ui/PagePopup";
 import LazySection from "@/components/ui/LazySection";
-import RatingStars    from "@/components/recipe/RatingStars";
-import FavoriteButton from "@/components/recipe/FavoriteButton";
-import RecipeScaler   from "@/components/recipe/RecipeScaler";
-import RecipeActionBar from "@/components/recipe/RecipeActionBar";
-
-// Sadece CommentSection dynamic — sayfa altında, ağır veri çekiyor
-const CommentSection = dynamicImport(() => import("@/components/recipe/CommentSection"));
+// Etkileşimli client bileşenler — lazy load ile ilk hydration yükü azaltılıyor
+const RatingStars    = dynamicImport(() => import("@/components/recipe/RatingStars"),    { ssr: false });
+const FavoriteButton = dynamicImport(() => import("@/components/recipe/FavoriteButton"), { ssr: false });
+const RecipeScaler   = dynamicImport(() => import("@/components/recipe/RecipeScaler"),   { ssr: false });
+const RecipeActionBar = dynamicImport(() => import("@/components/recipe/RecipeActionBar"), { ssr: false });
+const CommentSection  = dynamicImport(() => import("@/components/recipe/CommentSection"),  { ssr: false });
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 

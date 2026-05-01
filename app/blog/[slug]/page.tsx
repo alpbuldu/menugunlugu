@@ -13,11 +13,11 @@ import PagePopup from "@/components/ui/PagePopup";
 import ProseContent from "@/components/blog/ProseContent";
 import LazySection from "@/components/ui/LazySection";
 
-// Etkileşimli client bileşenler — lazy load ile ilk hydration yükü azaltılıyor
-const BlogFavoriteButton = dynamicImport(() => import("@/components/blog/BlogFavoriteButton"), { ssr: false });
-const BlogRatingStars    = dynamicImport(() => import("@/components/blog/BlogRatingStars"),    { ssr: false });
-const BlogActionBar      = dynamicImport(() => import("@/components/blog/BlogActionBar"),      { ssr: false });
-const BlogCommentSection = dynamicImport(() => import("@/components/blog/BlogCommentSection"), { ssr: false });
+// Etkileşimli client bileşenler — code-split ile JS chunk ayrılıyor
+const BlogFavoriteButton = dynamicImport(() => import("@/components/blog/BlogFavoriteButton"));
+const BlogRatingStars    = dynamicImport(() => import("@/components/blog/BlogRatingStars"));
+const BlogActionBar      = dynamicImport(() => import("@/components/blog/BlogActionBar"));
+const BlogCommentSection = dynamicImport(() => import("@/components/blog/BlogCommentSection"));
 
 const DEFAULT_OG = "https://www.menugunlugu.com/opengraph-image";
 

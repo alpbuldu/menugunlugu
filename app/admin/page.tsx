@@ -70,6 +70,12 @@ const quickActions = [
     icon: "💬",
     desc: "Tarif ve blog yorumlarını görüntüle ve sil",
   },
+  {
+    href: "/admin/istatistikler",
+    label: "İstatistikler",
+    icon: "📈",
+    desc: "Tarif bazlı favori, puan, yorum ve paylaşım sıralamaları",
+  },
 ];
 
 export default function AdminDashboard() {

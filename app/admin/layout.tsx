@@ -10,7 +10,8 @@ export const metadata: Metadata = {
 };
 
 const adminLinks = [
-  { href: "/admin",             label: "📊  Genel Bakış" },
+  { href: "/admin",               label: "📊  Genel Bakış" },
+  { href: "/admin/istatistikler", label: "📈  İstatistikler" },
   { href: "/admin/menus",          label: "📅  Menüler" },
   { href: "/admin/menus/new",      label: "➕  Yeni Menü" },
   { href: "/admin/menus/import",   label: "📥  Toplu Menü Aktar" },

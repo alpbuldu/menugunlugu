@@ -23,8 +23,12 @@ export default function RatingStars({ recipeId }: Props) {
   }, [recipeId]);
 
   async function handleRate(score: number) {
+    // Optimistic UI: yıldızı hemen göster, API'yi bekletme
+    const prevScore = userScore;
+    setUserScore(score);
     setSaving(true);
     setMessage("");
+
     const res = await fetch(`/api/recipes/${recipeId}/ratings`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -34,18 +38,19 @@ export default function RatingStars({ recipeId }: Props) {
     setSaving(false);
 
     if (res.status === 401) {
+      setUserScore(prevScore); // geri al
       const dest = window.location.pathname;
       try { sessionStorage.setItem("mg_login_return", dest); } catch {}
       router.push(`/giris?from=${encodeURIComponent(dest)}`);
       return;
     }
     if (!res.ok) {
+      setUserScore(prevScore); // geri al
       setMessage(data.error ?? "Hata oluştu.");
       return;
     }
-    setUserScore(score);
     setMessage("Puanınız kaydedildi. ✓");
-    // Güncel ortalamayı çek ve action bar'a bildir
+    // Güncel ortalamayı arka planda çek ve action bar'a bildir
     fetch(`/api/recipes/${recipeId}/ratings`)
       .then((r) => r.json())
       .then((d) => {

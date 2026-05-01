@@ -50,12 +50,27 @@ export default function PasswordUpdateForm() {
 
     setLoading(true);
     const supabase = createClient();
-    const { error: err } = await supabase.auth.updateUser({ password });
+
+    // 15 sn timeout — Supabase auth bazen askıda kalabiliyor
+    let updateErr: { message?: string } | null = null;
+    try {
+      const result = await Promise.race([
+        supabase.auth.updateUser({ password }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("TIMEOUT")), 15_000)
+        ),
+      ]);
+      updateErr = result.error ?? null;
+    } catch (e) {
+      updateErr = { message: (e as Error).message === "TIMEOUT" ? "TIMEOUT" : "UNKNOWN" };
+    }
     setLoading(false);
 
-    if (err) {
-      const msg = err.message ?? "";
-      if (msg.toLowerCase().includes("same password") || msg.toLowerCase().includes("different from")) {
+    if (updateErr) {
+      const msg = updateErr.message ?? "";
+      if (msg === "TIMEOUT") {
+        setError("Bağlantı zaman aşımına uğradı. İnternet bağlantınızı kontrol edip tekrar deneyin.");
+      } else if (msg.toLowerCase().includes("same password") || msg.toLowerCase().includes("different from")) {
         setError("Yeni şifreniz eski şifrenizle aynı olamaz. Lütfen farklı bir şifre seçin.");
       } else if (msg.toLowerCase().includes("session") || msg.toLowerCase().includes("not authenticated") || msg.toLowerCase().includes("jwt")) {
         setError("Oturum süresi dolmuş. Lütfen şifre sıfırlama e-postasını tekrar isteyin.");

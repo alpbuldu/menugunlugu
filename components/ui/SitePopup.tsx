@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface Props {
   imageUrl: string;
@@ -19,7 +20,7 @@ export default function SitePopup({ imageUrl, linkUrl, placement }: Props) {
       const dismissed = localStorage.getItem(storageKey);
       if (dismissed && Date.now() - Number(dismissed) < COOLDOWN_MS) return;
     } catch {}
-    const t = setTimeout(() => setVisible(true), 1500);
+    const t = setTimeout(() => setVisible(true), 4000);
     return () => clearTimeout(t);
   }, [placement]);
 
@@ -56,10 +57,24 @@ export default function SitePopup({ imageUrl, linkUrl, placement }: Props) {
         {/* Görsel */}
         {linkUrl ? (
           <a href={linkUrl} target="_blank" rel="noopener noreferrer" onClick={close}>
-            <img src={imageUrl} alt="Duyuru" className="w-full block" />
+            <Image
+              src={imageUrl}
+              alt="Duyuru"
+              width={480}
+              height={480}
+              className="w-full block"
+              style={{ height: "auto" }}
+            />
           </a>
         ) : (
-          <img src={imageUrl} alt="Duyuru" className="w-full block" />
+          <Image
+            src={imageUrl}
+            alt="Duyuru"
+            width={480}
+            height={480}
+            className="w-full block"
+            style={{ height: "auto" }}
+          />
         )}
 
         {/* Alt bar */}

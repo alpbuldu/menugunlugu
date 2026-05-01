@@ -149,7 +149,9 @@ export default function RecipeSlider({
   followsAdmin?: boolean;
   sponsoredAd?: SponsoredAd;
 }) {
-  const [perPage, setPerPage] = useState(3);
+  // Mobil-first default (1): SSR + ilk hydration mobile için doğru gelir,
+  // desktop useEffect ile 3'e güncellenir → desktop CLS zaten düşük (0.05)
+  const [perPage, setPerPage] = useState(1);
   const [pageIdx, setPageIdx] = useState(0);
   const [shift, setShift] = useState(-100);
   const [anim, setAnim] = useState(false);

@@ -70,8 +70,17 @@ export default function AdSenseUnit({ slot, className = "", width, height, label
 
   const isFixed = width && height;
 
+  // Reklam yüklenene kadar alanı rezerve et → CLS önler
+  // "Reklam" etiketi ~18px, ins kendi yüksekliği = height
+  const reservedHeight = isFixed && height
+    ? `calc(${typeof height === "number" ? `${height}px` : height} + 18px)`
+    : undefined;
+
   return (
-    <div className={className}>
+    <div
+      className={className}
+      style={reservedHeight ? { minHeight: reservedHeight } : undefined}
+    >
       <p className={`text-[10px] text-warm-300 mb-1 tracking-wide ${labelAlign === "left" ? "text-left" : "text-right"}`}>Reklam</p>
       <ins
         ref={ref}

@@ -81,10 +81,22 @@ function extractIngredientLines(html: string): string[] {
     );
 }
 
+/* ── Suyu bileşik koruması ────────────────────────────────────────
+   "tavuk suyu", "et suyu", "sebze suyu" gibi bileşikler
+   "tavuk", "et", "sebze" ile EŞLEŞMESİN.
+   Kullanıcı "tavuk suyu" yazdıysa → yalnızca "tavuk suyu" satırıyla eşleş. ── */
+const SUYU_RE = /^(.+?)\s+suyu$/;
+
 /* ── Kullanıcı malzemesi → tarif satırı eşleşmesi ────────────── */
 function matchesLine(userIng: string, recipeLine: string): boolean {
   const u = userIng.trim().toLowerCase();
   const r = recipeLine.trim().toLowerCase();
+
+  // "tavuk" → "tavuk suyu" eşleşmesin
+  if (!u.includes("suyu") && SUYU_RE.test(r)) return false;
+  // "et" → "et suyu" eşleşmesin (tersini de koru)
+  if (u.includes("suyu") && !r.includes("suyu")) return false;
+
   return r.includes(u) || u.includes(r);
 }
 

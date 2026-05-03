@@ -29,6 +29,7 @@ export interface Recipe {
   ingredients: string;
   instructions: string;
   image_url: string | null;
+  image_position: "top" | "center" | "bottom" | null;
   servings: number | null;
   created_at: string;
   updated_at: string | null;

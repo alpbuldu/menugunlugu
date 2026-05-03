@@ -8,6 +8,22 @@ import type { Recipe, Category } from "@/lib/types";
 
 const RecipeEditor = dynamic(() => import("./RecipeEditor"), { ssr: false });
 
+// HTML → düz satırlar (hem <li> hem <p> formatını destekler)
+function htmlToLines(html: string): string {
+  return html
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .split("\n")
+    .map(l => l.trim())
+    .filter(Boolean)
+    .join("\n");
+}
+
+function toPlainIfHtml(text: string): string {
+  return text.trim().startsWith("<") ? htmlToLines(text) : text;
+}
+
 const CATEGORIES: { value: Category; label: string }[] = [
   { value: "soup",    label: "Çorba" },
   { value: "main",    label: "Ana Yemek" },
@@ -31,10 +47,11 @@ export default function RecipeForm({ recipe }: Props) {
   const [seoTitle,     setSeoTitle]     = useState(recipe?.seo_title     ?? "");
   const [seoKeywords,  setSeoKeywords]  = useState(recipe?.seo_keywords  ?? "");
   const [seoOpen,      setSeoOpen]      = useState(false);
-  const [ingredients,  setIngredients]  = useState(recipe?.ingredients  ?? "");
-  const [instructions, setInstructions] = useState(recipe?.instructions ?? "");
-  const [imageUrl,     setImageUrl]     = useState(recipe?.image_url    ?? "");
-  const [preview,      setPreview]      = useState(
+  const [ingredients,  setIngredients]  = useState(recipe?.ingredients ?? "");
+  const [instructions, setInstructions] = useState(toPlainIfHtml(recipe?.instructions ?? ""));
+  const [imageUrl,      setImageUrl]      = useState(recipe?.image_url     ?? "");
+  const [imagePosition, setImagePosition] = useState<"top"|"center"|"bottom">(recipe?.image_position ?? "center");
+  const [preview,       setPreview]       = useState(
     recipe?.image_url && recipe.image_url.trim() ? recipe.image_url : ""
   );
 
@@ -80,7 +97,7 @@ export default function RecipeForm({ recipe }: Props) {
       {
         method:  isEdit ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ title, category, description: description || null, seo_title: seoTitle || null, seo_keywords: seoKeywords || null, ingredients, instructions, image_url: imageUrl, servings: servings ? parseInt(servings) : null }),
+        body:    JSON.stringify({ title, category, description: description || null, seo_title: seoTitle || null, seo_keywords: seoKeywords || null, ingredients, instructions, image_url: imageUrl, image_position: imagePosition, servings: servings ? parseInt(servings) : null }),
       }
     );
 
@@ -159,7 +176,7 @@ export default function RecipeForm({ recipe }: Props) {
 
         {preview && (
           <div className="relative h-52 mb-3 rounded-xl overflow-hidden border border-warm-100 bg-warm-50">
-            <Image src={preview} alt="Önizleme" fill className="object-cover" />
+            <Image src={preview} alt="Önizleme" fill className={`object-cover object-${imagePosition}`} />
             {uploading && (
               <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
                 <span className="text-sm text-warm-600 font-medium animate-pulse">
@@ -167,6 +184,30 @@ export default function RecipeForm({ recipe }: Props) {
                 </span>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Görsel konumu */}
+        {preview && (
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-xs text-warm-500 font-medium">Görsel Konumu:</span>
+            {(["top", "center", "bottom"] as const).map((pos) => {
+              const labels = { top: "⬆️ Yukarı", center: "⬛ Orta", bottom: "⬇️ Aşağı" };
+              return (
+                <button
+                  key={pos}
+                  type="button"
+                  onClick={() => setImagePosition(pos)}
+                  className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                    imagePosition === pos
+                      ? "bg-brand-600 border-brand-600 text-white"
+                      : "bg-white border-warm-200 text-warm-600 hover:border-brand-300"
+                  }`}
+                >
+                  {labels[pos]}
+                </button>
+              );
+            })}
           </div>
         )}
 

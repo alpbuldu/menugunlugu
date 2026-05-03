@@ -22,7 +22,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
   const { data, error } = await admin
     .from("blog_comments")
-    .select("id, content, created_at, user_id")
+    .select("id, content, created_at, user_id, parent_id")
     .eq("post_id", id)
     .order("created_at", { ascending: true });
 
@@ -39,14 +39,14 @@ export async function POST(request: NextRequest, { params }: Params) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Giriş yapmalısınız." }, { status: 401 });
 
-  const { content } = await request.json();
+  const { content, parent_id } = await request.json();
   if (!content?.trim()) return NextResponse.json({ error: "Yorum boş olamaz." }, { status: 400 });
 
   const admin = createAdminClient();
   const { data, error } = await admin
     .from("blog_comments")
-    .insert({ post_id: id, user_id: user.id, content: content.trim() })
-    .select("id, content, created_at, user_id")
+    .insert({ post_id: id, user_id: user.id, content: content.trim(), parent_id: parent_id ?? null })
+    .select("id, content, created_at, user_id, parent_id")
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

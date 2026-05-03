@@ -178,21 +178,21 @@ const SCALE_OPTIONS: { value: number; label: string }[] = [
   { value: 8,    label: "8×" },
 ];
 
-// Desteklenen porsiyon seçenekleri
-const SERVINGS_OPTIONS = [2, 4, 8];
-
-function closestServings(n: number): number {
-  return SERVINGS_OPTIONS.reduce((best, s) =>
-    Math.abs(s - n) < Math.abs(best - n) ? s : best,
-    SERVINGS_OPTIONS[0]
-  );
+// Tarife özel porsiyon butonlarını hesapla
+function getServingsOptions(original: number): number[] {
+  const half   = Math.max(1, Math.floor(original / 2));
+  const double = original * 2;
+  const opts   = new Set<number>();
+  if (half < original) opts.add(half);
+  opts.add(original);
+  if (double <= 24) opts.add(double);
+  return Array.from(opts).sort((a, b) => a - b);
 }
 
 export default function RecipeScaler({ ingredientsRaw, isHtml, servings }: Props) {
   const original = servings ?? null;
-  const initCurrent = original ? closestServings(original) : 4;
 
-  const [current,    setCurrent]    = useState(initCurrent);
+  const [current,    setCurrent]    = useState(original ?? 4);
   const [scaleMulti, setScaleMulti] = useState(1);
 
   const scale = original ? current / original : scaleMulti;
@@ -222,9 +222,9 @@ export default function RecipeScaler({ ingredientsRaw, isHtml, servings }: Props
         <span className="text-xs text-warm-500 font-medium shrink-0">Porsiyon:</span>
 
         {original ? (
-          // Kişi sayısı belli → 2 / 4 / 8 butonları
+          // Kişi sayısı belli → tarife özgü dinamik butonlar
           <div className="flex items-center gap-1.5">
-            {SERVINGS_OPTIONS.map((s) => (
+            {getServingsOptions(original).map((s) => (
               <button
                 key={s}
                 onClick={() => setCurrent(s)}

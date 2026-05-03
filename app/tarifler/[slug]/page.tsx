@@ -272,9 +272,9 @@ export default async function RecipeDetailPage({ params }: Props) {
 
       <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
         {/* Hero image */}
-        <div className="relative h-72 bg-warm-100">
+        <div className="relative h-72 sm:h-96 bg-warm-100">
           {hasImage ? (
-            <Image src={recipe.image_url!} alt={recipe.title} fill className="object-cover" priority sizes="(max-width: 768px) 100vw, 768px" />
+            <Image src={recipe.image_url!} alt={recipe.title} fill className={`object-cover object-${(recipe as any).image_position ?? "center"}`} priority sizes="(max-width: 768px) 100vw, 768px" />
           ) : (
             <div className="flex items-center justify-center h-full text-7xl text-warm-300">🍽️</div>
           )}

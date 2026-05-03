@@ -2,7 +2,7 @@ import { createClient } from "./server";
 import type { MenuWithRecipes, Recipe, Category, BlogCategory, BlogPost } from "@/lib/types";
 
 // All recipe columns including slug (used for standalone recipe queries)
-const RECIPE_FIELDS = "id, title, slug, category, description, seo_title, seo_keywords, ingredients, instructions, image_url, servings, created_at, updated_at, submitted_by";
+const RECIPE_FIELDS = "id, title, slug, category, description, seo_title, seo_keywords, ingredients, instructions, image_url, image_position, servings, created_at, updated_at, submitted_by";
 
 // For menu joins we include slug so recipe cards can link to the detail page
 const MENU_WITH_RECIPES = `

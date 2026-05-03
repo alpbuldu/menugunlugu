@@ -1,12 +1,28 @@
 "use client";
 
 import { useState, useRef } from "react";
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import { clsx } from "clsx";
 import type { Category } from "@/lib/types";
 
-const RecipeEditor = dynamic(() => import("@/components/admin/RecipeEditor"), { ssr: false });
+// Her satırı <ul><li> veya <ol><li> formatına çevirir
+function linesToUl(text: string): string {
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+  return `<ul>${lines.map(l => `<li>${l}</li>`).join("")}</ul>`;
+}
+function linesToOl(text: string): string {
+  const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+  return `<ol>${lines.map(l => `<li>${l}</li>`).join("")}</ol>`;
+}
+
+// Kullanıcının her şeyi tek satıra girip girmediğini kontrol eder
+function isSingleLineAbuse(text: string): boolean {
+  const trimmed = text.trim();
+  const lines = trimmed.split("\n").filter(Boolean);
+  if (lines.length >= 3) return false; // Yeterli satır var
+  // Tek satırda birden fazla • veya - separator varsa uyar
+  return (trimmed.match(/•/g) ?? []).length >= 2 || (trimmed.match(/\s[-–]\s/g) ?? []).length >= 2;
+}
 
 const CATEGORIES: { value: Category; label: string; emoji: string }[] = [
   { value: "soup",    label: "Çorba",            emoji: "🍲" },
@@ -52,6 +68,14 @@ export default function RecipeSubmitForm() {
     if (!servings || parseInt(servings) < 1) { setError("Kaç kişilik olduğunu giriniz."); return; }
     if (!ingredients.trim()) { setError("Malzemeler boş bırakılamaz."); return; }
     if (!instructions.trim()) { setError("Yapılış boş bırakılamaz."); return; }
+    if (isSingleLineAbuse(ingredients)) {
+      setError("Her malzemeyi ayrı satıra yazın. Hepsini tek satıra girmeyin.");
+      return;
+    }
+    if (isSingleLineAbuse(instructions)) {
+      setError("Her adımı ayrı satıra yazın. Hepsini tek satıra girmeyin.");
+      return;
+    }
 
     setSubmitting(true);
     setError("");
@@ -64,8 +88,8 @@ export default function RecipeSubmitForm() {
         category,
         servings: servings || null,
         description: description.trim() || null,
-        ingredients,
-        instructions,
+        ingredients: linesToUl(ingredients),
+        instructions: linesToOl(instructions),
         image_url: imageUrl || null,
       }),
     });
@@ -179,30 +203,32 @@ export default function RecipeSubmitForm() {
       <div>
         <label className={labelCls}>Malzemeler <span className="text-red-400">*</span></label>
         <p className="text-xs text-warm-400 mb-1.5">
-          Her malzemeyi ayrı satırda girin. Bölümler için <strong>Başlık</strong> seçin (örn: Sos için, Hamur için)
+          Her malzemeyi <strong>ayrı satıra</strong> yazın. Nokta veya tire ile birleştirmeyin.
         </p>
-        <RecipeEditor
+        <textarea
           value={ingredients}
-          onChange={setIngredients}
-          placeholder="• 2 su bardağı un&#10;• 1 adet yumurta…"
-          minHeight="160px"
-          mode="ingredients"
+          onChange={e => setIngredients(e.target.value)}
+          rows={10}
+          placeholder={"2 su bardağı un\n1 adet yumurta\n1 çay kaşığı tuz\nYarım su bardağı süt\n..."}
+          className={`${inputCls} resize-y font-mono leading-relaxed`}
         />
+        <p className="text-xs text-warm-300 mt-1">Her satır = bir malzeme</p>
       </div>
 
       {/* Yapılışı */}
       <div>
         <label className={labelCls}>Yapılışı <span className="text-red-400">*</span></label>
         <p className="text-xs text-warm-400 mb-1.5">
-          Her adımı ayrı satıra yazın. Sayfa üzerinde otomatik olarak 1, 2, 3… şeklinde numaralanır.
+          Her adımı <strong>ayrı satıra</strong> yazın. Numaralamayı siz yapmasanız da olur.
         </p>
-        <RecipeEditor
+        <textarea
           value={instructions}
-          onChange={setInstructions}
-          placeholder="1. Malzemeleri hazırlayın…"
-          minHeight="220px"
-          mode="instructions"
+          onChange={e => setInstructions(e.target.value)}
+          rows={12}
+          placeholder={"Unu ve tuzu bir kaba alıp karıştırın.\nYumurtayı ekleyip çırpın.\nSütü yavaş yavaş dökerek yoğurun.\n..."}
+          className={`${inputCls} resize-y leading-relaxed`}
         />
+        <p className="text-xs text-warm-300 mt-1">Her satır = bir adım</p>
       </div>
 
       {/* Submit */}

@@ -50,3 +50,23 @@ export async function PATCH(request: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true, status: newStatus });
 }
+
+// PUT — edit fields of a pending recipe or post before approving
+export async function PUT(request: NextRequest) {
+  const { id, type = "recipe", fields } = await request.json();
+
+  if (!id || !fields || typeof fields !== "object") {
+    return NextResponse.json({ error: "id ve fields gerekli." }, { status: 400 });
+  }
+
+  const supabase = createAdminClient();
+  const table = type === "post" ? "member_posts" : "recipes";
+
+  const { error } = await supabase
+    .from(table)
+    .update({ ...fields, updated_at: new Date().toISOString() })
+    .eq("id", id);
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
+}

@@ -194,7 +194,10 @@ export default function BlogCommentSection({ postId, currentUserId }: Props) {
                 {replies.length > 0 && (
                   <div className="ml-11 mt-3 space-y-3 border-l-2 border-warm-100 pl-4">
                     {replies.map(r => {
-                      const { target, body } = parseReplyContent(r.content, c.profiles?.username ?? "Üye");
+                      const parentAuthor = c.profiles?.username ?? "Üye";
+                      const displayContent = r.content.match(/^@\S+/)
+                        ? r.content
+                        : `@${parentAuthor} ${r.content}`;
                       return (
                         <div key={r.id} className="flex gap-2.5 group">
                           <div className="w-6 h-6 rounded-full bg-brand-100 overflow-hidden flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -214,7 +217,7 @@ export default function BlogCommentSection({ postId, currentUserId }: Props) {
                                 </button>
                               )}
                             </div>
-                            <RenderContent text={r.content} />
+                            <RenderContent text={displayContent} />
                             {currentUserId && (
                               <button
                                 onClick={() => openReply(c.id, r.profiles?.username ?? "Üye")}

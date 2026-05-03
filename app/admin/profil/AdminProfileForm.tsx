@@ -41,6 +41,21 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
     setAvatarUrl(data.url);
   }
 
+  const [creating, setCreating] = useState(false);
+
+  async function handleCreateCommenter() {
+    setCreating(true); setLookupMsg(""); setLookupResults([]); setAllUsers([]);
+    const res  = await fetch("/api/admin/profil/create-commenter", { method: "POST" });
+    const data = await res.json();
+    setCreating(false);
+    if (!res.ok) {
+      setLookupMsg(`❌ ${data.error}`);
+    } else {
+      setCommentUserId(data.id);
+      setLookupMsg(`✅ @${data.username} ${data.existed ? "(zaten vardı)" : "oluşturuldu"} — Kaydet'e basın.`);
+    }
+  }
+
   async function loadAllUsers() {
     setLookingUp(true);
     const res  = await fetch(`/api/admin/users/lookup`);
@@ -198,9 +213,18 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
           </div>
         ) : null}
 
-        {/* Arama satırı */}
+        {/* Otomatik oluştur */}
         {!commentUserId && (
-          <>
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={handleCreateCommenter}
+              disabled={creating}
+              className="w-full px-4 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+            >
+              {creating ? "Oluşturuluyor…" : "✨ Admin yorum hesabı otomatik oluştur"}
+            </button>
+            <p className="text-xs text-warm-400 text-center">— veya mevcut bir üyeyi seç —</p>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -216,10 +240,10 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
               </button>
             </div>
             <button type="button" onClick={loadAllUsers} disabled={lookingUp}
-              className="mt-1.5 text-xs text-brand-500 hover:text-brand-700 font-medium transition-colors">
+              className="text-xs text-brand-500 hover:text-brand-700 font-medium transition-colors">
               {lookingUp ? "Yükleniyor…" : "↓ Tüm üyeleri listele"}
             </button>
-          </>
+          </div>
         )}
 
         {lookupMsg && !lookupMsg.startsWith("✅") && (

@@ -213,6 +213,18 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
           </div>
         ) : null}
 
+        {/* Senkronize et (hesap seçiliyken) */}
+        {commentUserId && (
+          <button
+            type="button"
+            onClick={handleCreateCommenter}
+            disabled={creating}
+            className="w-full px-4 py-2.5 rounded-xl bg-warm-100 hover:bg-warm-200 disabled:opacity-50 text-warm-700 text-sm font-medium transition-colors"
+          >
+            {creating ? "Senkronize ediliyor…" : "🔄 Avatar & profili senkronize et"}
+          </button>
+        )}
+
         {/* Otomatik oluştur */}
         {!commentUserId && (
           <div className="space-y-3">
@@ -222,7 +234,7 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
               disabled={creating}
               className="w-full px-4 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white text-sm font-medium transition-colors"
             >
-              {creating ? "Oluşturuluyor…" : "✨ Admin yorum hesabı otomatik oluştur"}
+              {creating ? "İşleniyor…" : commentUserId ? "🔄 Yorum hesabını senkronize et" : "✨ Admin yorum hesabı otomatik oluştur"}
             </button>
             <p className="text-xs text-warm-400 text-center">— veya mevcut bir üyeyi seç —</p>
             <div className="flex gap-2">

@@ -29,5 +29,18 @@ export async function PUT(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // Commenter profili varsa avatar + full_name senkronize et
+  const commentUserId = data?.comment_user_id;
+  if (commentUserId && avatar_url !== undefined) {
+    await supabase
+      .from("profiles")
+      .update({
+        avatar_url: avatar_url ?? null,
+        full_name:  full_name  ?? null,
+      })
+      .eq("id", commentUserId);
+  }
+
   return NextResponse.json(data);
 }

@@ -38,7 +38,11 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   if (existing) {
-    // Zaten var — comment_user_id olarak kaydet
+    // Zaten var — avatar ve full_name güncelle, comment_user_id kaydet
+    await supabase
+      .from("profiles")
+      .update({ avatar_url: adminProfile.avatar_url ?? null, full_name: adminProfile.username })
+      .eq("id", existing.id);
     await supabase
       .from("admin_profile")
       .update({ comment_user_id: existing.id })

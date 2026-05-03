@@ -90,17 +90,12 @@ export default function BlogCommentSection({ postId, currentUserId }: Props) {
     }
   }
 
-  async function handleReplySubmit(parentId: string, parentAuthor: string) {
+  async function handleReplySubmit(parentId: string) {
     const content = (replyText[parentId] ?? "").trim();
     if (!content) return;
     setSendingReply(parentId);
     try {
-      // If replying to a reply, prefix @username (for same flat-threading approach)
-      const targetUsername = replyTo?.username ?? parentAuthor;
-      const finalContent = replyTo && replyTo.id !== parentId
-        ? `@${targetUsername} ${content}`
-        : content;
-      const c = await postComment(finalContent, parentId);
+      const c = await postComment(content, parentId);
       setComments(prev => [...prev, c]);
       setReplyText(prev => ({ ...prev, [parentId]: "" }));
       setReplyTo(null);
@@ -122,7 +117,14 @@ export default function BlogCommentSection({ postId, currentUserId }: Props) {
 
   function openReply(commentId: string, username: string) {
     setReplyTo({ id: commentId, username });
-    setTimeout(() => replyRefs.current[commentId]?.focus(), 50);
+    setReplyText(prev => ({ ...prev, [commentId]: `@${username} ` }));
+    setTimeout(() => {
+      const el = replyRefs.current[commentId];
+      if (!el) return;
+      el.focus();
+      const len = (`@${username} `).length;
+      el.setSelectionRange(len, len);
+    }, 50);
   }
 
   const topLevel   = comments.filter(c => !c.parent_id);
@@ -238,14 +240,11 @@ export default function BlogCommentSection({ postId, currentUserId }: Props) {
                       <span className="text-[10px]">👤</span>
                     </div>
                     <div className="flex-1 space-y-2">
-                      <p className="text-xs text-warm-400">
-                        <span className="font-medium text-brand-600">@{replyTo.username}</span> yanıtlanıyor
-                      </p>
                       <textarea
                         ref={el => { replyRefs.current[c.id] = el; }}
                         value={replyText[c.id] ?? ""}
                         onChange={e => setReplyText(prev => ({ ...prev, [c.id]: e.target.value }))}
-                        placeholder="Yanıtınızı yazın…"
+                        placeholder={`@${replyTo.username} yanıtını yaz…`}
                         rows={2}
                         className="w-full px-3 py-2 rounded-xl border border-warm-200 bg-white text-warm-800 placeholder-warm-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 resize-none"
                         autoFocus
@@ -256,7 +255,7 @@ export default function BlogCommentSection({ postId, currentUserId }: Props) {
                           İptal
                         </button>
                         <button
-                          onClick={() => handleReplySubmit(c.id, c.profiles?.username ?? "Üye")}
+                          onClick={() => handleReplySubmit(c.id)}
                           disabled={!replyText[c.id]?.trim() || sendingReply === c.id}
                           className="px-3 py-1.5 rounded-lg bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white text-xs font-medium transition-colors"
                         >

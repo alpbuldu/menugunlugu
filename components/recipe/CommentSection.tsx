@@ -131,7 +131,16 @@ export default function CommentSection({ recipeId, currentUserId }: Props) {
 
   function openReply(commentId: string, username: string) {
     setReplyTo({ id: commentId, username });
-    setTimeout(() => replyRefs.current[commentId]?.focus(), 50);
+    // textarea'ya @kullanıcı ile başlat
+    setReplyText(prev => ({ ...prev, [commentId]: `@${username} ` }));
+    setTimeout(() => {
+      const el = replyRefs.current[commentId];
+      if (!el) return;
+      el.focus();
+      // imleci sona taşı
+      const len = (`@${username} `).length;
+      el.setSelectionRange(len, len);
+    }, 50);
   }
 
   const topLevel = comments.filter(c => !c.parent_id);
@@ -223,6 +232,14 @@ export default function CommentSection({ recipeId, currentUserId }: Props) {
                               )}
                             </div>
                             <RenderContent text={body} />
+                            {currentUserId && (
+                              <button
+                                onClick={() => isReplying ? setReplyTo(null) : openReply(c.id, r.profiles?.username ?? "Üye")}
+                                className="mt-1 text-[11px] text-brand-500 hover:text-brand-700 font-medium transition-colors"
+                              >
+                                ↩ Yanıtla
+                              </button>
+                            )}
                           </div>
                         </div>
                       );
@@ -237,14 +254,11 @@ export default function CommentSection({ recipeId, currentUserId }: Props) {
                       <span className="text-[10px]">👤</span>
                     </div>
                     <div className="flex-1 space-y-2">
-                      <p className="text-xs text-warm-400">
-                        <span className="font-medium text-brand-600">@{replyTo.username}</span> yanıtlanıyor
-                      </p>
                       <textarea
                         ref={el => { replyRefs.current[c.id] = el; }}
                         value={replyText[c.id] ?? ""}
                         onChange={e => setReplyText(prev => ({ ...prev, [c.id]: e.target.value }))}
-                        placeholder="Yanıtınızı yazın…"
+                        placeholder={`@${replyTo.username} yanıtını yaz…`}
                         rows={2}
                         className="w-full px-3 py-2 rounded-xl border border-warm-200 bg-white text-warm-800 placeholder-warm-400 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 resize-none"
                       />

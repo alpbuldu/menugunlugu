@@ -20,7 +20,7 @@ interface Comment {
 interface Props {
   comment: Comment;
   type: "recipe" | "blog";
-  replyEndpoint: string;
+  resourceId: string;
 }
 
 function RenderContent({ text }: { text: string }) {
@@ -36,14 +36,13 @@ function RenderContent({ text }: { text: string }) {
   );
 }
 
-export default function AdminCommentCard({ comment, type, replyEndpoint }: Props) {
+export default function AdminCommentCard({ comment, type, resourceId }: Props) {
   const router = useRouter();
 
-  // replyingTo: hangi yorumu yanıtlıyoruz (id + username)
-  // null → form kapalı, comment.id → ana yoruma yanıt, r.id → yanıta yanıt
   const [replyingTo, setReplyingTo] = useState<{ commentId: string; username: string } | null>(null);
   const [text,   setText]   = useState("");
   const [saving, setSaving] = useState(false);
+  const [error,  setError]  = useState("");
 
   const linkHref  = type === "recipe"
     ? (comment.recipes   ? `/tarifler/${comment.recipes.slug}`  : null)
@@ -56,22 +55,35 @@ export default function AdminCommentCard({ comment, type, replyEndpoint }: Props
   function openReply(targetCommentId: string, username: string) {
     setReplyingTo({ commentId: targetCommentId, username });
     setText(`@${username} `);
+    setError("");
   }
 
   function closeReply() {
     setReplyingTo(null);
     setText("");
+    setError("");
   }
 
   async function sendReply() {
     if (!text.trim() || !replyingTo) return;
     setSaving(true);
-    await fetch(replyEndpoint, {
+    setError("");
+    const res = await fetch("/api/admin/yorumlar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      // parent_id her zaman üst yorum (comment.id) — flat 2-level threading
-      body: JSON.stringify({ content: text.trim(), parent_id: comment.id }),
+      body: JSON.stringify({
+        type,
+        resourceId,
+        content: text.trim(),
+        parent_id: comment.id, // her zaman üst yorum — flat 2-level threading
+      }),
     });
+    if (!res.ok) {
+      const d = await res.json().catch(() => ({}));
+      setError(d.error ?? "Gönderilemedi.");
+      setSaving(false);
+      return;
+    }
     setSaving(false);
     closeReply();
     router.refresh();
@@ -89,6 +101,23 @@ export default function AdminCommentCard({ comment, type, replyEndpoint }: Props
   const fmtDate = (iso: string) =>
     new Date(iso).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" });
 
+  // Yanıt için display içerik — kendi kendini etiketleme engeli
+  function replyDisplayContent(r: Comment, parentAuthor: string): string {
+    if (r.content.match(/^@\S+/)) {
+      // İçerik zaten @mention ile başlıyor
+      const m = r.content.match(/^@(\S+)/);
+      const mentionedUser = m?.[1] ?? "";
+      // Kendi kendini etiketliyorsa mention'ı kaldır
+      if (mentionedUser === r.profiles?.username) {
+        return r.content.replace(/^@\S+\s*/, "");
+      }
+      return r.content;
+    }
+    // @mention yok — parent author self ise ekleme, değilse ekle
+    if (parentAuthor === r.profiles?.username) return r.content;
+    return `@${parentAuthor} ${r.content}`;
+  }
+
   const replyForm = (
     <div className="mt-2 space-y-2">
       <textarea
@@ -98,6 +127,7 @@ export default function AdminCommentCard({ comment, type, replyEndpoint }: Props
         autoFocus
         className="w-full px-3 py-2 rounded-xl border border-warm-200 text-sm text-warm-800 placeholder-warm-400 focus:outline-none focus:ring-2 focus:ring-brand-300 resize-none"
       />
+      {error && <p className="text-xs text-red-500">{error}</p>}
       <div className="flex gap-2 justify-end">
         <button onClick={closeReply}
           className="px-3 py-1.5 rounded-lg border border-warm-200 text-warm-600 text-xs hover:bg-warm-50 transition-colors">
@@ -148,9 +178,7 @@ export default function AdminCommentCard({ comment, type, replyEndpoint }: Props
             <div className="mt-3 ml-4 space-y-3 border-l-2 border-warm-100 pl-3">
               {(comment.replies ?? []).map(r => {
                 const parentAuthor = comment.profiles?.username ?? "Üye";
-                const displayContent = r.content.match(/^@\S+/)
-                  ? r.content
-                  : `@${parentAuthor} ${r.content}`;
+                const displayContent = replyDisplayContent(r, parentAuthor);
                 const isReplyingToThis = replyingTo?.commentId === r.id;
                 return (
                   <div key={r.id} className="group">

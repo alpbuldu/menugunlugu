@@ -195,9 +195,19 @@ export default function BlogCommentSection({ postId, currentUserId }: Props) {
                   <div className="ml-11 mt-3 space-y-3 border-l-2 border-warm-100 pl-4">
                     {replies.map(r => {
                       const parentAuthor = c.profiles?.username ?? "Üye";
-                      const displayContent = r.content.match(/^@\S+/)
-                        ? r.content
-                        : `@${parentAuthor} ${r.content}`;
+                      // @mention yoksa parent yorum sahibini öne ekle (kendi kendine etiket engeli)
+                      const displayContent = (() => {
+                        if (r.content.match(/^@\S+/)) {
+                          const m = r.content.match(/^@(\S+)/);
+                          const mentioned = m?.[1] ?? "";
+                          if (mentioned === r.profiles?.username) {
+                            return r.content.replace(/^@\S+\s*/, "");
+                          }
+                          return r.content;
+                        }
+                        if (parentAuthor === r.profiles?.username) return r.content;
+                        return `@${parentAuthor} ${r.content}`;
+                      })();
                       return (
                         <div key={r.id} className="flex gap-2.5 group">
                           <div className="w-6 h-6 rounded-full bg-brand-100 overflow-hidden flex items-center justify-center flex-shrink-0 mt-0.5">

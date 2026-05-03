@@ -109,7 +109,7 @@ export default async function YorumlarPage() {
                     key={c.id}
                     comment={c}
                     type="recipe"
-                    replyEndpoint={`/api/recipes/${recipeIdByCommentId[c.id]}/comments`}
+                    resourceId={recipeIdByCommentId[c.id] ?? ""}
                   />
                 ))}
               </div>
@@ -131,7 +131,7 @@ export default async function YorumlarPage() {
                     key={c.id}
                     comment={c}
                     type="blog"
-                    replyEndpoint={`/api/blog/${postIdByCommentId[c.id]}/comments`}
+                    resourceId={postIdByCommentId[c.id] ?? ""}
                   />
                 ))}
               </div>

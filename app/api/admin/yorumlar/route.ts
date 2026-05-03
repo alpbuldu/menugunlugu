@@ -21,24 +21,30 @@ export async function POST(request: NextRequest) {
 
   const supabase = createAdminClient();
 
-  // Admin profilinden username al
+  // Admin profilinden comment_user_id al (önce doğrudan UUID, yoksa username ile ara)
   const { data: adminProfile } = await supabase
     .from("admin_profile")
-    .select("username")
+    .select("username, comment_user_id")
     .eq("id", 1)
     .single();
 
-  const adminUsername = adminProfile?.username ?? "admin";
+  let userId: string | null = adminProfile?.comment_user_id ?? null;
 
-  // Profiles tablosundan admin user_id'yi bul
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("id")
-    .eq("username", adminUsername)
-    .single();
+  if (!userId) {
+    // Fallback: username ile ara
+    const adminUsername = adminProfile?.username ?? "";
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("username", adminUsername)
+      .single();
+    userId = profile?.id ?? null;
+  }
 
-  if (!profile) {
-    return NextResponse.json({ error: `Admin profili bulunamadı: ${adminUsername}` }, { status: 500 });
+  if (!userId) {
+    return NextResponse.json({
+      error: "Admin yorum hesabı ayarlanmamış. Admin Profili → Yorum Hesabı alanını doldurun.",
+    }, { status: 500 });
   }
 
   const table = type === "recipe" ? "comments" : "blog_comments";
@@ -48,7 +54,7 @@ export async function POST(request: NextRequest) {
     .from(table)
     .insert({
       [resourceField]: resourceId,
-      user_id: profile.id,
+      user_id: userId,
       content: content.trim(),
       parent_id: parent_id ?? null,
     })

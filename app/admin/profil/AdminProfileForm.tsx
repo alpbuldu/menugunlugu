@@ -5,17 +5,21 @@ import Image from "next/image";
 import type { AdminProfile } from "@/lib/types";
 
 export default function AdminProfileForm({ profile }: { profile: AdminProfile }) {
-  const [username,  setUsername]  = useState(profile.username);
-  const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? "");
-  const [fullName,  setFullName]  = useState((profile as any).full_name  ?? "");
-  const [bio,       setBio]       = useState((profile as any).bio        ?? "");
-  const [instagram, setInstagram] = useState((profile as any).instagram  ?? "");
-  const [twitter,   setTwitter]   = useState((profile as any).twitter    ?? "");
-  const [youtube,   setYoutube]   = useState((profile as any).youtube    ?? "");
-  const [website,   setWebsite]   = useState((profile as any).website    ?? "");
-  const [uploading, setUploading] = useState(false);
-  const [saving,    setSaving]    = useState(false);
-  const [message,   setMessage]   = useState("");
+  const [username,      setUsername]      = useState(profile.username);
+  const [avatarUrl,     setAvatarUrl]     = useState(profile.avatar_url ?? "");
+  const [fullName,      setFullName]      = useState((profile as any).full_name  ?? "");
+  const [bio,           setBio]           = useState((profile as any).bio        ?? "");
+  const [instagram,     setInstagram]     = useState((profile as any).instagram  ?? "");
+  const [twitter,       setTwitter]       = useState((profile as any).twitter    ?? "");
+  const [youtube,       setYoutube]       = useState((profile as any).youtube    ?? "");
+  const [website,       setWebsite]       = useState((profile as any).website    ?? "");
+  const [commentUserId, setCommentUserId] = useState((profile as any).comment_user_id ?? "");
+  const [commentUname,  setCommentUname]  = useState("");
+  const [lookingUp,     setLookingUp]     = useState(false);
+  const [lookupMsg,     setLookupMsg]     = useState("");
+  const [uploading,     setUploading]     = useState(false);
+  const [saving,        setSaving]        = useState(false);
+  const [message,       setMessage]       = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const inputCls = "w-full px-4 py-2.5 rounded-xl border border-warm-200 bg-white text-warm-900 placeholder-warm-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm";
@@ -34,6 +38,20 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
     setAvatarUrl(data.url);
   }
 
+  async function handleLookup() {
+    if (!commentUname.trim()) return;
+    setLookingUp(true); setLookupMsg("");
+    const res  = await fetch(`/api/admin/users/lookup?username=${encodeURIComponent(commentUname.trim())}`);
+    const data = await res.json();
+    setLookingUp(false);
+    if (!res.ok || !data.id) {
+      setLookupMsg(`❌ "${commentUname}" bulunamadı.`);
+    } else {
+      setCommentUserId(data.id);
+      setLookupMsg(`✅ ${data.username} (${data.id.slice(0, 8)}…)`);
+    }
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true); setMessage("");
@@ -41,14 +59,15 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
       method:  "PUT",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify({
-        username:   username.trim(),
-        avatar_url: avatarUrl || null,
-        full_name:  fullName.trim()  || null,
-        bio:        bio.trim()       || null,
-        instagram:  instagram.trim() || null,
-        twitter:    twitter.trim()   || null,
-        youtube:    youtube.trim()   || null,
-        website:    website.trim()   || null,
+        username:        username.trim(),
+        avatar_url:      avatarUrl || null,
+        full_name:       fullName.trim()  || null,
+        bio:             bio.trim()       || null,
+        instagram:       instagram.trim() || null,
+        twitter:         twitter.trim()   || null,
+        youtube:         youtube.trim()   || null,
+        website:         website.trim()   || null,
+        comment_user_id: commentUserId    || null,
       }),
     });
     setSaving(false);
@@ -126,6 +145,44 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Yorum Hesabı */}
+      <div className="border-t border-warm-100 pt-4">
+        <label className={labelCls}>💬 Admin Yorum Hesabı</label>
+        <p className="text-xs text-warm-400 mb-3">
+          Admin panelinden yorum yazarken hangi üye hesabıyla yayınlanacağını belirler.
+        </p>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={commentUname}
+            onChange={e => setCommentUname(e.target.value)}
+            placeholder="Kullanıcı adı (örn: hikayeliyemekler)"
+            className={`${inputCls} flex-1`}
+            onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleLookup())}
+          />
+          <button type="button" onClick={handleLookup} disabled={lookingUp || !commentUname.trim()}
+            className="px-4 py-2.5 rounded-xl bg-warm-100 hover:bg-warm-200 text-warm-700 text-sm font-medium transition-colors disabled:opacity-50 whitespace-nowrap">
+            {lookingUp ? "…" : "Bul"}
+          </button>
+        </div>
+        {lookupMsg && (
+          <p className={`mt-1.5 text-xs ${lookupMsg.startsWith("✅") ? "text-green-600" : "text-red-500"}`}>
+            {lookupMsg}
+          </p>
+        )}
+        {commentUserId && !lookupMsg && (
+          <p className="mt-1.5 text-xs text-warm-400">
+            Mevcut: <span className="font-mono">{commentUserId.slice(0, 16)}…</span>
+          </p>
+        )}
+        {commentUserId && (
+          <button type="button" onClick={() => { setCommentUserId(""); setLookupMsg(""); }}
+            className="mt-1 text-xs text-red-400 hover:underline">
+            Temizle
+          </button>
+        )}
       </div>
 
       {message && (

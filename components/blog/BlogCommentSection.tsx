@@ -206,9 +206,6 @@ export default function BlogCommentSection({ postId, currentUserId }: Props) {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-1.5 flex-wrap">
                               <span className="text-xs font-semibold text-warm-800">{r.profiles?.username ?? "Üye"}</span>
-                              <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-brand-50 text-[10px] font-medium text-brand-600">
-                                ↩ @{target}
-                              </span>
                               <span className="text-[11px] text-warm-400">{formatDate(r.created_at)}</span>
                               {currentUserId === r.user_id && (
                                 <button onClick={() => handleDelete(r.id)}
@@ -217,7 +214,7 @@ export default function BlogCommentSection({ postId, currentUserId }: Props) {
                                 </button>
                               )}
                             </div>
-                            <RenderContent text={body} />
+                            <RenderContent text={r.content} />
                             {currentUserId && (
                               <button
                                 onClick={() => openReply(c.id, r.profiles?.username ?? "Üye")}

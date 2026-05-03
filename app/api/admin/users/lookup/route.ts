@@ -19,16 +19,22 @@ export async function GET(request: NextRequest) {
   }
 
   const supabase = createAdminClient();
-  const { data, error } = await supabase
+
+  // Önce tam eşleşme dene, sonra içeren ara
+  const { data } = await supabase
     .from("profiles")
     .select("id, username, full_name, avatar_url")
-    .ilike("username", username)
-    .limit(1)
-    .single();
+    .ilike("username", `%${username}%`)
+    .limit(10);
 
-  if (error || !data) {
+  if (!data || data.length === 0) {
     return NextResponse.json({ error: "Kullanıcı bulunamadı." }, { status: 404 });
   }
 
-  return NextResponse.json(data);
+  // Tek sonuç varsa direkt döndür, çok sonuç varsa liste olarak döndür
+  if (data.length === 1) {
+    return NextResponse.json(data[0]);
+  }
+
+  return NextResponse.json({ results: data });
 }

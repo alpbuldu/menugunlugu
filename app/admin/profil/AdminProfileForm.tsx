@@ -17,6 +17,7 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
   const [commentUname,  setCommentUname]  = useState("");
   const [lookingUp,     setLookingUp]     = useState(false);
   const [lookupMsg,     setLookupMsg]     = useState("");
+  const [lookupResults, setLookupResults] = useState<{ id: string; username: string; full_name?: string }[]>([]);
   const [uploading,     setUploading]     = useState(false);
   const [saving,        setSaving]        = useState(false);
   const [message,       setMessage]       = useState("");
@@ -40,16 +41,29 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
 
   async function handleLookup() {
     if (!commentUname.trim()) return;
-    setLookingUp(true); setLookupMsg("");
+    setLookingUp(true); setLookupMsg(""); setLookupResults([]);
     const res  = await fetch(`/api/admin/users/lookup?username=${encodeURIComponent(commentUname.trim())}`);
     const data = await res.json();
     setLookingUp(false);
-    if (!res.ok || !data.id) {
+    if (!res.ok) {
       setLookupMsg(`❌ "${commentUname}" bulunamadı.`);
+    } else if (data.results) {
+      // Çok sonuç — listele
+      setLookupResults(data.results);
+      setLookupMsg("");
     } else {
+      // Tek sonuç
       setCommentUserId(data.id);
-      setLookupMsg(`✅ ${data.username} (${data.id.slice(0, 8)}…)`);
+      setLookupResults([]);
+      setLookupMsg(`✅ ${data.username} seçildi.`);
     }
+  }
+
+  function selectUser(u: { id: string; username: string }) {
+    setCommentUserId(u.id);
+    setCommentUname(u.username);
+    setLookupResults([]);
+    setLookupMsg(`✅ ${u.username} seçildi.`);
   }
 
   async function handleSave(e: React.FormEvent) {
@@ -172,7 +186,22 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
             {lookupMsg}
           </p>
         )}
-        {commentUserId && !lookupMsg && (
+        {lookupResults.length > 0 && (
+          <div className="mt-2 border border-warm-200 rounded-xl overflow-hidden">
+            {lookupResults.map(u => (
+              <button
+                key={u.id}
+                type="button"
+                onClick={() => selectUser(u)}
+                className="w-full text-left px-3 py-2 text-sm hover:bg-warm-50 transition-colors border-b border-warm-100 last:border-0"
+              >
+                <span className="font-medium text-warm-800">@{u.username}</span>
+                {u.full_name && <span className="text-warm-400 ml-2 text-xs">{u.full_name}</span>}
+              </button>
+            ))}
+          </div>
+        )}
+        {commentUserId && !lookupMsg && lookupResults.length === 0 && (
           <p className="mt-1.5 text-xs text-warm-400">
             Mevcut: <span className="font-mono">{commentUserId.slice(0, 16)}…</span>
           </p>

@@ -18,6 +18,8 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
   const [lookingUp,     setLookingUp]     = useState(false);
   const [lookupMsg,     setLookupMsg]     = useState("");
   const [lookupResults, setLookupResults] = useState<{ id: string; username: string; full_name?: string }[]>([]);
+  const [allUsers,      setAllUsers]      = useState<{ id: string; username: string; full_name?: string }[]>([]);
+  const [showPicker,    setShowPicker]    = useState(false);
   const [uploading,     setUploading]     = useState(false);
   const [saving,        setSaving]        = useState(false);
   const [message,       setMessage]       = useState("");
@@ -39,20 +41,30 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
     setAvatarUrl(data.url);
   }
 
+  async function loadAllUsers() {
+    setLookingUp(true);
+    const res  = await fetch(`/api/admin/users/lookup`);
+    const data = await res.json();
+    setLookingUp(false);
+    if (data.results) setAllUsers(data.results);
+    else if (data.id) setAllUsers([data]);
+    setShowPicker(true);
+  }
+
   async function handleLookup() {
-    if (!commentUname.trim()) return;
     setLookingUp(true); setLookupMsg(""); setLookupResults([]);
-    const res  = await fetch(`/api/admin/users/lookup?username=${encodeURIComponent(commentUname.trim())}`);
+    const qs = commentUname.trim()
+      ? `?username=${encodeURIComponent(commentUname.trim())}`
+      : "";
+    const res  = await fetch(`/api/admin/users/lookup${qs}`);
     const data = await res.json();
     setLookingUp(false);
     if (!res.ok) {
       setLookupMsg(`❌ "${commentUname}" bulunamadı.`);
     } else if (data.results) {
-      // Çok sonuç — listele
       setLookupResults(data.results);
       setLookupMsg("");
     } else {
-      // Tek sonuç
       setCommentUserId(data.id);
       setLookupResults([]);
       setLookupMsg(`✅ ${data.username} seçildi.`);
@@ -63,6 +75,8 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
     setCommentUserId(u.id);
     setCommentUname(u.username);
     setLookupResults([]);
+    setAllUsers([]);
+    setShowPicker(false);
     setLookupMsg(`✅ ${u.username} seçildi.`);
   }
 
@@ -167,50 +181,66 @@ export default function AdminProfileForm({ profile }: { profile: AdminProfile })
         <p className="text-xs text-warm-400 mb-3">
           Admin panelinden yorum yazarken hangi üye hesabıyla yayınlanacağını belirler.
         </p>
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={commentUname}
-            onChange={e => setCommentUname(e.target.value)}
-            placeholder="Kullanıcı adı (örn: hikayeliyemekler)"
-            className={`${inputCls} flex-1`}
-            onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleLookup())}
-          />
-          <button type="button" onClick={handleLookup} disabled={lookingUp || !commentUname.trim()}
-            className="px-4 py-2.5 rounded-xl bg-warm-100 hover:bg-warm-200 text-warm-700 text-sm font-medium transition-colors disabled:opacity-50 whitespace-nowrap">
-            {lookingUp ? "…" : "Bul"}
-          </button>
-        </div>
-        {lookupMsg && (
-          <p className={`mt-1.5 text-xs ${lookupMsg.startsWith("✅") ? "text-green-600" : "text-red-500"}`}>
-            {lookupMsg}
-          </p>
+
+        {/* Seçilmiş hesap gösterimi */}
+        {commentUserId && lookupMsg.startsWith("✅") ? (
+          <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-xl mb-2">
+            <span className="text-green-700 text-sm font-medium">{lookupMsg.replace("✅ ", "✅  ")}</span>
+            <button type="button" onClick={() => { setCommentUserId(""); setLookupMsg(""); setCommentUname(""); }}
+              className="ml-auto text-xs text-red-400 hover:underline">Değiştir</button>
+          </div>
+        ) : commentUserId ? (
+          <div className="flex items-center gap-2 px-3 py-2 bg-brand-50 border border-brand-200 rounded-xl mb-2">
+            <span className="text-brand-700 text-sm font-medium">✅ Hesap seçili</span>
+            <span className="text-brand-400 text-xs font-mono">{commentUserId.slice(0, 8)}…</span>
+            <button type="button" onClick={() => { setCommentUserId(""); setLookupMsg(""); setCommentUname(""); }}
+              className="ml-auto text-xs text-red-400 hover:underline">Değiştir</button>
+          </div>
+        ) : null}
+
+        {/* Arama satırı */}
+        {!commentUserId && (
+          <>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={commentUname}
+                onChange={e => setCommentUname(e.target.value)}
+                placeholder="Kullanıcı adı ara…"
+                className={`${inputCls} flex-1`}
+                onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleLookup())}
+              />
+              <button type="button" onClick={handleLookup} disabled={lookingUp}
+                className="px-4 py-2.5 rounded-xl bg-warm-100 hover:bg-warm-200 text-warm-700 text-sm font-medium transition-colors disabled:opacity-50 whitespace-nowrap">
+                {lookingUp ? "…" : "Ara"}
+              </button>
+            </div>
+            <button type="button" onClick={loadAllUsers} disabled={lookingUp}
+              className="mt-1.5 text-xs text-brand-500 hover:text-brand-700 font-medium transition-colors">
+              {lookingUp ? "Yükleniyor…" : "↓ Tüm üyeleri listele"}
+            </button>
+          </>
         )}
-        {lookupResults.length > 0 && (
-          <div className="mt-2 border border-warm-200 rounded-xl overflow-hidden">
-            {lookupResults.map(u => (
+
+        {lookupMsg && !lookupMsg.startsWith("✅") && (
+          <p className="mt-1.5 text-xs text-red-500">{lookupMsg}</p>
+        )}
+
+        {/* Arama sonuç listesi */}
+        {(lookupResults.length > 0 || (showPicker && allUsers.length > 0)) && (
+          <div className="mt-2 border border-warm-200 rounded-xl overflow-hidden max-h-48 overflow-y-auto">
+            {(lookupResults.length > 0 ? lookupResults : allUsers).map(u => (
               <button
                 key={u.id}
                 type="button"
                 onClick={() => selectUser(u)}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-warm-50 transition-colors border-b border-warm-100 last:border-0"
+                className="w-full text-left px-3 py-2.5 text-sm hover:bg-warm-50 transition-colors border-b border-warm-100 last:border-0"
               >
                 <span className="font-medium text-warm-800">@{u.username}</span>
                 {u.full_name && <span className="text-warm-400 ml-2 text-xs">{u.full_name}</span>}
               </button>
             ))}
           </div>
-        )}
-        {commentUserId && !lookupMsg && lookupResults.length === 0 && (
-          <p className="mt-1.5 text-xs text-warm-400">
-            Mevcut: <span className="font-mono">{commentUserId.slice(0, 16)}…</span>
-          </p>
-        )}
-        {commentUserId && (
-          <button type="button" onClick={() => { setCommentUserId(""); setLookupMsg(""); }}
-            className="mt-1 text-xs text-red-400 hover:underline">
-            Temizle
-          </button>
         )}
       </div>
 

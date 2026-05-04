@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
         ? <StoryView cards={cards} />
         : <PostView cards={cards} date={slideDateStr} />,
     {
-      width: 1080, height: isStory && !isSlide ? 1920 : 1440,
+      width: 1080, height: isSlide ? 1440 : isStory ? 1920 : 1080,
       fonts: [
         { name: "Roboto", data: fontR, weight: 400, style: "normal" },
         { name: "Roboto", data: fontB, weight: 700, style: "normal" },
@@ -240,23 +240,23 @@ function ImageCell({
 /* ════════════════════════════════════════════════════════════════
    Shared header & footer (kapakla aynı tasarım dili)
 ════════════════════════════════════════════════════════════════ */
-function SharedHeader() {
+function SharedHeader({ compact = false }: { compact?: boolean }) {
   return (
-    <div style={{ height: 130, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 28px", flexShrink: 0 }}>
-      <div style={{ color: "#FFFFFF", fontSize: 48, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
+    <div style={{ height: compact ? 90 : 130, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 28px", flexShrink: 0 }}>
+      <div style={{ color: "#FFFFFF", fontSize: compact ? 38 : 48, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
     </div>
   );
 }
 
-function SharedFooter() {
+function SharedFooter({ compact = false }: { compact?: boolean }) {
   return (
-    <div style={{ height: 130, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, flexShrink: 0 }}>
+    <div style={{ height: compact ? 90 : 130, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: compact ? 6 : 10, flexShrink: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#FCD34D", display: "flex" }} />
-        <div style={{ color: "#FEF3E2", fontSize: 18, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
+        <div style={{ color: "#FEF3E2", fontSize: compact ? 14 : 18, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
         <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#FCD34D", display: "flex" }} />
       </div>
-      <div style={{ color: "#FFFFFF", fontSize: 14, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
+      {!compact && <div style={{ color: "#FFFFFF", fontSize: 14, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>}
     </div>
   );
 }
@@ -420,15 +420,13 @@ function SlideView({ card, date }: { card: Card; date: string }) {
    POST  1080 × 1350
    Slim cream header · full-bleed 2×2 image grid · amber dividers
 ════════════════════════════════════════════════════════════════ */
-function PostView({ cards, date }: { cards: Card[]; date: string }) {
-  const HEAD = 130;
-  const FOOT = 130;
-  const DIV  = 3;   // amber divider thickness
+function PostView({ cards }: { cards: Card[] }) {
+  const DIV  = 3;
 
   return (
-    <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+    <div style={{ width: 1080, height: 1080, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
-      <SharedHeader />
+      <SharedHeader compact />
 
       {/* Top amber line */}
       <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
@@ -441,17 +439,17 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           {/* Row 1 */}
           <div style={{ flex: 1, display: "flex" }}>
-            <ImageCell card={cards[0]} fontSize={23} catFontSize={29} authorFontSize={22} authorPrefix bottomPad={46} textGap={8} />
+            <ImageCell card={cards[0]} fontSize={20} catFontSize={24} authorFontSize={18} authorPrefix bottomPad={32} textGap={6} />
             <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-            <ImageCell card={cards[1]} fontSize={23} catFontSize={29} authorFontSize={22} authorPrefix bottomPad={46} textGap={8} />
+            <ImageCell card={cards[1]} fontSize={20} catFontSize={24} authorFontSize={18} authorPrefix bottomPad={32} textGap={6} />
           </div>
           {/* Row divider */}
           <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
           {/* Row 2 */}
           <div style={{ flex: 1, display: "flex" }}>
-            <ImageCell card={cards[2]} fontSize={23} catFontSize={29} authorFontSize={22} authorPrefix bottomPad={46} textGap={8} />
+            <ImageCell card={cards[2]} fontSize={20} catFontSize={24} authorFontSize={18} authorPrefix bottomPad={32} textGap={6} />
             <div style={{ width: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
-            <ImageCell card={cards[3]} fontSize={23} catFontSize={29} authorFontSize={22} authorPrefix bottomPad={46} textGap={8} />
+            <ImageCell card={cards[3]} fontSize={20} catFontSize={24} authorFontSize={18} authorPrefix bottomPad={32} textGap={6} />
           </div>
         </div>
         {/* Right amber border */}
@@ -461,7 +459,7 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
       {/* Bottom amber line */}
       <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
 
-      <SharedFooter />
+      <SharedFooter compact />
 
     </div>
   );

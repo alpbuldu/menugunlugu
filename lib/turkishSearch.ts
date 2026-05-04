@@ -74,6 +74,17 @@ function devoice(stem: string): string {
   return stem;
 }
 
+/**
+ * Reverse of devoice: p→b, t→d at word end.
+ * Lets "kebap" find "kebabı", "kanat" find "kanadı" etc.
+ */
+function revoice(s: string): string {
+  const last = s[s.length - 1];
+  if (last === "p") return s.slice(0, -1) + "b";
+  if (last === "t") return s.slice(0, -1) + "d";
+  return s;
+}
+
 /** Strip one Turkish suffix from a normalized string and apply devoicing. */
 function trStem(normalized: string): string {
   if (normalized.length < 4) return normalized;
@@ -91,35 +102,52 @@ function trStem(normalized: string): string {
 // ── Public API ───────────────────────────────────────────────────────────────
 
 /**
- * Returns the normalized + stemmed form of a query string.
- * Use this to feed into a Supabase `.ilike()` call alongside the raw query.
+ * Returns all normalized search variants for a query string.
+ * Used for Supabase ilike calls — send each as a separate OR condition.
  *
- * Example:
- *   "Kebabı"  → "kebap"
- *   "çorbalar" → "corba"
- *   "tatlıyı"  → "tatli"   (stem of "tatlı")
+ * "kebabı"  → ["kebabi", "kebap"]          (raw norm + stem+devoice)
+ * "kebap"   → ["kebap",  "kebab"]          (raw norm + revoice)
+ * "çorbalar"→ ["corbalar", "corba"]        (raw norm + stem)
  */
+export function trQueryVariants(query: string): string[] {
+  const norm = trNorm(query.trim());
+  const variants = new Set<string>([norm]);
+
+  // stemmed form
+  const stem = trStem(norm);
+  if (stem !== norm) variants.add(stem);
+
+  // voiced variant of query (kebap→kebab)
+  const voiced = revoice(norm);
+  if (voiced !== norm) variants.add(voiced);
+
+  // voiced variant of stem
+  if (stem !== norm) {
+    const voicedStem = revoice(stem);
+    if (voicedStem !== stem) variants.add(voicedStem);
+  }
+
+  return [...variants];
+}
+
+/** Convenience: single stemmed string for simple ilike usage. */
 export function trQueryStem(query: string): string {
-  return trStem(trNorm(query));
+  return trStem(trNorm(query.trim()));
 }
 
 /**
- * Returns true when `target` string matches `query` in a Turkish-aware way.
- * Tests both the raw normalized query and its stemmed form.
- *
- * Example:
- *   trMatch("Mercimek Çorbası", "çorbayı") → true
- *   trMatch("Fırın Kebap",      "kebabı")  → true
+ * Returns true when `target` matches `query` in a Turkish-aware way.
+ * Handles both directions:
+ *   trMatch("Fırın Kebabı", "kebap")  → true  (kebap→kebab found in "kebabi")
+ *   trMatch("Fırın Kebap",  "kebabı") → true  (kebabi→kebap found in "kebap")
+ *   trMatch("Mercimek Çorbası", "corba") → true
  */
 export function trMatch(target: string, query: string): boolean {
   if (!query.trim()) return true;
   const nTarget = trNorm(target);
-  const nQuery  = trNorm(query.trim());
 
-  if (nTarget.includes(nQuery)) return true;
-
-  const stem = trStem(nQuery);
-  if (stem !== nQuery && nTarget.includes(stem)) return true;
-
+  for (const variant of trQueryVariants(query)) {
+    if (nTarget.includes(variant)) return true;
+  }
   return false;
 }

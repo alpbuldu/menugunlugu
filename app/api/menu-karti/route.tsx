@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
     isSlide && slideCard
       ? <SlideView card={slideCard} date={slideDateStr} />
       : isStory
-        ? <StoryView cards={cards} date={dateStr} />
+        ? <StoryView cards={cards} />
         : <PostView cards={cards} date={slideDateStr} />,
     {
       width: 1080, height: isStory && !isSlide ? 1920 : 1440,
@@ -240,14 +240,10 @@ function ImageCell({
 /* ════════════════════════════════════════════════════════════════
    Shared header & footer (kapakla aynı tasarım dili)
 ════════════════════════════════════════════════════════════════ */
-function SharedHeader({ date }: { date: string }) {
+function SharedHeader() {
   return (
     <div style={{ height: 130, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 28px", flexShrink: 0 }}>
-      <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 20 }}>
-        <div style={{ color: "#FFFFFF", fontSize: 42, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
-        <div style={{ width: 2, height: 40, backgroundColor: "rgba(255,255,255,0.3)", display: "flex" }} />
-        <div style={{ color: "#FFFFFF", fontSize: 24, display: "flex" }}>{date}</div>
-      </div>
+      <div style={{ color: "#FFFFFF", fontSize: 48, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
     </div>
   );
 }
@@ -311,7 +307,7 @@ function SlideView({ card, date }: { card: Card; date: string }) {
 
   return (
     <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
-      <SharedHeader date={date} />
+      <SharedHeader />
       <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
 
       {/* Ana içerik alanı */}
@@ -432,7 +428,7 @@ function PostView({ cards, date }: { cards: Card[]; date: string }) {
   return (
     <div style={{ width: 1080, height: 1440, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
-      <SharedHeader date={date} />
+      <SharedHeader />
 
       {/* Top amber line */}
       <div style={{ height: DIV, backgroundColor: "#D97706", flexShrink: 0, display: "flex" }} />
@@ -511,7 +507,7 @@ function StoryCardKarti({ card, align }: { card: Card; align: "left" | "right" }
   );
 }
 
-function StoryView({ cards, date }: { cards: Card[]; date: string }) {
+function StoryView({ cards }: { cards: Card[] }) {
   const PAD_H  = 44;
   const CARD_G = 16;
   const ROW_H  = 550;
@@ -521,13 +517,6 @@ function StoryView({ cards, date }: { cards: Card[]; date: string }) {
 
       {/* Instagram safe zone */}
       <div style={{ height: 240, flexShrink: 0, display: "flex" }} />
-
-      {/* Tarih */}
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <div style={{ color: "#FCD34D", fontSize: 26, letterSpacing: 1.5, display: "flex" }}>{date}</div>
-      </div>
-
-      <div style={{ height: 12, flexShrink: 0, display: "flex" }} />
 
       {/* Başlık */}
       <div style={{ display: "flex", justifyContent: "center" }}>

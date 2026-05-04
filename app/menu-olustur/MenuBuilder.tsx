@@ -5,6 +5,7 @@ import { zipSync } from "fflate";
 import Image from "next/image";
 import type { Category } from "@/lib/types";
 import type { MenuRecipe } from "./page";
+import { trMatch } from "@/lib/turkishSearch";
 
 const SLOTS: { key: Category; label: string; short: string; emoji: string }[] = [
   { key: "soup",    label: "Çorba",           short: "Çorba",     emoji: "🥣" },
@@ -469,10 +470,9 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   }
 
   const currentRecipes = grouped[activeCategory];
-  const norm = (s: string) => s.toLocaleLowerCase("tr");
   const filtered = currentRecipes.filter((r) => {
-    const titleOk  = !searchTitle  || norm(r.title).includes(norm(searchTitle));
-    const authorOk = !searchAuthor || norm(r.author).includes(norm(searchAuthor));
+    const titleOk  = !searchTitle  || trMatch(r.title, searchTitle);
+    const authorOk = !searchAuthor || trMatch(r.author, searchAuthor);
     return titleOk && authorOk;
   });
   const totalPages = Math.ceil(filtered.length / perPage);

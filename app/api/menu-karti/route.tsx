@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import https from "node:https";
 import http from "node:http";
 import sharp from "sharp";
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
   };
   if (Object.values(ids).some(v => !v)) return new Response("4 IDs required", { status: 400 });
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { data: rows } = await supabase
     .from("recipes").select("id, title, image_url, submitted_by, ingredients, instructions")
     .in("id", Object.values(ids));

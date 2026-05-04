@@ -242,21 +242,21 @@ function ImageCell({
 ════════════════════════════════════════════════════════════════ */
 function SharedHeader({ compact = false }: { compact?: boolean }) {
   return (
-    <div style={{ height: compact ? 90 : 130, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 28px", flexShrink: 0 }}>
-      <div style={{ color: "#FFFFFF", fontSize: compact ? 38 : 48, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
+    <div style={{ height: compact ? 110 : 130, backgroundColor: "#92400E", display: "flex", alignItems: "center", justifyContent: "center", padding: "0 28px", flexShrink: 0 }}>
+      <div style={{ color: "#FFFFFF", fontSize: compact ? 42 : 48, fontWeight: 700, lineHeight: 1, display: "flex" }}>Günün Menüsü</div>
     </div>
   );
 }
 
 function SharedFooter({ compact = false }: { compact?: boolean }) {
   return (
-    <div style={{ height: compact ? 90 : 130, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: compact ? 6 : 10, flexShrink: 0 }}>
+    <div style={{ height: compact ? 110 : 130, backgroundColor: "#92400E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: compact ? 7 : 10, flexShrink: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#FCD34D", display: "flex" }} />
-        <div style={{ color: "#FEF3E2", fontSize: compact ? 14 : 18, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
+        <div style={{ color: "#FEF3E2", fontSize: compact ? 15 : 18, fontWeight: 700, letterSpacing: 2.5, display: "flex" }}>MENUGUNLUGU.COM</div>
         <div style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: "#FCD34D", display: "flex" }} />
       </div>
-      {!compact && <div style={{ color: "#FFFFFF", fontSize: 14, letterSpacing: 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>}
+      <div style={{ color: "#FFFFFF", fontSize: compact ? 11 : 14, letterSpacing: compact ? 1 : 1.5, display: "flex" }}>TARİFİNİ YÜKLE &amp; TARİFLERE GÖZ AT · MENÜ OLUŞTUR · PAYLAŞ!</div>
     </div>
   );
 }

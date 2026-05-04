@@ -76,6 +76,12 @@ const quickActions = [
     icon: "📈",
     desc: "Tarif bazlı favori, puan, yorum ve paylaşım sıralamaları",
   },
+  {
+    href: "/admin/hata-raporlari",
+    label: "Hata Raporları",
+    icon: "🐛",
+    desc: "Kullanıcıların bildirdiği hata ve görsel sorunlar",
+  },
 ];
 
 export default function AdminDashboard() {

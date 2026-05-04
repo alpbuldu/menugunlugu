@@ -167,7 +167,7 @@ export async function GET(request: NextRequest) {
         ? <StoryView cards={cards} />
         : <PostView cards={cards} date={slideDateStr} />,
     {
-      width: 1080, height: isSlide ? 1440 : isStory ? 1920 : 1080,
+      width: 1080, height: isSlide ? 1440 : isStory ? 1920 : 1350,
       fonts: [
         { name: "Roboto", data: fontR, weight: 400, style: "normal" },
         { name: "Roboto", data: fontB, weight: 700, style: "normal" },
@@ -424,7 +424,7 @@ function PostView({ cards }: { cards: Card[] }) {
   const DIV  = 3;
 
   return (
-    <div style={{ width: 1080, height: 1080, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
+    <div style={{ width: 1080, height: 1350, display: "flex", flexDirection: "column", fontFamily: "Roboto", backgroundColor: "#0A0400" }}>
 
       <SharedHeader compact />
 

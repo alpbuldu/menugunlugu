@@ -10,13 +10,25 @@ export async function POST(req: NextRequest) {
     }
 
     const supabase = createAdminClient();
-    const { error } = await supabase.from("bug_reports").insert({
+
+    // image_url sütunu yoksa graceful fallback
+    let { error } = await supabase.from("bug_reports").insert({
       type:        type ?? "other",
       description: description.trim(),
       image_url:   image_url ?? null,
       user_id:     user_id   ?? null,
       created_at:  new Date().toISOString(),
     });
+
+    if (error?.message?.includes("image_url")) {
+      // Sütun henüz eklenmemişse image_url olmadan tekrar dene
+      ({ error } = await supabase.from("bug_reports").insert({
+        type:        type ?? "other",
+        description: description.trim(),
+        user_id:     user_id ?? null,
+        created_at:  new Date().toISOString(),
+      }));
+    }
 
     if (error) throw error;
     return NextResponse.json({ ok: true });

@@ -6,7 +6,6 @@ import { createAdminClient } from "@/lib/supabase/server";
 import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdSlot from "@/components/ui/AdSlot";
 import PagePopup from "@/components/ui/PagePopup";
-import OmuBumuGame from "@/components/ui/OmuBumuGame";
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = createAdminClient();
@@ -105,7 +104,7 @@ export default async function HomePage() {
             <br />
             Bugünün menüsünü keşfet!
           </p>
-          {/* Mobile: 2×2 grid */}
+          {/* Mobile: 2×2 + 1 tam genişlik */}
           <div className="grid sm:hidden grid-cols-2 gap-2.5 max-w-xs mx-auto">
             <Link href="/gunun-menusu" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
               🍽️ Bugünün Menüsü
@@ -119,20 +118,26 @@ export default async function HomePage() {
             <Link href="/menu-olustur" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
               ✨ Menü Oluştur
             </Link>
+            <Link href="/omubumu" className="col-span-2 inline-flex items-center justify-center gap-1.5 py-2.5 bg-brand-200 text-brand-800 rounded-lg font-medium text-sm hover:bg-brand-100 transition-colors">
+              🤔 O mu Bu mu?
+            </Link>
           </div>
-          {/* Desktop: all 4 in a single row */}
+          {/* Desktop: 5 kutu tek satır */}
           <div className="hidden sm:flex flex-row gap-3 justify-center">
-            <Link href="/gunun-menusu" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+            <Link href="/gunun-menusu" className="inline-flex items-center justify-center gap-2 w-[180px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               🍽️ Bugünün Menüsü
             </Link>
-            <Link href="/dunun-menusu" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+            <Link href="/dunun-menusu" className="inline-flex items-center justify-center gap-2 w-[180px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               📅 Dünün Menüsü
             </Link>
-            <Link href="/tarifler" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+            <Link href="/tarifler" className="inline-flex items-center justify-center gap-2 w-[180px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               🥘 Tariflere Göz At
             </Link>
-            <Link href="/menu-olustur" className="inline-flex items-center justify-center gap-2 w-[200px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+            <Link href="/menu-olustur" className="inline-flex items-center justify-center gap-2 w-[180px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               ✨ Menü Oluştur
+            </Link>
+            <Link href="/omubumu" className="inline-flex items-center justify-center gap-2 w-[180px] py-3 bg-brand-200 text-brand-800 rounded-xl font-medium text-base hover:bg-brand-100 transition-colors">
+              🤔 O mu Bu mu?
             </Link>
           </div>
         </div>
@@ -176,17 +181,6 @@ export default async function HomePage() {
               />
             </>
           )}
-        </div>
-      </section>
-
-      {/* ── O mu Bu mu Oyunu ─────────────────────────────────── */}
-      <section className="bg-white py-5 sm:py-8 border-t border-warm-100">
-        <div className={CONTAINER}>
-          <div className="mb-4 sm:mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-warm-900">O mu Bu mu? 🤔</h2>
-            <p className="text-sm text-warm-500 mt-0.5">Hangisini daha çok isterdin?</p>
-          </div>
-          <OmuBumuGame />
         </div>
       </section>
 

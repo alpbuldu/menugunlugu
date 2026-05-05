@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdSlot from "@/components/ui/AdSlot";
 import PagePopup from "@/components/ui/PagePopup";
+import OmuBumuGame from "@/components/ui/OmuBumuGame";
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = createAdminClient();
@@ -175,6 +176,17 @@ export default async function HomePage() {
               />
             </>
           )}
+        </div>
+      </section>
+
+      {/* ── O mu Bu mu Oyunu ─────────────────────────────────── */}
+      <section className="bg-white py-5 sm:py-8 border-t border-warm-100">
+        <div className={CONTAINER}>
+          <div className="mb-4 sm:mb-6">
+            <h2 className="text-xl sm:text-2xl font-bold text-warm-900">O mu Bu mu? 🤔</h2>
+            <p className="text-sm text-warm-500 mt-0.5">Hangisini daha çok isterdin?</p>
+          </div>
+          <OmuBumuGame />
         </div>
       </section>
 

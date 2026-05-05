@@ -12,6 +12,8 @@ import DeleteRecipeButton from "./DeleteRecipeButton";
 import DeletePostButton from "./DeletePostButton";
 import UnfollowButton from "./UnfollowButton";
 import LogoutButton from "./LogoutButton";
+import RemoveFavoriteButton from "./RemoveFavoriteButton";
+import RemoveBlogFavoriteButton from "./RemoveBlogFavoriteButton";
 import ProfileWatcher from "./ProfileWatcher";
 import FollowButton from "@/components/ui/FollowButton";
 import AvatarUpload from "./AvatarUpload";
@@ -350,7 +352,8 @@ export default async function UyePanelPage({ searchParams }: Props) {
                     const authorIsAdmin = !r.submitted_by;
                     const favInitFollowing = authorIsAdmin ? followsAdmin : (favFollowMap[r.submitted_by!] ?? false);
                     return (
-                      <div key={`r-${item.fav.recipe_id}`} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                      <div key={`r-${item.fav.recipe_id}`} className="relative flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                        <RemoveFavoriteButton recipeId={item.fav.recipe_id} />
                         <Link href={`/tarifler/${r.slug}`} className="flex flex-col flex-1">
                           <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
                             {r.image_url ? (
@@ -386,7 +389,8 @@ export default async function UyePanelPage({ searchParams }: Props) {
                   } else {
                     const p = item.post;
                     return (
-                      <div key={`b-${item.fav.post_id}`} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                      <div key={`b-${item.fav.post_id}`} className="relative flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                        <RemoveBlogFavoriteButton postId={item.fav.post_id} />
                         <Link href={`/blog/${p.slug}`} className="flex flex-col flex-1">
                           <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
                             {p.image_url ? (
@@ -442,7 +446,8 @@ export default async function UyePanelPage({ searchParams }: Props) {
                       const authorIsAdmin = !r.submitted_by;
                       const favInitFollowing = authorIsAdmin ? followsAdmin : (favFollowMap[r.submitted_by!] ?? false);
                       return (
-                        <div key={fav.recipe_id} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                        <div key={fav.recipe_id} className="relative flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                          <RemoveFavoriteButton recipeId={fav.recipe_id} />
                           <Link href={`/tarifler/${r.slug}`} className="flex flex-col flex-1">
                             <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
                               {r.image_url ? (
@@ -495,7 +500,8 @@ export default async function UyePanelPage({ searchParams }: Props) {
                       const p = fav.blog_posts as { id: string; title: string; slug: string; image_url: string | null } | null;
                       if (!p) return null;
                       return (
-                        <div key={fav.post_id} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                        <div key={fav.post_id} className="relative flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                          <RemoveBlogFavoriteButton postId={fav.post_id} />
                           <Link href={`/blog/${p.slug}`} className="flex flex-col flex-1">
                             <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
                               {p.image_url ? (

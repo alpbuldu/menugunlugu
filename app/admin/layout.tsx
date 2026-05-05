@@ -29,6 +29,7 @@ const adminLinks = [
   { href: "/admin/yazarlar",       label: "👥  Yazarlar" },
   { href: "/admin/post-olustur",    label: "🖼️  Post Oluştur" },
   { href: "/admin/bildirimler",    label: "📲  Push Bildirimler" },
+  { href: "/admin/menu-feed",       label: "🍽️  Menü Akışı" },
   { href: "/admin/reklamlar",      label: "📢  Reklamlar" },
   { href: "/admin/profil",         label: "👤  Admin Profili" },
   { href: "/admin/site-ayarlari",  label: "⚙️  Site Ayarları" },

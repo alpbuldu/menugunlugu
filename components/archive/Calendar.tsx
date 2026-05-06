@@ -269,14 +269,17 @@ export default function Calendar() {
                 {COURSE_FIELDS.map(({ field }) => {
                   const recipe = selectedMenu[field];
                   return (
-                    <li key={field} className="flex items-start gap-2">
+                    <li key={field} className="flex items-center gap-2">
                       <span className="text-brand-400 leading-5 text-base select-none">•</span>
                       <Link
                         href={`/recipes/${recipe.slug}`}
-                        className="text-sm text-warm-600 leading-5 hover:text-brand-600 transition-colors line-clamp-1"
+                        className="text-sm text-warm-600 leading-5 hover:text-brand-600 transition-colors line-clamp-1 flex-1"
                       >
                         {recipe.title}
                       </Link>
+                      {(recipe as any).kcal_per_person && (
+                        <span className="text-[10px] text-orange-500 font-semibold flex-shrink-0">{(recipe as any).kcal_per_person} kcal</span>
+                      )}
                     </li>
                   );
                 })}
@@ -294,9 +297,19 @@ export default function Calendar() {
       <div className="flex flex-col min-h-[440px]">
         {selectedDate ? (
           <>
-            <h3 className="text-lg font-bold text-warm-900 mb-4 capitalize">
-              {formatDate(selectedDate)} Menüsü
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-warm-900 capitalize">
+                {formatDate(selectedDate)} Menüsü
+              </h3>
+              {selectedMenu && (() => {
+                const kcal = COURSE_FIELDS.reduce((s, { field }) => s + (((selectedMenu[field]) as any)?.kcal_per_person ?? 0), 0);
+                return kcal > 0 ? (
+                  <span className="text-xs font-semibold text-orange-600 bg-orange-50 rounded-full px-3 py-1 flex-shrink-0">
+                    🔥 1 kişilik: {kcal} kcal
+                  </span>
+                ) : null;
+              })()}
+            </div>
 
             {menuLoading ? (
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -353,6 +366,9 @@ export default function Calendar() {
                           <h4 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug min-h-[2.5rem]">
                             {recipe.title}
                           </h4>
+                          {(recipe as any).kcal_per_person && (
+                            <p className="text-[10px] text-orange-500 font-medium mt-1">🔥 {(recipe as any).kcal_per_person} kcal/kişi</p>
+                          )}
                         </div>
                       </Link>
 

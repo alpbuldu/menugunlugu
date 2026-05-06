@@ -21,6 +21,7 @@ export interface MenuRecipe {
   image_url: string | null;
   ingredients: string;
   author: string;
+  kcal_per_person: number | null;
 }
 
 export default async function MenuOlusturPage() {
@@ -28,7 +29,7 @@ export default async function MenuOlusturPage() {
 
   const { data: recipes } = await supabase
     .from("recipes")
-    .select("id, title, slug, category, image_url, ingredients, submitted_by")
+    .select("id, title, slug, category, image_url, ingredients, submitted_by, kcal_per_person")
     .eq("approval_status", "approved")
     .order("title");
 
@@ -53,6 +54,7 @@ export default async function MenuOlusturPage() {
     image_url: r.image_url,
     ingredients: r.ingredients,
     author: r.submitted_by ? (profileMap[r.submitted_by] ?? "") : adminName,
+    kcal_per_person: (r as any).kcal_per_person ?? null,
   }));
 
   const grouped: Record<Category, MenuRecipe[]> = {

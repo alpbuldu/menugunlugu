@@ -49,6 +49,9 @@ function RecipeCard({
           <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors leading-snug">
             {recipe.title}
           </h2>
+          {(recipe as any).kcal_per_person && (
+            <p className="text-[10px] text-orange-500 font-medium mt-1">🔥 {(recipe as any).kcal_per_person} kcal/kişi</p>
+          )}
         </div>
       </Link>
 
@@ -142,11 +145,23 @@ export default async function MenuPage() {
     timeZone: "Europe/Istanbul",
   });
 
+  const totalKcal = menu
+    ? [menu.soup, menu.main, menu.side, menu.dessert]
+        .reduce((sum, r) => sum + ((r as any)?.kcal_per_person ?? 0), 0)
+    : 0;
+
   return (
     <SidebarLayout placement="sidebar_menu" adSenseSlot="gunun_menusu_dikey">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-1">Günün Menüsü</h1>
-      <p className="text-sm sm:text-base text-warm-500 mb-4 capitalize">{today}</p>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-sm sm:text-base text-warm-500 capitalize">{today}</p>
+        {totalKcal > 0 && (
+          <span className="text-xs font-semibold text-orange-600 bg-orange-50 rounded-full px-3 py-1">
+            🔥 1 kişilik: {totalKcal} kcal
+          </span>
+        )}
+      </div>
 
       {/* Banner — açıklama altında, kartlar üstünde */}
       <AdSlot placement="menu_banner" adSenseSlot="gunun_menusu_yatay"

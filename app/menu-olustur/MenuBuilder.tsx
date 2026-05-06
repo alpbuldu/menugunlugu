@@ -108,9 +108,14 @@ function SlotCard({ slot, recipe, isActive, onClick, onClear }: SlotCardProps) {
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <p className="text-[9px] font-semibold text-brand-600 uppercase tracking-wider mb-0.5">
-            {slot.label}
-          </p>
+          <div className="flex items-center justify-between gap-1">
+            <p className="text-[9px] font-semibold text-brand-600 uppercase tracking-wider mb-0.5">
+              {slot.label}
+            </p>
+            {recipe?.kcal_per_person && (
+              <span className="text-[9px] font-bold text-orange-500 flex-shrink-0 mb-0.5">🔥 {recipe.kcal_per_person} kcal</span>
+            )}
+          </div>
           {recipe ? (
             <p className="text-xs font-semibold text-warm-800 leading-snug line-clamp-2">{recipe.title}</p>
           ) : (
@@ -202,8 +207,11 @@ function RecipeCard({ recipe, isSelected, onSelect }: RecipeCardProps) {
         )}
       </div>
 
-      {/* Title — fixed height, 2 lines always */}
-      <div className="px-3 py-2.5 h-[52px] flex items-center">
+      {/* Title + kcal */}
+      <div className="px-3 py-2.5 flex flex-col justify-center" style={{ minHeight: 52 }}>
+        {recipe.kcal_per_person && (
+          <p className="text-[10px] text-orange-500 font-semibold mb-0.5">🔥 {recipe.kcal_per_person} kcal/kişi</p>
+        )}
         <p
           className={`text-sm font-medium line-clamp-2 leading-snug transition-colors ${
             isSelected ? "text-brand-700" : "text-warm-800 group-hover:text-brand-700"
@@ -241,6 +249,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
 
   const allFilled = SLOTS.every(({ key }) => !!selection[key]);
   const filledCount = SLOTS.filter(({ key }) => !!selection[key]).length;
+  const totalKcal = SLOTS.reduce((sum, { key }) => sum + (selection[key]?.kcal_per_person ?? 0), 0);
 
   // allFilled olunca story görselini arka planda önceden oluştur
   const sel = selection as Partial<Record<Category, MenuRecipe>>;
@@ -634,9 +643,20 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                 )}
               </div>
 
-              <p className={`text-center text-[11px] pt-0.5 transition-colors ${allFilled ? "text-brand-600 font-medium" : "text-warm-400"}`}>
-                {downloading ? "⏳ Görseller hazırlanıyor…" : allFilled ? "🎉 Menü hazır — platform seç ve paylaş!" : `${4 - filledCount} yemek daha seç → kartı oluştur`}
-              </p>
+              {allFilled ? (
+                <div className="flex items-center justify-between pt-0.5 gap-2">
+                  <p className="text-[11px] text-brand-600 font-medium">
+                    {downloading ? "⏳ Görseller hazırlanıyor…" : "🎉 Menü hazır - hemen paylaş!"}
+                  </p>
+                  {totalKcal > 0 && (
+                    <span className="text-[11px] text-orange-600 font-semibold flex-shrink-0">🔥 {totalKcal} kcal</span>
+                  )}
+                </div>
+              ) : (
+                <p className="text-center text-[11px] pt-0.5 text-warm-400">
+                  {4 - filledCount} yemek daha seç → kartı oluştur
+                </p>
+              )}
             </div>
           </div>
         </div>

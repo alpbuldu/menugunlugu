@@ -318,36 +318,18 @@ export default async function RecipeDetailPage({ params }: Props) {
         />
 
         <div className="p-8">
-          <div className="mb-8 flex items-start justify-between gap-3">
+          <div className="mb-8 flex items-start justify-between gap-2">
             <h1 className="text-xl sm:text-3xl font-bold text-warm-900 leading-snug flex-1">{recipe.title}</h1>
-            <div className="flex-shrink-0 mt-1">
+            <div className="flex items-center gap-2 flex-shrink-0 mt-1">
+              {recipe.kcal_per_person && (
+                <div className="flex items-center gap-1.5 bg-orange-100 rounded-full px-3 py-1.5">
+                  <span className="text-sm">🔥</span>
+                  <span className="text-sm font-bold text-orange-700">{recipe.kcal_per_person} kcal</span>
+                </div>
+              )}
               <ShareButton title={recipe.title} />
             </div>
           </div>
-
-          {/* Kalori & Süre bilgisi */}
-          {(recipe.kcal_per_person || recipe.cook_time_minutes) && (
-            <div className="flex flex-wrap gap-3 mb-8">
-              {recipe.kcal_per_person && (
-                <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-xl px-4 py-2.5">
-                  <span className="text-lg">🔥</span>
-                  <div>
-                    <div className="text-sm font-bold text-warm-900">{recipe.kcal_per_person} kcal</div>
-                    <div className="text-[11px] text-warm-500">1 kişilik</div>
-                  </div>
-                </div>
-              )}
-              {recipe.cook_time_minutes && (
-                <div className="flex items-center gap-2 bg-green-50 border border-green-100 rounded-xl px-4 py-2.5">
-                  <span className="text-lg">🍳</span>
-                  <div>
-                    <div className="text-sm font-bold text-warm-900">{recipe.cook_time_minutes} dk</div>
-                    <div className="text-[11px] text-warm-500">pişirme</div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
 
           <section className="mb-8">
             <h2 className="text-lg font-semibold text-warm-800 mb-4 flex items-center gap-2">

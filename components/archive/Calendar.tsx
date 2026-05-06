@@ -87,10 +87,20 @@ export default function Calendar() {
 
     fetch(`/api/menu/dates?year=${year}&month=${month}`)
       .then((r) => r.json())
-      .then((d) => setAvailableDates(d.dates ?? []))
+      .then((d) => {
+        const dates: string[] = d.dates ?? [];
+        setAvailableDates(dates);
+        // Auto-select most recent past date on initial load (current month only)
+        if (dates.length > 0 && year === now.getFullYear() && month === now.getMonth() + 1) {
+          const pastDates = dates.filter((dt) => dt <= today);
+          if (pastDates.length > 0) {
+            handleDayClick(pastDates[pastDates.length - 1]);
+          }
+        }
+      })
       .catch(() => {})
       .finally(() => setDatesLoading(false));
-  }, [year, month]);
+  }, [year, month]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDayClick = useCallback(async (dateStr: string) => {
     setSelectedDate(dateStr);

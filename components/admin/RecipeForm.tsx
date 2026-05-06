@@ -31,6 +31,30 @@ const CATEGORIES: { value: Category; label: string }[] = [
   { value: "dessert", label: "Tatlı" },
 ];
 
+const SUBCATEGORIES: Record<Category, string[]> = {
+  soup: [
+    "Kremalı Çorbalar", "Sebze Çorbaları", "Et / Tavuk Sulu Çorbalar",
+    "Bakliyat Çorbaları", "Yoğurtlu Çorbalar", "Soğuk Çorbalar",
+    "Yöresel Çorbalar", "Şehriyeli / Tahıllı Çorbalar",
+  ],
+  main: [
+    "Et Yemekleri", "Tavuk Yemekleri", "Balık / Deniz Ürünleri",
+    "Sebze Yemekleri", "Bakliyat Yemekleri", "Makarna / Noodle",
+    "Pilav / Tahıl Yemekleri", "Fırın Yemekleri", "Tencere Yemekleri",
+    "Izgara / Mangal", "Sulu Yemekler", "Fast Food / Street Food",
+    "Dünya Mutfağı Yemekleri",
+  ],
+  side: [
+    "Salatalar", "Mezeler", "Zeytinyağlılar", "Garnitürler",
+    "Soslar", "Turşular", "Ekmekler / Hamur İşleri", "Kahvaltılık Yan Lezzetler",
+  ],
+  dessert: [
+    "Şerbetli Tatlılar", "Sütlü Tatlılar", "Çikolatalı Tatlılar",
+    "Fırın Tatlıları", "Soğuk Tatlılar", "Meyveli Tatlılar",
+    "Hamur Tatlıları", "Pratik Tatlılar", "Dünya Tatlıları",
+  ],
+};
+
 interface Props {
   recipe?: Recipe; // undefined = create, defined = edit
 }
@@ -55,9 +79,31 @@ export default function RecipeForm({ recipe }: Props) {
     recipe?.image_url && recipe.image_url.trim() ? recipe.image_url : ""
   );
 
+  const [subcategories,  setSubcategories]  = useState<string[]>(
+    (recipe as any)?.subcategories ?? []
+  );
+  const [customSubInput, setCustomSubInput] = useState("");
+
   const [uploading, setUploading] = useState(false);
   const [saving,    setSaving]    = useState(false);
   const [error,     setError]     = useState("");
+
+  function toggleSubcategory(name: string) {
+    setSubcategories(prev =>
+      prev.includes(name) ? prev.filter(s => s !== name) : [...prev, name]
+    );
+  }
+
+  function addCustomSubcategory() {
+    const val = customSubInput.trim();
+    if (!val || subcategories.includes(val)) { setCustomSubInput(""); return; }
+    setSubcategories(prev => [...prev, val]);
+    setCustomSubInput("");
+  }
+
+  function removeSubcategory(name: string) {
+    setSubcategories(prev => prev.filter(s => s !== name));
+  }
 
   /* ── Image upload ──────────────────────────────────────── */
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -97,7 +143,7 @@ export default function RecipeForm({ recipe }: Props) {
       {
         method:  isEdit ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ title, category, description: description || null, seo_title: seoTitle || null, seo_keywords: seoKeywords || null, ingredients, instructions, image_url: imageUrl, image_position: imagePosition, servings: servings ? parseInt(servings) : null }),
+        body:    JSON.stringify({ title, category, description: description || null, seo_title: seoTitle || null, seo_keywords: seoKeywords || null, ingredients, instructions, image_url: imageUrl, image_position: imagePosition, servings: servings ? parseInt(servings) : null, subcategories }),
       }
     );
 
@@ -148,6 +194,82 @@ export default function RecipeForm({ recipe }: Props) {
             <option key={c.value} value={c.value}>{c.label}</option>
           ))}
         </select>
+      </div>
+
+      {/* Alt Kategori */}
+      <div className="border border-warm-200 rounded-2xl overflow-hidden">
+        <div className="px-5 py-4 bg-warm-50 border-b border-warm-100">
+          <p className="text-sm font-semibold text-warm-800">🏷️ Alt Kategori</p>
+          <p className="text-xs text-warm-400 mt-0.5">
+            Birden fazla seçilebilir. Tarif sayfalarında gösterilmez, yalnızca yönetim için kullanılır.
+          </p>
+        </div>
+
+        <div className="px-5 py-4 bg-white space-y-4">
+          {/* Predefined checkboxes */}
+          <div className="flex flex-wrap gap-2">
+            {SUBCATEGORIES[category].map((name) => {
+              const checked = subcategories.includes(name);
+              return (
+                <button
+                  key={name}
+                  type="button"
+                  onClick={() => toggleSubcategory(name)}
+                  className={[
+                    "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+                    checked
+                      ? "bg-brand-600 border-brand-600 text-white"
+                      : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600",
+                  ].join(" ")}
+                >
+                  {checked ? "✓ " : ""}{name}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Custom subcategory input */}
+          <div className="flex gap-2 pt-1 border-t border-warm-100">
+            <input
+              type="text"
+              value={customSubInput}
+              onChange={(e) => setCustomSubInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomSubcategory(); } }}
+              placeholder="Ekstra alt kategori yaz ve Enter'a bas…"
+              className="flex-1 px-3 py-1.5 rounded-lg border border-warm-200 text-sm text-warm-900 placeholder-warm-300 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent"
+            />
+            <button
+              type="button"
+              onClick={addCustomSubcategory}
+              disabled={!customSubInput.trim()}
+              className="px-3 py-1.5 bg-warm-100 border border-warm-200 text-warm-700 rounded-lg text-sm font-medium hover:bg-warm-200 disabled:opacity-40 transition-colors"
+            >
+              Ekle
+            </button>
+          </div>
+
+          {/* Selected tags (custom ones highlighted) */}
+          {subcategories.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              <span className="text-xs text-warm-400 self-center mr-1">Seçilenler:</span>
+              {subcategories.map((name) => (
+                <span
+                  key={name}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-50 border border-brand-200 text-brand-700 rounded-full text-xs font-medium"
+                >
+                  {name}
+                  <button
+                    type="button"
+                    onClick={() => removeSubcategory(name)}
+                    className="text-brand-400 hover:text-red-500 leading-none transition-colors"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Servings */}

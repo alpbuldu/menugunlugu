@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { title, category, ingredients, instructions, image_url, servings, description } = body;
+  const { title, category, ingredients, instructions, image_url, servings, description, subcategories } = body;
 
   if (!title || !category || !ingredients || !instructions) {
     return NextResponse.json({ error: "Başlık, kategori, malzemeler ve yapılış zorunludur." }, { status: 400 });
@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
       image_url:       image_url ?? null,
       servings:        servings ? parseInt(servings) : null,
       description:     description ?? null,
+      subcategories:   subcategories ?? [],
       submitted_by:    user.id,
       approval_status: "pending",
       created_at:      new Date().toISOString(),

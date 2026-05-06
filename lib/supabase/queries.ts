@@ -181,11 +181,14 @@ export async function getMenuDatesForMonth(
     const nextMonth = month === 12 ? 1 : month + 1;
     const end = `${nextYear}-${String(nextMonth).padStart(2, "0")}-01`;
 
+    const today = localDateString();
+
     const { data, error } = await supabase
       .from("menus")
       .select("date")
       .gte("date", start)
       .lt("date", end)
+      .lte("date", today)
       .eq("status", "published")
       .order("date");
 

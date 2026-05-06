@@ -81,11 +81,11 @@ export async function POST(request: NextRequest) {
     slug = `${slug}-${n}`;
   }
 
-  const { servings, description, seo_title, seo_keywords } = body;
+  const { servings, description, seo_title, seo_keywords, subcategories } = body;
 
   const { data, error } = await supabase
     .from("recipes")
-    .insert({ title, slug, category, description: description ?? null, seo_title: seo_title ?? null, seo_keywords: seo_keywords ?? null, ingredients, instructions, image_url: image_url ?? null, servings: servings ?? null })
+    .insert({ title, slug, category, description: description ?? null, seo_title: seo_title ?? null, seo_keywords: seo_keywords ?? null, ingredients, instructions, image_url: image_url ?? null, servings: servings ?? null, subcategories: subcategories ?? [] })
     .select()
     .single();
 

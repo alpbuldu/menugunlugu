@@ -34,6 +34,7 @@ export interface Recipe {
   created_at: string;
   updated_at: string | null;
   submitted_by: string | null;
+  subcategories?: string[];
 }
 
 export interface Menu {

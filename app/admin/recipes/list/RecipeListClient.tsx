@@ -100,10 +100,21 @@ export default function RecipeListClient({ recipes }: { recipes: Recipe[] }) {
                 key={r.id}
                 type="button"
                 onClick={() => handleCopy(r.title)}
-                className="w-full flex items-center justify-between px-5 py-3 text-sm text-left hover:bg-warm-50 transition-colors group"
+                className="w-full flex items-start justify-between px-5 py-3 text-sm text-left hover:bg-warm-50 transition-colors group"
               >
-                <span className="text-warm-800 font-medium">{r.title}</span>
-                <span className="text-xs text-warm-300 group-hover:text-brand-500 transition-colors shrink-0 ml-4">
+                <div className="flex-1 min-w-0">
+                  <span className="text-warm-800 font-medium">{r.title}</span>
+                  {(r.subcategories ?? []).length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {(r.subcategories as string[]).map((s) => (
+                        <span key={s} className="inline-block px-2 py-0.5 bg-brand-50 border border-brand-100 text-brand-600 rounded-full text-xs">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <span className="text-xs text-warm-300 group-hover:text-brand-500 transition-colors shrink-0 ml-4 mt-0.5">
                   {copied === r.title ? "✓ kopyalandı" : "kopyala"}
                 </span>
               </button>

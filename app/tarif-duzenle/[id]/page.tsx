@@ -17,7 +17,7 @@ export default async function TarifDuzenle({ params }: Props) {
 
   const { data: recipe } = await supabase
     .from("recipes")
-    .select("id, title, category, servings, description, ingredients, instructions, image_url, approval_status, submitted_by")
+    .select("id, title, category, servings, description, ingredients, instructions, image_url, approval_status, submitted_by, subcategories")
     .eq("id", id)
     .single();
 

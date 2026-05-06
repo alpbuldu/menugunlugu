@@ -20,7 +20,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
   if (existing.submitted_by !== user.id)
     return NextResponse.json({ error: "Bu tarifi düzenleme yetkiniz yok." }, { status: 403 });
 
-  const { title, category, servings, description, ingredients, instructions, image_url } = await request.json();
+  const { title, category, servings, description, ingredients, instructions, image_url, subcategories } = await request.json();
 
   if (!title?.trim())        return NextResponse.json({ error: "Başlık gerekli." }, { status: 400 });
   if (!ingredients?.trim())  return NextResponse.json({ error: "Malzemeler gerekli." }, { status: 400 });
@@ -35,6 +35,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
     ingredients,
     instructions,
     image_url:       image_url || null,
+    subcategories:   subcategories ?? [],
     approval_status: "pending",
     updated_at:      new Date().toISOString(),
   }).eq("id", id);

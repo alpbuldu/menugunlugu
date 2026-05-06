@@ -18,6 +18,13 @@ const CATEGORIES: { value: Category; label: string; emoji: string }[] = [
 const inputCls = "w-full px-4 py-2.5 rounded-xl border border-warm-200 bg-white text-warm-900 placeholder-warm-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent text-sm transition-shadow";
 const labelCls = "block text-sm font-medium text-warm-700 mb-1.5";
 
+const SUBCATEGORIES: Record<string, string[]> = {
+  soup: ["Kremalı Çorbalar","Sebze Çorbaları","Et / Tavuk Sulu Çorbalar","Bakliyat Çorbaları","Yoğurtlu Çorbalar","Soğuk Çorbalar","Yöresel Çorbalar","Şehriyeli / Tahıllı Çorbalar"],
+  main: ["Et Yemekleri","Tavuk Yemekleri","Balık / Deniz Ürünleri","Sebze Yemekleri","Bakliyat Yemekleri","Makarna / Noodle","Pilav / Tahıl Yemekleri","Fırın Yemekleri","Tencere Yemekleri","Izgara / Mangal","Sulu Yemekler","Fast Food / Street Food","Dünya Mutfağı Yemekleri"],
+  side: ["Salatalar","Mezeler","Zeytinyağlılar","Garnitürler","Soslar","Turşular","Ekmekler / Hamur İşleri","Kahvaltılık Yan Lezzetler"],
+  dessert: ["Şerbetli Tatlılar","Sütlü Tatlılar","Çikolatalı Tatlılar","Fırın Tatlıları","Soğuk Tatlılar","Meyveli Tatlılar","Hamur Tatlıları","Pratik Tatlılar","Dünya Tatlıları"],
+};
+
 interface Props {
   recipe: {
     id: string;
@@ -29,6 +36,7 @@ interface Props {
     instructions: string;
     image_url: string | null;
     approval_status: string;
+    subcategories?: string[];
   };
 }
 
@@ -42,11 +50,23 @@ export default function RecipeEditForm({ recipe }: Props) {
   const [description,  setDescription]  = useState(recipe.description ?? "");
   const [ingredients,  setIngredients]  = useState(recipe.ingredients);
   const [instructions, setInstructions] = useState(recipe.instructions);
-  const [imageUrl,     setImageUrl]     = useState(recipe.image_url ?? "");
+  const [imageUrl,       setImageUrl]       = useState(recipe.image_url ?? "");
+  const [subcategories,  setSubcategories]  = useState<string[]>(recipe.subcategories ?? []);
+  const [customSubInput, setCustomSubInput] = useState("");
   const [uploading,    setUploading]    = useState(false);
   const [saving,       setSaving]       = useState(false);
   const [error,        setError]        = useState("");
   const [done,         setDone]         = useState(false);
+
+  function toggleSubcategory(name: string) {
+    setSubcategories(prev => prev.includes(name) ? prev.filter(s => s !== name) : [...prev, name]);
+  }
+  function addCustomSub() {
+    const val = customSubInput.trim();
+    if (!val || subcategories.includes(val)) { setCustomSubInput(""); return; }
+    setSubcategories(prev => [...prev, val]);
+    setCustomSubInput("");
+  }
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -78,6 +98,7 @@ export default function RecipeEditForm({ recipe }: Props) {
         ingredients,
         instructions,
         image_url: imageUrl || null,
+        subcategories,
       }),
     });
 
@@ -139,6 +160,51 @@ export default function RecipeEditForm({ recipe }: Props) {
         <textarea value={description} onChange={(e) => setDescription(e.target.value)}
           rows={2} placeholder="Bu tarif hakkında kısa ve iştah açıcı bir cümle…"
           className={`${inputCls} resize-none`} />
+      </div>
+
+      {/* Alt Kategori */}
+      <div className="border border-warm-200 rounded-2xl overflow-hidden">
+        <div className="px-5 py-4 bg-warm-50 border-b border-warm-100">
+          <p className="text-sm font-semibold text-warm-800">🏷️ Alt Kategori</p>
+          <p className="text-xs text-warm-400 mt-0.5">Birden fazla seçilebilir. Tarif sayfalarında gösterilmez.</p>
+        </div>
+        <div className="px-5 py-4 bg-white space-y-4">
+          <div className="flex flex-wrap gap-2">
+            {(SUBCATEGORIES[category] ?? []).map((name) => {
+              const checked = subcategories.includes(name);
+              return (
+                <button key={name} type="button" onClick={() => toggleSubcategory(name)}
+                  className={["px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+                    checked ? "bg-brand-600 border-brand-600 text-white" : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-600",
+                  ].join(" ")}>
+                  {checked ? "✓ " : ""}{name}
+                </button>
+              );
+            })}
+          </div>
+          <div className="flex gap-2 pt-1 border-t border-warm-100">
+            <input type="text" value={customSubInput} onChange={(e) => setCustomSubInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomSub(); } }}
+              placeholder="Ekstra alt kategori yaz ve Enter'a bas…"
+              className="flex-1 px-3 py-1.5 rounded-lg border border-warm-200 text-sm text-warm-900 placeholder-warm-300 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent" />
+            <button type="button" onClick={addCustomSub} disabled={!customSubInput.trim()}
+              className="px-3 py-1.5 bg-warm-100 border border-warm-200 text-warm-700 rounded-lg text-sm font-medium hover:bg-warm-200 disabled:opacity-40 transition-colors">
+              Ekle
+            </button>
+          </div>
+          {subcategories.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              <span className="text-xs text-warm-400 self-center mr-1">Seçilenler:</span>
+              {subcategories.map((name) => (
+                <span key={name} className="inline-flex items-center gap-1 px-2.5 py-1 bg-brand-50 border border-brand-200 text-brand-700 rounded-full text-xs font-medium">
+                  {name}
+                  <button type="button" onClick={() => setSubcategories(prev => prev.filter(s => s !== name))}
+                    className="text-brand-400 hover:text-red-500 leading-none transition-colors">×</button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Görsel */}

@@ -33,3 +33,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Script bağımlılıkları
+scripts/recipe-analysis/node_modules/
+scripts/recipe-analysis/package-lock.json

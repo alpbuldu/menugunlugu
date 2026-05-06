@@ -21,7 +21,7 @@ function toSlug(title: string): string {
 export async function PUT(request: NextRequest, { params }: { params: Params }) {
   const { id } = await params;
   const body   = await request.json();
-  const { title, category, description, seo_title, seo_keywords, ingredients, instructions, image_url, image_position, servings, subcategories } = body;
+  const { title, category, description, seo_title, seo_keywords, ingredients, instructions, image_url, image_position, servings, subcategories, kcal_per_person, prep_time_minutes, cook_time_minutes } = body;
 
   if (!title || !category || !ingredients || !instructions) {
     return NextResponse.json(
@@ -56,8 +56,11 @@ export async function PUT(request: NextRequest, { params }: { params: Params }) 
       instructions,
       image_url:       image_url || null,
       image_position:  image_position ?? "center",
-      servings:        servings ?? null,
-      subcategories:   subcategories ?? [],
+      servings:          servings ?? null,
+      subcategories:     subcategories ?? [],
+      kcal_per_person:   kcal_per_person   ?? null,
+      prep_time_minutes: prep_time_minutes ?? null,
+      cook_time_minutes: cook_time_minutes ?? null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)

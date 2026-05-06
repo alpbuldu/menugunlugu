@@ -31,6 +31,9 @@ export interface Recipe {
   image_url: string | null;
   image_position: "top" | "center" | "bottom" | null;
   servings: number | null;
+  kcal_per_person: number | null;
+  prep_time_minutes: number | null;
+  cook_time_minutes: number | null;
   created_at: string;
   updated_at: string | null;
   submitted_by: string | null;

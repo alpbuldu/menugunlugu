@@ -83,6 +83,9 @@ export default function RecipeForm({ recipe }: Props) {
     (recipe as any)?.subcategories ?? []
   );
   const [customSubInput, setCustomSubInput] = useState("");
+  const [kcal,     setKcal]     = useState<string>(recipe?.kcal_per_person?.toString()   ?? "");
+  const [prepTime, setPrepTime] = useState<string>(recipe?.prep_time_minutes?.toString() ?? "");
+  const [cookTime, setCookTime] = useState<string>(recipe?.cook_time_minutes?.toString() ?? "");
 
   const [uploading, setUploading] = useState(false);
   const [saving,    setSaving]    = useState(false);
@@ -143,7 +146,7 @@ export default function RecipeForm({ recipe }: Props) {
       {
         method:  isEdit ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ title, category, description: description || null, seo_title: seoTitle || null, seo_keywords: seoKeywords || null, ingredients, instructions, image_url: imageUrl, image_position: imagePosition, servings: servings ? parseInt(servings) : null, subcategories }),
+        body:    JSON.stringify({ title, category, description: description || null, seo_title: seoTitle || null, seo_keywords: seoKeywords || null, ingredients, instructions, image_url: imageUrl, image_position: imagePosition, servings: servings ? parseInt(servings) : null, subcategories, kcal_per_person: kcal ? parseInt(kcal) : null, prep_time_minutes: prepTime ? parseInt(prepTime) : null, cook_time_minutes: cookTime ? parseInt(cookTime) : null }),
       }
     );
 
@@ -288,6 +291,34 @@ export default function RecipeForm({ recipe }: Props) {
             <option key={n} value={n}>{n} kişilik</option>
           ))}
         </select>
+      </div>
+
+      {/* Kalori & Süre */}
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <label className="block text-sm font-medium text-warm-700 mb-1.5">
+            Kalori <span className="text-warm-400 font-normal">(kcal/kişi)</span>
+          </label>
+          <input type="number" min="0" max="9999" value={kcal}
+            onChange={e => setKcal(e.target.value)} placeholder="örn. 320"
+            className={inputCls} />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-warm-700 mb-1.5">
+            Hazırlama <span className="text-warm-400 font-normal">(dk)</span>
+          </label>
+          <input type="number" min="0" max="999" value={prepTime}
+            onChange={e => setPrepTime(e.target.value)} placeholder="örn. 15"
+            className={inputCls} />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-warm-700 mb-1.5">
+            Pişirme <span className="text-warm-400 font-normal">(dk)</span>
+          </label>
+          <input type="number" min="0" max="999" value={cookTime}
+            onChange={e => setCookTime(e.target.value)} placeholder="örn. 30"
+            className={inputCls} />
+        </div>
       </div>
 
       {/* Image upload */}

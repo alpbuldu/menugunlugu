@@ -53,6 +53,9 @@ export default function RecipeEditForm({ recipe }: Props) {
   const [imageUrl,       setImageUrl]       = useState(recipe.image_url ?? "");
   const [subcategories,  setSubcategories]  = useState<string[]>(recipe.subcategories ?? []);
   const [customSubInput, setCustomSubInput] = useState("");
+  const [kcal,     setKcal]     = useState<string>((recipe as any).kcal_per_person?.toString()   ?? "");
+  const [prepTime, setPrepTime] = useState<string>((recipe as any).prep_time_minutes?.toString() ?? "");
+  const [cookTime, setCookTime] = useState<string>((recipe as any).cook_time_minutes?.toString() ?? "");
   const [uploading,    setUploading]    = useState(false);
   const [saving,       setSaving]       = useState(false);
   const [error,        setError]        = useState("");
@@ -99,6 +102,9 @@ export default function RecipeEditForm({ recipe }: Props) {
         instructions,
         image_url: imageUrl || null,
         subcategories,
+        kcal_per_person:   kcal     ? parseInt(kcal)     : null,
+        prep_time_minutes: prepTime ? parseInt(prepTime) : null,
+        cook_time_minutes: cookTime ? parseInt(cookTime) : null,
       }),
     });
 
@@ -204,6 +210,25 @@ export default function RecipeEditForm({ recipe }: Props) {
               ))}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Kalori & Süre */}
+      <div className="grid grid-cols-3 gap-3">
+        <div>
+          <label className={labelCls}>Kalori <span className="text-warm-400 font-normal">(kcal/kişi)</span></label>
+          <input type="number" min="0" max="9999" value={kcal}
+            onChange={e => setKcal(e.target.value)} placeholder="örn. 320" className={inputCls} />
+        </div>
+        <div>
+          <label className={labelCls}>Hazırlama <span className="text-warm-400 font-normal">(dk)</span></label>
+          <input type="number" min="0" max="999" value={prepTime}
+            onChange={e => setPrepTime(e.target.value)} placeholder="örn. 15" className={inputCls} />
+        </div>
+        <div>
+          <label className={labelCls}>Pişirme <span className="text-warm-400 font-normal">(dk)</span></label>
+          <input type="number" min="0" max="999" value={cookTime}
+            onChange={e => setCookTime(e.target.value)} placeholder="örn. 30" className={inputCls} />
         </div>
       </div>
 

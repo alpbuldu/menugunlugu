@@ -51,6 +51,9 @@ export default function RecipeSubmitForm() {
   const [imageUrl,       setImageUrl]       = useState("");
   const [subcategories,  setSubcategories]  = useState<string[]>([]);
   const [customSubInput, setCustomSubInput] = useState("");
+  const [kcal,         setKcal]         = useState("");
+  const [prepTime,     setPrepTime]     = useState("");
+  const [cookTime,     setCookTime]     = useState("");
   const [uploading,    setUploading]    = useState(false);
   const [submitting,   setSubmitting]   = useState(false);
   const [error,        setError]        = useState("");
@@ -111,6 +114,9 @@ export default function RecipeSubmitForm() {
         instructions: linesToOl(instructions),
         image_url: imageUrl || null,
         subcategories,
+        kcal_per_person:   kcal     ? parseInt(kcal)     : null,
+        prep_time_minutes: prepTime ? parseInt(prepTime) : null,
+        cook_time_minutes: cookTime ? parseInt(cookTime) : null,
       }),
     });
 
@@ -260,6 +266,28 @@ export default function RecipeSubmitForm() {
               {uploading ? "Yükleniyor…" : "Görsel Seç"}
             </button>
             <p className="text-xs text-warm-400 mt-1.5">JPG, PNG veya WebP — maks. 5 MB</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Kalori & Süre */}
+      <div>
+        <label className={labelCls}>Besin & Süre Bilgisi <span className="text-warm-400 font-normal">(isteğe bağlı)</span></label>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <p className="text-xs text-warm-500 mb-1">Kalori (kcal/kişi)</p>
+            <input type="number" min="0" max="9999" value={kcal}
+              onChange={e => setKcal(e.target.value)} placeholder="örn. 320" className={inputCls} />
+          </div>
+          <div>
+            <p className="text-xs text-warm-500 mb-1">Hazırlama (dk)</p>
+            <input type="number" min="0" max="999" value={prepTime}
+              onChange={e => setPrepTime(e.target.value)} placeholder="örn. 15" className={inputCls} />
+          </div>
+          <div>
+            <p className="text-xs text-warm-500 mb-1">Pişirme (dk)</p>
+            <input type="number" min="0" max="999" value={cookTime}
+              onChange={e => setCookTime(e.target.value)} placeholder="örn. 30" className={inputCls} />
           </div>
         </div>
       </div>

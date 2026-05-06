@@ -34,14 +34,13 @@ function parseHtmlIngredients(html: string): IngItem[] {
 // WHOLE_ONLY: kesinlikle tam sayı (0,5 de olmaz) — yufka, lavaş
 // HALF_OK: yarım/buçuk olabilir ama çeyrek kesir olmaz — sebze, meyve, yumurta
 //   1,25 patates → 1,5 | 2,25 soğan → 2 | 0,25 limon → 0,5 | 2,5 kalır
-const WHOLE_ONLY_WORDS = new Set(["yufka", "lavaş"]);
+const WHOLE_ONLY_WORDS = new Set(["yufka", "lavaş", "yumurta"]);
 const HALF_OK_WORDS = new Set([
   "patates", "soğan", "domates", "biber", "patlıcan", "kabak", "havuç",
   "mısır", "turp", "pancar", "brokoli", "karnabahar", "lahana", "marul",
   "kereviz", "enginar", "kuşkonmaz", "bezelye", "fasulye", "bamya",
   "elma", "armut", "portakal", "mandalina", "limon", "muz", "şeftali",
   "kayısı", "erik", "nar", "üzüm", "incir", "kivi", "avokado",
-  "yumurta",
 ]);
 
 function getCountableType(restText: string): "whole" | "half" | null {

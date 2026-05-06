@@ -284,6 +284,17 @@ export default function Calendar() {
                   );
                 })}
               </ul>
+              {(() => {
+                const kcal = COURSE_FIELDS.reduce((s, { field }) => s + (((selectedMenu[field]) as any)?.kcal_per_person ?? 0), 0);
+                return kcal > 0 ? (
+                  <div className="mt-3 pt-3 border-t border-warm-100 flex items-center gap-1.5">
+                    <span className="text-warm-300 font-bold text-sm">+</span>
+                    <span className="text-xs font-semibold text-warm-700">
+                      Toplam: <span className="text-brand-600">{kcal} kcal</span>
+                    </span>
+                  </div>
+                ) : null;
+              })()}
             </>
           ) : (
             <p className="text-xs text-warm-400 py-1">
@@ -411,18 +422,6 @@ export default function Calendar() {
                   );
                 })}
               </div>
-              {(() => {
-                const kcal = COURSE_FIELDS.reduce((s, { field }) => s + (((selectedMenu[field]) as any)?.kcal_per_person ?? 0), 0);
-                return kcal > 0 ? (
-                  <div className="mt-4 border-t border-warm-200 pt-3 flex items-center gap-2">
-                    <span className="text-warm-300 font-bold text-base">+</span>
-                    <span className="text-sm font-semibold text-warm-700">
-                      Toplam Menü Kalorisi (1 Kişilik)
-                      <span className="text-brand-600 ml-2">= {kcal} kcal</span>
-                    </span>
-                  </div>
-                ) : null;
-              })()}
               </>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl border border-warm-100 shadow-sm p-10 text-center text-warm-400">

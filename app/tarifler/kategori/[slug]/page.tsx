@@ -165,7 +165,7 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
                 className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
               >
                 <Link href={`/tarifler/${recipe.slug}`} className="flex flex-col flex-1">
-                  <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
+                  <div className="relative h-36 sm:h-52 bg-warm-100 shrink-0">
                     {recipe.image_url ? (
                       <Image src={recipe.image_url} alt={recipe.title} fill
                         sizes="(max-width: 640px) 50vw, 33vw"

@@ -114,9 +114,6 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
         ← Tarifler
       </Link>
 
-      <h1 className="text-3xl font-bold text-warm-900 mb-1">{meta.label}</h1>
-      <p className="text-sm sm:text-base text-warm-500 mb-4">{meta.description}</p>
-
       {/* Kategori filtreleri */}
       <div className="flex gap-1 sm:flex-wrap sm:gap-2 mb-4 sm:mb-8">
         <Link

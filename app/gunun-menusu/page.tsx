@@ -2,10 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { getTodayMenu } from "@/lib/supabase/queries";
-import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import type { Recipe, Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
-import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import AdSlot from "@/components/ui/AdSlot";
 import PagePopup from "@/components/ui/PagePopup";
@@ -28,72 +27,44 @@ const categoryOrder = [
 ];
 
 function RecipeCard({
-  recipe, category, author, initialFollowing, isLoggedIn,
+  recipe, category, author,
 }: {
   recipe: Recipe; category: Category; author: AuthorInfo;
-  initialFollowing: boolean; isLoggedIn: boolean;
 }) {
   return (
-    <div className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
-      <Link href={`/recipes/${recipe.slug}`} className="flex flex-col flex-1">
-        <div className="relative h-28 sm:h-44 bg-warm-100 shrink-0">
-          {recipe.image_url ? (
-            <Image src={recipe.image_url} alt={recipe.title} fill
-              className="object-cover group-hover:scale-105 transition-transform duration-300" />
-          ) : (
-            <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍽️</div>
-          )}
-          {(recipe as any).kcal_per_person && (
-            <div className="absolute bottom-2 right-2 bg-brand-500 text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
-              {(recipe as any).kcal_per_person} kcal
-            </div>
-          )}
-        </div>
-        <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
-          <Badge category={category} compact className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
-          <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors leading-snug">
-            {recipe.title}
-          </h2>
-        </div>
-      </Link>
-
-      <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
-        <Link href={`/uye/${author.username}`} className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+    <Link href={`/recipes/${recipe.slug}`} className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-36 sm:h-48 group hover:shadow-lg transition-all">
+      {recipe.image_url ? (
+        <Image src={recipe.image_url} alt={recipe.title} fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300" />
+      ) : (
+        <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-5xl text-warm-300">🍽️</div>
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+      {/* top-left: category */}
+      <div className="absolute top-2 left-2">
+        <Badge category={category} compact className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5" />
+      </div>
+      {/* top-right: kcal */}
+      {(recipe as any).kcal_per_person && (
+        <span className="absolute top-2 right-2 text-[9px] sm:text-[10px] font-bold text-white drop-shadow">
+          {(recipe as any).kcal_per_person} kcal
+        </span>
+      )}
+      {/* bottom: title + author */}
+      <div className="absolute bottom-0 left-0 right-0 p-2.5 sm:p-3">
+        <h2 className="text-xs sm:text-sm font-bold text-white leading-snug mb-1.5 line-clamp-2">{recipe.title}</h2>
+        <div className="flex items-center gap-1.5">
           {author.avatar ? (
-            <img src={author.avatar} alt={author.name} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+            <img src={author.avatar} alt={author.name} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover flex-shrink-0" />
           ) : (
-            <span className="w-5 h-5 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+            <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/25 text-white text-[8px] font-bold flex items-center justify-center flex-shrink-0">
               {author.name.charAt(0).toUpperCase()}
             </span>
           )}
-          <div className="flex flex-col min-w-0">
-            <span className="text-[9px] text-warm-300 leading-none">Yazar</span>
-            <span className="text-[10px] font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">
-              {author.name}
-            </span>
-          </div>
-        </Link>
-        {/* Mobil: yuvarlak ikon (+/✓), masaüstü: yazılı buton */}
-        <span className="sm:hidden">
-          <FollowButton
-            targetUserId={author.isAdmin ? undefined : author.userId ?? undefined}
-            isAdminProfile={author.isAdmin}
-            initialFollowing={initialFollowing}
-            isLoggedIn={isLoggedIn}
-            size="icon"
-          />
-        </span>
-        <span className="hidden sm:block">
-          <FollowButton
-            targetUserId={author.isAdmin ? undefined : author.userId ?? undefined}
-            isAdminProfile={author.isAdmin}
-            initialFollowing={initialFollowing}
-            isLoggedIn={isLoggedIn}
-            size="xs"
-          />
-        </span>
+          <span className="text-[9px] sm:text-[10px] text-white/80 truncate">{author.name}</span>
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -101,9 +72,6 @@ export default async function MenuPage() {
   const menu = await getTodayMenu();
 
   const supabase = createAdminClient();
-  const userSupabase = await createClient();
-  const { data: { user } } = await userSupabase.auth.getUser();
-  const currentUserId = user?.id ?? null;
 
   const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();
   const adminAuthor: AuthorInfo = {
@@ -127,21 +95,6 @@ export default async function MenuPage() {
     }
   }
 
-  // Takip durumları
-  let followsAdmin = false;
-  const followedMemberIds = new Set<string>();
-  if (currentUserId && menu) {
-    const memberIds = [...new Set(Object.keys(profileMap))];
-    const [adminRes, memberRes] = await Promise.all([
-      userSupabase.from("admin_follows").select("follower_id").eq("follower_id", currentUserId).maybeSingle(),
-      memberIds.length
-        ? userSupabase.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", memberIds)
-        : Promise.resolve({ data: [] }),
-    ]);
-    followsAdmin = !!adminRes.data;
-    (memberRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
-  }
-
   const today = new Date().toLocaleDateString("tr-TR", {
     weekday: "long", year: "numeric", month: "long", day: "numeric",
     timeZone: "Europe/Istanbul",
@@ -155,8 +108,7 @@ export default async function MenuPage() {
   return (
     <SidebarLayout placement="sidebar_menu" adSenseSlot="gunun_menusu_dikey">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
-      <h1 className="text-3xl font-bold text-warm-900 mb-1">Günün Menüsü</h1>
-      <p className="text-sm sm:text-base text-warm-500 capitalize mb-4">{today}</p>
+      <p className="text-sm sm:text-base text-warm-700 font-semibold capitalize mb-4">{today} Günün Menüsü</p>
 
       {/* Banner — açıklama altında, kartlar üstünde */}
       <AdSlot placement="menu_banner" adSenseSlot="gunun_menusu_yatay"
@@ -178,17 +130,12 @@ export default async function MenuPage() {
             const author = recipe.submitted_by
               ? (profileMap[recipe.submitted_by] ?? adminAuthor)
               : adminAuthor;
-            const initialFollowing = author.isAdmin
-              ? followsAdmin
-              : author.userId ? followedMemberIds.has(author.userId) : false;
             return (
               <RecipeCard
                 key={field}
                 recipe={recipe}
                 category={category}
                 author={author}
-                initialFollowing={initialFollowing}
-                isLoggedIn={!!currentUserId}
               />
             );
           })}

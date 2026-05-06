@@ -30,23 +30,32 @@ function parseHtmlIngredients(html: string): IngItem[] {
   return result;
 }
 
-// ─── Sayılabilir malzemeler — kesirli çıkarsa yukarı yuvarla ─────────────────
-// Sadece bölünemeyen/yarım kullanılamayan ürünler. Eklemek için söyleyin.
+// ─── Sayılabilir malzemeler — kesirli çıkarsa tam sayıya yuvarla ─────────────
+// Bölünemeyen/yarım kullanılamayan ürünler: 1,25 patates → 1, 2,5 soğan → 3
 const COUNTABLE_WORDS = new Set([
+  // Ekmek / hamur
   "yufka", "lavaş",
+  // Sebzeler
+  "patates", "soğan", "domates", "biber", "patlıcan", "kabak", "havuç",
+  "mısır", "turp", "pancar", "brokoli", "karnabahar", "lahana", "marul",
+  "kereviz", "enginar", "kuşkonmaz", "bezelye", "fasulye", "bamya",
+  // Meyveler
+  "elma", "armut", "portakal", "mandalina", "limon", "muz", "şeftali",
+  "kayısı", "erik", "nar", "üzüm", "incir", "kivi", "avokado",
+  // Diğer
+  "yumurta",
 ]);
 
-function needsCeil(restText: string): boolean {
-  // Herhangi bir kelime sayılabilir listedeyse yukarı yuvarla ("adet yufka" gibi durumlar için)
+function needsWholeNumber(restText: string): boolean {
   const words = restText.trim().toLowerCase().split(/[\s,.(]+/);
   return words.some(w => COUNTABLE_WORDS.has(w));
 }
 
 function applyCountable(val: number, restText: string): number {
-  if (!needsCeil(restText)) return val;
+  if (!needsWholeNumber(restText)) return val;
   const frac = val - Math.floor(val);
   if (frac < 0.01) return val; // zaten tam sayı
-  return Math.ceil(val);
+  return Math.max(1, Math.round(val)); // 1.25 → 1, 1.5 → 2, 2.5 → 3, 0.25 → 1
 }
 
 // ─── Amount formatter ─────────────────────────────────────────────────────────

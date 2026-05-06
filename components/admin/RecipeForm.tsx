@@ -284,7 +284,7 @@ export default function RecipeForm({ recipe }: Props) {
           className={`${inputCls} w-40`}
         >
           <option value="">Seçiniz</option>
-          {[2, 4, 8].map((n) => (
+          {[1, 2, 4, 8].map((n) => (
             <option key={n} value={n}>{n} kişilik</option>
           ))}
         </select>

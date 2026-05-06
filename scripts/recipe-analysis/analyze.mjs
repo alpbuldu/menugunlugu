@@ -7,7 +7,7 @@
  * Çıktı: recipe-analysis.json
  */
 
-import Anthropic from "./node_modules/@anthropic-ai/sdk/index.mjs";
+import Anthropic from "./node_modules/@anthropic-ai/sdk/index.js";
 import fs from "fs";
 
 // ─── Yapılandırma ─────────────────────────────────────────────────────────────
@@ -18,10 +18,19 @@ const SUPABASE_KEY =
 const BATCH_SIZE   = 8;   // kaç tarif per API çağrısı
 const PAUSE_MS     = 600; // batch arası bekleme (rate-limit)
 
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+// .env.local'den de okuyabilir
+let ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
 if (!ANTHROPIC_KEY) {
-  console.error("HATA: ANTHROPIC_API_KEY ortam değişkeni eksik.");
+  try {
+    const envFile = fs.readFileSync("../../.env.local", "utf8");
+    const match = envFile.match(/^ANTHROPIC_API_KEY=(.+)$/m);
+    if (match) ANTHROPIC_KEY = match[1].trim();
+  } catch {}
+}
+if (!ANTHROPIC_KEY) {
+  console.error("HATA: ANTHROPIC_API_KEY bulunamadı.");
   console.error("Kullanım: ANTHROPIC_API_KEY=sk-... node analyze.mjs");
+  console.error("veya .env.local dosyasına ANTHROPIC_API_KEY=sk-... ekleyin.");
   process.exit(1);
 }
 
@@ -122,7 +131,10 @@ async function main() {
   if (fs.existsSync(OUT)) {
     try {
       const prev = JSON.parse(fs.readFileSync(OUT, "utf8"));
-      prev.forEach((r) => { existing[r.id] = r; });
+      prev.forEach((r) => {
+      // Sadece başarıyla analiz edilenleri atla (null olanları yeniden analiz et)
+      if (r.kcal_per_person != null && r.prep_min != null && r.cook_min != null) existing[r.id] = r;
+    });
       console.log(`⏩ ${Object.keys(existing).length} tarif zaten analiz edilmiş, atlanıyor.\n`);
     } catch {}
   }

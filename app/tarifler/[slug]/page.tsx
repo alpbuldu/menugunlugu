@@ -318,12 +318,15 @@ export default async function RecipeDetailPage({ params }: Props) {
         />
 
         <div className="p-8">
-          <div className="mb-8">
-            <h1 className="text-xl sm:text-3xl font-bold text-warm-900 leading-snug">{recipe.title}</h1>
+          <div className="mb-8 flex items-start justify-between gap-3">
+            <h1 className="text-xl sm:text-3xl font-bold text-warm-900 leading-snug flex-1">{recipe.title}</h1>
+            <div className="flex-shrink-0 mt-1">
+              <ShareButton title={recipe.title} />
+            </div>
           </div>
 
           {/* Kalori & Süre bilgisi */}
-          {(recipe.kcal_per_person || recipe.prep_time_minutes || recipe.cook_time_minutes) && (
+          {(recipe.kcal_per_person || recipe.cook_time_minutes) && (
             <div className="flex flex-wrap gap-3 mb-8">
               {recipe.kcal_per_person && (
                 <div className="flex items-center gap-2 bg-orange-50 border border-orange-100 rounded-xl px-4 py-2.5">
@@ -334,30 +337,12 @@ export default async function RecipeDetailPage({ params }: Props) {
                   </div>
                 </div>
               )}
-              {recipe.prep_time_minutes && (
-                <div className="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-xl px-4 py-2.5">
-                  <span className="text-lg">🔪</span>
-                  <div>
-                    <div className="text-sm font-bold text-warm-900">{recipe.prep_time_minutes} dk</div>
-                    <div className="text-[11px] text-warm-500">hazırlama</div>
-                  </div>
-                </div>
-              )}
               {recipe.cook_time_minutes && (
                 <div className="flex items-center gap-2 bg-green-50 border border-green-100 rounded-xl px-4 py-2.5">
                   <span className="text-lg">🍳</span>
                   <div>
                     <div className="text-sm font-bold text-warm-900">{recipe.cook_time_minutes} dk</div>
                     <div className="text-[11px] text-warm-500">pişirme</div>
-                  </div>
-                </div>
-              )}
-              {recipe.prep_time_minutes && recipe.cook_time_minutes && (
-                <div className="flex items-center gap-2 bg-warm-50 border border-warm-200 rounded-xl px-4 py-2.5">
-                  <span className="text-lg">⏱️</span>
-                  <div>
-                    <div className="text-sm font-bold text-warm-900">{recipe.prep_time_minutes + recipe.cook_time_minutes} dk</div>
-                    <div className="text-[11px] text-warm-500">toplam süre</div>
                   </div>
                 </div>
               )}
@@ -496,12 +481,11 @@ export default async function RecipeDetailPage({ params }: Props) {
       )}
 
       {/* Bottom nav */}
-      <div className="mt-6 flex items-center justify-between flex-wrap gap-3">
+      <div className="mt-6">
         <Link href="/tarifler"
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-warm-200 text-warm-700 rounded-xl text-sm font-medium hover:bg-warm-50 transition-colors">
           ← Tüm tariflere dön
         </Link>
-        <ShareButton title={recipe.title} />
       </div>
     </div>
       <PagePopup page="tarif_detay" />

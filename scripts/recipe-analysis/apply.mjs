@@ -24,7 +24,7 @@ if (!fs.existsSync(OUT)) {
 }
 
 const data = JSON.parse(fs.readFileSync(OUT, "utf8"));
-const valid = data.filter((r) => r.kcal_per_person && r.prep_min && r.cook_min);
+const valid = data.filter((r) => r.kcal_per_person != null && r.prep_min != null && r.cook_min != null);
 console.log(`📊 Uygulanacak: ${valid.length}/${data.length} tarif\n`);
 
 let ok = 0, fail = 0;

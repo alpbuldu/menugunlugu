@@ -320,15 +320,12 @@ export default async function RecipeDetailPage({ params }: Props) {
         <div className="p-8">
           <div className="mb-8 flex items-start justify-between gap-2">
             <h1 className="text-xl sm:text-3xl font-bold text-warm-900 leading-snug flex-1">{recipe.title}</h1>
-            <div className="flex items-center gap-2 flex-shrink-0 mt-1">
-              {recipe.kcal_per_person && (
-                <div className="flex items-center gap-1.5 bg-orange-100 rounded-full px-3 py-1.5">
-                  <span className="text-sm">🔥</span>
-                  <span className="text-sm font-bold text-orange-700">{recipe.kcal_per_person} kcal</span>
-                </div>
-              )}
-              <ShareButton title={recipe.title} />
-            </div>
+            {recipe.kcal_per_person && (
+              <div className="flex items-center gap-1.5 bg-orange-100 rounded-full px-3 py-1.5 flex-shrink-0 mt-1">
+                <span className="text-sm">🔥</span>
+                <span className="text-sm font-bold text-orange-700">{recipe.kcal_per_person} kcal</span>
+              </div>
+            )}
           </div>
 
           <section className="mb-8">

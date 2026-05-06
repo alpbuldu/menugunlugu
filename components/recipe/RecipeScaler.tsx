@@ -246,7 +246,7 @@ export default function RecipeScaler({ ingredientsRaw, isHtml, servings }: Props
                     : "bg-white border-warm-200 text-warm-600 hover:border-brand-300 hover:text-brand-700"
                 }`}
               >
-                {s} kişi
+                {s}
               </button>
             ))}
           </div>
@@ -269,14 +269,6 @@ export default function RecipeScaler({ ingredientsRaw, isHtml, servings }: Props
           </div>
         )}
 
-        {scale !== 1 && (
-          <span className="text-[11px] text-brand-500 font-medium">
-            {original
-              ? `${current} kişilik`
-              : SCALE_OPTIONS.find(o => o.value === scaleMulti)?.label ?? `${scaleMulti}×`
-            } ölçek
-          </span>
-        )}
       </div>
 
       {/* Malzeme listesi */}

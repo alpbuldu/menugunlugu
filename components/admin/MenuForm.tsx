@@ -18,11 +18,25 @@ const COURSE_FIELDS = [
 ] as const;
 
 const MENU_CATEGORIES = [
-  { value: "ev-yemegi",  label: "🏠 Ev Yemeği"   },
-  { value: "diyet",      label: "🥗 Diyet & Fit"  },
-  { value: "vejetaryen", label: "🌿 Vejetaryen"   },
-  { value: "pratik",     label: "⚡ Pratik"        },
-  { value: "geleneksel", label: "🫕 Geleneksel"   },
+  { value: "gunluk-ev",       label: "🏠 Günlük Ev Menüleri"        },
+  { value: "pratik",          label: "⚡ Pratik Menüleri"            },
+  { value: "misafir",         label: "🫕 Misafir Menüleri"           },
+  { value: "saglikli",        label: "🥦 Sağlıklı Menüleri"          },
+  { value: "diyet",           label: "🥗 Diyet Menüleri"             },
+  { value: "yuksek-protein",  label: "💪 Yüksek Protein Menüleri"    },
+  { value: "vejetaryen",      label: "🌿 Vejetaryen Menüleri"        },
+  { value: "vegan",           label: "🌱 Vegan Menüleri"             },
+  { value: "et",              label: "🥩 Et Menüleri"                },
+  { value: "tavuk",           label: "🍗 Tavuk Menüleri"             },
+  { value: "balik",           label: "🐟 Balık Menüleri"             },
+  { value: "sebze",           label: "🥬 Sebze Ağırlıklı Menüleri"   },
+  { value: "kahvalti",        label: "☕ Kahvaltı Menüleri"           },
+  { value: "cay-saati",       label: "🫖 Çay Saati Menüleri"         },
+  { value: "mangal",          label: "🔥 Mangal Menüleri"            },
+  { value: "yaz",             label: "☀️ Yaz Menüleri"               },
+  { value: "kis",             label: "❄️ Kış Menüleri"               },
+  { value: "ekonomik",        label: "💰 Ekonomik Menüleri"          },
+  { value: "cocuk",           label: "🧒 Çocuk Menüleri"             },
 ] as const;
 
 type CourseField = (typeof COURSE_FIELDS)[number]["field"];

@@ -171,6 +171,7 @@ export default async function MenuPage() {
           <p className="text-sm text-warm-400 mt-2">Lütfen daha sonra tekrar kontrol edin.</p>
         </div>
       ) : (
+        <>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {categoryOrder.map(({ field, category }) => {
             const recipe = menu[field];
@@ -201,6 +202,7 @@ export default async function MenuPage() {
             </span>
           </div>
         )}
+        </>
       )}
 
       <div className="mt-6 sm:mt-8 sm:text-center">

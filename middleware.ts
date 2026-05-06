@@ -91,7 +91,8 @@ export async function middleware(request: NextRequest) {
 
   const portalKey    = process.env.ADMIN_PORTAL_KEY ?? "";
   const portalCookie = request.cookies.get("admin_portal");
-  const portalValid  = portalKey && portalCookie?.value === portalKey;
+  // If ADMIN_PORTAL_KEY is not configured, skip portal gate (dev / simple deploy)
+  const portalValid  = !portalKey || portalCookie?.value === portalKey;
 
   // Portal URL
   if (pathname === "/api/admin/portal") {

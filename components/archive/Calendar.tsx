@@ -297,18 +297,10 @@ export default function Calendar() {
       <div className="flex flex-col min-h-[440px]">
         {selectedDate ? (
           <>
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4">
               <h3 className="text-lg font-bold text-warm-900 capitalize">
                 {formatDate(selectedDate)} Menüsü
               </h3>
-              {selectedMenu && (() => {
-                const kcal = COURSE_FIELDS.reduce((s, { field }) => s + (((selectedMenu[field]) as any)?.kcal_per_person ?? 0), 0);
-                return kcal > 0 ? (
-                  <span className="text-xs font-semibold text-orange-600 bg-orange-50 rounded-full px-3 py-1 flex-shrink-0">
-                    🔥 1 kişilik: {kcal} kcal
-                  </span>
-                ) : null;
-              })()}
             </div>
 
             {menuLoading ? (
@@ -332,6 +324,7 @@ export default function Calendar() {
                 ))}
               </div>
             ) : selectedMenu ? (
+              <>
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 {COURSE_FIELDS.map(({ field, category }) => {
                   const recipe = selectedMenu[field];
@@ -360,15 +353,17 @@ export default function Calendar() {
                               🍳
                             </div>
                           )}
+                          {(recipe as any).kcal_per_person && (
+                            <div className="absolute bottom-2 right-2 bg-brand-500 text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                              {(recipe as any).kcal_per_person} kcal
+                            </div>
+                          )}
                         </div>
                         <div className="px-3 pt-3 pb-2 sm:px-4 sm:pt-4 sm:pb-3 flex flex-col">
                           <Badge category={category} compact className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
                           <h4 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug min-h-[2.5rem]">
                             {recipe.title}
                           </h4>
-                          {(recipe as any).kcal_per_person && (
-                            <p className="text-[10px] text-orange-500 font-medium mt-1">🔥 {(recipe as any).kcal_per_person} kcal/kişi</p>
-                          )}
                         </div>
                       </Link>
 
@@ -416,6 +411,19 @@ export default function Calendar() {
                   );
                 })}
               </div>
+              {(() => {
+                const kcal = COURSE_FIELDS.reduce((s, { field }) => s + (((selectedMenu[field]) as any)?.kcal_per_person ?? 0), 0);
+                return kcal > 0 ? (
+                  <div className="mt-4 border-t border-warm-200 pt-3 flex items-center gap-2">
+                    <span className="text-warm-300 font-bold text-base">+</span>
+                    <span className="text-sm font-semibold text-warm-700">
+                      Toplam Menü Kalorisi (1 Kişilik)
+                      <span className="text-brand-600 ml-2">= {kcal} kcal</span>
+                    </span>
+                  </div>
+                ) : null;
+              })()}
+              </>
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center bg-white rounded-2xl border border-warm-100 shadow-sm p-10 text-center text-warm-400">
                 <p className="text-3xl mb-3">🔍</p>

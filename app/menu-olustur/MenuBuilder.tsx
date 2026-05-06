@@ -113,7 +113,7 @@ function SlotCard({ slot, recipe, isActive, onClick, onClear }: SlotCardProps) {
               {slot.label}
             </p>
             {recipe?.kcal_per_person && (
-              <span className="text-[9px] font-bold text-orange-500 flex-shrink-0 mb-0.5">🔥 {recipe.kcal_per_person} kcal</span>
+              <span className="text-[9px] font-bold text-brand-600 flex-shrink-0 mb-0.5">{recipe.kcal_per_person} kcal</span>
             )}
           </div>
           {recipe ? (
@@ -195,22 +195,12 @@ function RecipeCard({ recipe, isSelected, onSelect }: RecipeCardProps) {
           </div>
         )}
 
-        {/* Author overlay — bottom-left inside image */}
-        {!isSelected && recipe.author && (
-          <>
-            <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
-            <div className="absolute bottom-1.5 left-2 right-2 pointer-events-none flex flex-col gap-px">
-              <span className="text-[10px] text-white/55 leading-none font-semibold">Yazar</span>
-              <span className="text-[10px] text-white/90 truncate leading-none">{recipe.author}</span>
-            </div>
-          </>
-        )}
       </div>
 
-      {/* Title + kcal */}
-      <div className="px-3 py-2.5 flex flex-col justify-center" style={{ minHeight: 52 }}>
+      {/* Kcal + Title */}
+      <div className="px-3 py-2.5 flex flex-col items-center text-center justify-center" style={{ minHeight: 52 }}>
         {recipe.kcal_per_person && (
-          <p className="text-[10px] text-orange-500 font-semibold mb-0.5">🔥 {recipe.kcal_per_person} kcal/kişi</p>
+          <p className="text-[10px] text-brand-600 font-semibold mb-0.5">{recipe.kcal_per_person} kcal</p>
         )}
         <p
           className={`text-sm font-medium line-clamp-2 leading-snug transition-colors ${
@@ -649,7 +639,7 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
                     {downloading ? "⏳ Görseller hazırlanıyor…" : "🎉 Menü hazır - hemen paylaş!"}
                   </p>
                   {totalKcal > 0 && (
-                    <span className="text-[11px] text-orange-600 font-semibold flex-shrink-0">🔥 {totalKcal} kcal</span>
+                    <span className="text-[11px] text-brand-600 font-semibold flex-shrink-0">{totalKcal} kcal</span>
                   )}
                 </div>
               ) : (

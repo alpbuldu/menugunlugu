@@ -1,0 +1,2648 @@
+[
+  {
+    "id": "002f53bb-eb41-43e1-be7e-b5aa7428c8a7",
+    "title": "Vişneli Ekmek Kadayıfı",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "013be62a-6ca5-4fc8-bf58-440caed6d002",
+    "title": "Fırın Helva",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 8,
+    "cook_min": 20,
+    "total_min": 28
+  },
+  {
+    "id": "016058bb-060f-4b1e-8fb3-f8b121a6e744",
+    "title": "Kazandibi",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "02a29448-d372-4a6e-8e27-f3a17c0785e4",
+    "title": "Hindistan Cevizli Sütlü Tatlı",
+    "servings": 4,
+    "kcal_per_person": 290,
+    "prep_min": 10,
+    "cook_min": 20,
+    "total_min": 30
+  },
+  {
+    "id": "03d9a2f8-2aa8-46d7-96cd-68f369aeaa14",
+    "title": "Havuç Çorbası",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "045da134-4c73-432b-9776-329ab8deab0e",
+    "title": "Yoğurtlu Karamelize Soğan Mezesi",
+    "servings": 4,
+    "kcal_per_person": 210,
+    "prep_min": 15,
+    "cook_min": 45,
+    "total_min": 60
+  },
+  {
+    "id": "05792dce-af4b-4f29-b32c-b0e26c3e450e",
+    "title": "Tavuk Kapama",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 20,
+    "cook_min": 50,
+    "total_min": 70
+  },
+  {
+    "id": "05cc7c15-6635-4cf7-a8b3-98b76e80bf3f",
+    "title": "Panna Cotta",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 15,
+    "cook_min": 240,
+    "total_min": 255
+  },
+  {
+    "id": "06dddef3-3edc-4d01-939d-5750deb1506d",
+    "title": "İncir Tatlısı",
+    "servings": 4,
+    "kcal_per_person": 185,
+    "prep_min": 15,
+    "cook_min": 30,
+    "total_min": 45
+  },
+  {
+    "id": "0751cb4d-01ff-44ef-9c43-d108c6cb59e7",
+    "title": "Şakşuka",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 25,
+    "cook_min": 40,
+    "total_min": 65
+  },
+  {
+    "id": "09cb776d-e6b8-46d4-be15-c27bea3c4a18",
+    "title": "Etli Sulu Patates Yemeği",
+    "servings": 4,
+    "kcal_per_person": 350,
+    "prep_min": 20,
+    "cook_min": 60,
+    "total_min": 80
+  },
+  {
+    "id": "0ad1c91a-1a75-4ad6-9224-14343aef3818",
+    "title": "Muradiye Çorbası",
+    "servings": 4,
+    "kcal_per_person": 220,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "0ba7a202-fdec-4b13-be65-d487106447bb",
+    "title": "Kuru Fasulye",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 15,
+    "cook_min": 90,
+    "total_min": 105
+  },
+  {
+    "id": "0bb370d1-4edc-468b-9bb3-505052ceca9a",
+    "title": "Revani",
+    "servings": 4,
+    "kcal_per_person": 360,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "14a68ccb-e753-4b96-9cc8-df1554539554",
+    "title": "Yüksük Çorbası",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 12,
+    "cook_min": 20,
+    "total_min": 32
+  },
+  {
+    "id": "14a9323c-a3a2-4edd-adbb-7fac14de4300",
+    "title": "Madımak Çorbası (Sivas Usulü)",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "157ede9b-5f46-4472-a955-ed1f75978ac9",
+    "title": "Sütlü Domates Çorbası",
+    "servings": 4,
+    "kcal_per_person": 110,
+    "prep_min": 10,
+    "cook_min": 15,
+    "total_min": 25
+  },
+  {
+    "id": "15e01430-6002-43fd-88f9-865072c763f8",
+    "title": "Krem Karamel",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 10,
+    "cook_min": 35,
+    "total_min": 45
+  },
+  {
+    "id": "191d522d-4451-47e0-a635-761fd3798e78",
+    "title": "Çökertme Kebabı",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "19201ec5-23d0-4df9-857b-1659a9d40f07",
+    "title": "Köz Domates Çorbası",
+    "servings": 4,
+    "kcal_per_person": 185,
+    "prep_min": 15,
+    "cook_min": 30,
+    "total_min": 45
+  },
+  {
+    "id": "19408b42-6322-48be-86ab-ebf1f5cd14b1",
+    "title": "Evde Pratik Kumpir",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 15,
+    "cook_min": 45,
+    "total_min": 60
+  },
+  {
+    "id": "1b4210dc-424a-4c0b-950b-ec7fa1c1aaa3",
+    "title": "Havuç Tarator",
+    "servings": 4,
+    "kcal_per_person": 180,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "1d1f1320-cfaf-4603-a165-770748a9e56c",
+    "title": "San Sebastian Cheesecake",
+    "servings": 4,
+    "kcal_per_person": 620,
+    "prep_min": 15,
+    "cook_min": 28,
+    "total_min": 43
+  },
+  {
+    "id": "1d6c2578-2e4b-4375-85c7-1b61ece153c2",
+    "title": "Kalburabastı",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 20,
+    "cook_min": 35,
+    "total_min": 55
+  },
+  {
+    "id": "1e3a365d-5d0e-468e-9784-20ee25ee082f",
+    "title": "Kadayıf Dolması",
+    "servings": 4,
+    "kcal_per_person": 480,
+    "prep_min": 20,
+    "cook_min": 25,
+    "total_min": 45
+  },
+  {
+    "id": "1fc53ebf-5464-4ac7-b8cc-1d22216314f0",
+    "title": "Sütlü Kabak Çorbası",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "1fccf742-5cef-4377-84ed-56c905989777",
+    "title": "Atom Mezesi",
+    "servings": 4,
+    "kcal_per_person": 140,
+    "prep_min": 10,
+    "cook_min": 5,
+    "total_min": 15
+  },
+  {
+    "id": "2085159c-4c42-428b-9304-4ab4807a498a",
+    "title": "Zerde",
+    "servings": 4,
+    "kcal_per_person": 285,
+    "prep_min": 8,
+    "cook_min": 35,
+    "total_min": 43
+  },
+  {
+    "id": "20aeb2c7-3d08-4b08-bf51-c1cb883f9aae",
+    "title": "İncir Uyutması",
+    "servings": 4,
+    "kcal_per_person": 180,
+    "prep_min": 15,
+    "cook_min": 10,
+    "total_min": 25
+  },
+  {
+    "id": "21570a64-14f2-4273-a595-2ef9f68dfb86",
+    "title": "Gelin Pastası",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 20,
+    "cook_min": 55,
+    "total_min": 75
+  },
+  {
+    "id": "238fd878-dbd7-45b6-919a-e0e611f257f4",
+    "title": "Ezogelin Çorbası",
+    "servings": 4,
+    "kcal_per_person": 185,
+    "prep_min": 12,
+    "cook_min": 25,
+    "total_min": 37
+  },
+  {
+    "id": "275915a6-3276-4030-8ac4-9ec81b8dfb30",
+    "title": "Unsuz Domates Çorbası",
+    "servings": 4,
+    "kcal_per_person": 165,
+    "prep_min": 15,
+    "cook_min": 40,
+    "total_min": 55
+  },
+  {
+    "id": "27bbbff3-997e-40b9-9845-fc2b4f11c2e2",
+    "title": "Muzlu Rulo Pasta",
+    "servings": 4,
+    "kcal_per_person": 455,
+    "prep_min": 25,
+    "cook_min": 50,
+    "total_min": 75
+  },
+  {
+    "id": "27c63da1-c279-4e33-b04d-af89878142a7",
+    "title": "Nevzine Tatlısı",
+    "servings": 4,
+    "kcal_per_person": 480,
+    "prep_min": 20,
+    "cook_min": 45,
+    "total_min": 65
+  },
+  {
+    "id": "27d6cec9-d76a-4764-8c40-92ddb049ab9d",
+    "title": "Spoonful",
+    "servings": 4,
+    "kcal_per_person": 395,
+    "prep_min": 15,
+    "cook_min": 15,
+    "total_min": 30
+  },
+  {
+    "id": "2846951d-8f62-4cf4-9a2a-146425bbc38a",
+    "title": "Sütlü İrmik Tatlısı",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 5,
+    "cook_min": 20,
+    "total_min": 25
+  },
+  {
+    "id": "28831c26-0861-4818-b6c2-7e81ec6b533f",
+    "title": "Laz Böreği",
+    "servings": 4,
+    "kcal_per_person": 385,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "29b25fbe-6755-495a-addd-ea7426c8731d",
+    "title": "Karnıyarık",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "29e09a59-ca3a-416a-ada3-82e6c2f46f03",
+    "title": "Medovik Pasta",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 20,
+    "cook_min": 90,
+    "total_min": 110
+  },
+  {
+    "id": "2bc82aa0-4bbe-42d2-92e5-5e41a073a3b7",
+    "title": "Arpa Şehriyeli Bulgur Pilavı",
+    "servings": 4,
+    "kcal_per_person": 245,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "2e593012-754e-49e7-a490-3c121b86dc20",
+    "title": "Tepsi Kebabı",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "2fcf3e83-949f-4061-9ba3-02371b7ffe2f",
+    "title": "Sakızlı Muhallebi",
+    "servings": 4,
+    "kcal_per_person": 265,
+    "prep_min": 5,
+    "cook_min": 18,
+    "total_min": 23
+  },
+  {
+    "id": "30f2ee97-adfa-4b79-8e38-e62b240e34a2",
+    "title": "Mercimek Köftesi",
+    "servings": 4,
+    "kcal_per_person": 210,
+    "prep_min": 25,
+    "cook_min": 20,
+    "total_min": 45
+  },
+  {
+    "id": "3103d66f-27f9-44e3-91c0-f0d2632b255b",
+    "title": "Minestrone Çorbası",
+    "servings": 4,
+    "kcal_per_person": 180,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "31251f35-450d-4a15-866f-6055260f61a1",
+    "title": "Etli Lahana Sarması",
+    "servings": 6,
+    "kcal_per_person": 310,
+    "prep_min": 20,
+    "cook_min": 45,
+    "total_min": 65
+  },
+  {
+    "id": "31dae77e-e8a9-44ab-9e4a-9c554a857056",
+    "title": "Fırında Otlu Baby Patates",
+    "servings": 4,
+    "kcal_per_person": 220,
+    "prep_min": 10,
+    "cook_min": 30,
+    "total_min": 40
+  },
+  {
+    "id": "33c803fa-6d04-42b2-9cc5-2bb4933075d2",
+    "title": "Fırında Tavuk Şiş",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 15,
+    "cook_min": 28,
+    "total_min": 43
+  },
+  {
+    "id": "33e2bb4a-8fc9-40fe-8a4e-5f463cfcacc9",
+    "title": "Kereviz Çorbası",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 12,
+    "cook_min": 25,
+    "total_min": 37
+  },
+  {
+    "id": "3443103d-28e1-42c3-aeaa-54dab7592633",
+    "title": "Patatesli Gül Böreği",
+    "servings": 4,
+    "kcal_per_person": 260,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "35fef668-bc8d-400f-8123-67e8e2ec1de9",
+    "title": "Havuçlu Şehriyeli Pirinç Pilavı",
+    "servings": 4,
+    "kcal_per_person": 290,
+    "prep_min": 12,
+    "cook_min": 20,
+    "total_min": 32
+  },
+  {
+    "id": "389a046b-4f7a-47a9-a8b6-2eb81b39bf51",
+    "title": "Çilekli Magnolia",
+    "servings": 4,
+    "kcal_per_person": 285,
+    "prep_min": 15,
+    "cook_min": 5,
+    "total_min": 20
+  },
+  {
+    "id": "38a83943-62b6-42e2-87d6-99f30804f3eb",
+    "title": "Bulgur Pilavı",
+    "servings": 4,
+    "kcal_per_person": 210,
+    "prep_min": 10,
+    "cook_min": 22,
+    "total_min": 32
+  },
+  {
+    "id": "38e87b99-0d84-4ece-a19d-53b091158936",
+    "title": "Ayran Aşı Çorbası",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 15,
+    "cook_min": 40,
+    "total_min": 55
+  },
+  {
+    "id": "3d0c03bb-0a6a-4991-ad35-d56c6b675e31",
+    "title": "Yayla Çorbası",
+    "servings": 4,
+    "kcal_per_person": 145,
+    "prep_min": 10,
+    "cook_min": 20,
+    "total_min": 30
+  },
+  {
+    "id": "3f0ef3f9-aa96-4e30-af8e-ccb9e6ea96b5",
+    "title": "Yoğurtlu Havuç Salatası",
+    "servings": 4,
+    "kcal_per_person": 120,
+    "prep_min": 10,
+    "cook_min": 12,
+    "total_min": 22
+  },
+  {
+    "id": "3f92b0b2-093f-4460-ba41-f4b6450476ea",
+    "title": "Domatesli Bulgur Pilavı",
+    "servings": 4,
+    "kcal_per_person": 245,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "420354f4-6c74-4372-a572-4f02b5f47a53",
+    "title": "Portakallı Revani",
+    "servings": 4,
+    "kcal_per_person": 385,
+    "prep_min": 20,
+    "cook_min": 35,
+    "total_min": 55
+  },
+  {
+    "id": "4209bf8c-c2c3-487a-8924-fad59cf108f7",
+    "title": "Kremalı Mantarlı Fettuccine",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 20,
+    "cook_min": 20,
+    "total_min": 40
+  },
+  {
+    "id": "42a2f80b-6167-47bf-a63f-92378e293267",
+    "title": "Tutmaç",
+    "servings": 4,
+    "kcal_per_person": 185,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "43543e08-9463-445d-b6d7-87be6b16c139",
+    "title": "İmam Bayıldı",
+    "servings": 4,
+    "kcal_per_person": 210,
+    "prep_min": 25,
+    "cook_min": 40,
+    "total_min": 65
+  },
+  {
+    "id": "44a71564-081c-4ffb-a924-c5ca919aa18f",
+    "title": "Kremalı Brokoli Çorbası",
+    "servings": 4,
+    "kcal_per_person": 155,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "46181bef-51c0-4926-88f9-c94c0ec7f9e4",
+    "title": "Topalak Çorbası",
+    "servings": 4,
+    "kcal_per_person": 220,
+    "prep_min": 25,
+    "cook_min": 35,
+    "total_min": 60
+  },
+  {
+    "id": "467f4df3-2275-4a0e-bf94-b0e663095a01",
+    "title": "Tavuk Fajita",
+    "servings": 4,
+    "kcal_per_person": 310,
+    "prep_min": 20,
+    "cook_min": 15,
+    "total_min": 35
+  },
+  {
+    "id": "482d0410-6f16-443c-b4dd-55a83084fd81",
+    "title": "Meksika Usulü Mısır Çorbası",
+    "servings": 4,
+    "kcal_per_person": 210,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "48c3d7d7-8c92-4a3f-8db4-8072a5e25472",
+    "title": "Sebzeli Bulgur Pilavı",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 18,
+    "cook_min": 25,
+    "total_min": 43
+  },
+  {
+    "id": "48e3ac8e-8245-44f3-9b67-66b92400f645",
+    "title": "Çilekli Alman Pastası",
+    "servings": 8,
+    "kcal_per_person": 380,
+    "prep_min": 20,
+    "cook_min": 35,
+    "total_min": 55
+  },
+  {
+    "id": "4b19f53d-ddc2-4c42-a102-07c594bcde6f",
+    "title": "Mantı Çorbası",
+    "servings": 4,
+    "kcal_per_person": 220,
+    "prep_min": 10,
+    "cook_min": 30,
+    "total_min": 40
+  },
+  {
+    "id": "4b50499c-2557-45f6-8502-a1687af7dbcc",
+    "title": "Şekersiz Brownie",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "4c6e9c54-d767-465b-8288-2879485501e3",
+    "title": "Terbiyeli Tavuk Çorbası",
+    "servings": 4,
+    "kcal_per_person": 190,
+    "prep_min": 15,
+    "cook_min": 30,
+    "total_min": 45
+  },
+  {
+    "id": "4c879c5b-e6bf-44f0-afb6-fcbaac69d08d",
+    "title": "İrmik Helvası",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 5,
+    "cook_min": 20,
+    "total_min": 25
+  },
+  {
+    "id": "4cf7a612-0124-4456-a7be-7bdc1caf9e34",
+    "title": "Etli Patlıcanlı Güveç",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 20,
+    "cook_min": 45,
+    "total_min": 65
+  },
+  {
+    "id": "4d336dd1-ab29-4894-bdc1-2f57855af3cf",
+    "title": "Fırında Sebzeli Köfte",
+    "servings": 4,
+    "kcal_per_person": 350,
+    "prep_min": 15,
+    "cook_min": 38,
+    "total_min": 53
+  },
+  {
+    "id": "4df3fce7-586b-48dd-9f5c-7eb5701792b8",
+    "title": "Lazanya",
+    "servings": 4,
+    "kcal_per_person": 620,
+    "prep_min": 25,
+    "cook_min": 40,
+    "total_min": 65
+  },
+  {
+    "id": "4e476608-5671-4b5f-b519-1c1cca52d9a0",
+    "title": "Şiş Köfte",
+    "servings": 4,
+    "kcal_per_person": 480,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "4f9e2469-0595-4c04-8e08-e8aa5aed3b35",
+    "title": "Ballı Hardallı Patates Salatası",
+    "servings": 4,
+    "kcal_per_person": 210,
+    "prep_min": 20,
+    "cook_min": 25,
+    "total_min": 45
+  },
+  {
+    "id": "4ff76bb4-82cd-4138-b4c6-e1198d9b3453",
+    "title": "Köz Patlıcan Çorbası",
+    "servings": 4,
+    "kcal_per_person": 180,
+    "prep_min": 15,
+    "cook_min": 30,
+    "total_min": 45
+  },
+  {
+    "id": "5136dbf4-0595-412d-b5cf-ea11c2e5f154",
+    "title": "Mozaik Pasta",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 10,
+    "cook_min": 5,
+    "total_min": 15
+  },
+  {
+    "id": "5149187d-bb7d-4caf-8178-fa0d87dc1934",
+    "title": "Tavuk Schnitzel",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 20,
+    "cook_min": 15,
+    "total_min": 35
+  },
+  {
+    "id": "51c82a16-b4c8-48a6-a4f6-50fb6d08b5f4",
+    "title": "Acılı Ekşili Çorba",
+    "servings": 4,
+    "kcal_per_person": 85,
+    "prep_min": 15,
+    "cook_min": 12,
+    "total_min": 27
+  },
+  {
+    "id": "52742f10-ed76-455b-a5ad-1585574f2752",
+    "title": "Körili Pirinç Pilavı",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 10,
+    "cook_min": 18,
+    "total_min": 28
+  },
+  {
+    "id": "532408fe-859a-48d3-a7c4-7c1e50952a93",
+    "title": "Ali Nazik Kebabı",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 20,
+    "cook_min": 25,
+    "total_min": 45
+  },
+  {
+    "id": "53cab0c6-9f42-4b04-94ad-6ada8f996e19",
+    "title": "Tavuk Suyu Çorbası",
+    "servings": 4,
+    "kcal_per_person": 120,
+    "prep_min": 10,
+    "cook_min": 35,
+    "total_min": 45
+  },
+  {
+    "id": "54637cf7-1256-4600-96b0-05c15c1d2943",
+    "title": "Islak Kek",
+    "servings": 4,
+    "kcal_per_person": 480,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "552362fd-f202-4543-aa1a-673ffb4db9e5",
+    "title": "Tavuklu Sebzeli Güveç",
+    "servings": 4,
+    "kcal_per_person": 250,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "56ad0ec4-c132-40be-8d00-973571571e7a",
+    "title": "Fırında Köfte Patates",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 15,
+    "cook_min": 38,
+    "total_min": 53
+  },
+  {
+    "id": "56fa2f6e-ec9c-4326-9bcc-ebc2789fbaff",
+    "title": "Etli Fajita",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 20,
+    "cook_min": 15,
+    "total_min": 35
+  },
+  {
+    "id": "589b9d80-f8d8-4379-8e68-20dbb37e790d",
+    "title": "Köfteli Çorba",
+    "servings": 4,
+    "kcal_per_person": 185,
+    "prep_min": 15,
+    "cook_min": 30,
+    "total_min": 45
+  },
+  {
+    "id": "599a7243-5be1-47ae-a683-1c8a31907541",
+    "title": "Mercimek Çorbası",
+    "servings": 4,
+    "kcal_per_person": 145,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "5b52d161-2dc3-4fba-875a-5149fad8dc56",
+    "title": "Fırında Sebzeli Tavuk",
+    "servings": 4,
+    "kcal_per_person": 285,
+    "prep_min": 15,
+    "cook_min": 40,
+    "total_min": 55
+  },
+  {
+    "id": "5bad1ef8-006e-493f-83b0-ce7cc165cdfc",
+    "title": "Muhallebili Kadayıf Tatlısı",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 20,
+    "cook_min": 25,
+    "total_min": 45
+  },
+  {
+    "id": "5bfb95d0-9a56-4bac-bec3-377afd1a8777",
+    "title": "Köz Biber Çorbası",
+    "servings": 4,
+    "kcal_per_person": 165,
+    "prep_min": 15,
+    "cook_min": 30,
+    "total_min": 45
+  },
+  {
+    "id": "5c226867-9c67-47f9-9579-a28e81accb17",
+    "title": "Etsiz Nohut Yemeği",
+    "servings": 4,
+    "kcal_per_person": 195,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "5d79dd17-e150-4af6-9d28-b987cfd721ee",
+    "title": "Hamsi Kuşu",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 25,
+    "cook_min": 15,
+    "total_min": 40
+  },
+  {
+    "id": "5dad43eb-1768-4d69-9ca9-f744c0978fad",
+    "title": "Kremalı Penne Makarna",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 10,
+    "cook_min": 15,
+    "total_min": 25
+  },
+  {
+    "id": "5e0cfc25-8354-43d1-9fae-3ae0c12ecd38",
+    "title": "Höşmerim",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 10,
+    "cook_min": 20,
+    "total_min": 30
+  },
+  {
+    "id": "5e8c3da1-06a7-4d87-a6e2-9a00f06302fa",
+    "title": "Paça Çorbası",
+    "servings": 4,
+    "kcal_per_person": 180,
+    "prep_min": 15,
+    "cook_min": 180,
+    "total_min": 195
+  },
+  {
+    "id": "5ea5ac63-7399-44bf-9579-3bb33e54907c",
+    "title": "Kabak Yemeği",
+    "servings": 4,
+    "kcal_per_person": 310,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "5faa04b6-c4b6-4531-9c0f-9c5954c1ef71",
+    "title": "Fırında Soslu Tavuk Baget & Taze Otlu Patates",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 20,
+    "cook_min": 30,
+    "total_min": 50
+  },
+  {
+    "id": "6110a084-8f85-452b-8537-d475b24d9633",
+    "title": "Bademli Puding",
+    "servings": 4,
+    "kcal_per_person": 310,
+    "prep_min": 10,
+    "cook_min": 20,
+    "total_min": 30
+  },
+  {
+    "id": "655d3968-8ccb-4f8e-86c3-d9f226f0212c",
+    "title": "Damla Sakızlı Muhallebi",
+    "servings": 4,
+    "kcal_per_person": 305,
+    "prep_min": 10,
+    "cook_min": 20,
+    "total_min": 30
+  },
+  {
+    "id": "65a317bb-f947-4338-906a-f4e33afcf107",
+    "title": "Domatesli Pirinç Pilavı",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 25,
+    "cook_min": 35,
+    "total_min": 60
+  },
+  {
+    "id": "6664b5b9-ad05-47a8-af7c-495f1c04bc46",
+    "title": "Fırında Kaşarlı Tavuk",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 15,
+    "cook_min": 40,
+    "total_min": 55
+  },
+  {
+    "id": "6680cd5c-8dd5-4477-ac6e-cce91c1f6bc3",
+    "title": "Beyti Sarma",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 30,
+    "cook_min": 50,
+    "total_min": 80
+  },
+  {
+    "id": "66de79f2-c001-4868-88b9-fb734fd29b63",
+    "title": "Kaşarlı Fırın Köfte",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 25,
+    "cook_min": 45,
+    "total_min": 70
+  },
+  {
+    "id": "66e50158-378d-4f55-8453-efcf5d2655d9",
+    "title": "Karnabahar Graten",
+    "servings": 4,
+    "kcal_per_person": 210,
+    "prep_min": 20,
+    "cook_min": 35,
+    "total_min": 55
+  },
+  {
+    "id": "67e530cf-c2e7-4877-b374-6723caf1fa1b",
+    "title": "Pirinç Pilavı",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 25,
+    "cook_min": 22,
+    "total_min": 47
+  },
+  {
+    "id": "68a7e3cd-a411-4240-a0f0-5302d1c3b500",
+    "title": "Tavuklu Patates Yemeği",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 20,
+    "cook_min": 30,
+    "total_min": 50
+  },
+  {
+    "id": "6b74f7e2-06b4-4e2a-87cd-09cfefe089e7",
+    "title": "Tereyağlı Bulgur Pilavı",
+    "servings": 4,
+    "kcal_per_person": 290,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "6bc1767d-c293-41f2-b967-63618bc8f0be",
+    "title": "İlikli Kemik Suyu Çorbası",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 15,
+    "cook_min": 120,
+    "total_min": 135
+  },
+  {
+    "id": "6e4a3170-d8a5-4076-8509-2da1bc3d9e95",
+    "title": "Çoban Kavurma",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "6e879203-42a3-4a9c-8b85-60dcad62bf8e",
+    "title": "Pırasa Diblesi",
+    "servings": 4,
+    "kcal_per_person": 165,
+    "prep_min": 20,
+    "cook_min": 30,
+    "total_min": 50
+  },
+  {
+    "id": "70a14d6f-667c-4faa-9d61-a507ab68843d",
+    "title": "Fırında Patlıcan Kebabı",
+    "servings": 4,
+    "kcal_per_person": 290,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "71021266-7d26-4160-ae9c-9daf5567ba54",
+    "title": "Mantı",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 45,
+    "cook_min": 25,
+    "total_min": 70
+  },
+  {
+    "id": "714de529-3afe-4300-b1f5-bb9dc11ff128",
+    "title": "Yoğurtsuz Yayla Çorbası",
+    "servings": 4,
+    "kcal_per_person": 110,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "7364798c-7572-460d-bfdf-1390bd3781ed",
+    "title": "Ovmaç Çorbası",
+    "servings": 4,
+    "kcal_per_person": 155,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "73ca428c-a15b-4420-9a14-8f14548fb9fb",
+    "title": "Turşu Kavurma",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "73d0ef00-fc82-4c58-8f57-16fd0103ee10",
+    "title": "Pazı Yemeği",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 20,
+    "cook_min": 30,
+    "total_min": 50
+  },
+  {
+    "id": "7465e9a4-0e3f-4d52-9418-6aed02058bac",
+    "title": "Sütlü Mantar Çorbası",
+    "servings": 4,
+    "kcal_per_person": 180,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "747b658e-cf9a-4ab6-99d7-181ca21bd590",
+    "title": "Yalancı Tavuk Göğsü",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 10,
+    "cook_min": 15,
+    "total_min": 25
+  },
+  {
+    "id": "74c4d046-f269-4ccd-b6d3-a09f990c544f",
+    "title": "Kıymalı Patates Yemeği",
+    "servings": 4,
+    "kcal_per_person": 310,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "74dc9d83-78f4-49ce-9392-4c7ca2034279",
+    "title": "Çeşmi Nigar Çorbası",
+    "servings": 4,
+    "kcal_per_person": 220,
+    "prep_min": 10,
+    "cook_min": 20,
+    "total_min": 30
+  },
+  {
+    "id": "761312b7-aedb-4c02-99d4-bb9c6f9767f4",
+    "title": "Anne Patatesi",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "7a6b0179-efda-4656-b1db-b43f3a523697",
+    "title": "Kuzu Tandır",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 15,
+    "cook_min": 210,
+    "total_min": 225
+  },
+  {
+    "id": "7ac27653-79ac-4477-b06c-74c48c5013c3",
+    "title": "Ekşili Köfte Çorbası",
+    "servings": 4,
+    "kcal_per_person": 185,
+    "prep_min": 20,
+    "cook_min": 35,
+    "total_min": 55
+  },
+  {
+    "id": "7bce777f-2c9b-4db1-937b-3bbc082054ca",
+    "title": "Ispanak Çorbası",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "7d3b4ba7-bb21-4a78-bf3f-1d7ea21ad80d",
+    "title": "Firik Pilavı",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 15,
+    "cook_min": 30,
+    "total_min": 45
+  },
+  {
+    "id": "7f17995a-05f9-49b1-8fcc-5ecbb2d9488c",
+    "title": "Analı Kızlı Çorbası",
+    "servings": 4,
+    "kcal_per_person": 210,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "7fa0141f-f2ee-4dfd-b4cd-9c7704c01f0a",
+    "title": "Hünkar Beğendi",
+    "servings": 4,
+    "kcal_per_person": 315,
+    "prep_min": 25,
+    "cook_min": 75,
+    "total_min": 100
+  },
+  {
+    "id": "8434ebc3-e7dc-410a-ba41-0343c4bbdc64",
+    "title": "Kuzu İncikli Ankara Tava",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 20,
+    "cook_min": 90,
+    "total_min": 110
+  },
+  {
+    "id": "84e49a0a-4a22-4748-992a-e9a8d3267980",
+    "title": "Muzlu Magnolia",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "85f91275-d356-42a9-84d6-f3fbeb462ea4",
+    "title": "Balık Çorbası",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "861fadab-c58d-4fee-9935-f1564e413edf",
+    "title": "Sütlaç",
+    "servings": 4,
+    "kcal_per_person": 220,
+    "prep_min": 10,
+    "cook_min": 35,
+    "total_min": 45
+  },
+  {
+    "id": "86c28990-bae2-4847-9cc5-b58802f00d48",
+    "title": "Makarna Salatası",
+    "servings": 4,
+    "kcal_per_person": 310,
+    "prep_min": 15,
+    "cook_min": 15,
+    "total_min": 30
+  },
+  {
+    "id": "86c9bbcd-4aae-4355-8faf-0ea20ab9737d",
+    "title": "Tel Şehriyeli Pirinç Pilavı",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "86fae8b0-663a-4531-988e-9e0742314201",
+    "title": "Elmalı Kurabiye",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 25,
+    "cook_min": 25,
+    "total_min": 50
+  },
+  {
+    "id": "8741839f-8ada-4ac3-b32c-9c7cba378448",
+    "title": "Dul Avrat Çorbası",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "881830be-ec23-4d9c-8ed3-01f86afac88b",
+    "title": "Sıcak Ayran Aşı Çorbası",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 20,
+    "cook_min": 60,
+    "total_min": 80
+  },
+  {
+    "id": "88de0ae9-95c9-4f52-bd16-49380bf78c13",
+    "title": "Frambuazlı Cheesecake",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 25,
+    "cook_min": 45,
+    "total_min": 70
+  },
+  {
+    "id": "8b3a23bc-bf37-413e-b165-62b1e6748c10",
+    "title": "Un Helvası",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "8ba08c78-7915-4444-87f9-7b719a1c28c1",
+    "title": "Bulgurlu Ispanak",
+    "servings": 4,
+    "kcal_per_person": 210,
+    "prep_min": 20,
+    "cook_min": 30,
+    "total_min": 50
+  },
+  {
+    "id": "8baab1c4-bdf4-4cf9-b326-4767fdcc9819",
+    "title": "Et Suyu Çorbası",
+    "servings": 4,
+    "kcal_per_person": 160,
+    "prep_min": 15,
+    "cook_min": 50,
+    "total_min": 65
+  },
+  {
+    "id": "9070a27b-961f-40dc-ac0c-a29be2315714",
+    "title": "Domatesli Arpa Şehriye Çorbası",
+    "servings": 4,
+    "kcal_per_person": 140,
+    "prep_min": 10,
+    "cook_min": 15,
+    "total_min": 25
+  },
+  {
+    "id": "91484a39-6bd5-4c86-b0f8-5473c1ac777f",
+    "title": "Kaymaklı Ayva Tatlısı",
+    "servings": 4,
+    "kcal_per_person": 180,
+    "prep_min": 15,
+    "cook_min": 60,
+    "total_min": 75
+  },
+  {
+    "id": "91d43147-9f30-4450-a068-39503d5bc45d",
+    "title": "Şıllık Tatlısı",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 20,
+    "cook_min": 25,
+    "total_min": 45
+  },
+  {
+    "id": "92333762-6ede-462c-981c-f40c968ef839",
+    "title": "Fırında Levrek",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 10,
+    "cook_min": 28,
+    "total_min": 38
+  },
+  {
+    "id": "9602e3b6-7593-4ac3-9cb8-8322de0c3525",
+    "title": "Balkabağı Çorbası",
+    "servings": 4,
+    "kcal_per_person": 85,
+    "prep_min": 12,
+    "cook_min": 25,
+    "total_min": 37
+  },
+  {
+    "id": "962f9957-d3fa-4ab1-a19a-99f865686ccf",
+    "title": "Yalancı İşkembe Çorbası",
+    "servings": 4,
+    "kcal_per_person": 150,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "9691726e-8f9d-4104-8cd5-973d5d9dcbbf",
+    "title": "Haşlanmış Sebze",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 15,
+    "cook_min": 12,
+    "total_min": 27
+  },
+  {
+    "id": "9783f2d7-3cb4-4102-8bec-f31ffdb30574",
+    "title": "Türlü",
+    "servings": 4,
+    "kcal_per_person": 180,
+    "prep_min": 20,
+    "cook_min": 35,
+    "total_min": 55
+  },
+  {
+    "id": "997b4a7a-b876-4017-bdca-41534d46a47b",
+    "title": "Fırında Karnabahar Graten",
+    "servings": 4,
+    "kcal_per_person": 245,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "9ca62cdb-e5b8-4c4d-b2e8-2df459f9ed7c",
+    "title": "Düğün Çorbası",
+    "servings": 4,
+    "kcal_per_person": 110,
+    "prep_min": 10,
+    "cook_min": 45,
+    "total_min": 55
+  },
+  {
+    "id": "9d83fda6-6fdd-413b-9068-c7458a554dfb",
+    "title": "Balık Köftesi",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 20,
+    "cook_min": 15,
+    "total_min": 35
+  },
+  {
+    "id": "9e70cd01-2a38-4bd8-b497-42af36dccfba",
+    "title": "Fırında Somon",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 10,
+    "cook_min": 18,
+    "total_min": 28
+  },
+  {
+    "id": "a091bbf4-8ea8-4703-a476-d04be7211245",
+    "title": "Buğday Çorbası",
+    "servings": 4,
+    "kcal_per_person": 185,
+    "prep_min": 15,
+    "cook_min": 90,
+    "total_min": 105
+  },
+  {
+    "id": "a1520d1e-bfdc-4ff7-8d8c-0ab16e8e19f6",
+    "title": "Soğuk Baklava",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 20,
+    "cook_min": 35,
+    "total_min": 55
+  },
+  {
+    "id": "a351e9cf-a561-48be-8280-a3a0e95411bb",
+    "title": "Kekikli Et Kavurma",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "a4e5cd55-ad1b-4650-9065-d9099c225090",
+    "title": "Portakallı Kereviz Yemeği",
+    "servings": 4,
+    "kcal_per_person": 165,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "a651b8bd-17b2-4b3b-9c7b-5a734944ec10",
+    "title": "Kremalı Patates Çorbası",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "a87a7ce4-6c49-4f79-8261-5bf7b029979a",
+    "title": "Sebzeli Kaşarlı Tavuk Güveç",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 20,
+    "cook_min": 25,
+    "total_min": 45
+  },
+  {
+    "id": "ac0051ea-73a2-4b0c-9a1b-f503f3ac3cd2",
+    "title": "Salçalı Tavuk Çorbası",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 15,
+    "cook_min": 30,
+    "total_min": 45
+  },
+  {
+    "id": "ac6caf3c-f239-48fa-85cb-44c59c4933f4",
+    "title": "Lebeniye Çorbası",
+    "servings": 4,
+    "kcal_per_person": 260,
+    "prep_min": 25,
+    "cook_min": 35,
+    "total_min": 60
+  },
+  {
+    "id": "acc88e99-8f32-472b-8372-b73e37e0238b",
+    "title": "Mahluta Çorbası",
+    "servings": 4,
+    "kcal_per_person": 220,
+    "prep_min": 15,
+    "cook_min": 30,
+    "total_min": 45
+  },
+  {
+    "id": "ade897ea-e3ba-4868-a90c-d72d505d6e3e",
+    "title": "Krem Şokola",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 10,
+    "cook_min": 20,
+    "total_min": 30
+  },
+  {
+    "id": "ae3074df-cf41-4869-bec1-7a02e4c67f81",
+    "title": "Tavuklu Makarna",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "aefcb4b8-8407-4161-b1e6-3d4ae9c47abc",
+    "title": "Fırında Kaşarlı Mantar",
+    "servings": 4,
+    "kcal_per_person": 310,
+    "prep_min": 10,
+    "cook_min": 15,
+    "total_min": 25
+  },
+  {
+    "id": "afc95aaf-1f64-4bb5-83e8-119cac01beeb",
+    "title": "Zeytinyağlı Taze Fasulye",
+    "servings": 4,
+    "kcal_per_person": 160,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "b022b691-b7b0-4a13-8a9b-68e5626b20ea",
+    "title": "Köstebek Pasta",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 20,
+    "cook_min": 35,
+    "total_min": 55
+  },
+  {
+    "id": "b0e68482-a6b2-4c6d-bfb7-73dddbbeade9",
+    "title": "Zeytinyağlı Enginar",
+    "servings": 4,
+    "kcal_per_person": 180,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "b33518e2-a0b3-4b89-9889-ed8baba4e561",
+    "title": "Kadayıflı Muhallebi",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "b387f140-8a65-41b6-a334-d868cd376321",
+    "title": "Tavuk Sote",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 15,
+    "cook_min": 15,
+    "total_min": 30
+  },
+  {
+    "id": "b3a119af-bf33-4064-af67-50517f8595ee",
+    "title": "Fırın Sütlaç",
+    "servings": 4,
+    "kcal_per_person": 260,
+    "prep_min": 10,
+    "cook_min": 50,
+    "total_min": 60
+  },
+  {
+    "id": "b3a16e90-ef0f-49d4-b15f-a75de7d638a0",
+    "title": "Garnitürlü Pirinç Pilavı",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 20,
+    "cook_min": 25,
+    "total_min": 45
+  },
+  {
+    "id": "b3e52720-066c-44ff-a162-487d957677d3",
+    "title": "Tereyağlı Peynirli Erişte",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 10,
+    "cook_min": 20,
+    "total_min": 30
+  },
+  {
+    "id": "b5744c56-fae0-4c65-8204-52d716950578",
+    "title": "Yoğurtlu Buğday Çorbası",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 15,
+    "cook_min": 45,
+    "total_min": 60
+  },
+  {
+    "id": "b69d8b18-4620-41e9-8cb8-b42b5617665f",
+    "title": "Soya Soslu Ballı Tavuk",
+    "servings": 4,
+    "kcal_per_person": 385,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "b6b5a7fc-c318-4ea2-98cb-1d98824a8fac",
+    "title": "İzmir Köfte",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "b7922801-5065-4e7d-ab80-f50df7ddefb4",
+    "title": "Lahana Çorbası",
+    "servings": 4,
+    "kcal_per_person": 165,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "b7bdfd60-c94a-40b8-898d-7af56a914d6a",
+    "title": "Dondurmalı Kemalpaşa Tatlısı",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "b7c82462-c261-4a99-b98f-b6fff340d562",
+    "title": "Acılı Et Sote",
+    "servings": 4,
+    "kcal_per_person": 385,
+    "prep_min": 20,
+    "cook_min": 35,
+    "total_min": 55
+  },
+  {
+    "id": "b85fdabf-d092-4356-8663-cee8bfbeda64",
+    "title": "Tiftik Tavuk Burger",
+    "servings": 4,
+    "kcal_per_person": 625,
+    "prep_min": 25,
+    "cook_min": 45,
+    "total_min": 70
+  },
+  {
+    "id": "b8632b4f-a243-447b-ae01-fa6b0ac89810",
+    "title": "Tavuklu Sultan Kebabı",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 20,
+    "cook_min": 50,
+    "total_min": 70
+  },
+  {
+    "id": "b8b5d5b4-92d8-4e15-ab7c-ec2e58794e78",
+    "title": "Çikolatalı Sufle",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "b90e014a-4b95-4882-9ea8-f0c4b3fe6591",
+    "title": "Basmati Pirinç Pilavı",
+    "servings": 4,
+    "kcal_per_person": 210,
+    "prep_min": 15,
+    "cook_min": 12,
+    "total_min": 27
+  },
+  {
+    "id": "b96ea79c-7c89-49af-9b26-0dfadb9a36ad",
+    "title": "Tereyağlı Kuskus",
+    "servings": 4,
+    "kcal_per_person": 195,
+    "prep_min": 8,
+    "cook_min": 12,
+    "total_min": 20
+  },
+  {
+    "id": "b976a5d6-b707-4e79-87a5-a44e226a1fc4",
+    "title": "Tavuklu Sebze Çorbası",
+    "servings": 4,
+    "kcal_per_person": 185,
+    "prep_min": 20,
+    "cook_min": 20,
+    "total_min": 40
+  },
+  {
+    "id": "ba985d61-ec62-4c57-8e03-dd4f1bdad62c",
+    "title": "Dilber Dudağı",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 25,
+    "cook_min": 35,
+    "total_min": 60
+  },
+  {
+    "id": "bac45a9f-e26c-4381-b275-645dc07031b5",
+    "title": "Fırında Tavuk Baget",
+    "servings": 4,
+    "kcal_per_person": 310,
+    "prep_min": 10,
+    "cook_min": 38,
+    "total_min": 48
+  },
+  {
+    "id": "bbc7bf44-ad4c-45e9-aa50-b8b31af63294",
+    "title": "Tarhana Çorbası",
+    "servings": 4,
+    "kcal_per_person": 85,
+    "prep_min": 5,
+    "cook_min": 15,
+    "total_min": 20
+  },
+  {
+    "id": "bbf217c6-32c1-41f0-a432-2a2c8a17cd0c",
+    "title": "Nohutlu Pirinç Pilavı",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 20,
+    "cook_min": 18,
+    "total_min": 38
+  },
+  {
+    "id": "bc46cdd1-6fcd-4f58-b6dc-123915a15da5",
+    "title": "Toyga Çorbası",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 15,
+    "cook_min": 45,
+    "total_min": 60
+  },
+  {
+    "id": "bc61cae8-53d3-4b61-894c-41968ff8ff17",
+    "title": "Pırasa Çorbası",
+    "servings": 4,
+    "kcal_per_person": 185,
+    "prep_min": 20,
+    "cook_min": 35,
+    "total_min": 55
+  },
+  {
+    "id": "bce693d8-736f-492a-965f-f30ddcc68aad",
+    "title": "Bezelye Yemeği",
+    "servings": 4,
+    "kcal_per_person": 220,
+    "prep_min": 15,
+    "cook_min": 40,
+    "total_min": 55
+  },
+  {
+    "id": "bd4a5f04-8705-4de5-b5f2-c9862f242222",
+    "title": "Gerdan Çorbası",
+    "servings": 4,
+    "kcal_per_person": 310,
+    "prep_min": 15,
+    "cook_min": 90,
+    "total_min": 105
+  },
+  {
+    "id": "bdd8e64b-228c-4e40-8174-9c742bda5617",
+    "title": "Zeytinyağlı Börülce",
+    "servings": 4,
+    "kcal_per_person": 145,
+    "prep_min": 10,
+    "cook_min": 35,
+    "total_min": 45
+  },
+  {
+    "id": "be2e9a2e-bf04-43e8-9704-0a1bf43029d4",
+    "title": "Bisküvili Pasta",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "c43df09f-251c-4f86-8f2c-897dd846a263",
+    "title": "Limonlu Magnolia",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "c4e05a43-140a-4fe8-bde0-c8e7d10c31f9",
+    "title": "Kemalpaşa Tatlısı",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 5,
+    "cook_min": 25,
+    "total_min": 30
+  },
+  {
+    "id": "c63171a9-2762-468b-be73-9aeb733e53ad",
+    "title": "Elmalı Turta",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 20,
+    "cook_min": 35,
+    "total_min": 55
+  },
+  {
+    "id": "c63cfcfa-7e31-4ff9-8c0f-66b30384189e",
+    "title": "Közlenmiş Biber Salatası",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "c64e4f9f-990a-448e-9013-2fd6b2151f2a",
+    "title": "Soğuk Semizotu Çorbası",
+    "servings": 4,
+    "kcal_per_person": 110,
+    "prep_min": 20,
+    "cook_min": 5,
+    "total_min": 25
+  },
+  {
+    "id": "c6d00ccf-4624-4f5d-be1f-4200b72167ce",
+    "title": "Şekerpare",
+    "servings": 4,
+    "kcal_per_person": 310,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "c81f698d-7996-4e45-abcf-68cd1ce03318",
+    "title": "Erişteli Yeşil Mercimek Çorbası",
+    "servings": 4,
+    "kcal_per_person": 145,
+    "prep_min": 10,
+    "cook_min": 35,
+    "total_min": 45
+  },
+  {
+    "id": "c83b2966-d48f-4b69-ad18-ca2bb5ab5b11",
+    "title": "Ispanak Graten",
+    "servings": 4,
+    "kcal_per_person": 185,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "ca5de7c8-9209-44f8-8820-35a29cf3af87",
+    "title": "Fırında İçli Köfte",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 25,
+    "cook_min": 35,
+    "total_min": 60
+  },
+  {
+    "id": "cc3c4872-d74f-407b-9736-e0a36cc2e13c",
+    "title": "Kremalı Mantar Çorbası",
+    "servings": 4,
+    "kcal_per_person": 180,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "ce20bb7a-c0a2-4405-8103-e64c061b2e2f",
+    "title": "Bamya Çorbası",
+    "servings": 4,
+    "kcal_per_person": 145,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "ce4f63a4-aaec-4794-bc9f-8002db2c7831",
+    "title": "Etli Kuru Patlıcan & Kuru Biber Dolması",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 30,
+    "cook_min": 45,
+    "total_min": 75
+  },
+  {
+    "id": "cef209cf-0740-4af5-92ad-7f4e99f925fa",
+    "title": "Şalgamlı Kuskus Salatası",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 15,
+    "cook_min": 15,
+    "total_min": 30
+  },
+  {
+    "id": "cf27c7b7-92fe-40a1-a190-0724d40eaf87",
+    "title": "Patlıcan Ezmesi",
+    "servings": 4,
+    "kcal_per_person": 165,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "d2ed424c-8994-4313-abed-088b6b89af22",
+    "title": "Taneli Sebze Çorbası",
+    "servings": 4,
+    "kcal_per_person": 120,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "d367aff6-1592-48d4-a97b-bc63b33a744d",
+    "title": "Keşkül",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "d64e5128-371a-4166-a3de-db4d2158b681",
+    "title": "Güveçte Mantar Sote",
+    "servings": 4,
+    "kcal_per_person": 85,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "d67868fd-27ee-4e1c-88bc-46ff1c551acb",
+    "title": "Soğan Çorbası",
+    "servings": 4,
+    "kcal_per_person": 120,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "d68cc670-2a92-4e6f-988b-148d8ae5d658",
+    "title": "Fırında Mücver",
+    "servings": 4,
+    "kcal_per_person": 180,
+    "prep_min": 20,
+    "cook_min": 30,
+    "total_min": 50
+  },
+  {
+    "id": "d6dec935-1a36-4d31-a819-20eac93d5853",
+    "title": "Arpa Şehriye Salatası",
+    "servings": 4,
+    "kcal_per_person": 220,
+    "prep_min": 20,
+    "cook_min": 15,
+    "total_min": 35
+  },
+  {
+    "id": "d705b08e-15f6-4a6a-b9cd-2717252ca6d9",
+    "title": "Profiterol",
+    "servings": 4,
+    "kcal_per_person": 310,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "d719955a-b10d-4918-9403-05a778e1e86f",
+    "title": "Çilekli Muhallebi",
+    "servings": 4,
+    "kcal_per_person": 180,
+    "prep_min": 15,
+    "cook_min": 20,
+    "total_min": 35
+  },
+  {
+    "id": "d7220708-c9b9-47cb-80e4-4c9adb4d69af",
+    "title": "Yeşil Mercimek",
+    "servings": 4,
+    "kcal_per_person": 155,
+    "prep_min": 15,
+    "cook_min": 40,
+    "total_min": 55
+  },
+  {
+    "id": "d7f95903-3995-4884-83fb-3bea2db1e5fe",
+    "title": "Su Böreği",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "d8c65ecc-3e0f-4116-890f-7b88f01bce01",
+    "title": "Ev Yapımı Tantuni",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 20,
+    "cook_min": 25,
+    "total_min": 45
+  },
+  {
+    "id": "dbba38f5-45b5-4f2a-9acc-99126527a1e4",
+    "title": "Trileçe",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "dc4a7505-71a5-417f-ad4e-153dd044a4a4",
+    "title": "Kuru Domates Salatası",
+    "servings": 4,
+    "kcal_per_person": 140,
+    "prep_min": 15,
+    "cook_min": 15,
+    "total_min": 30
+  },
+  {
+    "id": "dc63e404-bb93-4d50-bef8-9296228ca5bc",
+    "title": "Kırmızı Mercimek Çorbası",
+    "servings": 4,
+    "kcal_per_person": 110,
+    "prep_min": 10,
+    "cook_min": 30,
+    "total_min": 40
+  },
+  {
+    "id": "dc9a5164-be55-47d8-b66c-68379026c2ea",
+    "title": "Kakaolu İrmik Helvası",
+    "servings": 4,
+    "kcal_per_person": 480,
+    "prep_min": 10,
+    "cook_min": 20,
+    "total_min": 30
+  },
+  {
+    "id": "dcd9ce94-8113-4217-9cad-638b4d77c7b3",
+    "title": "Supangle",
+    "servings": 4,
+    "kcal_per_person": 340,
+    "prep_min": 10,
+    "cook_min": 15,
+    "total_min": 25
+  },
+  {
+    "id": "dcdbd8b3-97ed-4cfd-a10b-ea43a415e40a",
+    "title": "Güllaç",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 15,
+    "cook_min": 5,
+    "total_min": 20
+  },
+  {
+    "id": "ddc57a1e-bc3d-468c-a160-e0407e5104db",
+    "title": "Etli Bamya",
+    "servings": 4,
+    "kcal_per_person": 245,
+    "prep_min": 15,
+    "cook_min": 45,
+    "total_min": 60
+  },
+  {
+    "id": "dddd4632-b371-44a3-abcf-532b0b6de016",
+    "title": "Lotuslu Magnolia",
+    "servings": 4,
+    "kcal_per_person": 385,
+    "prep_min": 20,
+    "cook_min": 20,
+    "total_min": 40
+  },
+  {
+    "id": "de7aec51-d7c7-4f56-9fcc-1a25e340e56c",
+    "title": "Zeytinyağlı Biber Dolması",
+    "servings": 4,
+    "kcal_per_person": 210,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "dea23be6-bb3c-4eef-8b5b-6e519a3d3431",
+    "title": "Un Çorbası",
+    "servings": 4,
+    "kcal_per_person": 165,
+    "prep_min": 5,
+    "cook_min": 15,
+    "total_min": 20
+  },
+  {
+    "id": "df8f1b52-aae3-4599-a2b6-b3a7f806c0e0",
+    "title": "Kaburga Mısır",
+    "servings": 4,
+    "kcal_per_person": 185,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "dfcc6432-87a6-4f41-b6dc-66349284ec9a",
+    "title": "Domates Çorbası",
+    "servings": 4,
+    "kcal_per_person": 125,
+    "prep_min": 10,
+    "cook_min": 20,
+    "total_min": 30
+  },
+  {
+    "id": "e01e2622-2e91-4bc9-adc6-f27117ae7717",
+    "title": "Belen Tava",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 25,
+    "cook_min": 35,
+    "total_min": 60
+  },
+  {
+    "id": "e18f2351-1cbe-43dc-bc6b-29afc82a8c49",
+    "title": "Sebze Çorbası",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "e1a82505-1db6-4cb2-9859-54cecba6b30e",
+    "title": "Pazı Çorbası",
+    "servings": 4,
+    "kcal_per_person": 145,
+    "prep_min": 20,
+    "cook_min": 30,
+    "total_min": 50
+  },
+  {
+    "id": "e3aaa398-2e66-4140-8e66-646e073da7cc",
+    "title": "Fırında Buffalo Soslu Kanat",
+    "servings": 4,
+    "kcal_per_person": 385,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "e43c1637-3d36-4610-97d3-83d65cd58c1d",
+    "title": "Mantarlı Tavuk Sote",
+    "servings": 4,
+    "kcal_per_person": 310,
+    "prep_min": 20,
+    "cook_min": 25,
+    "total_min": 45
+  },
+  {
+    "id": "e558571e-2748-4c47-9358-32f915d30a81",
+    "title": "Brownie",
+    "servings": 4,
+    "kcal_per_person": 420,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "e70f826f-3cb7-4b03-9b0b-813149ce32e7",
+    "title": "Beşamel Soslu Fırın Makarna",
+    "servings": 4,
+    "kcal_per_person": 445,
+    "prep_min": 10,
+    "cook_min": 25,
+    "total_min": 35
+  },
+  {
+    "id": "e7f911e5-61b9-49f1-9a9e-407048d5d781",
+    "title": "Patates Oturtma",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 20,
+    "cook_min": 45,
+    "total_min": 65
+  },
+  {
+    "id": "e9c30220-e22d-425b-84ae-ceb18e127618",
+    "title": "Kremalı Tavuk Çorbası",
+    "servings": 4,
+    "kcal_per_person": 220,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "ea49fc9f-aa43-4b1b-a49e-e98b0183b971",
+    "title": "Kara Lahana Çorbası",
+    "servings": 4,
+    "kcal_per_person": 145,
+    "prep_min": 20,
+    "cook_min": 40,
+    "total_min": 60
+  },
+  {
+    "id": "ef3d73d0-007b-499b-a032-a7f2dcbc9227",
+    "title": "Piyaz",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 25,
+    "cook_min": 120,
+    "total_min": 145
+  },
+  {
+    "id": "ef49c6a6-0a3f-49de-9ffc-2c736fa9d736",
+    "title": "Tereyağlı Pirinç Pilavı",
+    "servings": 4,
+    "kcal_per_person": 310,
+    "prep_min": 20,
+    "cook_min": 25,
+    "total_min": 45
+  },
+  {
+    "id": "f058b57f-6a72-41a2-abb6-735b3dcb97e4",
+    "title": "Domatesli Arpa Şehriye Pilavı",
+    "servings": 4,
+    "kcal_per_person": 245,
+    "prep_min": 15,
+    "cook_min": 30,
+    "total_min": 45
+  },
+  {
+    "id": "f1aed896-2c74-4200-ae42-c4807428e771",
+    "title": "Tavuk Göğsü",
+    "servings": 4,
+    "kcal_per_person": 380,
+    "prep_min": 20,
+    "cook_min": 45,
+    "total_min": 65
+  },
+  {
+    "id": "f22ea6dc-e481-42bb-a477-e65dd322da6c",
+    "title": "Deniz Börülcesi",
+    "servings": 4,
+    "kcal_per_person": 120,
+    "prep_min": 20,
+    "cook_min": 8,
+    "total_min": 28
+  },
+  {
+    "id": "f481308d-674c-4a1c-a4ca-6fef73a6bbce",
+    "title": "Brokoli Çorbası (Kremasız)",
+    "servings": 4,
+    "kcal_per_person": 145,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "f50380d4-14a8-48a3-8208-0f2b49831e0d",
+    "title": "Patates Püresi",
+    "servings": 4,
+    "kcal_per_person": 210,
+    "prep_min": 10,
+    "cook_min": 20,
+    "total_min": 30
+  },
+  {
+    "id": "f5e89cba-2b60-46c3-94f5-8bbf66f5215a",
+    "title": "Köri Soslu Tavuk",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "f729afea-3fbc-4f22-9981-cbb13e681a63",
+    "title": "İslim Kebabı",
+    "servings": 4,
+    "kcal_per_person": 290,
+    "prep_min": 20,
+    "cook_min": 35,
+    "total_min": 55
+  },
+  {
+    "id": "f8864b80-b8db-4f97-b73f-ccd6675c5efc",
+    "title": "Etli Kabak Dolması",
+    "servings": 4,
+    "kcal_per_person": 285,
+    "prep_min": 20,
+    "cook_min": 45,
+    "total_min": 65
+  },
+  {
+    "id": "f8b915de-3e83-485a-bcf9-16f3d722e9fe",
+    "title": "Kısır",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 25,
+    "cook_min": 5,
+    "total_min": 30
+  },
+  {
+    "id": "f8ca2e03-0155-408c-aac0-8d7837cdd8d0",
+    "title": "Süt Helvası",
+    "servings": 4,
+    "kcal_per_person": 285,
+    "prep_min": 10,
+    "cook_min": 35,
+    "total_min": 45
+  },
+  {
+    "id": "f9b4b75d-048c-4a1b-9fc7-3a46285d18e1",
+    "title": "Zerdeçallı Makarna",
+    "servings": 4,
+    "kcal_per_person": 310,
+    "prep_min": 10,
+    "cook_min": 15,
+    "total_min": 25
+  },
+  {
+    "id": "f9d359ac-ec26-463d-858b-14f995327318",
+    "title": "Çikolatalı Magnolia",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 15,
+    "cook_min": 25,
+    "total_min": 40
+  },
+  {
+    "id": "f9d9b950-332d-4e69-b409-075b5b260ac2",
+    "title": "Domates Soslu Makarna",
+    "servings": 4,
+    "kcal_per_person": 385,
+    "prep_min": 12,
+    "cook_min": 20,
+    "total_min": 32
+  },
+  {
+    "id": "fa2086f4-3c41-43f5-b7d7-7352fcf6b610",
+    "title": "Hasanpaşa Köfte",
+    "servings": 4,
+    "kcal_per_person": 480,
+    "prep_min": 20,
+    "cook_min": 35,
+    "total_min": 55
+  },
+  {
+    "id": "fa46494d-ad7a-4bb0-98e2-4d78e17c2d8e",
+    "title": "Patlıcan Musakka",
+    "servings": 4,
+    "kcal_per_person": 410,
+    "prep_min": 25,
+    "cook_min": 40,
+    "total_min": 65
+  },
+  {
+    "id": "fbbdef72-f349-408c-953e-23847a52f57d",
+    "title": "Şehriye Çorbası",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 5,
+    "cook_min": 15,
+    "total_min": 20
+  },
+  {
+    "id": "fbc1033a-110e-46c9-9d63-ad59c744d4e4",
+    "title": "Kuru Köfte",
+    "servings": 4,
+    "kcal_per_person": 520,
+    "prep_min": 20,
+    "cook_min": 25,
+    "total_min": 45
+  },
+  {
+    "id": "fbf5c7f8-1207-4c9a-8160-3fb633d0cd80",
+    "title": "Beşamel Soslu Makarna",
+    "servings": 4,
+    "kcal_per_person": 465,
+    "prep_min": 12,
+    "cook_min": 35,
+    "total_min": 47
+  },
+  {
+    "id": "fd307d55-e8a9-404a-b7c1-e34d68071ad0",
+    "title": "Arabaşı Çorbası",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 20,
+    "cook_min": 45,
+    "total_min": 65
+  },
+  {
+    "id": "fe7cee32-a225-413c-93f2-909be011aa91",
+    "title": "Tas Kebabı",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 15,
+    "cook_min": 35,
+    "total_min": 50
+  },
+  {
+    "id": "ff5f8265-9a5c-4d04-9b34-c4274f5828d5",
+    "title": "Beyran Çorbası",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 15,
+    "cook_min": 60,
+    "total_min": 75
+  },
+  {
+    "id": "ffe41f6d-2e7e-4be9-88a2-57e437912df2",
+    "title": "Karamelli Flan",
+    "servings": 4,
+    "kcal_per_person": 350,
+    "prep_min": 15,
+    "cook_min": 50,
+    "total_min": 65
+  },
+  {
+    "id": "01269b73-aa8c-43ed-970e-08b8e1227379",
+    "title": "Semizotu Salatası (Avokadolu)",
+    "servings": 4,
+    "kcal_per_person": 185,
+    "prep_min": 15,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "0f86df16-8504-450f-abf0-7055784bc5d5",
+    "title": "Hatay Usulü Zahter Salatası",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 20,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "127a75ff-dbe2-475c-b62b-6a76e6f6fd4b",
+    "title": "Dilim Zeytin Salatası",
+    "servings": 4,
+    "kcal_per_person": 110,
+    "prep_min": 10,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "16dbdabb-dff4-4846-b255-70b03e850bab",
+    "title": "Orman Meyveli Parfe",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 20,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "2049fc21-ba75-4873-9bca-2eac652e739c",
+    "title": "Kuru Cacık",
+    "servings": 4,
+    "kcal_per_person": 120,
+    "prep_min": 10,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "358d3290-2580-40e6-aa8f-992ceb4b0642",
+    "title": "Tiramisu",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 15,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "3c9c9f72-8000-49f4-9076-471956d9ab2c",
+    "title": "Sumaklı Soğan Salatası",
+    "servings": 4,
+    "kcal_per_person": 85,
+    "prep_min": 10,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "3ce31bf3-63ec-4991-a5f4-ed239385d9b2",
+    "title": "Cacık",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 10,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "3f28febd-388e-4e3e-a99d-bc598ae1bde9",
+    "title": "Tahinli Piyaz",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 15,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "47aebc2e-33e6-4d36-828a-cffcfc3b74d6",
+    "title": "Yeşil Elmalı Semizotu Salatası",
+    "servings": 4,
+    "kcal_per_person": 150,
+    "prep_min": 20,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "4a7cc7ad-4f47-44fb-bde6-be11457ecb59",
+    "title": "Guacamole Sos",
+    "servings": 4,
+    "kcal_per_person": 210,
+    "prep_min": 15,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "59395fcc-1ff5-4b91-9fb5-403c1afc942c",
+    "title": "Füme Etli Roka Salatası",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 15,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "6e1ca61f-8cfa-44ed-b3f1-8a34cb4bcd9a",
+    "title": "Yeşil Salata",
+    "servings": 4,
+    "kcal_per_person": 120,
+    "prep_min": 15,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "777e95b2-07a5-45e5-abc1-15565e9f35ee",
+    "title": "Caprese Salata",
+    "servings": 4,
+    "kcal_per_person": 280,
+    "prep_min": 10,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "7db41947-270b-4330-b6fb-88f61125185c",
+    "title": "Acılı Ezme",
+    "servings": 4,
+    "kcal_per_person": 160,
+    "prep_min": 20,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "7e678389-8999-4356-99ca-44f03d16b1c1",
+    "title": "Portakallı Kereviz Salatası",
+    "servings": 4,
+    "kcal_per_person": 240,
+    "prep_min": 20,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "82cac2da-451b-41c7-ac38-d9ebf55ff451",
+    "title": "Haydari",
+    "servings": 4,
+    "kcal_per_person": 180,
+    "prep_min": 10,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "874dd687-0d4d-45d1-b8a2-f1d13ef26343",
+    "title": "Narlı Semizotu Salatası",
+    "servings": 4,
+    "kcal_per_person": 145,
+    "prep_min": 20,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "98fbef34-f5eb-4ad2-9b01-3f10a4b63d1c",
+    "title": "Çilek Püreli Semizotu Salatası",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 15,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "bf003933-5b03-4ca8-a38d-d5e0d152ee11",
+    "title": "Yeşil Soğanlı Mevsim Salata",
+    "servings": 4,
+    "kcal_per_person": 110,
+    "prep_min": 25,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "c2e45f0d-ab46-4b40-81d8-d118420927ec",
+    "title": "Coleslaw Salatası",
+    "servings": 4,
+    "kcal_per_person": 120,
+    "prep_min": 15,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "ccd851e8-e4f9-4264-9e4b-4b43f7d7a982",
+    "title": "Pişmeyen Limonlu Cheesecake",
+    "servings": 4,
+    "kcal_per_person": 320,
+    "prep_min": 20,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "dc132bc3-e787-4932-9d53-843966b4ea01",
+    "title": "Humus",
+    "servings": 4,
+    "kcal_per_person": 165,
+    "prep_min": 15,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "de313fae-1dab-4e0a-84a2-2ab670d47d70",
+    "title": "Kaşık Salata",
+    "servings": 4,
+    "kcal_per_person": 85,
+    "prep_min": 20,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "f0053b07-1bba-4832-b4b2-ce0c01671544",
+    "title": "Roka Salatası",
+    "servings": 4,
+    "kcal_per_person": 95,
+    "prep_min": 15,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "fb8e847e-bb67-4510-8733-6137074a3f91",
+    "title": "Çoban Salatası",
+    "servings": 4,
+    "kcal_per_person": 120,
+    "prep_min": 20,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "fe445f25-5504-47b2-9f6e-341b95e019e0",
+    "title": "Gavurdağı Salatası",
+    "servings": 4,
+    "kcal_per_person": 185,
+    "prep_min": 20,
+    "cook_min": 0,
+    "total_min": null
+  },
+  {
+    "id": "ffb94a0d-3a50-4bc2-a039-b0cd7ff65293",
+    "title": "Mor Lahana Tarator",
+    "servings": 4,
+    "kcal_per_person": 165,
+    "prep_min": 25,
+    "cook_min": 0,
+    "total_min": null
+  }
+]

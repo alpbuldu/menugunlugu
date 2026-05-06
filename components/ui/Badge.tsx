@@ -12,15 +12,15 @@ export const categoryLabels: Record<Category, string> = {
 const categoryLabelsShort: Record<Category, string> = {
   soup:    "Çorba",
   main:    "Ana Yemek",
-  side:    "Yardımcı",
+  side:    "Yardımcı Lezzet",
   dessert: "Tatlı",
 };
 
 const categoryColors: Record<Category, string> = {
-  soup:    "bg-blue-100 text-blue-700",
+  soup:    "bg-brand-100 text-brand-700",
   main:    "bg-brand-100 text-brand-700",
-  side:    "bg-green-100 text-green-700",
-  dessert: "bg-pink-100 text-pink-700",
+  side:    "bg-brand-100 text-brand-700",
+  dessert: "bg-brand-100 text-brand-700",
 };
 
 interface BadgeProps {

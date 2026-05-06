@@ -43,15 +43,17 @@ function RecipeCard({
           ) : (
             <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍽️</div>
           )}
+          {(recipe as any).kcal_per_person && (
+            <div className="absolute bottom-2 right-2 bg-brand-500 text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+              {(recipe as any).kcal_per_person} kcal
+            </div>
+          )}
         </div>
         <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
           <Badge category={category} compact className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
           <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors leading-snug">
             {recipe.title}
           </h2>
-          {(recipe as any).kcal_per_person && (
-            <p className="text-[10px] text-orange-500 font-medium mt-1">🔥 {(recipe as any).kcal_per_person} kcal/kişi</p>
-          )}
         </div>
       </Link>
 
@@ -154,14 +156,7 @@ export default async function MenuPage() {
     <SidebarLayout placement="sidebar_menu" adSenseSlot="gunun_menusu_dikey">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <h1 className="text-3xl font-bold text-warm-900 mb-1">Günün Menüsü</h1>
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-sm sm:text-base text-warm-500 capitalize">{today}</p>
-        {totalKcal > 0 && (
-          <span className="text-xs font-semibold text-orange-600 bg-orange-50 rounded-full px-3 py-1">
-            🔥 1 kişilik: {totalKcal} kcal
-          </span>
-        )}
-      </div>
+      <p className="text-sm sm:text-base text-warm-500 capitalize mb-4">{today}</p>
 
       {/* Banner — açıklama altında, kartlar üstünde */}
       <AdSlot placement="menu_banner" adSenseSlot="gunun_menusu_yatay"
@@ -197,6 +192,15 @@ export default async function MenuPage() {
             );
           })}
         </div>
+        {totalKcal > 0 && (
+          <div className="mt-4 border-t border-warm-200 pt-3 flex items-center gap-2">
+            <span className="text-warm-300 font-bold text-base">+</span>
+            <span className="text-sm font-semibold text-warm-700">
+              Toplam Menü Kalorisi (1 Kişilik)
+              <span className="text-brand-600 ml-2">= {totalKcal} kcal</span>
+            </span>
+          </div>
+        )}
       )}
 
       <div className="mt-6 sm:mt-8 sm:text-center">

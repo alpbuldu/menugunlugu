@@ -329,9 +329,8 @@ export default async function RecipeDetailPage({ params }: Props) {
                 Malzemeler
               </h2>
               {recipe.kcal_per_person && (
-                <div className="flex items-center gap-1 bg-orange-100 rounded-full px-2.5 py-1">
-                  <span className="text-xs">🔥</span>
-                  <span className="text-xs font-bold text-orange-700">{recipe.kcal_per_person} kcal</span>
+                <div className="flex items-center gap-1 bg-brand-100 rounded-full px-2.5 py-1">
+                  <span className="text-xs font-bold text-brand-700">{recipe.kcal_per_person} kcal</span>
                 </div>
               )}
             </div>

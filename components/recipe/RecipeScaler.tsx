@@ -183,6 +183,7 @@ function getServingsOptions(original: number): number[] {
   const half   = Math.max(1, Math.floor(original / 2));
   const double = original * 2;
   const opts   = new Set<number>();
+  opts.add(1);
   if (half < original) opts.add(half);
   opts.add(original);
   if (double <= 24) opts.add(double);

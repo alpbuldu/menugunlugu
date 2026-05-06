@@ -318,21 +318,23 @@ export default async function RecipeDetailPage({ params }: Props) {
         />
 
         <div className="p-8">
-          <div className="mb-8 flex items-start justify-between gap-2">
-            <h1 className="text-xl sm:text-3xl font-bold text-warm-900 leading-snug flex-1">{recipe.title}</h1>
-            {recipe.kcal_per_person && (
-              <div className="flex items-center gap-1.5 bg-orange-100 rounded-full px-3 py-1.5 flex-shrink-0 mt-1">
-                <span className="text-sm">🔥</span>
-                <span className="text-sm font-bold text-orange-700">{recipe.kcal_per_person} kcal</span>
-              </div>
-            )}
+          <div className="mb-8">
+            <h1 className="text-xl sm:text-3xl font-bold text-warm-900 leading-snug">{recipe.title}</h1>
           </div>
 
           <section className="mb-8">
-            <h2 className="text-lg font-semibold text-warm-800 mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-sm">🧂</span>
-              Malzemeler
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-warm-800 flex items-center gap-2">
+                <span className="w-6 h-6 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-sm">🧂</span>
+                Malzemeler
+              </h2>
+              {recipe.kcal_per_person && (
+                <div className="flex items-center gap-1 bg-orange-100 rounded-full px-2.5 py-1">
+                  <span className="text-xs">🔥</span>
+                  <span className="text-xs font-bold text-orange-700">{recipe.kcal_per_person} kcal</span>
+                </div>
+              )}
+            </div>
             <RecipeScaler
               ingredientsRaw={recipe.ingredients}
               isHtml={ingredientsIsHtml}

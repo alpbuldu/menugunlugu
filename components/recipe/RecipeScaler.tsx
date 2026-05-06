@@ -249,6 +249,7 @@ export default function RecipeScaler({ ingredientsRaw, isHtml, servings }: Props
                 {s}
               </button>
             ))}
+            <span className="text-xs text-warm-500 font-medium">kişilik</span>
           </div>
         ) : (
           // Kişi sayısı yok → sabit çarpanlar

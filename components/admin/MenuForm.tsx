@@ -17,14 +17,24 @@ const COURSE_FIELDS = [
   { field: "dessert_id", label: "Tatlı",     category: "dessert" },
 ] as const;
 
+const MENU_CATEGORIES = [
+  { value: "ev-yemegi",  label: "🏠 Ev Yemeği"   },
+  { value: "diyet",      label: "🥗 Diyet & Fit"  },
+  { value: "vejetaryen", label: "🌿 Vejetaryen"   },
+  { value: "pratik",     label: "⚡ Pratik"        },
+  { value: "geleneksel", label: "🫕 Geleneksel"   },
+] as const;
+
 type CourseField = (typeof COURSE_FIELDS)[number]["field"];
 
 export default function MenuForm({ recipes, menu }: Props) {
   const router = useRouter();
   const isEdit = !!menu;
 
-  const [date,      setDate]     = useState(menu?.date    ?? new Date().toLocaleDateString("en-CA"));
-  const [status,    setStatus]   = useState<"draft" | "published">(menu?.status ?? "draft");
+  const [date,           setDate]           = useState(menu?.date ?? new Date().toLocaleDateString("en-CA"));
+  const [status,         setStatus]         = useState<"draft" | "published">(menu?.status ?? "draft");
+  const [menuCategory,   setMenuCategory]   = useState(menu?.menu_category ?? "");
+  const [isGununMenusu,  setIsGununMenusu]  = useState(menu?.is_gunun_menusu ?? true);
   const [courseIds, setCourseIds] = useState<Record<CourseField, string>>({
     soup_id:    menu?.soup_id    ?? "",
     main_id:    menu?.main_id    ?? "",
@@ -56,7 +66,11 @@ export default function MenuForm({ recipes, menu }: Props) {
     setSaving(true);
     setError("");
 
-    const payload = { date, status, ...courseIds };
+    const payload = {
+      date, status, ...courseIds,
+      menu_category:   menuCategory || null,
+      is_gunun_menusu: isGununMenusu,
+    };
 
     const res = await fetch(
       isEdit ? `/api/menu/${menu!.id}` : "/api/menu",
@@ -130,6 +144,52 @@ export default function MenuForm({ recipes, menu }: Props) {
         <p className="text-xs text-warm-400 mt-1.5">
           Yalnızca "Yayınla" seçilirse sitede görünür.
         </p>
+      </div>
+
+      {/* Menü Kategorisi */}
+      <div>
+        <label className="block text-sm font-medium text-warm-700 mb-1.5">
+          Menü Kategorisi
+          <span className="ml-1 text-xs text-warm-400 font-normal">(isteğe bağlı)</span>
+        </label>
+        <select
+          value={menuCategory}
+          onChange={(e) => setMenuCategory(e.target.value)}
+          className={selectCls}
+        >
+          <option value="">Kategori seçin…</option>
+          {MENU_CATEGORIES.map((c) => (
+            <option key={c.value} value={c.value}>{c.label}</option>
+          ))}
+        </select>
+        <p className="text-xs text-warm-400 mt-1.5">
+          Seçilen kategori, Menü Günlüğü sayfasında &quot;Menü Önerileri&quot; bölümünde görünür.
+        </p>
+      </div>
+
+      {/* Günün Menüsü */}
+      <div>
+        <label
+          className={[
+            "flex items-center gap-3 px-4 py-3 rounded-xl border cursor-pointer transition-colors",
+            isGununMenusu
+              ? "bg-brand-50 border-brand-300"
+              : "bg-white border-warm-200 hover:border-warm-300",
+          ].join(" ")}
+        >
+          <input
+            type="checkbox"
+            checked={isGununMenusu}
+            onChange={(e) => setIsGununMenusu(e.target.checked)}
+            className="w-4 h-4 accent-brand-600"
+          />
+          <div>
+            <p className="text-sm font-medium text-warm-800">🍽️ Günün Menüsü</p>
+            <p className="text-xs text-warm-400 mt-0.5">
+              İşaretlenirse bu menü, seçilen tarihte Günün Menüsü olarak yayınlanır.
+            </p>
+          </div>
+        </label>
       </div>
 
       {/* Course selectors */}

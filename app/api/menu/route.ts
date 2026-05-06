@@ -3,7 +3,12 @@ import { createAdminClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { date, soup_id, main_id, side_id, dessert_id, status = "draft" } = body;
+  const {
+    date, soup_id, main_id, side_id, dessert_id,
+    status = "draft",
+    menu_category = null,
+    is_gunun_menusu = true,
+  } = body;
 
   if (!date || !soup_id || !main_id || !side_id || !dessert_id) {
     return NextResponse.json(
@@ -30,10 +35,7 @@ export async function POST(request: NextRequest) {
 
   const { data, error } = await supabase
     .from("menus")
-    .upsert(
-      { date, soup_id, main_id, side_id, dessert_id, status },
-      { onConflict: "date,status" }
-    )
+    .insert({ date, soup_id, main_id, side_id, dessert_id, status, menu_category, is_gunun_menusu })
     .select()
     .single();
 

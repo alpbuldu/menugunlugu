@@ -6,7 +6,7 @@ const RECIPE_FIELDS = "id, title, slug, category, description, seo_title, seo_ke
 
 // For menu joins we include slug so recipe cards can link to the detail page
 const MENU_WITH_RECIPES = `
-  id, date, status, created_at,
+  id, date, status, menu_category, is_gunun_menusu, created_at,
   soup:soup_id(${RECIPE_FIELDS}),
   main:main_id(${RECIPE_FIELDS}),
   side:side_id(${RECIPE_FIELDS}),
@@ -42,6 +42,7 @@ export async function getTodayMenu(): Promise<MenuWithRecipes | null> {
       .select(MENU_WITH_RECIPES)
       .eq("date", today)
       .eq("status", "published")
+      .eq("is_gunun_menusu", true)
       .single();
 
     if (error) {

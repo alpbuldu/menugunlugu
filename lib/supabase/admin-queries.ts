@@ -6,7 +6,7 @@ const RECIPE_FIELDS =
 
 // Menu join without slug — avoids PostgREST schema-cache issues during development
 const MENU_ADMIN_SELECT = `
-  id, date, status, soup_id, main_id, side_id, dessert_id, created_at,
+  id, date, status, menu_category, is_gunun_menusu, soup_id, main_id, side_id, dessert_id, created_at,
   soup:soup_id(id, title, category),
   main:main_id(id, title, category),
   side:side_id(id, title, category),
@@ -17,6 +17,8 @@ export interface AdminMenu {
   id: string;
   date: string;
   status: "draft" | "published";
+  menu_category: string | null;
+  is_gunun_menusu: boolean;
   soup_id: string;
   main_id: string;
   side_id: string;

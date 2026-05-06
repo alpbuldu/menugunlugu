@@ -6,7 +6,7 @@ type Params = Promise<{ id: string }>;
 export async function PUT(request: NextRequest, { params }: { params: Params }) {
   const { id } = await params;
   const body   = await request.json();
-  const { date, soup_id, main_id, side_id, dessert_id, status } = body;
+  const { date, soup_id, main_id, side_id, dessert_id, status, menu_category, is_gunun_menusu } = body;
 
   if (!date || !soup_id || !main_id || !side_id || !dessert_id) {
     return NextResponse.json(
@@ -30,7 +30,12 @@ export async function PUT(request: NextRequest, { params }: { params: Params }) 
 
   const { data, error } = await supabase
     .from("menus")
-    .update({ date, soup_id, main_id, side_id, dessert_id, status: status ?? "draft" })
+    .update({
+      date, soup_id, main_id, side_id, dessert_id,
+      status: status ?? "draft",
+      menu_category: menu_category ?? null,
+      ...(is_gunun_menusu !== undefined && { is_gunun_menusu }),
+    })
     .eq("id", id)
     .select()
     .single();

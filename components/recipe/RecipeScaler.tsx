@@ -30,32 +30,35 @@ function parseHtmlIngredients(html: string): IngItem[] {
   return result;
 }
 
-// ─── Sayılabilir malzemeler — kesirli çıkarsa tam sayıya yuvarla ─────────────
-// Bölünemeyen/yarım kullanılamayan ürünler: 1,25 patates → 1, 2,5 soğan → 3
-const COUNTABLE_WORDS = new Set([
-  // Ekmek / hamur
-  "yufka", "lavaş",
-  // Sebzeler
+// ─── Sayılabilir malzemeler ───────────────────────────────────────────────────
+// WHOLE_ONLY: kesinlikle tam sayı (0,5 de olmaz) — yufka, lavaş
+// HALF_OK: yarım/buçuk olabilir ama çeyrek kesir olmaz — sebze, meyve, yumurta
+//   1,25 patates → 1,5 | 2,25 soğan → 2 | 0,25 limon → 0,5 | 2,5 kalır
+const WHOLE_ONLY_WORDS = new Set(["yufka", "lavaş"]);
+const HALF_OK_WORDS = new Set([
   "patates", "soğan", "domates", "biber", "patlıcan", "kabak", "havuç",
   "mısır", "turp", "pancar", "brokoli", "karnabahar", "lahana", "marul",
   "kereviz", "enginar", "kuşkonmaz", "bezelye", "fasulye", "bamya",
-  // Meyveler
   "elma", "armut", "portakal", "mandalina", "limon", "muz", "şeftali",
   "kayısı", "erik", "nar", "üzüm", "incir", "kivi", "avokado",
-  // Diğer
   "yumurta",
 ]);
 
-function needsWholeNumber(restText: string): boolean {
+function getCountableType(restText: string): "whole" | "half" | null {
   const words = restText.trim().toLowerCase().split(/[\s,.(]+/);
-  return words.some(w => COUNTABLE_WORDS.has(w));
+  if (words.some(w => WHOLE_ONLY_WORDS.has(w))) return "whole";
+  if (words.some(w => HALF_OK_WORDS.has(w))) return "half";
+  return null;
 }
 
 function applyCountable(val: number, restText: string): number {
-  if (!needsWholeNumber(restText)) return val;
+  const type = getCountableType(restText);
+  if (!type) return val;
   const frac = val - Math.floor(val);
   if (frac < 0.01) return val; // zaten tam sayı
-  return Math.max(1, Math.round(val)); // 1.25 → 1, 1.5 → 2, 2.5 → 3, 0.25 → 1
+  if (type === "whole") return Math.max(1, Math.round(val));
+  // half-ok: en yakın 0,5 adımına yuvarla (1,25→1,5 | 2,25→2 | 0,25→0,5)
+  return Math.max(0.5, Math.round(val * 2) / 2);
 }
 
 // ─── Amount formatter ─────────────────────────────────────────────────────────

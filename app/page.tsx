@@ -104,7 +104,7 @@ export default async function HomePage() {
             <br />
             Bugünün menüsünü keşfet!
           </p>
-          {/* Mobile: 2×2 + 1 tam genişlik */}
+          {/* Mobile: 2×2 grid */}
           <div className="grid sm:hidden grid-cols-2 gap-2.5 max-w-xs mx-auto">
             <Link href="/gunun-menusu" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
               🍽️ Bugünün Menüsü
@@ -117,9 +117,6 @@ export default async function HomePage() {
             </Link>
             <Link href="/menu-olustur" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
               ✨ Menü Oluştur
-            </Link>
-            <Link href="/omubumu" className="col-span-2 inline-flex items-center justify-center gap-1.5 py-2.5 bg-brand-200 text-brand-800 rounded-lg font-medium text-sm hover:bg-brand-100 transition-colors">
-              🤔 O mu Bu mu?
             </Link>
           </div>
           {/* Desktop: 5 kutu tek satır */}
@@ -135,9 +132,6 @@ export default async function HomePage() {
             </Link>
             <Link href="/menu-olustur" className="inline-flex items-center justify-center gap-2 w-[180px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               ✨ Menü Oluştur
-            </Link>
-            <Link href="/omubumu" className="inline-flex items-center justify-center gap-2 w-[180px] py-3 bg-brand-200 text-brand-800 rounded-xl font-medium text-base hover:bg-brand-100 transition-colors">
-              🤔 O mu Bu mu?
             </Link>
           </div>
         </div>

@@ -3,7 +3,7 @@ import QuizKaloriGame from "./QuizKaloriGame";
 
 export const metadata: Metadata = {
   title: "Quiz — Kalorisini Tahmin Et | Oyna",
-  description: "Yemeği görüyorsun ama kaç kalori? Sezgin ne kadar güçlü?",
+  description: "Yemeğin kalori değerini doğru tahmin edebilecek misin?",
 };
 
 export default function QuizKaloriPage() {

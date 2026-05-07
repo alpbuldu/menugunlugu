@@ -15,7 +15,7 @@ const links = [
   { href: "/dunun-menusu",  label: "Dünün Menüsü",  emoji: "📅" },
   { href: "/tarifler",      label: "Tarifler",       emoji: "🥘" },
   { href: "/blog",          label: "Blog",           emoji: "📖" },
-  { href: "/menu-olustur",  label: "Menü Oluştur",  emoji: "✨" },
+  { href: "/menu-gunlugu",  label: "Menü Günlüğü",  emoji: "📔" },
 ];
 
 const CATEGORY_LABELS: Record<Category, string> = {

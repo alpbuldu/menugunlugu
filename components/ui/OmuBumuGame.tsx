@@ -78,6 +78,11 @@ export default function OmuBumuGame() {
       if (nextIdx >= foods.length) {
         setWinner(champ);
         setPhase("result");
+        // +1 puan
+        fetch("/api/oyun/puan", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ points: 1 }),
+        }).catch(() => {});
         return;
       }
 

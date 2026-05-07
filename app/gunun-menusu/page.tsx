@@ -141,13 +141,9 @@ export default async function MenuPage() {
           })}
         </div>
         {totalKcal > 0 && (
-          <div className="mt-4 border-t border-warm-200 pt-3 flex items-center gap-2">
-            <span className="text-warm-300 font-bold text-base">+</span>
-            <span className="text-sm font-semibold text-warm-700">
-              Toplam Menü Kalorisi (1 Kişilik)
-              <span className="text-brand-600 ml-2">= {totalKcal} kcal</span>
-            </span>
-          </div>
+          <p className="mt-3 text-xs text-warm-500 font-semibold text-right">
+            Toplam: {totalKcal} kcal
+          </p>
         )}
         </>
       )}

@@ -44,12 +44,6 @@ function RecipeCard({
       <div className="absolute top-2 left-2">
         <Badge category={category} compact className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5" />
       </div>
-      {/* top-right: kcal */}
-      {(recipe as any).kcal_per_person && (
-        <span className="absolute top-2 right-2 text-[9px] sm:text-[10px] font-bold text-white drop-shadow">
-          {(recipe as any).kcal_per_person} kcal
-        </span>
-      )}
       {/* bottom: title + author */}
       <div className="absolute bottom-0 left-0 right-0 p-2.5 sm:p-3">
         <h2 className="text-xs sm:text-sm font-bold text-white leading-snug mb-1.5 line-clamp-2">{recipe.title}</h2>

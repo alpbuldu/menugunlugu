@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 /**
@@ -63,10 +64,27 @@ export async function GET(request: NextRequest) {
       }
     );
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
       if (logout) await supabase.auth.signOut();
+
+      // Google OAuth: yeni kullanıcıysa profil kurulum sayfasına yönlendir
+      if (sessionData?.user && next === "/uye/panel") {
+        const admin = createAdminClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
+        const { data: profile } = await admin
+          .from("profiles")
+          .select("username")
+          .eq("id", sessionData.user.id)
+          .single();
+        if (!profile?.username) {
+          return NextResponse.redirect(`${origin}/uye/panel?tab=panelim&yeni=1`);
+        }
+      }
+
       return NextResponse.redirect(`${origin}${next}`);
     }
 

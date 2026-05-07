@@ -8,7 +8,7 @@ import PagePopup from "@/components/ui/PagePopup";
 
 export const metadata: Metadata = {
   title: "Menü Günlüğü",
-  description: "Kendi menünü oluştur, paylaş ve geçmiş menülerini kaydet.",
+  description: "Editörün menü önerileri, topluluk akışı ve kendi menünü oluştur.",
 };
 
 export const dynamic = "force-dynamic";
@@ -34,6 +34,7 @@ export default async function MenuGunluguPage() {
     apResult,
     todayMenuResult,
     feedPostsResult,
+    adminMenusResult,
   ] = await Promise.all([
     supabase
       .from("recipes")
@@ -50,16 +51,24 @@ export default async function MenuGunluguPage() {
       .maybeSingle(),
     supabase
       .from("menu_feed_posts")
-      .select("*")
+      .select("id, user_id, created_at, soup_title, main_title, side_title, dessert_title, soup_slug, main_slug, side_slug, dessert_slug, soup_image_url, main_image_url, side_image_url, dessert_image_url, likes_count, saves_count, comments_count, category")
       .order("created_at", { ascending: false })
+      .limit(20),
+    supabase
+      .from("menus")
+      .select("id, menu_category, date, soup:soup_id(id,title,slug,image_url), main:main_id(id,title,slug,image_url), side:side_id(id,title,slug,image_url), dessert:dessert_id(id,title,slug,image_url)")
+      .eq("status", "published")
+      .not("menu_category", "is", null)
+      .order("date", { ascending: false })
       .limit(20),
   ]);
 
-  const recipes       = recipesResult.data ?? [];
+  const recipes        = recipesResult.data ?? [];
   const memberProfiles = memberProfilesResult.data ?? [];
-  const ap            = apResult.data;
-  const todayMenu     = todayMenuResult.data;
-  const feedPosts     = feedPostsResult.data ?? [];
+  const ap             = apResult.data;
+  const todayMenu      = todayMenuResult.data;
+  const feedPosts      = feedPostsResult.data ?? [];
+  const adminMenus     = adminMenusResult.data ?? [];
 
   const profileMap: Record<string, string> = {};
   for (const p of memberProfiles as any[]) profileMap[p.id] = p.username;
@@ -105,6 +114,7 @@ export default async function MenuGunluguPage() {
           grouped={grouped}
           todayMenu={todayMenu as any}
           initialFeed={enrichedFeed}
+          adminMenus={adminMenus as any}
           adminProfile={ap ? { username: ap.username, avatar_url: ap.avatar_url } : null}
         />
       </div>

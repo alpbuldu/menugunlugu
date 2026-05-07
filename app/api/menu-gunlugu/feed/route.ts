@@ -12,7 +12,7 @@ export async function GET(req: Request) {
 
   const { data: posts, error } = await supabase
     .from("menu_feed_posts")
-    .select("*")
+    .select("id, user_id, created_at, soup_title, main_title, side_title, dessert_title, soup_slug, main_slug, side_slug, dessert_slug, soup_image_url, main_image_url, side_image_url, dessert_image_url, likes_count, saves_count, comments_count, category")
     .order("created_at", { ascending: false })
     .range(page * limit, (page + 1) * limit - 1);
 

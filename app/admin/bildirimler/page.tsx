@@ -18,8 +18,8 @@ export default function BildirimlerPage() {
 /* ── Günlük otomatik bildirim ayarları ── */
 function DailySettings() {
   const [time,  setTime]  = useState("12:00");
-  const [title, setTitle] = useState("Günün Menüsü 🍽️");
-  const [body,  setBody]  = useState("Bugünün özel menüsü hazır! Hemen inceleyin.");
+  const [title, setTitle] = useState("Günün Menüsü Hazır! 🍽️");
+  const [body,  setBody]  = useState("Günün menüsünü incele, tariflerin detaylı yapılışına göz at.");
   const [saving, setSaving] = useState(false);
   const [msg,    setMsg]    = useState("");
 

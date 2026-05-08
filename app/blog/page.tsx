@@ -167,9 +167,8 @@ export default async function BlogPage({ searchParams }: Props) {
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       {/* Kategori filtreleri */}
       {categories.length > 0 && (
-        <div className="mb-4 sm:mb-8">
-        <p className="text-sm font-bold text-warm-800 mb-2 sm:mb-3">Kategoriler:</p>
-        <div className="flex gap-1 sm:flex-wrap sm:gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8 flex-wrap sm:flex-nowrap">
+          <span className="text-sm font-bold text-warm-800 flex-shrink-0">Kategoriler:</span>
           <Link
             href={href({ kategori: undefined, page: 1 })}
             className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
@@ -190,7 +189,6 @@ export default async function BlogPage({ searchParams }: Props) {
             </Link>
           ))}
         </div>
-        </div>
       )}
 
 
@@ -206,7 +204,7 @@ export default async function BlogPage({ searchParams }: Props) {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {featured.map((post) => (
                 <Link key={`f-${post.id}`} href={post.href}
-                  className="relative block rounded-2xl overflow-hidden h-56 sm:h-64 group hover:shadow-lg transition-all">
+                  className="relative block rounded-2xl overflow-hidden h-64 sm:h-72 group hover:shadow-lg transition-all">
                   {post.image_url ? (
                     <Image src={post.image_url} alt={post.title} fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -228,7 +226,7 @@ export default async function BlogPage({ searchParams }: Props) {
                   <div className="absolute bottom-0 left-0 right-0 bg-black/50 rounded-b-2xl p-3 sm:p-4">
                     <h3 className="text-sm sm:text-base font-bold text-white leading-snug mb-1 line-clamp-2">{post.title}</h3>
                     {post.excerpt && (
-                      <p className="text-[10px] sm:text-[11px] text-white/65 line-clamp-1 mb-2">{post.excerpt}</p>
+                      <p className="text-[10px] sm:text-[11px] text-white/65 line-clamp-2 mb-2">{post.excerpt}</p>
                     )}
                     <div className="flex items-center gap-1.5">
                       {post.authorAvatar ? (
@@ -272,7 +270,7 @@ export default async function BlogPage({ searchParams }: Props) {
             <Link
               key={post.id}
               href={post.href}
-              className="relative block rounded-2xl overflow-hidden h-56 sm:h-64 group hover:shadow-lg transition-all"
+              className="relative block rounded-2xl overflow-hidden h-64 sm:h-72 group hover:shadow-lg transition-all"
             >
               {post.image_url ? (
                 <Image
@@ -295,7 +293,7 @@ export default async function BlogPage({ searchParams }: Props) {
               <div className="absolute bottom-0 left-0 right-0 bg-black/50 rounded-b-2xl p-3 sm:p-4">
                 <h2 className="text-sm sm:text-base font-bold text-white leading-snug mb-1 line-clamp-2">{post.title}</h2>
                 {post.excerpt && (
-                  <p className="text-[10px] sm:text-[11px] text-white/65 line-clamp-1 mb-2">{post.excerpt}</p>
+                  <p className="text-[10px] sm:text-[11px] text-white/65 line-clamp-2 mb-2">{post.excerpt}</p>
                 )}
                 <div className="flex items-center gap-1.5">
                   {post.authorAvatar ? (

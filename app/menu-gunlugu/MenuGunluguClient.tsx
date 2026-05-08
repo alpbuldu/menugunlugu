@@ -210,11 +210,13 @@ function CommentDrawer({ postId, onClose, onCommentAdded }: {
 
 // ─── Feed Card ────────────────────────────────────────────────────────────────
 
-function FeedCard({ post, onLike, onSave, onComment }: {
+function FeedCard({ post, onLike, onSave, onComment, onDelete, isOwner }: {
   post: FeedPost;
   onLike: (id: string, liked: boolean) => void;
   onSave: (id: string, saved: boolean) => void;
   onComment: (id: string) => void;
+  onDelete?: (id: string) => void;
+  isOwner?: boolean;
 }) {
   const [likeCount, setLikeCount]     = useState(post.likes_count);
   const [saveCount, setSaveCount]     = useState(post.saves_count);
@@ -358,6 +360,16 @@ function FeedCard({ post, onLike, onSave, onComment }: {
             <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
           </svg>
         </button>
+
+        {/* Delete (only own posts) */}
+        {isOwner && onDelete && (
+          <button onClick={() => { if (confirm("Bu menüyü silmek istediğinden emin misin?")) onDelete(post.id); }}
+            className="text-warm-300 hover:text-rose-400 transition-colors ml-1">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4h6v2" />
+            </svg>
+          </button>
+        )}
       </div>
     </div>
   );
@@ -412,13 +424,11 @@ const ALL_CAT_FILTERS = [
 
 export default function MenuGunluguClient({
   grouped,
-  todayMenu,
   initialFeed,
   adminMenus,
   adminProfile,
 }: {
   grouped: Record<Category, MenuRecipe[]>;
-  todayMenu: TodayMenu | null;
   initialFeed: FeedPost[];
   adminMenus: AdminMenu[];
   adminProfile: { username: string; avatar_url: string | null } | null;
@@ -430,12 +440,15 @@ export default function MenuGunluguClient({
   const [catFilter, setCatFilter]     = useState("all");
   const [commentPost, setCommentPost] = useState<string | null>(null);
   const [toast, setToast]             = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // Fetch user like/save state for initial feed
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user || feed.length === 0) return;
+      if (!user) return;
+      setCurrentUserId(user.id);
+      if (feed.length === 0) return;
       const ids = feed.map(p => p.id);
       Promise.all([
         supabase.from("menu_feed_likes").select("post_id").eq("user_id", user.id).in("post_id", ids),
@@ -477,6 +490,11 @@ export default function MenuGunluguClient({
   function handleSave(id: string, saved: boolean) {
     setFeed(prev => prev.map(p => p.id === id ? { ...p, saved, saves_count: p.saves_count + (saved ? 1 : -1) } : p));
   }
+  async function handleDelete(id: string) {
+    setFeed(prev => prev.filter(p => p.id !== id));
+    await fetch(`/api/menu-gunlugu/delete-post?post_id=${id}`, { method: "DELETE" });
+  }
+
   function handleCommentAdded() {
     if (commentPost) {
       setFeed(prev => prev.map(p => p.id === commentPost ? { ...p, comments_count: (p.comments_count ?? 0) + 1 } : p));
@@ -486,11 +504,6 @@ export default function MenuGunluguClient({
   const filteredAdminMenus = catFilter === "all"
     ? adminMenus
     : adminMenus.filter(m => m.menu_category === catFilter);
-
-  const totalKcal = todayMenu
-    ? [todayMenu.soup, todayMenu.main, todayMenu.side, todayMenu.dessert]
-        .reduce((s, r) => s + ((r as any)?.kcal_per_person ?? 0), 0)
-    : 0;
 
   return (
     <div>
@@ -510,52 +523,7 @@ export default function MenuGunluguClient({
         />
       )}
 
-      {/* ── Başlık ── */}
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl sm:text-2xl font-extrabold text-warm-900">Menü Günlüğü 📔</h1>
-        {feed.length > 0 && (
-          <span className="text-xs font-semibold text-warm-400 bg-warm-100 px-2 py-1 rounded-full">
-            {feed.length}+ paylaşım
-          </span>
-        )}
-      </div>
-
-      {/* ── Bugünün Resmi Menüsü ── */}
-      {todayMenu && (
-        <div className="bg-gradient-to-br from-brand-600 to-brand-800 rounded-2xl p-4 shadow-md mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-brand-200 text-[11px] font-semibold uppercase tracking-wider">Bugünün Resmi Menüsü</p>
-              <p className="text-white font-bold text-sm capitalize">
-                {new Date().toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long", timeZone: "Europe/Istanbul" })}
-              </p>
-            </div>
-            {totalKcal > 0 && (
-              <span className="text-brand-200 text-xs font-semibold">{totalKcal} kcal</span>
-            )}
-          </div>
-          <div className="grid grid-cols-2 gap-2 mb-3">
-            {[
-              { r: todayMenu.soup,    e: "🥣", l: "Çorba" },
-              { r: todayMenu.main,    e: "🍽️", l: "Ana Yemek" },
-              { r: todayMenu.side,    e: "🥗", l: "Yardımcı" },
-              { r: todayMenu.dessert, e: "🍮", l: "Tatlı" },
-            ].map(({ r, e, l }) => (
-              <div key={l} className="bg-white/10 rounded-xl p-2.5">
-                <p className="text-brand-200 text-[10px] font-medium mb-0.5">{e} {l}</p>
-                <p className="text-white text-xs font-semibold leading-snug line-clamp-2">{r?.title ?? "—"}</p>
-                {(r as any)?.kcal_per_person ? <p className="text-brand-300 text-[10px] mt-0.5">{(r as any).kcal_per_person} kcal</p> : null}
-              </div>
-            ))}
-          </div>
-          <Link href="/gunun-menusu"
-            className="block w-full py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold text-center transition-colors">
-            Günün Menüsünü Gör →
-          </Link>
-        </div>
-      )}
-
-      {/* ── Kendi Menünü Oluştur Banner ── */}
+      {/* ── Menü Oluştur Banner ── */}
       <Link href="/menu-olustur"
         className="block bg-gradient-to-r from-brand-500 to-brand-700 rounded-2xl p-4 mb-5 hover:opacity-95 transition-opacity shadow-md">
         <div className="flex items-center justify-between">
@@ -577,7 +545,7 @@ export default function MenuGunluguClient({
 
           {/* Category filter pills */}
           <div className="flex gap-1.5 overflow-x-auto pb-2 mb-3 [&::-webkit-scrollbar]:hidden">
-            {ALL_CAT_FILTERS.filter(f => f.key === "all" || adminMenus.some(m => m.menu_category === f.key)).map(f => (
+            {ALL_CAT_FILTERS.map(f => (
               <button key={f.key}
                 onClick={() => setCatFilter(f.key)}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
@@ -608,7 +576,7 @@ export default function MenuGunluguClient({
         <div className="flex-1 h-px bg-warm-100" />
       </div>
 
-      <div className="space-y-3">
+      <div>
         {feed.length === 0 && !loading && (
           <div className="text-center py-12">
             <p className="text-3xl mb-2">📔</p>
@@ -617,15 +585,19 @@ export default function MenuGunluguClient({
           </div>
         )}
 
-        {feed.map(p => (
-          <FeedCard
-            key={p.id}
-            post={p}
-            onLike={handleLike}
-            onSave={handleSave}
-            onComment={(id) => setCommentPost(id)}
-          />
-        ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {feed.map(p => (
+            <FeedCard
+              key={p.id}
+              post={p}
+              onLike={handleLike}
+              onSave={handleSave}
+              onComment={(id) => setCommentPost(id)}
+              onDelete={handleDelete}
+              isOwner={!!currentUserId && p.user_id === currentUserId}
+            />
+          ))}
+        </div>
 
         {hasMore && (
           <button onClick={loadMore} disabled={loading}

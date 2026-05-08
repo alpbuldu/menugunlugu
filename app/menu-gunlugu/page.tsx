@@ -112,7 +112,6 @@ export default async function MenuGunluguPage() {
           imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="sm:hidden mb-4" />
         <MenuGunluguClient
           grouped={grouped}
-          todayMenu={todayMenu as any}
           initialFeed={enrichedFeed}
           adminMenus={adminMenus as any}
           adminProfile={ap ? { username: ap.username, avatar_url: ap.avatar_url } : null}

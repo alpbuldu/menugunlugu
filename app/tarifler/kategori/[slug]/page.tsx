@@ -99,8 +99,8 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
       </Link>
 
       {/* Kategori filtreleri */}
-      <p className="text-sm font-bold text-warm-800 mb-2 sm:mb-3">Kategoriler:</p>
-      <div className="flex gap-1 sm:flex-wrap sm:gap-2 mb-4 sm:mb-8">
+      <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8 flex-wrap sm:flex-nowrap">
+        <span className="text-sm font-bold text-warm-800 flex-shrink-0">Kategoriler:</span>
         <Link
           href="/tarifler"
           className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"

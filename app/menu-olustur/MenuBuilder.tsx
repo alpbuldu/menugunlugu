@@ -236,6 +236,8 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
   const [prefetching, setPrefetching] = useState(false);
   const [showPlatformMenu, setShowPlatformMenu] = useState(false);
   const [showStoryMenu, setShowStoryMenu] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publishToast, setPublishToast] = useState<string | null>(null);
 
   const allFilled = SLOTS.every(({ key }) => !!selection[key]);
   const filledCount = SLOTS.filter(({ key }) => !!selection[key]).length;
@@ -468,6 +470,24 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
     window.open(`/api/menu-pdf-download?${params.toString()}`, "_blank");
   }
 
+  async function handlePublishAndSave() {
+    if (!allFilled || publishing) return;
+    const title = window.prompt("Menü başlığı (isteğe bağlı):")?.trim() ?? "";
+    const sel = selection as Record<Category, MenuRecipe>;
+    setPublishing(true);
+    try {
+      const res = await fetch("/api/menu-gunlugu/publish", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ soup_id: sel.soup.id, main_id: sel.main.id, side_id: sel.side.id, dessert_id: sel.dessert.id, title }),
+      });
+      if (res.status === 401) { alert("Paylaşmak için giriş yapmalısın."); return; }
+      if (!res.ok) { alert("Bir hata oluştu. Tekrar dene."); return; }
+      setPublishToast("✅ Menü akışa paylaşıldı ve deftere kaydedildi!");
+      setTimeout(() => setPublishToast(null), 3000);
+    } finally { setPublishing(false); }
+  }
+
   const currentRecipes = grouped[activeCategory];
   const filtered = currentRecipes.filter((r) => {
     const titleOk  = !searchTitle  || trMatch(r.title, searchTitle);
@@ -479,6 +499,11 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
 
   return (
     <>
+      {publishToast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-warm-900 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-lg pointer-events-none whitespace-nowrap">
+          {publishToast}
+        </div>
+      )}
       <div ref={topRef} className="flex flex-col lg:flex-row gap-6 lg:items-stretch">
         {/* ── Left / Top: Slots ────────────────────────────────── */}
         <div className="lg:w-80 xl:w-96 flex-shrink-0 flex flex-col">
@@ -634,14 +659,32 @@ export default function MenuBuilder({ grouped }: MenuBuilderProps) {
               </div>
 
               {allFilled ? (
-                <div className="flex items-center justify-between pt-0.5 gap-2">
-                  <p className="text-[11px] text-brand-600 font-medium">
-                    {downloading ? "⏳ Görseller hazırlanıyor…" : "🎉 Menü hazır - hemen paylaş!"}
-                  </p>
-                  {totalKcal > 0 && (
-                    <span className="text-[11px] text-brand-600 font-semibold flex-shrink-0">{totalKcal} kcal</span>
-                  )}
-                </div>
+                <>
+                  <button
+                    type="button"
+                    onClick={handlePublishAndSave}
+                    disabled={publishing}
+                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                      publishing
+                        ? "bg-warm-200 text-warm-400 cursor-not-allowed"
+                        : "bg-brand-600 text-white hover:bg-brand-700 cursor-pointer"
+                    }`}
+                  >
+                    {publishing ? (
+                      <><svg className="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><circle cx="12" cy="12" r="10" strokeOpacity={0.3}/><path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/></svg>Paylaşılıyor…</>
+                    ) : (
+                      <><span>📔</span>Menü Defterine Kaydet & Akışta Paylaş</>
+                    )}
+                  </button>
+                  <div className="flex items-center justify-between pt-0.5 gap-2">
+                    <p className="text-[11px] text-brand-600 font-medium">
+                      {downloading ? "⏳ Görseller hazırlanıyor…" : "🎉 Menü hazır - hemen paylaş!"}
+                    </p>
+                    {totalKcal > 0 && (
+                      <span className="text-[11px] text-brand-600 font-semibold flex-shrink-0">{totalKcal} kcal</span>
+                    )}
+                  </div>
+                </>
               ) : (
                 <p className="text-center text-[11px] pt-0.5 text-warm-400">
                   {4 - filledCount} yemek daha seç → kartı oluştur

@@ -4,8 +4,19 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 const MAX_CHANGES = 3;
 
 export async function PUT(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const admin = createAdminClient();
+
+  // Bearer token (mobil) veya cookie (web) ile auth
+  let user: Awaited<ReturnType<typeof admin.auth.getUser>>["data"]["user"] = null;
+  const authHeader = request.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const { data } = await admin.auth.getUser(authHeader.slice(7));
+    user = data.user;
+  } else {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  }
   if (!user) return NextResponse.json({ error: "Giriş gerekli." }, { status: 401 });
 
   const { username } = await request.json();
@@ -17,8 +28,6 @@ export async function PUT(request: NextRequest) {
   const RESERVED = ["__admin__", "admin"];
   if (RESERVED.includes(clean))
     return NextResponse.json({ error: "Bu kullanıcı adı kullanılamaz." }, { status: 409 });
-
-  const admin = createAdminClient();
 
   // Admin'in gerçek kullanıcı adını da blokla
   const { data: adminProfile } = await admin
@@ -44,8 +53,9 @@ export async function PUT(request: NextRequest) {
   if (profile.username === clean)
     return NextResponse.json({ error: "Bu zaten mevcut kullanıcı adınız." }, { status: 400 });
 
+  const isInitialSetup = !profile.username; // ilk kurulumda hak sayılmaz
   const changeCount = profile.username_change_count ?? 0;
-  if (changeCount >= MAX_CHANGES)
+  if (!isInitialSetup && changeCount >= MAX_CHANGES)
     return NextResponse.json({
       error: `Kullanıcı adınızı en fazla ${MAX_CHANGES} kez değiştirebilirsiniz. Limitinize ulaştınız.`,
     }, { status: 403 });
@@ -65,12 +75,13 @@ export async function PUT(request: NextRequest) {
     .from("profiles")
     .update({
       username: clean,
-      username_change_count: changeCount + 1,
+      username_change_count: isInitialSetup ? changeCount : changeCount + 1,
     })
     .eq("id", user.id);
 
   if (error)
     return NextResponse.json({ error: "Güncelleme başarısız." }, { status: 500 });
 
-  return NextResponse.json({ ok: true, remaining: MAX_CHANGES - (changeCount + 1) });
+  const remaining = isInitialSetup ? MAX_CHANGES : MAX_CHANGES - (changeCount + 1);
+  return NextResponse.json({ ok: true, remaining });
 }

@@ -431,10 +431,6 @@ export default function Navigation() {
             </Link>
           ))}
         </nav>
-        <Link href="/tarif-ekle"
-          className="px-3 py-1 rounded-full text-xs font-medium bg-brand-500 hover:bg-brand-600 text-white transition-colors flex-shrink-0">
-          + Tarif Ekle
-        </Link>
         <DesktopSearch />
         <DesktopUserMenu />
       </div>

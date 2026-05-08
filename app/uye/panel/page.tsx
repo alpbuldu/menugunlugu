@@ -17,6 +17,7 @@ import RemoveBlogFavoriteButton from "./RemoveBlogFavoriteButton";
 import ProfileWatcher from "./ProfileWatcher";
 import FollowButton from "@/components/ui/FollowButton";
 import AvatarUpload from "./AvatarUpload";
+import NewUserSetup from "./NewUserSetup";
 
 export const metadata: Metadata = { title: "Üye Paneli" };
 export const dynamic = "force-dynamic";
@@ -50,10 +51,10 @@ function paginate<T>(arr: T[], page: number, size: number) {
 //   page  → tariflerim / tarif-defterim / yazılarım / takip-ettiklerim
 //   page2 → takipçilerim
 //   defter → tarif-defterim sub-filter: "tarifler" | "blog"
-interface Props { searchParams: Promise<{ tab?: string; page?: string; page2?: string; defter?: string }> }
+interface Props { searchParams: Promise<{ tab?: string; page?: string; page2?: string; defter?: string; yeni?: string }> }
 
 export default async function UyePanelPage({ searchParams }: Props) {
-  const { tab = "tariflerim", page = "1", page2 = "1", defter } = await searchParams;
+  const { tab = "tariflerim", page = "1", page2 = "1", defter, yeni } = await searchParams;
   const pageNum  = Math.max(1, parseInt(page));
   const page2Num = Math.max(1, parseInt(page2));
 
@@ -199,6 +200,9 @@ export default async function UyePanelPage({ searchParams }: Props) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
+      {/* Yeni Google/Apple kullanıcısı — username seçim modal'ı */}
+      {yeni === "1" && !profile?.username && <NewUserSetup />}
+
       {/* Admin silme tespiti — Realtime + auth state watcher */}
       <ProfileWatcher userId={user.id} />
 

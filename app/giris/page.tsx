@@ -19,7 +19,7 @@ export default async function GirisPage({
   // Already logged in → redirect (email-onaylandi mesajı varsa göster, login formu kapatma)
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (user && mesaj !== "email-onaylandi") {
+  if (user && mesaj !== "email-onaylandi" && mesaj !== "google-hesap-yok") {
     redirect(from ?? "/uye/panel");
   }
 

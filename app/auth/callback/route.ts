@@ -89,11 +89,12 @@ export async function GET(request: NextRequest) {
           .eq("id", sessionData.user.id)
           .single();
         if (!profile?.username) {
-          // Login tabından geldiyse → hesap yok mesajı ver
+          // Login tabından geldiyse → oturumu kapat + hesap yok mesajı ver
           if (from === "login") {
+            await supabase.auth.signOut();
             return NextResponse.redirect(`${origin}/giris?mesaj=google-hesap-yok&tab=kayit`);
           }
-          // Register tabından geldiyse → kullanıcı adı kur
+          // Register tabından veya bilinmeyen kaynaktan → kullanıcı adı kur
           return NextResponse.redirect(`${origin}/uye/panel?tab=panelim&yeni=1`);
         }
       }

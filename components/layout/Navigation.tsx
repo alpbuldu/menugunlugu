@@ -273,9 +273,7 @@ function DesktopUserMenu() {
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    setOpen(false);
-    router.push("/");
-    router.refresh();
+    window.location.href = "/";
   }
 
   if (loading) return <div className="w-20 h-7 rounded-full bg-warm-100 animate-pulse" />;
@@ -410,9 +408,7 @@ export default function Navigation() {
   async function handleMobileLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    setOpen(false);
-    router.push("/");
-    router.refresh();
+    window.location.href = "/";
   }
 
   function toggleNav()    { setOpen(v => !v);       setSearchOpen(false); }

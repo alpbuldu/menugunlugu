@@ -204,10 +204,10 @@ export default async function BlogPage({ searchParams }: Props) {
             <h2 className="text-lg sm:text-xl font-bold text-brand-600 mb-4 flex items-center gap-2">
               <span className="text-brand-400">⭐</span> Seçtiklerimiz
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {featured.map((post) => (
                 <Link key={`f-${post.id}`} href={post.href}
-                  className="relative block rounded-2xl overflow-hidden h-64 sm:h-72 group hover:shadow-lg transition-all">
+                  className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 group hover:shadow-lg transition-all">
                   {post.image_url ? (
                     <Image src={post.image_url} alt={post.title} fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -268,12 +268,12 @@ export default async function BlogPage({ searchParams }: Props) {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {posts.map((post, index) => (
             <Link
               key={post.id}
               href={post.href}
-              className="relative block rounded-2xl overflow-hidden h-64 sm:h-72 group hover:shadow-lg transition-all"
+              className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 group hover:shadow-lg transition-all"
             >
               {post.image_url ? (
                 <Image

@@ -5,7 +5,6 @@ import { getBlogCategories, getBlogPosts } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import AdBanner from "@/components/ui/AdBanner";
 
@@ -128,23 +127,6 @@ export default async function BlogKategoriPage({ params, searchParams }: Props) 
   const totalPages = Math.ceil(allPosts.length / PER_PAGE);
   const posts = allPosts.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
 
-  // Takip durumu
-  const { data: { user } } = await supabase.auth.getUser();
-  const currentUserId = user?.id ?? null;
-  let followsAdmin = false;
-  const followedMemberIds = new Set<string>();
-  if (currentUserId) {
-    const memberAuthorIds = [...new Set(posts.filter((p) => !p.isAdminAuthor && p.authorId).map((p) => p.authorId as string))];
-    const [adminFollowRes, memberFollowRes] = await Promise.all([
-      supabase.from("admin_follows").select("follower_id").eq("follower_id", currentUserId).maybeSingle(),
-      memberAuthorIds.length
-        ? supabase.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", memberAuthorIds)
-        : Promise.resolve({ data: [] }),
-    ]);
-    followsAdmin = !!adminFollowRes.data;
-    (memberFollowRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
-  }
-
   function buildPages(current: number, total: number): number[] {
     const WINDOW = 3;
     let start = Math.max(1, current - Math.floor(WINDOW / 2));
@@ -171,26 +153,30 @@ export default async function BlogKategoriPage({ params, searchParams }: Props) 
       </p>
 
       {/* Kategori filtreleri */}
-      <div className="flex gap-1 sm:flex-wrap sm:gap-2 mb-4 sm:mb-8">
-        <Link
-          href="/blog"
-          className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
-        >
-          Tümü
-        </Link>
-        {categories.map((cat) => (
+      <div className="mb-4 sm:mb-8">
+        <p className="text-sm font-bold text-warm-800 mb-2 sm:hidden">Kategoriler:</p>
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+          <span className="text-sm font-bold text-warm-800 flex-shrink-0 hidden sm:block">Kategoriler:</span>
           <Link
-            key={cat.id}
-            href={`/blog/kategori/${cat.slug}`}
-            className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
-              cat.slug === slug
-                ? "bg-brand-600 border-brand-600 text-white"
-                : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
-            }`}
+            href="/blog"
+            className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
           >
-            {cat.name}
+            Tümü
           </Link>
-        ))}
+          {categories.map((cat) => (
+            <Link
+              key={cat.id}
+              href={`/blog/kategori/${cat.slug}`}
+              className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
+                cat.slug === slug
+                  ? "bg-brand-600 border-brand-600 text-white"
+                  : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+              }`}
+            >
+              {cat.name}
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Reklam */}
@@ -207,71 +193,44 @@ export default async function BlogKategoriPage({ params, searchParams }: Props) 
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map((post, index) => {
-            const initialFollowing = post.isAdminAuthor
-              ? followsAdmin
-              : post.authorId ? followedMemberIds.has(post.authorId) : false;
-            return (
-              <div
-                key={post.id}
-                className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
-              >
-                <Link href={post.href} className="flex flex-col flex-1">
-                  <div className="relative h-48 bg-warm-100 shrink-0">
-                    {post.image_url ? (
-                      <Image src={post.image_url} alt={post.title} fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        priority={index < 3} />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-5xl text-warm-300">✍️</div>
-                    )}
-                  </div>
-                  <div className="p-5 flex flex-col flex-1">
-                    {post.categoryName && (
-                      <span className="inline-block self-start w-fit mb-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-100 text-brand-700">
-                        {post.categoryName}
-                      </span>
-                    )}
-                    <h2 className="text-base font-semibold text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2">
-                      {post.title}
-                    </h2>
-                    {post.excerpt && (
-                      <p className="text-sm text-warm-400 mt-1.5 line-clamp-2 leading-relaxed">
-                        {post.excerpt}
-                      </p>
-                    )}
-                    <p className="text-xs text-warm-300 mt-auto pt-3 flex-shrink-0">
-                      {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })}
-                    </p>
-                  </div>
-                </Link>
-                <div className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-warm-100">
-                  <Link href={`/uye/${post.authorUsername}`} className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
-                    {post.authorAvatar ? (
-                      <img src={post.authorAvatar} alt={post.authorName} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
-                    ) : (
-                      <span className="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-[9px] font-bold text-brand-600 flex-shrink-0">
-                        {post.authorName.charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
-                      <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{post.authorName}</span>
-                    </div>
-                  </Link>
-                  <FollowButton
-                    targetUserId={post.isAdminAuthor ? undefined : post.authorId ?? undefined}
-                    isAdminProfile={post.isAdminAuthor}
-                    initialFollowing={initialFollowing}
-                    isLoggedIn={!!currentUserId}
-                    size="xs"
-                  />
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          {posts.map((post, index) => (
+            <Link
+              key={post.id}
+              href={post.href}
+              className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 group hover:shadow-lg transition-all"
+            >
+              {post.image_url ? (
+                <Image src={post.image_url} alt={post.title} fill
+                  sizes="(max-width: 640px) 50vw, 33vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  priority={index < 4} />
+              ) : (
+                <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-4xl text-warm-300">✍️</div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+              {post.categoryName && (
+                <div className="absolute top-2.5 left-2.5">
+                  <span className="inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold bg-brand-500 text-white">
+                    {post.categoryName}
+                  </span>
+                </div>
+              )}
+              <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                <h2 className="text-sm sm:text-base font-bold text-white leading-snug mb-2 line-clamp-2">{post.title}</h2>
+                <div className="flex items-center gap-1.5">
+                  {post.authorAvatar ? (
+                    <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
+                  ) : (
+                    <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/25 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                      {post.authorName.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                  <span className="text-[11px] sm:text-xs text-white/80 truncate">{post.authorName}</span>
                 </div>
               </div>
-            );
-          })}
+            </Link>
+          ))}
         </div>
       )}
 

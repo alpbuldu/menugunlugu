@@ -87,14 +87,16 @@ export async function POST(req: NextRequest) {
   const failed  = tickets.filter(t => t.status === "error").length;
 
   // Bildirim kaydını Supabase'e yaz
-  await supabase.from("push_notifications_log").insert({
-    title:       title.trim(),
-    body:        body.trim(),
-    target,
-    sent_count:  ok,
-    fail_count:  failed,
-    total_tokens: tokens.length,
-  }).catch(() => {}); // log başarısız olursa sessizce geç
+  try {
+    await supabase.from("push_notifications_log").insert({
+      title:        title.trim(),
+      body:         body.trim(),
+      target,
+      sent_count:   ok,
+      fail_count:   failed,
+      total_tokens: tokens.length,
+    });
+  } catch { /* log tablosu yoksa sessizce geç */ }
 
   return NextResponse.json({ ok: true, sent: ok, failed, total: tokens.length });
 }

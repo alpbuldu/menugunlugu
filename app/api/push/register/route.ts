@@ -15,11 +15,21 @@ export async function POST(req: NextRequest) {
   const { data: { user }, error: authErr } = await admin.auth.getUser(jwt);
   if (authErr || !user) return NextResponse.json({ error: "Geçersiz token." }, { status: 401 });
 
-  const { error } = await admin.from("push_tokens").upsert(
-    { user_id: user.id, token: token.trim(), platform: platform ?? "unknown" },
-    { onConflict: "user_id,token" }
-  );
+  const t = token.trim();
+  // unique constraint yoksa önce var mı bak, yoksa ekle
+  const { data: existing } = await admin
+    .from("push_tokens")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("token", t)
+    .maybeSingle();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!existing) {
+    const { error } = await admin.from("push_tokens").insert(
+      { user_id: user.id, token: t, platform: platform ?? "unknown" }
+    );
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
   return NextResponse.json({ ok: true });
 }

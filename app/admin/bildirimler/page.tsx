@@ -1,19 +1,99 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createAdminClient } from "@/lib/supabase/server";
-
-// Bu sayfa server-side log çekimi + client-side form
-// İkiye ayırdık: log listesi ayrı server component, form client
 
 export default function BildirimlerPage() {
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-warm-900">📲 Push Bildirimler</h1>
+      <DailySettings />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SendForm />
         <LogList />
       </div>
+    </div>
+  );
+}
+
+/* ── Günlük otomatik bildirim ayarları ── */
+function DailySettings() {
+  const [time,  setTime]  = useState("12:00");
+  const [title, setTitle] = useState("Günün Menüsü 🍽️");
+  const [body,  setBody]  = useState("Bugünün özel menüsü hazır! Hemen inceleyin.");
+  const [saving, setSaving] = useState(false);
+  const [msg,    setMsg]    = useState("");
+
+  useEffect(() => {
+    fetch("/api/admin/site-ayarlari")
+      .then(r => r.json())
+      .then(d => {
+        if (d.daily_push_time) setTime(d.daily_push_time.slice(0, 5));
+        if (d.push_title)      setTitle(d.push_title);
+        if (d.push_body)       setBody(d.push_body);
+      })
+      .catch(() => {});
+  }, []);
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true); setMsg("");
+    const res = await fetch("/api/admin/site-ayarlari", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ daily_push_time: time + ":00", push_title: title, push_body: body }),
+    });
+    setSaving(false);
+    setMsg(res.ok ? "✅ Kaydedildi." : "❌ Kayıt hatası.");
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
+      <div className="px-5 py-4 border-b border-warm-50 flex items-center gap-2">
+        <span className="text-base">⏰</span>
+        <h2 className="font-bold text-warm-900">Günlük Otomatik Bildirim</h2>
+        <span className="ml-auto text-xs text-warm-400 bg-warm-50 px-2 py-1 rounded-full">Her gün belirlenen saatte otomatik gönderilir</span>
+      </div>
+      <form onSubmit={handleSave} className="p-5">
+        <div className="flex flex-wrap gap-4 items-end">
+          <div>
+            <label className="block text-sm font-semibold text-warm-700 mb-1">Gönderim Saati</label>
+            <input
+              type="time"
+              value={time}
+              onChange={e => setTime(e.target.value)}
+              className="px-3 py-2.5 border border-warm-200 rounded-xl text-sm text-warm-900 focus:outline-none focus:border-brand-400"
+            />
+          </div>
+          <div className="flex-1 min-w-48">
+            <label className="block text-sm font-semibold text-warm-700 mb-1">Varsayılan Başlık</label>
+            <input
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              maxLength={64}
+              className="w-full px-3 py-2.5 border border-warm-200 rounded-xl text-sm text-warm-900 focus:outline-none focus:border-brand-400"
+            />
+          </div>
+          <div className="flex-1 min-w-64">
+            <label className="block text-sm font-semibold text-warm-700 mb-1">Varsayılan Metin</label>
+            <input
+              value={body}
+              onChange={e => setBody(e.target.value)}
+              maxLength={128}
+              className="w-full px-3 py-2.5 border border-warm-200 rounded-xl text-sm text-warm-900 focus:outline-none focus:border-brand-400"
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={saving}
+              className="px-5 py-2.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white text-sm font-bold rounded-xl transition-colors"
+            >
+              {saving ? "Kaydediliyor…" : "Kaydet"}
+            </button>
+            {msg && <span className="text-sm font-medium">{msg}</span>}
+          </div>
+        </div>
+      </form>
     </div>
   );
 }

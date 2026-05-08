@@ -1,6 +1,17 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/server";
 
+export async function GET() {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from("site_settings")
+    .select("daily_push_time, push_title, push_body")
+    .eq("id", 1)
+    .maybeSingle();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data ?? {});
+}
+
 export async function PUT(req: Request) {
   const supabase = createAdminClient();
   const body = await req.json();

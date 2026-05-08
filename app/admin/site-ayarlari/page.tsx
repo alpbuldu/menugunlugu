@@ -1,7 +1,6 @@
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import SiteSettingsForm from "./SiteSettingsForm";
 import PopupSettings from "./PopupSettings";
-import PushSettings from "./PushSettings";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Site Ayarları" };
@@ -19,7 +18,7 @@ export default async function SiteAyarlariPage() {
   const [{ data: settingsData }, { data: popupsData }] = await Promise.all([
     supabase
       .from("site_settings")
-      .select("logo_url, favicon_url, contact_email, instagram_url, youtube_url, tiktok_url, twitter_url, adsense_enabled, daily_push_time, push_title, push_body")
+      .select("logo_url, favicon_url, contact_email, instagram_url, youtube_url, tiktok_url, twitter_url, adsense_enabled")
       .eq("id", 1)
       .single(),
     adminSupabase
@@ -31,8 +30,6 @@ export default async function SiteAyarlariPage() {
     logo_url: null, favicon_url: null, contact_email: null,
     instagram_url: null, youtube_url: null, tiktok_url: null,
     twitter_url: null, adsense_enabled: false,
-    daily_push_time: "09:00:00", push_title: "Günün Menüsü 🍽️",
-    push_body: "Bugünün özel menüsü hazır! Hemen inceleyin.",
   };
 
   // Sıralı popup listesi — DB'de kayıt yoksa boş defaults
@@ -47,7 +44,6 @@ export default async function SiteAyarlariPage() {
       <p className="text-warm-500 text-sm mb-8">Logo, iletişim ve sosyal medya bilgilerini buradan güncelleyin.</p>
       <div className="max-w-2xl space-y-8">
         <SiteSettingsForm settings={settings} />
-        <PushSettings settings={settings} />
         <PopupSettings popups={popups} />
       </div>
     </div>

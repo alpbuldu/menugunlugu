@@ -131,8 +131,13 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-warm-700 mt-6 md:mt-10 pt-5 text-center text-sm text-warm-400">
-          © {new Date().getFullYear()} Menü Günlüğü. Tüm hakları saklıdır.
+        <div className="border-t border-warm-700 mt-6 md:mt-10 pt-5 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-warm-400">
+          <span>© {new Date().getFullYear()} Menü Günlüğü. Tüm hakları saklıdır.</span>
+          <div className="flex items-center gap-4">
+            <Link href="/gizlilik-politikasi" className="hover:text-white transition-colors">Gizlilik Politikası</Link>
+            <Link href="/kullanim-kosullari" className="hover:text-white transition-colors">Kullanım Koşulları</Link>
+            <Link href="/aydinlatma-metni" className="hover:text-white transition-colors">Aydınlatma Metni</Link>
+          </div>
         </div>
       </div>
     </footer>

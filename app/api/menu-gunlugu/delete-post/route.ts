@@ -18,7 +18,6 @@ export async function DELETE(req: NextRequest) {
   }
 
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const post_id = req.nextUrl.searchParams.get("post_id");
   if (!post_id) return NextResponse.json({ error: "post_id required" }, { status: 400 });

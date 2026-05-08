@@ -167,27 +167,30 @@ export default async function BlogPage({ searchParams }: Props) {
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       {/* Kategori filtreleri */}
       {categories.length > 0 && (
-        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8 flex-wrap sm:flex-nowrap">
-          <span className="text-sm font-bold text-warm-800 flex-shrink-0">Kategoriler:</span>
-          <Link
-            href={href({ kategori: undefined, page: 1 })}
-            className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
-              !kategori
-                ? "bg-brand-600 border-brand-600 text-white"
-                : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
-            }`}
-          >
-            Tümü
-          </Link>
-          {categories.map((cat) => (
+        <div className="mb-4 sm:mb-8">
+          <p className="text-sm font-bold text-warm-800 mb-2 sm:hidden">Kategoriler:</p>
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+            <span className="text-sm font-bold text-warm-800 flex-shrink-0 hidden sm:block">Kategoriler:</span>
             <Link
-              key={cat.id}
-              href={`/blog/kategori/${cat.slug}`}
-              className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+              href={href({ kategori: undefined, page: 1 })}
+              className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
+                !kategori
+                  ? "bg-brand-600 border-brand-600 text-white"
+                  : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+              }`}
             >
-              {cat.name}
+              Tümü
             </Link>
-          ))}
+            {categories.map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/blog/kategori/${cat.slug}`}
+                className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+              >
+                {cat.name}
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 

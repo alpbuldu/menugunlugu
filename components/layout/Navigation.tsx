@@ -14,7 +14,7 @@ const links = [
   { href: "/gunun-menusu",  label: "Günün Menüsü",  emoji: "🍽️" },
   { href: "/tarifler",      label: "Tarifler",       emoji: "🥘" },
   { href: "/blog",          label: "Blog",           emoji: "📖" },
-  { href: "/menu-gunlugu",  label: "Menü Günlüğü",  emoji: "📔" },
+  { href: "/menu-gunlugu",  label: "Menü Önerileri",  emoji: "📔" },
   { href: "/oyna",          label: "Oyna",           emoji: "🎮" },
 ];
 

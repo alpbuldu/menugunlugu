@@ -99,8 +99,10 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
       </Link>
 
       {/* Kategori filtreleri */}
-      <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8 flex-wrap sm:flex-nowrap">
-        <span className="text-sm font-bold text-warm-800 flex-shrink-0">Kategoriler:</span>
+      <div className="mb-4 sm:mb-8">
+        <p className="text-sm font-bold text-warm-800 mb-2 sm:hidden">Kategoriler:</p>
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+        <span className="text-sm font-bold text-warm-800 flex-shrink-0 hidden sm:block">Kategoriler:</span>
         <Link
           href="/tarifler"
           className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
@@ -124,6 +126,7 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
             </Link>
           );
         })}
+      </div>
       </div>
 
       {/* Reklam */}

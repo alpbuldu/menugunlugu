@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
   const code      = searchParams.get("code");
   const next      = searchParams.get("next") ?? "/";
   const logout    = searchParams.get("logout") === "1";
+  const from      = searchParams.get("from"); // "login" | "register" | null
 
   // ── 1. Implicit flow: token_hash tabanlı e-posta doğrulaması ──────────────
   if (tokenHash && type) {
@@ -88,6 +89,11 @@ export async function GET(request: NextRequest) {
           .eq("id", sessionData.user.id)
           .single();
         if (!profile?.username) {
+          // Login tabından geldiyse → hesap yok mesajı ver
+          if (from === "login") {
+            return NextResponse.redirect(`${origin}/giris?mesaj=google-hesap-yok&tab=kayit`);
+          }
+          // Register tabından geldiyse → kullanıcı adı kur
           return NextResponse.redirect(`${origin}/uye/panel?tab=panelim&yeni=1`);
         }
       }

@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function NewUserSetup() {
   const [username, setUsername] = useState("");
   const [saving,   setSaving]   = useState(false);
   const [error,    setError]    = useState("");
-  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,8 +21,7 @@ export default function NewUserSetup() {
     setSaving(false);
 
     if (!res.ok) { setError(data.error ?? "Kullanıcı adı kaydedilemedi."); return; }
-    router.replace("/uye/panel?tab=panelim");
-    router.refresh();
+    window.location.href = "/uye/panel?tab=panelim";
   }
 
   return (
@@ -34,7 +31,10 @@ export default function NewUserSetup() {
           <div className="text-4xl mb-3">🍽️</div>
           <h2 className="text-xl font-bold text-warm-900">Hoş geldin!</h2>
           <p className="text-sm text-warm-500 mt-1">
-            Devam etmek için bir kullanıcı adı belirle.
+            Google hesabınızla yeni üyeliğiniz oluşturuldu.
+          </p>
+          <p className="text-sm text-warm-500">
+            Devam etmek için bir kullanıcı adı belirleyin.
           </p>
         </div>
 

@@ -36,13 +36,14 @@ export default async function GirisPage({
         </div>
 
         <AuthForm
-          defaultTab={tab === "kayit" ? "kayit" : tab === "sifre" ? "sifre" : "giris"}
+          defaultTab={tab === "kayit" || mesaj === "google-hesap-yok" ? "kayit" : tab === "sifre" ? "sifre" : "giris"}
           from={from}
           isNewAccount={isNew === "1"}
           topMesaj={
-            mesaj === "email-onaylandi" ? "email-onaylandi"
-            : mesaj === "onay-hatasi"  ? "onay-hatasi"
-            : deleted === "1"          ? "deleted"
+            mesaj === "email-onaylandi"   ? "email-onaylandi"
+            : mesaj === "onay-hatasi"     ? "onay-hatasi"
+            : mesaj === "google-hesap-yok" ? "google-hesap-yok"
+            : deleted === "1"             ? "deleted"
             : null
           }
         />

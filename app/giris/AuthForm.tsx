@@ -10,7 +10,7 @@ interface Props {
   defaultTab: Tab;
   from?: string;
   isNewAccount?: boolean;
-  topMesaj?: "email-onaylandi" | "onay-hatasi" | "deleted" | null;
+  topMesaj?: "email-onaylandi" | "onay-hatasi" | "deleted" | "google-hesap-yok" | null;
 }
 
 export default function AuthForm({ defaultTab, from, isNewAccount, topMesaj }: Props) {
@@ -44,10 +44,11 @@ export default function AuthForm({ defaultTab, from, isNewAccount, topMesaj }: P
     setError("");
     setSocialLoading(true);
     const supabase = createClient();
+    const source = tab === "giris" ? "login" : "register";
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/uye/panel`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/uye/panel&from=${source}`,
       },
     });
     if (err) {
@@ -224,6 +225,11 @@ export default function AuthForm({ defaultTab, from, isNewAccount, topMesaj }: P
       {topMesaj === "deleted" && (
         <div className="px-6 py-3 bg-orange-50 border-b border-orange-100 text-orange-700 text-sm text-center">
           Hesabınız silinmiş. Lütfen tekrar kayıt olun.
+        </div>
+      )}
+      {topMesaj === "google-hesap-yok" && (
+        <div className="px-6 py-3 bg-orange-50 border-b border-orange-100 text-orange-700 text-sm text-center">
+          Google hesabınızla kayıtlı bir üyelik bulunamadı. Kayıt olmak için <strong>Kayıt Ol</strong> sekmesini kullanın.
         </div>
       )}
 

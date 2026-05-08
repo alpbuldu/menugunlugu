@@ -44,6 +44,8 @@ export default function AuthForm({ defaultTab, from, isNewAccount, topMesaj }: P
     setError("");
     setSocialLoading(true);
     const supabase = createClient();
+    // Eski/geçersiz session cookie'lerini temizle (silinmiş hesap tekrar kayıt için)
+    await supabase.auth.signOut();
     const { error: err } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {

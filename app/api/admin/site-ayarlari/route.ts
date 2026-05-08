@@ -17,6 +17,9 @@ export async function PUT(req: Request) {
       tiktok_url:       body.tiktok_url        ?? null,
       twitter_url:      body.twitter_url       ?? null,
       adsense_enabled:  body.adsense_enabled   ?? false,
+      daily_push_time:  body.daily_push_time   ?? "09:00:00",
+      push_title:       body.push_title        ?? null,
+      push_body:        body.push_body         ?? null,
     }, { onConflict: "id" });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

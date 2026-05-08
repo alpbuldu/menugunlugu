@@ -274,6 +274,7 @@ function DesktopUserMenu() {
     const supabase = createClient();
     await supabase.auth.signOut();
     setOpen(false);
+    router.push("/");
     router.refresh();
   }
 
@@ -410,6 +411,7 @@ export default function Navigation() {
     const supabase = createClient();
     await supabase.auth.signOut();
     setOpen(false);
+    router.push("/");
     router.refresh();
   }
 

@@ -272,15 +272,22 @@ export default async function RecipeDetailPage({ params }: Props) {
 
       <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden">
         {/* Hero image */}
-        <div className="relative h-72 sm:h-96 bg-warm-100">
+        <div className="relative h-72 sm:h-[28rem] bg-warm-100">
           {hasImage ? (
             <Image src={recipe.image_url!} alt={recipe.title} fill className={`object-cover object-${(recipe as any).image_position ?? "center"}`} priority sizes="(max-width: 768px) 100vw, 768px" />
           ) : (
             <div className="flex items-center justify-center h-full text-7xl text-warm-300">🍽️</div>
           )}
-          <span className="absolute bottom-3 left-3 bg-black/40 backdrop-blur-sm rounded-full px-2.5 py-1 text-[10px] font-semibold text-white">
-            {({ soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı" } as Record<string, string>)[recipe.category as string] ?? recipe.category}
-          </span>
+          <div className="absolute bottom-3 left-3 flex flex-col items-start gap-1.5">
+            {(recipe as any).kcal_per_person && (
+              <span className="bg-brand-500 text-white rounded-full px-2.5 py-1 text-[10px] font-semibold">
+                {(recipe as any).kcal_per_person} kcal
+              </span>
+            )}
+            <span className="bg-brand-500 text-white rounded-full px-2.5 py-1 text-[10px] font-semibold">
+              {({ soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı" } as Record<string, string>)[recipe.category as string] ?? recipe.category}
+            </span>
+          </div>
           <Link
             href={`/uye/${authorUsername}`}
             className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors rounded-full px-2.5 py-1"
@@ -323,16 +330,11 @@ export default async function RecipeDetailPage({ params }: Props) {
           </div>
 
           <section className="mb-8">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center mb-4">
               <h2 className="text-lg font-semibold text-warm-800 flex items-center gap-2">
                 <span className="w-6 h-6 bg-brand-100 text-brand-600 rounded-full flex items-center justify-center text-sm">🧂</span>
                 Malzemeler
               </h2>
-              {recipe.kcal_per_person && (
-                <div className="flex items-center gap-1 bg-brand-100 rounded-full px-2.5 py-1">
-                  <span className="text-xs font-bold text-brand-700">{recipe.kcal_per_person} kcal</span>
-                </div>
-              )}
             </div>
             <RecipeScaler
               ingredientsRaw={recipe.ingredients}
@@ -461,7 +463,7 @@ export default async function RecipeDetailPage({ params }: Props) {
       )}
 
       {/* Bottom nav */}
-      <div className="mt-6">
+      <div className="mt-6 text-center">
         <Link href="/tarifler"
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-warm-200 text-warm-700 rounded-xl text-sm font-medium hover:bg-warm-50 transition-colors">
           ← Tüm tariflere dön

@@ -192,7 +192,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
 
   const tabs = [
     { key: "tariflerim",     label: "Tariflerim",       count: recipes?.length ?? 0 },
-    { key: "tarif-defterim", label: "Tarif Defterim",   count: totalDefterCount },
+    { key: "tarif-defterim", label: "Defterim",          count: totalDefterCount },
     { key: "yazilarim",      label: "Yazılarım",        count: posts?.length ?? 0 },
     { key: "takip",          label: "Takip Paneli",     count: followingCount + followerCount },
     { key: "panelim",        label: "Hesap Bilgilerim", count: null },

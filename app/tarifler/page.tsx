@@ -5,7 +5,6 @@ import { getRecipes } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
-import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import PagePopup from "@/components/ui/PagePopup";
 
@@ -65,21 +64,6 @@ export default async function RecipesPage({ searchParams }: Props) {
     return submittedBy ? (profileMap[submittedBy] ?? adminAuthor) : adminAuthor;
   }
 
-  // Takip durumu
-  const { data: { user } } = await supabase.auth.getUser();
-  const currentUserId = user?.id ?? null;
-  let followsAdmin = false;
-  const followedMemberIds = new Set<string>();
-  if (currentUserId) {
-    const [adminFollowRes, memberFollowRes] = await Promise.all([
-      supabase.from("admin_follows").select("follower_id").eq("follower_id", currentUserId).maybeSingle(),
-      memberIds.length
-        ? supabase.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", memberIds)
-        : Promise.resolve({ data: [] }),
-    ]);
-    followsAdmin = !!adminFollowRes.data;
-    (memberFollowRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
-  }
 
   function buildPages(current: number, total: number): number[] {
     const WINDOW = 3;
@@ -104,6 +88,7 @@ export default async function RecipesPage({ searchParams }: Props) {
     <SidebarLayout placement="sidebar_recipes" adSenseSlot="tarifler_dikey_masaustu">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       {/* Category Filter */}
+      <p className="text-sm font-bold text-warm-800 mb-2 sm:mb-3">Kategoriler</p>
       <div className="flex gap-1 sm:flex-wrap sm:gap-2 mb-4 sm:mb-8">
         {categories.map((cat) => (
           <Link
@@ -127,71 +112,42 @@ export default async function RecipesPage({ searchParams }: Props) {
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {recipes.map((recipe, index) => {
             const a = getAuthor(recipe.submitted_by ?? null);
-            const isAdmin = !recipe.submitted_by;
-            const initialFollowing = isAdmin ? followsAdmin : followedMemberIds.has(recipe.submitted_by!);
             return (
-              <div
+              <Link
                 key={recipe.id}
-                className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
+                href={`/tarifler/${recipe.slug}`}
+                className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 group hover:shadow-lg transition-all"
               >
-                <Link href={`/tarifler/${recipe.slug}`} className="flex flex-col flex-1">
-                  <div className="relative h-36 sm:h-52 bg-warm-100 shrink-0">
-                    {recipe.image_url ? (
-                      <Image
-                        src={recipe.image_url}
-                        alt={recipe.title}
-                        fill
-                        sizes="(max-width: 640px) 50vw, 33vw"
-                        className={`object-cover object-${(recipe as any).image_position ?? "center"} group-hover:scale-105 transition-transform duration-300`}
-                        priority={index < 4}
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-5xl text-warm-300">
-                        🍳
-                      </div>
-                    )}
-                  </div>
-                  <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
-                    <Badge category={recipe.category as Category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
-                    <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
-                      {recipe.title}
-                    </h2>
-                  </div>
-                </Link>
-                <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
-                  <Link href={`/uye/${a.username}`} className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+                {recipe.image_url ? (
+                  <Image
+                    src={recipe.image_url}
+                    alt={recipe.title}
+                    fill
+                    sizes="(max-width: 640px) 50vw, 33vw"
+                    className={`object-cover object-${(recipe as any).image_position ?? "center"} group-hover:scale-105 transition-transform duration-300`}
+                    priority={index < 4}
+                  />
+                ) : (
+                  <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-4xl text-warm-300">🍳</div>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                <div className="absolute top-2.5 left-2.5">
+                  <Badge category={recipe.category as Category} compact className="text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                  <h2 className="text-sm sm:text-base font-bold text-white leading-snug mb-2 line-clamp-2">{recipe.title}</h2>
+                  <div className="flex items-center gap-1.5">
                     {a.avatar ? (
                       <img src={a.avatar} alt={a.name} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
                     ) : (
-                      <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                      <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/25 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">
                         {a.name.charAt(0).toUpperCase()}
                       </span>
                     )}
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
-                      <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{a.name}</span>
-                    </div>
-                  </Link>
-                  <span className="sm:hidden">
-                    <FollowButton
-                      targetUserId={isAdmin ? undefined : recipe.submitted_by ?? undefined}
-                      isAdminProfile={isAdmin}
-                      initialFollowing={initialFollowing}
-                      isLoggedIn={!!currentUserId}
-                      size="icon"
-                    />
-                  </span>
-                  <span className="hidden sm:block">
-                    <FollowButton
-                      targetUserId={isAdmin ? undefined : recipe.submitted_by ?? undefined}
-                      isAdminProfile={isAdmin}
-                      initialFollowing={initialFollowing}
-                      isLoggedIn={!!currentUserId}
-                      size="xs"
-                    />
-                  </span>
+                    <span className="text-[11px] sm:text-xs text-white/80 truncate">{a.name}</span>
+                  </div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

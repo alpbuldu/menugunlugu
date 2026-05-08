@@ -4,7 +4,6 @@ import Link from "next/link";
 import { getBlogCategories, getBlogPosts } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
-import FollowButton from "@/components/ui/FollowButton";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import PagePopup from "@/components/ui/PagePopup";
 
@@ -126,22 +125,6 @@ export default async function BlogPage({ searchParams }: Props) {
   const totalPages = Math.ceil(allPosts.length / PER_PAGE);
   const posts = allPosts.slice((currentPage - 1) * PER_PAGE, currentPage * PER_PAGE);
 
-  // Takip durumu
-  const { data: { user } } = await supabase.auth.getUser();
-  const currentUserId = user?.id ?? null;
-  let followsAdmin = false;
-  const followedMemberIds = new Set<string>();
-  if (currentUserId) {
-    const memberAuthorIds = [...new Set(posts.filter((p) => !p.isAdminAuthor && p.authorId).map((p) => p.authorId as string))];
-    const [adminFollowRes, memberFollowRes] = await Promise.all([
-      supabase.from("admin_follows").select("follower_id").eq("follower_id", currentUserId).maybeSingle(),
-      memberAuthorIds.length
-        ? supabase.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", memberAuthorIds)
-        : Promise.resolve({ data: [] }),
-    ]);
-    followsAdmin = !!adminFollowRes.data;
-    (memberFollowRes.data ?? []).forEach((f: any) => followedMemberIds.add(f.following_id));
-  }
 
   // Kategori adına göre deterministik renk
   const BADGE_COLORS = [
@@ -184,7 +167,9 @@ export default async function BlogPage({ searchParams }: Props) {
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       {/* Kategori filtreleri */}
       {categories.length > 0 && (
-        <div className="flex gap-1 sm:flex-wrap sm:gap-2 mb-4 sm:mb-8">
+        <div className="mb-4 sm:mb-8">
+        <p className="text-sm font-bold text-warm-800 mb-2 sm:mb-3">Kategoriler</p>
+        <div className="flex gap-1 sm:flex-wrap sm:gap-2">
           <Link
             href={href({ kategori: undefined, page: 1 })}
             className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
@@ -205,6 +190,7 @@ export default async function BlogPage({ searchParams }: Props) {
             </Link>
           ))}
         </div>
+        </div>
       )}
 
 
@@ -217,71 +203,43 @@ export default async function BlogPage({ searchParams }: Props) {
             <h2 className="text-lg sm:text-xl font-bold text-brand-600 mb-4 flex items-center gap-2">
               <span className="text-brand-400">⭐</span> Seçtiklerimiz
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featured.map((post) => {
-                const initialFollowing = post.isAdminAuthor
-                  ? followsAdmin
-                  : post.authorId ? followedMemberIds.has(post.authorId) : false;
-                return (
-                  <div key={`f-${post.id}`}
-                    className="flex flex-col bg-white rounded-2xl border border-brand-200 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-400 transition-all group">
-                    <Link href={post.href} className="flex flex-col flex-1">
-                      <div className="relative h-48 bg-warm-100 shrink-0">
-                        {post.image_url ? (
-                          <Image src={post.image_url} alt={post.title} fill
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                            className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                        ) : (
-                          <div className="flex items-center justify-center h-full text-5xl text-warm-300">✍️</div>
-                        )}
-                        <span className="absolute top-2 left-2 text-[10px] font-semibold bg-brand-600/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm">
-                          ⭐ Seçtiklerimiz
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {featured.map((post) => (
+                <Link key={`f-${post.id}`} href={post.href}
+                  className="relative block rounded-2xl overflow-hidden h-56 sm:h-64 group hover:shadow-lg transition-all">
+                  {post.image_url ? (
+                    <Image src={post.image_url} alt={post.title} fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                  ) : (
+                    <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-4xl text-warm-300">✍️</div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                  <span className="absolute top-2.5 left-2.5 text-[10px] font-semibold bg-brand-600/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm">
+                    ⭐ Seçtiklerimiz
+                  </span>
+                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                    <h3 className="text-sm sm:text-base font-bold text-white leading-snug mb-2 line-clamp-2">{post.title}</h3>
+                    <div className="flex items-end justify-between gap-2">
+                      {post.categoryName ? (
+                        <span className="inline-block px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold bg-brand-500 text-white flex-shrink-0">
+                          {post.categoryName}
                         </span>
-                      </div>
-                      <div className="p-5 flex flex-col flex-1">
-                        {post.categoryName && (
-                          <span className={`inline-block self-start w-fit mb-2 px-2.5 py-0.5 rounded-full text-xs font-semibold ${categoryColor(post.categoryName)}`}>
-                            {post.categoryName}
-                          </span>
-                        )}
-                        <h3 className="text-base font-semibold text-brand-700 group-hover:text-brand-800 transition-colors line-clamp-2">
-                          {post.title}
-                        </h3>
-                        {post.excerpt && (
-                          <p className="text-sm text-warm-600 mt-1.5 line-clamp-3 leading-relaxed">
-                            {post.excerpt}
-                          </p>
-                        )}
-                        <p className="text-xs text-warm-300 mt-auto pt-3 flex-shrink-0">
-                          {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })}
-                        </p>
-                      </div>
-                    </Link>
-                    <div className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-brand-100">
-                      <Link href={`/uye/${post.authorUsername}`} className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+                      ) : <span />}
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
                         {post.authorAvatar ? (
-                          <img src={post.authorAvatar} alt={post.authorName} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                          <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover" />
                         ) : (
-                          <span className="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-[9px] font-bold text-brand-600 flex-shrink-0">
+                          <span className="w-5 h-5 rounded-full bg-white/25 text-white text-[9px] font-bold flex items-center justify-center">
                             {post.authorName.charAt(0).toUpperCase()}
                           </span>
                         )}
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
-                          <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{post.authorName}</span>
-                        </div>
-                      </Link>
-                      <FollowButton
-                        targetUserId={post.isAdminAuthor ? undefined : post.authorId ?? undefined}
-                        isAdminProfile={post.isAdminAuthor}
-                        initialFollowing={initialFollowing}
-                        isLoggedIn={!!currentUserId}
-                        size="xs"
-                      />
+                        <span className="text-[11px] sm:text-xs text-white/80 truncate max-w-[90px]">{post.authorName}</span>
+                      </div>
                     </div>
                   </div>
-                );
-              })}
+                </Link>
+              ))}
             </div>
           </div>
         );
@@ -306,77 +264,48 @@ export default async function BlogPage({ searchParams }: Props) {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map((post, index) => {
-            const initialFollowing = post.isAdminAuthor
-              ? followsAdmin
-              : post.authorId ? followedMemberIds.has(post.authorId) : false;
-            return (
-              <div
-                key={post.id}
-                className="flex flex-col bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group"
-              >
-                <Link href={post.href} className="flex flex-col flex-1">
-                  <div className="relative h-48 bg-warm-100 shrink-0">
-                    {post.image_url ? (
-                      <Image
-                        src={post.image_url}
-                        alt={post.title}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        priority={index < 3}
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-5xl text-warm-300">
-                        ✍️
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-5 flex flex-col flex-1">
-                    {post.categoryName && (
-                      <span className={`inline-block self-start w-fit mb-2 px-2.5 py-0.5 rounded-full text-xs font-semibold ${categoryColor(post.categoryName)}`}>
-                        {post.categoryName}
-                      </span>
-                    )}
-                    <h2 className="text-base font-semibold text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2">
-                      {post.title}
-                    </h2>
-                    {post.excerpt && (
-                      <p className="text-sm text-warm-600 mt-1.5 line-clamp-3 leading-relaxed">
-                        {post.excerpt}
-                      </p>
-                    )}
-                    <p className="text-xs text-warm-300 mt-auto pt-3 flex-shrink-0">
-                      {new Date(post.created_at).toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric" })}
-                    </p>
-                  </div>
-                </Link>
-                <div className="flex items-center gap-2 px-4 pb-3 pt-2 border-t border-warm-100">
-                  <Link href={`/uye/${post.authorUsername}`} className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {posts.map((post, index) => (
+            <Link
+              key={post.id}
+              href={post.href}
+              className="relative block rounded-2xl overflow-hidden h-56 sm:h-64 group hover:shadow-lg transition-all"
+            >
+              {post.image_url ? (
+                <Image
+                  src={post.image_url}
+                  alt={post.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  priority={index < 3}
+                />
+              ) : (
+                <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-4xl text-warm-300">✍️</div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                <h2 className="text-sm sm:text-base font-bold text-white leading-snug mb-2 line-clamp-2">{post.title}</h2>
+                <div className="flex items-end justify-between gap-2">
+                  {post.categoryName ? (
+                    <span className="inline-block px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold bg-brand-500 text-white flex-shrink-0">
+                      {post.categoryName}
+                    </span>
+                  ) : <span />}
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
                     {post.authorAvatar ? (
-                      <img src={post.authorAvatar} alt={post.authorName} className="w-6 h-6 rounded-full object-cover flex-shrink-0" />
+                      <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover" />
                     ) : (
-                      <span className="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-[9px] font-bold text-brand-600 flex-shrink-0">
+                      <span className="w-5 h-5 rounded-full bg-white/25 text-white text-[9px] font-bold flex items-center justify-center">
                         {post.authorName.charAt(0).toUpperCase()}
                       </span>
                     )}
-                    <div className="flex flex-col min-w-0">
-                      <span className="text-[10px] text-warm-300 leading-none mb-0.5">Yazar</span>
-                      <span className="text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{post.authorName}</span>
-                    </div>
-                  </Link>
-                  <FollowButton
-                    targetUserId={post.isAdminAuthor ? undefined : post.authorId ?? undefined}
-                    isAdminProfile={post.isAdminAuthor}
-                    initialFollowing={initialFollowing}
-                    isLoggedIn={!!currentUserId}
-                    size="xs"
-                  />
+                    <span className="text-[11px] sm:text-xs text-white/80 truncate max-w-[90px]">{post.authorName}</span>
+                  </div>
                 </div>
               </div>
-            );
-          })}
+            </Link>
+          ))}
         </div>
       )}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -48,10 +48,6 @@ interface AdminMenu {
 
 // ─── Labels ───────────────────────────────────────────────────────────────────
 
-const MEAL_LABELS: Record<string, string> = {
-  soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı",
-};
-
 const CATEGORY_MAP: Record<string, { label: string; emoji: string }> = {
   "gunluk":      { label: "Günlük Ev Menüsü",      emoji: "🏠" },
   "gunluk-ev":   { label: "Günlük Ev Menüsü",      emoji: "🏠" },
@@ -70,12 +66,10 @@ const CATEGORY_MAP: Record<string, { label: string; emoji: string }> = {
   "ozel":        { label: "Özel Menü",              emoji: "✨" },
 };
 
-/** Haritada olmayan kategorileri temizleyip Türkçeleştirir */
-function getCatInfo(key: string | null): { label: string; emoji: string } {
-  if (!key) return { label: "Menü", emoji: "🍽️" };
-  if (CATEGORY_MAP[key]) return CATEGORY_MAP[key];
-  const formatted = key.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-  return { label: formatted + " Menüsü", emoji: "🍽️" };
+function getCatLabel(key: string | null): string {
+  if (!key) return "Menü";
+  if (CATEGORY_MAP[key]) return CATEGORY_MAP[key].label;
+  return key.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") + " Menüsü";
 }
 
 const CELL_CONFIGS = [
@@ -85,131 +79,127 @@ const CELL_CONFIGS = [
   { key: "dessert" as const, label: "Tatlı",           titleKey: "dessert_title" as const, imgKey: "dessert_image_url" as const, slugKey: "dessert_slug" as const },
 ];
 
-// ─── Avatar ───────────────────────────────────────────────────────────────────
+// ─── Shared 2×2 Grid ─────────────────────────────────────────────────────────
 
-function Avatar({ url, name, size = 32 }: { url: string | null; name: string; size?: number }) {
-  const s = `${size}px`;
-  if (url) return (
-    <img src={url} alt={name} style={{ width: s, height: s }}
-      className="rounded-full object-cover flex-shrink-0 ring-2 ring-white" />
-  );
+function MenuGrid({ post }: {
+  post: Pick<FeedPost, "soup_title"|"main_title"|"side_title"|"dessert_title"|"soup_slug"|"main_slug"|"side_slug"|"dessert_slug"|"soup_image_url"|"main_image_url"|"side_image_url"|"dessert_image_url">
+}) {
   return (
-    <span style={{ width: s, height: s }}
-      className="rounded-full bg-brand-500 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 ring-2 ring-white uppercase">
-      {name.charAt(0)}
-    </span>
+    <div className="grid grid-cols-2 gap-px bg-warm-100">
+      {CELL_CONFIGS.map(cfg => {
+        const title = post[cfg.titleKey];
+        const img   = post[cfg.imgKey];
+        const slug  = post[cfg.slugKey];
+        const inner = (
+          <div className="relative bg-warm-50" style={{ aspectRatio: "1" }}>
+            {img ? (
+              <Image src={img} alt={title ?? cfg.label} fill className="object-cover" />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-3xl bg-warm-100">🍽️</div>
+            )}
+            {/* Meal label — boşluklu, yuvarlak */}
+            <div className="absolute top-2 left-2">
+              <span className="inline-block bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-md leading-none">
+                {cfg.label}
+              </span>
+            </div>
+            {/* Recipe title — büyük, altta boşluklu */}
+            {title && (
+              <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent px-2 pb-2 pt-6">
+                <p className="text-white text-[11px] sm:text-xs font-semibold leading-snug line-clamp-2">{title}</p>
+              </div>
+            )}
+          </div>
+        );
+        if (slug) return (
+          <Link key={cfg.key} href={`/tarifler/${slug}`} className="block hover:opacity-90 transition-opacity">
+            {inner}
+          </Link>
+        );
+        return <div key={cfg.key}>{inner}</div>;
+      })}
+    </div>
   );
 }
 
-// ─── Feed Card ────────────────────────────────────────────────────────────────
+// ─── Avatar ───────────────────────────────────────────────────────────────────
 
-function FeedCard({ post }: { post: FeedPost }) {
-  const catInfo = getCatInfo(post.category);
-
+function Avatar({ url, name, size = 28 }: { url: string | null; name: string; size?: number }) {
+  const s = `${size}px`;
+  if (url) return (
+    <img src={url} alt={name} style={{ width: s, height: s }}
+      className="rounded-full object-cover flex-shrink-0" />
+  );
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-warm-100 overflow-hidden hover:shadow-md transition-shadow">
-      {/* 2×2 görsel grid */}
-      <div className="grid grid-cols-2 gap-px bg-warm-100">
-        {CELL_CONFIGS.map(cfg => {
-          const title = post[cfg.titleKey];
-          const img   = post[cfg.imgKey];
-          const slug  = post[cfg.slugKey];
-          const inner = (
-            <div className="relative bg-warm-50" style={{ aspectRatio: "1" }}>
-              {img ? (
-                <Image src={img} alt={title ?? cfg.label} fill className="object-cover" />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center text-3xl bg-warm-100">🍽️</div>
-              )}
-              {/* Meal label */}
-              <div className="absolute top-0 left-0 bg-brand-600/90 backdrop-blur-sm px-1.5 py-0.5 rounded-br-lg">
-                <p className="text-[9px] text-white font-bold leading-none">{cfg.label}</p>
-              </div>
-              {title && (
-                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent px-2 pb-1.5 pt-6">
-                  <p className="text-white text-[10px] font-semibold leading-tight line-clamp-2">{title}</p>
-                </div>
-              )}
-            </div>
-          );
-          if (slug) return (
-            <Link key={cfg.key} href={`/tarifler/${slug}`} className="block hover:opacity-90 transition-opacity">
-              {inner}
-            </Link>
-          );
-          return <div key={cfg.key}>{inner}</div>;
-        })}
-      </div>
-
-      {/* Footer */}
-      <div className="px-3 py-2.5 flex items-center gap-2">
-        <Avatar url={post.author.avatar_url} name={post.author.username} size={28} />
-        <div className="min-w-0 flex-1">
-          <p className="text-[11px] text-warm-500 truncate">@{post.author.username}</p>
-          {post.title && (
-            <p className="text-xs font-bold text-warm-900 truncate leading-tight">{post.title}</p>
-          )}
-        </div>
-        <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
-          <span className="text-[9px] font-bold bg-brand-600 text-white px-1.5 py-0.5 rounded-full leading-none">
-            {catInfo.emoji} {catInfo.label}
-          </span>
-          {post.kcal_total > 0 && (
-            <span className="text-[9px] text-warm-400 font-medium">{post.kcal_total} kcal</span>
-          )}
-        </div>
-      </div>
-    </div>
+    <span style={{ width: s, height: s }}
+      className="rounded-full bg-warm-200 text-warm-600 text-[10px] font-bold flex items-center justify-center flex-shrink-0 uppercase">
+      {name.charAt(0)}
+    </span>
   );
 }
 
 // ─── Admin Menu Card ──────────────────────────────────────────────────────────
 
 function AdminMenuCard({ menu }: { menu: AdminMenu }) {
-  const catInfo = getCatInfo(menu.menu_category);
-  const cells = [
-    { r: menu.soup,    label: "Çorba" },
-    { r: menu.main,    label: "Ana Yemek" },
-    { r: menu.side,    label: "Yardımcı Lezzet" },
-    { r: menu.dessert, label: "Tatlı" },
-  ].filter(c => c.r);
-
+  const catLabel = getCatLabel(menu.menu_category);
   const kcalTotal = [menu.soup, menu.main, menu.side, menu.dessert]
     .reduce((sum, r) => sum + (r?.kcal_per_person ?? 0), 0);
 
   return (
-    <div className="flex-shrink-0 w-56 sm:w-64 bg-white rounded-2xl shadow-sm border border-warm-100 overflow-hidden">
-      {/* Başlık */}
-      <div className="bg-brand-600 px-3 py-2.5 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-base leading-none flex-shrink-0">{catInfo.emoji}</span>
-          <span className="text-xs font-bold text-white leading-tight truncate">{catInfo.label}</span>
-        </div>
+    <div className="flex-shrink-0 w-60 sm:w-72 bg-white rounded-2xl border border-warm-150 shadow-sm overflow-hidden">
+      {/* Başlık — turuncu değil, sade */}
+      <div className="px-3 py-2.5 border-b border-warm-100 flex items-center justify-between gap-2">
+        <span className="text-xs sm:text-sm font-bold text-warm-800 truncate">{catLabel}</span>
         {kcalTotal > 0 && (
-          <span className="text-[10px] font-semibold text-brand-100 flex-shrink-0 whitespace-nowrap">{kcalTotal} kcal</span>
+          <span className="text-[10px] sm:text-xs font-medium text-warm-400 flex-shrink-0 whitespace-nowrap">{kcalTotal} kcal</span>
         )}
       </div>
+      <MenuGrid post={{
+        soup_title: menu.soup?.title ?? null,
+        main_title: menu.main?.title ?? null,
+        side_title: menu.side?.title ?? null,
+        dessert_title: menu.dessert?.title ?? null,
+        soup_slug: menu.soup?.slug ?? null,
+        main_slug: menu.main?.slug ?? null,
+        side_slug: menu.side?.slug ?? null,
+        dessert_slug: menu.dessert?.slug ?? null,
+        soup_image_url: menu.soup?.image_url ?? null,
+        main_image_url: menu.main?.image_url ?? null,
+        side_image_url: menu.side?.image_url ?? null,
+        dessert_image_url: menu.dessert?.image_url ?? null,
+      }} />
+    </div>
+  );
+}
 
-      {/* 2×2 görsel grid */}
-      <div className={`grid ${cells.length === 4 ? "grid-cols-2" : "grid-cols-1"} gap-px bg-warm-100`}>
-        {cells.map(({ r, label }) => r && (
-          <Link key={r.id} href={`/tarifler/${r.slug}`}
-            className="block relative bg-warm-50 hover:opacity-90 transition-opacity"
-            style={{ aspectRatio: "1" }}>
-            {r.image_url ? (
-              <Image src={r.image_url} alt={r.title} fill className="object-cover" />
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center text-2xl bg-warm-100">🍽️</div>
-            )}
-            <div className="absolute top-0 left-0 bg-brand-600/90 backdrop-blur-sm px-1.5 py-0.5 rounded-br-md">
-              <p className="text-[8px] text-white font-bold leading-none">{label}</p>
-            </div>
-            <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent px-1.5 pb-1 pt-4">
-              <p className="text-white text-[9px] font-semibold leading-tight line-clamp-2">{r.title}</p>
-            </div>
-          </Link>
-        ))}
+// ─── Feed Card ────────────────────────────────────────────────────────────────
+
+function FeedCard({ post }: { post: FeedPost }) {
+  const catLabel = getCatLabel(post.category);
+
+  return (
+    <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+      {/* Başlık */}
+      <div className="px-3 py-2.5 border-b border-warm-100 flex items-center gap-2">
+        <Avatar url={post.author.avatar_url} name={post.author.username} size={26} />
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] text-warm-400 truncate leading-none mb-0.5">@{post.author.username}</p>
+          {post.title && (
+            <p className="text-xs sm:text-sm font-bold text-warm-900 truncate leading-tight">{post.title}</p>
+          )}
+        </div>
+        <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
+          {post.category && (
+            <span className="text-[10px] sm:text-xs font-semibold text-warm-500 whitespace-nowrap">
+              {catLabel}
+            </span>
+          )}
+          {post.kcal_total > 0 && (
+            <span className="text-[9px] sm:text-[10px] text-warm-400">{post.kcal_total} kcal</span>
+          )}
+        </div>
       </div>
+      <MenuGrid post={post} />
     </div>
   );
 }
@@ -229,6 +219,11 @@ export default function MenuGunluguClient({
   const [loading, setLoading]     = useState(false);
   const [hasMore, setHasMore]     = useState(initialFeed.length === 20);
   const [catFilter, setCatFilter] = useState("all");
+  const scrollRef                 = useRef<HTMLDivElement>(null);
+
+  function scrollBy(dir: 1 | -1) {
+    scrollRef.current?.scrollBy({ left: dir * 288, behavior: "smooth" });
+  }
 
   async function loadMore() {
     if (loading) return;
@@ -243,11 +238,10 @@ export default function MenuGunluguClient({
     } finally { setLoading(false); }
   }
 
-  // Sadece mevcut kategorileri göster — fallback label ile
   const presentKeys = [...new Set(adminMenus.map(m => m.menu_category))];
   const catFilters = [
     { key: "all", label: "Tümü" },
-    ...presentKeys.map(k => ({ key: k, label: getCatInfo(k).label })),
+    ...presentKeys.map(k => ({ key: k, label: getCatLabel(k) })),
   ];
 
   const filteredMenus = catFilter === "all"
@@ -265,7 +259,6 @@ export default function MenuGunluguClient({
             <div className="flex-1 h-px bg-warm-100" />
           </div>
 
-          {/* Kategori filtreleri */}
           {catFilters.length > 2 && (
             <div className="flex gap-2 overflow-x-auto pb-2 mb-4 [&::-webkit-scrollbar]:hidden">
               {catFilters.map(f => (
@@ -281,14 +274,33 @@ export default function MenuGunluguClient({
             </div>
           )}
 
-          {/* Yatay kart kaydırma */}
-          <div className="flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden -mx-4 px-4 sm:mx-0 sm:px-0">
-            {filteredMenus.map(m => (
-              <AdminMenuCard key={m.id} menu={m} />
-            ))}
-            {filteredMenus.length === 0 && (
-              <p className="text-sm text-warm-400 py-6">Bu kategoride menü yok</p>
-            )}
+          {/* Slider — ok butonları */}
+          <div className="relative group/slider">
+            {/* Sol ok */}
+            <button
+              onClick={() => scrollBy(-1)}
+              className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-10 w-8 h-8 bg-white border border-warm-200 rounded-full shadow-md items-center justify-center text-warm-600 hover:bg-warm-50 hover:text-warm-900 transition-all opacity-0 group-hover/slider:opacity-100"
+              aria-label="Önceki"
+            >
+              ‹
+            </button>
+
+            <div ref={scrollRef}
+              className="flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
+              {filteredMenus.map(m => <AdminMenuCard key={m.id} menu={m} />)}
+              {filteredMenus.length === 0 && (
+                <p className="text-sm text-warm-400 py-6">Bu kategoride menü yok</p>
+              )}
+            </div>
+
+            {/* Sağ ok */}
+            <button
+              onClick={() => scrollBy(1)}
+              className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 z-10 w-8 h-8 bg-white border border-warm-200 rounded-full shadow-md items-center justify-center text-warm-600 hover:bg-warm-50 hover:text-warm-900 transition-all opacity-0 group-hover/slider:opacity-100"
+              aria-label="Sonraki"
+            >
+              ›
+            </button>
           </div>
         </section>
       )}
@@ -304,7 +316,6 @@ export default function MenuGunluguClient({
           <div className="text-center py-16 bg-warm-50 rounded-2xl">
             <p className="text-4xl mb-3">📔</p>
             <p className="text-sm font-semibold text-warm-600 mb-1">Henüz paylaşım yok</p>
-            <p className="text-xs text-warm-400">Menü oluşturup akışa paylaşan ilk kişi ol</p>
           </div>
         )}
 

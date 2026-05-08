@@ -133,7 +133,7 @@ export default function Calendar() {
 
   /* ── Render ────────────────────────────────────────────────── */
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-[5fr_8fr] gap-6 lg:gap-8">
 
       {/* ── Left: calendar ──────────────────────────────────── */}
       <div className="h-full bg-white rounded-2xl border border-warm-100 shadow-sm p-3 sm:p-5 flex flex-col">
@@ -262,7 +262,7 @@ export default function Calendar() {
               {(() => {
                 const kcal = COURSE_FIELDS.reduce((s, { field }) => s + (((selectedMenu[field]) as any)?.kcal_per_person ?? 0), 0);
                 return kcal > 0 ? (
-                  <div className="mt-3 pt-3 border-t border-warm-100 flex items-center gap-1.5">
+                  <div className="mt-3 pt-3 border-t border-warm-100 flex items-center justify-between">
                     <span className="text-warm-300 font-bold text-sm">+</span>
                     <span className="text-xs font-semibold text-warm-700">
                       Toplam: <span className="text-brand-600">{kcal} kcal</span>
@@ -277,9 +277,6 @@ export default function Calendar() {
             </p>
           )}
         </div>
-        <p className="hidden lg:block mt-4 text-xs text-warm-400 leading-relaxed">
-          Geçmiş günlerin menülerini takvimden seçerek inceleyin.
-        </p>
       </div>
 
       {/* ── Right: menu panel ───────────────────────────────── */}

@@ -66,6 +66,13 @@ export async function GET(request: NextRequest) {
 
     const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code);
 
+    console.log("[auth/callback] exchangeCodeForSession result:", {
+      hasSession: !!sessionData?.session,
+      hasUser: !!sessionData?.user,
+      error: error ? { message: error.message, status: error.status } : null,
+      cookieNames: cookieStore.getAll().map(c => c.name),
+    });
+
     if (!error) {
       if (logout) await supabase.auth.signOut();
 

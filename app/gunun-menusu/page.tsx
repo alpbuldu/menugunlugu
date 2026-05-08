@@ -146,8 +146,9 @@ export default async function MenuPage() {
 
       <div className="mt-6 sm:mt-8 text-center">
         <Link href="/dunun-menusu"
-          className="text-sm text-warm-500 hover:text-brand-600 transition-colors underline underline-offset-2">
-          Önceki günlerin menülerini görmek için tıklayın
+          className="inline-flex items-center gap-2 text-sm text-brand-600 hover:text-brand-700 font-medium transition-colors border-2 border-brand-500 hover:border-brand-600 rounded-xl px-5 py-2.5 hover:bg-brand-50">
+          <span className="w-2 h-2 rounded-full bg-brand-500 flex-shrink-0" />
+          Önceki günlerin menülerini görmek için tıklayın.
         </Link>
       </div>
     </div>

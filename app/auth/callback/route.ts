@@ -94,7 +94,13 @@ export async function GET(request: NextRequest) {
             await supabase.auth.signOut();
             return NextResponse.redirect(`${origin}/giris?mesaj=google-hesap-yok&tab=kayit`);
           }
-          // Register tabından veya bilinmeyen kaynaktan → kullanıcı adı kur
+          // Register tabından → Google'dan gelen adı profile'a kaydet
+          const googleName = sessionData.user.user_metadata?.full_name
+            || sessionData.user.user_metadata?.name
+            || null;
+          if (googleName) {
+            await admin.from("profiles").update({ full_name: googleName }).eq("id", sessionData.user.id);
+          }
           return NextResponse.redirect(`${origin}/uye/panel?tab=panelim&yeni=1`);
         }
       }

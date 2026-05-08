@@ -41,21 +41,21 @@ function RecipeCard({
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
       {/* top-left: category */}
-      <div className="absolute top-2 left-2">
-        <Badge category={category} compact className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5" />
+      <div className="absolute top-2.5 left-2.5">
+        <Badge category={category} compact className="text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
       </div>
       {/* bottom: title + author */}
-      <div className="absolute bottom-0 left-0 right-0 p-2.5 sm:p-3">
-        <h2 className="text-xs sm:text-sm font-bold text-white leading-snug mb-1.5 line-clamp-2">{recipe.title}</h2>
+      <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+        <h2 className="text-sm sm:text-base font-bold text-white leading-snug mb-2 line-clamp-2">{recipe.title}</h2>
         <div className="flex items-center gap-1.5">
           {author.avatar ? (
-            <img src={author.avatar} alt={author.name} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover flex-shrink-0" />
+            <img src={author.avatar} alt={author.name} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
           ) : (
-            <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/25 text-white text-[8px] font-bold flex items-center justify-center flex-shrink-0">
+            <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/25 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">
               {author.name.charAt(0).toUpperCase()}
             </span>
           )}
-          <span className="text-[9px] sm:text-[10px] text-white/80 truncate">{author.name}</span>
+          <span className="text-[11px] sm:text-xs text-white/80 truncate">{author.name}</span>
         </div>
       </div>
     </Link>
@@ -102,7 +102,14 @@ export default async function MenuPage() {
   return (
     <SidebarLayout placement="sidebar_menu" adSenseSlot="gunun_menusu_dikey">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
-      <p className="text-sm sm:text-base text-warm-700 font-semibold capitalize mb-4">{today} Günün Menüsü</p>
+      <div className="flex items-start justify-between mb-4 gap-2">
+        <p className="text-sm sm:text-base text-warm-700 font-semibold capitalize">{today} Günün Menüsü</p>
+        {totalKcal > 0 && (
+          <span className="shrink-0 text-xs sm:text-sm text-warm-500 font-semibold">
+            Toplam Kalori: {totalKcal} kcal
+          </span>
+        )}
+      </div>
 
       {/* Banner — açıklama altında, kartlar üstünde */}
       <AdSlot placement="menu_banner" adSenseSlot="gunun_menusu_yatay"
@@ -134,22 +141,13 @@ export default async function MenuPage() {
             );
           })}
         </div>
-        {totalKcal > 0 && (
-          <p className="mt-3 text-xs text-warm-500 font-semibold text-right">
-            Toplam: +{totalKcal} kcal
-          </p>
-        )}
         </>
       )}
 
-      <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div className="mt-6 sm:mt-8 text-center">
         <Link href="/dunun-menusu"
           className="text-sm text-warm-500 hover:text-brand-600 transition-colors underline underline-offset-2">
           Önceki günlerin menülerini görmek için tıklayın
-        </Link>
-        <Link href="/recipes"
-          className="flex sm:inline-flex items-center justify-center gap-1.5 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors border border-warm-200 rounded-xl px-4 py-3 hover:bg-warm-50">
-          Tüm tarifleri gör →
         </Link>
       </div>
     </div>

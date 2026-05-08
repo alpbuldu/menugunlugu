@@ -132,17 +132,17 @@ export default async function YazarlarPage() {
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-brand-100 overflow-hidden flex-shrink-0">
                       {p.avatar_url ? (
-                        <Image src={p.avatar_url} alt={p.username} width={36} height={36}
+                        <Image src={p.avatar_url} alt={p.username ?? ""} width={36} height={36}
                           className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-sm font-bold text-brand-600">
-                          {(p.full_name || p.username).charAt(0).toUpperCase()}
+                          {(p.full_name || p.username || "?").charAt(0).toUpperCase()}
                         </div>
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="font-medium text-warm-800 truncate">{p.full_name || p.username}</p>
-                      <p className="text-xs text-warm-400">@{p.username}</p>
+                      <p className="font-medium text-warm-800 truncate">{p.full_name || p.username || <span className="italic text-warm-400">Kullanıcı adı yok</span>}</p>
+                      {p.username && <p className="text-xs text-warm-400">@{p.username}</p>}
                       {p.email && (
                         <a href={`mailto:${p.email}`} className="text-xs text-warm-400 hover:text-brand-600 transition-colors truncate block">
                           {p.email}
@@ -224,14 +224,16 @@ export default async function YazarlarPage() {
                 {/* İşlemler */}
                 <td className="px-4 py-3 text-right whitespace-nowrap">
                   <div className="flex items-center justify-end gap-3">
-                    <Link
-                      href={`/uye/${p.username}`}
-                      target="_blank"
-                      className="text-xs text-brand-600 hover:text-brand-800 hover:underline transition-colors"
-                    >
-                      Profili gör →
-                    </Link>
-                    <DeleteUserButton id={p.id} username={p.username} />
+                    {p.username && (
+                      <Link
+                        href={`/uye/${p.username}`}
+                        target="_blank"
+                        className="text-xs text-brand-600 hover:text-brand-800 hover:underline transition-colors"
+                      >
+                        Profili gör →
+                      </Link>
+                    )}
+                    <DeleteUserButton id={p.id} username={p.username ?? ""} />
                   </div>
                 </td>
               </tr>

@@ -136,10 +136,10 @@ export default function Calendar() {
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-8">
 
       {/* ── Left: calendar ──────────────────────────────────── */}
-      <div className="h-full bg-white rounded-2xl border border-warm-100 shadow-sm p-5 flex flex-col">
+      <div className="h-full bg-white rounded-2xl border border-warm-100 shadow-sm p-3 sm:p-5 flex flex-col">
 
         {/* Month header */}
-        <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center justify-between mb-3 sm:mb-5">
           <button
             onClick={prevMonth}
             aria-label="Önceki ay"
@@ -195,7 +195,7 @@ export default function Calendar() {
                   aria-pressed={isSelected}
                   aria-label={`${day} ${MONTHS[month - 1]}${hasMenu ? " — menü var" : ""}`}
                   className={[
-                    "relative aspect-square flex flex-col items-center justify-center rounded-lg text-sm font-medium transition-all duration-150 select-none",
+                    "relative aspect-square flex flex-col items-center justify-center rounded-lg text-xs sm:text-sm font-medium transition-all duration-150 select-none",
                     isSelected
                       ? "bg-brand-600 text-white shadow-md scale-110 z-10"
                       : hasMenu && !isFuture
@@ -304,7 +304,7 @@ export default function Calendar() {
                   const isAdmin = !recipe.submitted_by;
                   const author = { name: authorRaw.username, avatar: authorRaw.avatar_url ?? "", username: isAdmin ? "__admin__" : authorRaw.username };
                   return (
-                    <Link key={field} href={`/recipes/${recipe.slug}`} className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-36 sm:h-48 group hover:shadow-lg transition-all">
+                    <Link key={field} href={`/recipes/${recipe.slug}`} className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 group hover:shadow-lg transition-all">
                       {recipe.image_url ? (
                         <Image src={recipe.image_url} alt={recipe.title} fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -312,25 +312,20 @@ export default function Calendar() {
                         <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-4xl text-warm-300">🍳</div>
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                      <div className="absolute top-2 left-2">
-                        <Badge category={category} compact className="text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5" />
+                      <div className="absolute top-2.5 left-2.5">
+                        <Badge category={category} compact className="text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
                       </div>
-                      {(recipe as any).kcal_per_person && (
-                        <span className="absolute top-2 right-2 text-[9px] sm:text-[10px] font-bold text-white drop-shadow">
-                          {(recipe as any).kcal_per_person} kcal
-                        </span>
-                      )}
-                      <div className="absolute bottom-0 left-0 right-0 p-2.5 sm:p-3">
-                        <h4 className="text-xs sm:text-sm font-bold text-white leading-snug mb-1.5 line-clamp-2">{recipe.title}</h4>
+                      <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                        <h4 className="text-sm sm:text-base font-bold text-white leading-snug mb-2 line-clamp-2">{recipe.title}</h4>
                         <div className="flex items-center gap-1.5">
                           {author.avatar ? (
-                            <img src={author.avatar} alt={author.name} className="w-4 h-4 sm:w-5 sm:h-5 rounded-full object-cover flex-shrink-0" />
+                            <img src={author.avatar} alt={author.name} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
                           ) : (
-                            <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-white/25 text-white text-[8px] font-bold flex items-center justify-center flex-shrink-0">
+                            <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/25 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">
                               {author.name.charAt(0).toUpperCase()}
                             </span>
                           )}
-                          <span className="text-[9px] sm:text-[10px] text-white/80 truncate">{author.name}</span>
+                          <span className="text-[11px] sm:text-xs text-white/80 truncate">{author.name}</span>
                         </div>
                       </div>
                     </Link>

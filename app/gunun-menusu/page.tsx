@@ -102,12 +102,14 @@ export default async function MenuPage() {
   return (
     <SidebarLayout placement="sidebar_menu" adSenseSlot="gunun_menusu_dikey">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
-      {/* Mobil başlık — iki satır, ortalı */}
-      <div className="flex flex-col items-center text-center mb-4 sm:hidden">
-        <p className="text-xs text-warm-500 font-medium capitalize">{today}</p>
-        <p className="text-base text-warm-700 font-bold">Günün Menüsü</p>
+      {/* Mobil başlık — tarih+başlık sola, kalori sağa */}
+      <div className="flex items-start justify-between mb-4 sm:hidden">
+        <div className="flex flex-col">
+          <p className="text-xs text-warm-500 font-medium capitalize">{today}</p>
+          <p className="text-base text-warm-700 font-bold">Günün Menüsü</p>
+        </div>
         {totalKcal > 0 && (
-          <p className="text-xs text-warm-500 font-semibold mt-0.5">Toplam Kalori: {totalKcal} kcal</p>
+          <p className="text-xs text-warm-500 font-semibold shrink-0 mt-0.5">Toplam Kalori: {totalKcal} kcal</p>
         )}
       </div>
       {/* Masaüstü başlık — tek satır, sağda kalori */}

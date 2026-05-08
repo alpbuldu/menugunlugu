@@ -136,7 +136,7 @@ export default function Calendar() {
     <div className="grid grid-cols-1 lg:grid-cols-[5fr_8fr] gap-6 lg:gap-8">
 
       {/* ── Left: calendar ──────────────────────────────────── */}
-      <div className="h-full bg-white rounded-2xl border border-warm-100 shadow-sm p-3 sm:p-5 flex flex-col">
+      <div className="h-full bg-white rounded-2xl border border-warm-100 shadow-sm p-2 sm:p-5 flex flex-col">
 
         {/* Month header */}
         <div className="flex items-center justify-between mb-3 sm:mb-5">
@@ -195,7 +195,7 @@ export default function Calendar() {
                   aria-pressed={isSelected}
                   aria-label={`${day} ${MONTHS[month - 1]}${hasMenu ? " — menü var" : ""}`}
                   className={[
-                    "relative aspect-square flex flex-col items-center justify-center rounded-lg text-xs sm:text-sm font-medium transition-all duration-150 select-none",
+                    "relative aspect-square flex flex-col items-center justify-center rounded-lg text-[10px] sm:text-sm font-medium transition-all duration-150 select-none",
                     isSelected
                       ? "bg-brand-600 text-white shadow-md scale-110 z-10"
                       : hasMenu && !isFuture
@@ -279,19 +279,19 @@ export default function Calendar() {
         </div>
       </div>
 
-      {/* ── Right: menu panel ───────────────────────────────── */}
-      <div className="flex flex-col min-h-[440px]">
+      {/* Right panel */}
+      <div className="flex flex-col lg:h-full" style={{ minHeight: 0 }}>
         {selectedDate ? (
           <>
             {menuLoading ? (
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:h-full">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="rounded-xl sm:rounded-2xl h-36 sm:h-48 bg-warm-100 animate-pulse" />
+                  <div key={i} className="rounded-xl sm:rounded-2xl h-36 sm:h-48 lg:h-auto bg-warm-100 animate-pulse" />
                 ))}
               </div>
             ) : selectedMenu ? (
               <>
-              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 grid-rows-2 gap-3 sm:gap-4 lg:h-full">
                 {COURSE_FIELDS.map(({ field, category }) => {
                   const recipe = selectedMenu[field];
                   const ap = adminProfile ?? { username: "Menü Günlüğü", avatar_url: null };
@@ -301,7 +301,7 @@ export default function Calendar() {
                   const isAdmin = !recipe.submitted_by;
                   const author = { name: authorRaw.username, avatar: authorRaw.avatar_url ?? "", username: isAdmin ? "__admin__" : authorRaw.username };
                   return (
-                    <Link key={field} href={`/recipes/${recipe.slug}`} className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 group hover:shadow-lg transition-all">
+                    <Link key={field} href={`/recipes/${recipe.slug}`} className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 lg:h-full group hover:shadow-lg transition-all">
                       {recipe.image_url ? (
                         <Image src={recipe.image_url} alt={recipe.title} fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300" />

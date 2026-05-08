@@ -88,7 +88,7 @@ export default async function RecipesPage({ searchParams }: Props) {
     <SidebarLayout placement="sidebar_recipes" adSenseSlot="tarifler_dikey_masaustu">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       {/* Category Filter */}
-      <p className="text-sm font-bold text-warm-800 mb-2 sm:mb-3">Kategoriler</p>
+      <p className="text-sm font-bold text-warm-800 mb-2 sm:mb-3">Kategoriler:</p>
       <div className="flex gap-1 sm:flex-wrap sm:gap-2 mb-4 sm:mb-8">
         {categories.map((cat) => (
           <Link

@@ -168,7 +168,7 @@ export default async function BlogPage({ searchParams }: Props) {
       {/* Kategori filtreleri */}
       {categories.length > 0 && (
         <div className="mb-4 sm:mb-8">
-        <p className="text-sm font-bold text-warm-800 mb-2 sm:mb-3">Kategoriler</p>
+        <p className="text-sm font-bold text-warm-800 mb-2 sm:mb-3">Kategoriler:</p>
         <div className="flex gap-1 sm:flex-wrap sm:gap-2">
           <Link
             href={href({ kategori: undefined, page: 1 })}
@@ -214,28 +214,31 @@ export default async function BlogPage({ searchParams }: Props) {
                   ) : (
                     <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-4xl text-warm-300">✍️</div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                  <span className="absolute top-2.5 left-2.5 text-[10px] font-semibold bg-brand-600/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm">
-                    ⭐ Seçtiklerimiz
-                  </span>
-                  <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
-                    <h3 className="text-sm sm:text-base font-bold text-white leading-snug mb-2 line-clamp-2">{post.title}</h3>
-                    <div className="flex items-end justify-between gap-2">
-                      {post.categoryName ? (
-                        <span className="inline-block px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold bg-brand-500 text-white flex-shrink-0">
-                          {post.categoryName}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  <div className="absolute top-2.5 left-2.5 flex flex-col gap-1">
+                    <span className="inline-block text-[10px] font-semibold bg-brand-600/90 text-white px-2 py-0.5 rounded-full backdrop-blur-sm">
+                      ⭐ Seçtiklerimiz
+                    </span>
+                    {post.categoryName && (
+                      <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-500 text-white">
+                        {post.categoryName}
+                      </span>
+                    )}
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-black/50 rounded-b-2xl p-3 sm:p-4">
+                    <h3 className="text-sm sm:text-base font-bold text-white leading-snug mb-1 line-clamp-2">{post.title}</h3>
+                    {post.excerpt && (
+                      <p className="text-[10px] sm:text-[11px] text-white/65 line-clamp-1 mb-2">{post.excerpt}</p>
+                    )}
+                    <div className="flex items-center gap-1.5">
+                      {post.authorAvatar ? (
+                        <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                      ) : (
+                        <span className="w-5 h-5 rounded-full bg-white/25 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                          {post.authorName.charAt(0).toUpperCase()}
                         </span>
-                      ) : <span />}
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        {post.authorAvatar ? (
-                          <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover" />
-                        ) : (
-                          <span className="w-5 h-5 rounded-full bg-white/25 text-white text-[9px] font-bold flex items-center justify-center">
-                            {post.authorName.charAt(0).toUpperCase()}
-                          </span>
-                        )}
-                        <span className="text-[11px] sm:text-xs text-white/80 truncate max-w-[90px]">{post.authorName}</span>
-                      </div>
+                      )}
+                      <span className="text-[11px] sm:text-xs text-white/80 truncate">{post.authorName}</span>
                     </div>
                   </div>
                 </Link>
@@ -283,25 +286,26 @@ export default async function BlogPage({ searchParams }: Props) {
               ) : (
                 <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-4xl text-warm-300">✍️</div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
-                <h2 className="text-sm sm:text-base font-bold text-white leading-snug mb-2 line-clamp-2">{post.title}</h2>
-                <div className="flex items-end justify-between gap-2">
-                  {post.categoryName ? (
-                    <span className="inline-block px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold bg-brand-500 text-white flex-shrink-0">
-                      {post.categoryName}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+              {post.categoryName && (
+                <span className="absolute top-2.5 left-2.5 inline-block px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold bg-brand-500 text-white">
+                  {post.categoryName}
+                </span>
+              )}
+              <div className="absolute bottom-0 left-0 right-0 bg-black/50 rounded-b-2xl p-3 sm:p-4">
+                <h2 className="text-sm sm:text-base font-bold text-white leading-snug mb-1 line-clamp-2">{post.title}</h2>
+                {post.excerpt && (
+                  <p className="text-[10px] sm:text-[11px] text-white/65 line-clamp-1 mb-2">{post.excerpt}</p>
+                )}
+                <div className="flex items-center gap-1.5">
+                  {post.authorAvatar ? (
+                    <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
+                  ) : (
+                    <span className="w-5 h-5 rounded-full bg-white/25 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                      {post.authorName.charAt(0).toUpperCase()}
                     </span>
-                  ) : <span />}
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    {post.authorAvatar ? (
-                      <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover" />
-                    ) : (
-                      <span className="w-5 h-5 rounded-full bg-white/25 text-white text-[9px] font-bold flex items-center justify-center">
-                        {post.authorName.charAt(0).toUpperCase()}
-                      </span>
-                    )}
-                    <span className="text-[11px] sm:text-xs text-white/80 truncate max-w-[90px]">{post.authorName}</span>
-                  </div>
+                  )}
+                  <span className="text-[11px] sm:text-xs text-white/80 truncate">{post.authorName}</span>
                 </div>
               </div>
             </Link>

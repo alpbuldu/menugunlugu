@@ -94,7 +94,6 @@ export default function Footer() {
               <Link href="/menu-gunlugu" className="hover:text-white transition-colors">Menü Günlüğü</Link>
               <Link href="/oyna" className="hover:text-white transition-colors">Oyna</Link>
               <Link href="/iletisim" className="hover:text-white transition-colors">İletişim</Link>
-              <Link href="/dunun-menusu" className="hover:text-white transition-colors">Dünün Menüsü</Link>
               <Link href="/uye/panel" className="hover:text-white transition-colors">Hesabım</Link>
               <Link href="/gunun-menusu" className="hover:text-white transition-colors">Günün Menüsü</Link>
               <Link href="/hakkimizda" className="hover:text-white transition-colors">Hakkımızda</Link>

@@ -17,10 +17,10 @@ const categoryLabelsShort: Record<Category, string> = {
 };
 
 const categoryColors: Record<Category, string> = {
-  soup:    "bg-brand-100 text-brand-700",
-  main:    "bg-brand-100 text-brand-700",
-  side:    "bg-brand-100 text-brand-700",
-  dessert: "bg-brand-100 text-brand-700",
+  soup:    "bg-brand-500 text-white",
+  main:    "bg-brand-500 text-white",
+  side:    "bg-brand-500 text-white",
+  dessert: "bg-brand-500 text-white",
 };
 
 interface BadgeProps {

@@ -12,7 +12,6 @@ import type { User } from "@supabase/supabase-js";
 const links = [
   { href: "/",              label: "Ana Sayfa",     emoji: "🏠" },
   { href: "/gunun-menusu",  label: "Günün Menüsü",  emoji: "🍽️" },
-  { href: "/dunun-menusu",  label: "Dünün Menüsü",  emoji: "📅" },
   { href: "/tarifler",      label: "Tarifler",       emoji: "🥘" },
   { href: "/blog",          label: "Blog",           emoji: "📖" },
   { href: "/menu-gunlugu",  label: "Menü Günlüğü",  emoji: "📔" },

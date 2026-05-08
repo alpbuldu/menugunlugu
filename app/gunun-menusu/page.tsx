@@ -32,7 +32,7 @@ function RecipeCard({
   recipe: Recipe; category: Category; author: AuthorInfo;
 }) {
   return (
-    <Link href={`/recipes/${recipe.slug}`} className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-36 sm:h-48 group hover:shadow-lg transition-all">
+    <Link href={`/recipes/${recipe.slug}`} className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 group hover:shadow-lg transition-all">
       {recipe.image_url ? (
         <Image src={recipe.image_url} alt={recipe.title} fill
           className="object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -136,13 +136,17 @@ export default async function MenuPage() {
         </div>
         {totalKcal > 0 && (
           <p className="mt-3 text-xs text-warm-500 font-semibold text-right">
-            Toplam: {totalKcal} kcal
+            Toplam: +{totalKcal} kcal
           </p>
         )}
         </>
       )}
 
-      <div className="mt-6 sm:mt-8 sm:text-center">
+      <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <Link href="/dunun-menusu"
+          className="text-sm text-warm-500 hover:text-brand-600 transition-colors underline underline-offset-2">
+          Önceki günlerin menülerini görmek için tıklayın
+        </Link>
         <Link href="/recipes"
           className="flex sm:inline-flex items-center justify-center gap-1.5 text-brand-600 hover:text-brand-800 font-medium text-sm transition-colors border border-warm-200 rounded-xl px-4 py-3 hover:bg-warm-50">
           Tüm tarifleri gör →

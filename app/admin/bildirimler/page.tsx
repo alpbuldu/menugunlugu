@@ -122,15 +122,20 @@ function SendForm() {
     setLoading(true);
     setResult(null);
 
-    const res = await fetch("/api/admin/push-send", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, body, target }),
-    });
-    const data = await res.json();
-    setResult(data);
-    setLoading(false);
-    if (data.ok) { setTitle(""); setBody(""); }
+    try {
+      const res = await fetch("/api/admin/push-send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, body, target }),
+      });
+      const data = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      setResult(data);
+      if (data.ok) { setTitle(""); setBody(""); }
+    } catch (err) {
+      setResult({ error: "Ağ hatası veya zaman aşımı." });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

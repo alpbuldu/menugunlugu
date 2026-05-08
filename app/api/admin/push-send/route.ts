@@ -18,7 +18,6 @@ interface ExpoPushTicket {
 }
 
 async function sendExpoPushNotifications(messages: ExpoPushMessage[]) {
-  // Expo'nun ücretsiz push servisi — maksimum 100 mesaj per request
   const chunks: ExpoPushMessage[][] = [];
   for (let i = 0; i < messages.length; i += 100) {
     chunks.push(messages.slice(i, i + 100));
@@ -26,17 +25,23 @@ async function sendExpoPushNotifications(messages: ExpoPushMessage[]) {
 
   const results: ExpoPushTicket[] = [];
   for (const chunk of chunks) {
-    const res = await fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Accept-Encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(chunk),
-    });
-    const json = await res.json();
-    results.push(...(json.data ?? []));
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    try {
+      const res = await fetch("https://exp.host/--/api/v2/push/send", {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(chunk),
+        signal: controller.signal,
+      });
+      const json = await res.json();
+      results.push(...(json.data ?? []));
+    } finally {
+      clearTimeout(timeout);
+    }
   }
   return results;
 }
@@ -71,7 +76,12 @@ export async function POST(req: NextRequest) {
     data:  data ?? {},
   }));
 
-  const tickets = await sendExpoPushNotifications(messages);
+  let tickets: ExpoPushTicket[];
+  try {
+    tickets = await sendExpoPushNotifications(messages);
+  } catch (err) {
+    return NextResponse.json({ error: "Expo push servisi hatası: " + String(err) }, { status: 502 });
+  }
 
   const ok      = tickets.filter(t => t.status === "ok").length;
   const failed  = tickets.filter(t => t.status === "error").length;

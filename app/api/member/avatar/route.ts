@@ -8,8 +8,19 @@ const AVATAR_SIZE   = 400; // kare profil fotoğrafı (px)
 const BUCKET        = "recipes";
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  // Cookie tabanlı (web) veya Bearer token tabanlı (mobil) auth
+  const authHeader = request.headers.get("authorization");
+  let user: any = null;
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    const adminSupa = createAdminClient();
+    const { data } = await adminSupa.auth.getUser(token);
+    user = data.user;
+  } else {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  }
   if (!user) return NextResponse.json({ error: "Giriş yapmalısınız." }, { status: 401 });
 
   let formData: FormData;

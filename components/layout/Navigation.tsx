@@ -272,6 +272,7 @@ function DesktopUserMenu() {
 
   async function handleLogout() {
     const supabase = createClient();
+    (window as any).__intentionalLogout = true;
     await supabase.auth.signOut();
     window.location.href = "/";
   }
@@ -407,6 +408,7 @@ export default function Navigation() {
 
   async function handleMobileLogout() {
     const supabase = createClient();
+    (window as any).__intentionalLogout = true;
     await supabase.auth.signOut();
     window.location.href = "/";
   }

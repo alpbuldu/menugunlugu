@@ -8,6 +8,7 @@ export default function LogoutButton() {
 
   async function handleLogout() {
     const supabase = createClient();
+    (window as any).__intentionalLogout = true;
     await supabase.auth.signOut();
     window.location.href = "/";
   }

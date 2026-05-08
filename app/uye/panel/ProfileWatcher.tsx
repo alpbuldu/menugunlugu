@@ -45,10 +45,11 @@ export default function ProfileWatcher({ userId }: { userId: string }) {
     document.addEventListener("visibilitychange", handleVisibility);
 
     // Auth state change: SIGNED_OUT (token refresh başarısız olunca tetiklenir)
+    // Kasıtlı logout'ta (__intentionalLogout flag) müdahale etme
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === "SIGNED_OUT" || (!session && event !== "INITIAL_SESSION")) {
-          if (!dead) {
+          if (!dead && !(window as any).__intentionalLogout) {
             dead = true;
             await supabase.auth.signOut();
             window.location.href = "/giris?deleted=1";

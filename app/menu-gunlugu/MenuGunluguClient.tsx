@@ -149,7 +149,7 @@ function AdminMenuCard({ menu, adminProfile }: { menu: AdminMenu; adminProfile: 
     .reduce((sum, r) => sum + (r?.kcal_per_person ?? 0), 0);
 
   return (
-    <div className="flex-shrink-0 w-52 sm:w-64 bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+    <div className="flex-shrink-0 w-64 sm:w-72 bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       <div className="px-3 py-2.5 border-b border-warm-100 flex items-center gap-2">
         <Avatar url={adminProfile.avatar_url} name={adminProfile.username} size={26} />
         <div className="min-w-0 flex-1">

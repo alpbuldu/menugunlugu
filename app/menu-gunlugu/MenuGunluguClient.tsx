@@ -268,10 +268,10 @@ export default function MenuGunluguClient({
       {/* ── Editörün Menü Önerileri ── */}
       {adminMenus.length > 0 && (
         <section>
-          <div className="mb-2 leading-snug">
-            <h2 className="text-base font-extrabold text-warm-900 inline">Editörün Menü Önerileri</h2>
-            <span className="text-xs text-warm-400 font-normal leading-snug"> — Editörler tarafından hazırlanan menü önerileri için kaydırın.</span>
-          </div>
+          <p className="mb-2 leading-tight">
+            <span className="text-base font-extrabold text-warm-900">Editörün Menü Önerileri</span>
+            <span className="text-xs text-warm-400 font-normal"> — Editörler tarafından hazırlanan menü önerileri için kaydırın.</span>
+          </p>
 
           {catFilters.length > 2 && (
             <div className="flex gap-2 overflow-x-auto pb-2 mb-4 [&::-webkit-scrollbar]:hidden">
@@ -319,10 +319,10 @@ export default function MenuGunluguClient({
 
       {/* ── Menü Günlüğü Akışı ── */}
       <section>
-        <div className="mb-2 leading-snug">
-          <h2 className="text-base font-extrabold text-warm-900 inline">Menü Günlüğü Akışı</h2>
-          <span className="text-xs text-warm-400 font-normal leading-snug"> — Kullanıcılar tarafından paylaşılan menü önerilerini görmek için aşağı kaydırın. Menü paylaşmak için mobil uygulamayı indirin.</span>
-        </div>
+        <p className="mb-2 leading-tight">
+          <span className="text-base font-extrabold text-warm-900">Menü Günlüğü Akışı</span>
+          <span className="text-xs text-warm-400 font-normal"> — Kullanıcılar tarafından paylaşılan menü önerilerini görmek için aşağı kaydırın. Menü paylaşmak için mobil uygulamayı indirin.</span>
+        </p>
 
         {feedCatFilters.length > 2 && (
           <div className="flex gap-2 overflow-x-auto pb-2 mb-4 [&::-webkit-scrollbar]:hidden">

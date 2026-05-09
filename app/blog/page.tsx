@@ -297,10 +297,10 @@ export default async function BlogPage({ searchParams }: Props) {
                   {post.categoryName}
                 </span>
               )}
-              <div className="absolute bottom-0 left-0 right-0 bg-black/50 rounded-b-2xl p-3 sm:p-4 h-[88px] sm:h-[108px] flex flex-col justify-between overflow-hidden">
+              <div className="absolute bottom-0 left-0 right-0 bg-black/50 rounded-b-2xl p-3 sm:p-4 h-[108px] sm:h-[128px] flex flex-col justify-between overflow-hidden">
                 <div>
                   <h2 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2">{post.title}</h2>
-                  {post.excerpt && <p className="text-[9px] sm:text-[10px] text-white/65 line-clamp-1 mt-0.5">{post.excerpt}</p>}
+                  {post.excerpt && <p className="text-[9px] sm:text-[10px] text-white/65 line-clamp-2 mt-0.5">{post.excerpt}</p>}
                 </div>
                 <div className="flex items-center gap-1.5">
                   {post.authorAvatar ? (

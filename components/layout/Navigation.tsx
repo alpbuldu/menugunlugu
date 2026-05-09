@@ -437,6 +437,10 @@ export default function Navigation() {
       {/* ── Mobile ───────────────────────────────────────────── */}
       <div ref={wrapperRef} className="md:hidden">
         <div className="flex items-center gap-2 pr-1">
+          <Link href="/tarif-ekle"
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-brand-500 text-white text-xs font-semibold hover:bg-brand-600 transition-colors flex-shrink-0">
+            <span>✏️</span> Tarif Ekle
+          </Link>
           <button onClick={toggleSearch} aria-label={searchOpen ? "Aramayı kapat" : "Ara"}
             className={clsx("w-10 h-10 flex items-center justify-center rounded-xl transition-colors",
               searchOpen ? "bg-brand-100 text-brand-700" : "text-warm-600 hover:bg-warm-100")}>

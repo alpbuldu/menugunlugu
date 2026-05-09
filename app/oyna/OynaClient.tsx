@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { LeaderEntry } from "./page";
+import PageHeader from "@/components/ui/PageHeader";
 
 const GAMES = [
   {
@@ -132,12 +133,15 @@ export default function OynaClient({ leaderboard }: { leaderboard: LeaderEntry[]
     <div className="min-h-screen bg-gradient-to-b from-warm-100 to-warm-50">
       <div className="max-w-[780px] mx-auto px-4 sm:px-6 py-6 sm:py-10">
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-warm-900 leading-tight">Oyna 🎮</h1>
-            <p className="text-sm text-warm-500 mt-0.5">Oyna, puan kazan, liderlik tablosuna gir</p>
-          </div>
+        <PageHeader
+          title="Oyna"
+          description="Yemek dünyasına özel eğlenceli mini oyunlar, testler ve etkileşimli içeriklerle vakit geçir."
+          emoji="🎮"
+          className="bg-yellow-50 border-yellow-100"
+        />
+
+        {/* Points / login */}
+        <div className="flex items-center justify-end mb-6">
           {totalPoints !== null && (
             <div className="flex flex-col items-center bg-white border border-warm-200 rounded-2xl px-4 py-2.5 shadow-sm">
               <span className="text-2xl font-extrabold text-brand-600 leading-none">{totalPoints}</span>

@@ -168,8 +168,9 @@ export default async function BlogPage({ searchParams }: Props) {
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <PageHeader
         title="Blog"
-        description="Yemek kültürü, mutfak rehberleri ve tarifin arkasındaki hikayeler."
-        emoji="✍️"
+        description="Mutfak rehberleri, püf noktaları, sağlıklı beslenme ve gastronomi içeriklerini keşfet."
+        emoji="📝"
+        className="bg-stone-50 border-stone-100"
       />
       {/* Kategori filtreleri */}
       {categories.length > 0 && (
@@ -233,10 +234,7 @@ export default async function BlogPage({ searchParams }: Props) {
                     )}
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-black/50 rounded-b-2xl p-3 sm:p-4">
-                    <h3 className="text-sm sm:text-base font-bold text-white leading-snug mb-1 line-clamp-2">{post.title}</h3>
-                    {post.excerpt && (
-                      <p className="text-[10px] sm:text-[11px] text-white/65 line-clamp-2 mb-2">{post.excerpt}</p>
-                    )}
+                    <h3 className="text-sm sm:text-base font-bold text-white leading-snug mb-1.5 line-clamp-2">{post.title}</h3>
                     <div className="flex items-center gap-1.5">
                       {post.authorAvatar ? (
                         <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
@@ -300,10 +298,7 @@ export default async function BlogPage({ searchParams }: Props) {
                 </span>
               )}
               <div className="absolute bottom-0 left-0 right-0 bg-black/50 rounded-b-2xl p-3 sm:p-4">
-                <h2 className="text-sm sm:text-base font-bold text-white leading-snug mb-1 line-clamp-2">{post.title}</h2>
-                {post.excerpt && (
-                  <p className="text-[10px] sm:text-[11px] text-white/65 line-clamp-2 mb-2">{post.excerpt}</p>
-                )}
+                <h2 className="text-sm sm:text-base font-bold text-white leading-snug mb-1.5 line-clamp-2">{post.title}</h2>
                 <div className="flex items-center gap-1.5">
                   {post.authorAvatar ? (
                     <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />

@@ -67,9 +67,10 @@ export default async function MenuGunluguPage() {
     <SidebarLayout placement="sidebar_menu_olustur" adSenseSlot="menu_olustur_dikey">
       <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <PageHeader
-          title="Menü Günlüğü"
-          description="Editörün günlük menü önerileri ve topluluktan paylaşımlar."
-          emoji="📅"
+          title="Menü Önerileri"
+          description="Farklı sofralar için hazırlanan menü fikirlerini incele ve kendi menünü oluşturmaya başla."
+          emoji="🍽️"
+          className="bg-rose-50 border-rose-100"
         />
         <AdSlot placement="menu_olustur_banner_mobile" adSenseSlot="menu_olustur_yatay"
           imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="sm:hidden mb-4" />

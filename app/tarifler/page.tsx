@@ -90,8 +90,9 @@ export default async function RecipesPage({ searchParams }: Props) {
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <PageHeader
         title="Tarifler"
-        description="Çorba, ana yemek, yardımcı lezzet ve tatlı kategorilerinde yüzlerce tarif."
+        description="Binlerce tarif arasından dilediğini keşfet, kaydet ve kendi sofrana uygun içerikleri bul."
         emoji="📖"
+        className="bg-orange-50 border-orange-100"
       />
       {/* Category Filter */}
       <div className="mb-4 sm:mb-8">

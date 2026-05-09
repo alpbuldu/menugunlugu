@@ -153,7 +153,7 @@ function AdminMenuCard({ menu, adminProfile }: { menu: AdminMenu; adminProfile: 
       <div className="px-3 py-2.5 border-b border-warm-100 flex items-center gap-2">
         <Avatar url={adminProfile.avatar_url} name={adminProfile.username} size={26} />
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] text-warm-400 truncate leading-none mb-0.5">Admin · {adminProfile.username}</p>
+          <p className="text-[10px] text-warm-400 truncate leading-none mb-0.5">{adminProfile.username}</p>
           <p className="text-[10px] sm:text-[11px] font-semibold text-warm-600 truncate leading-tight">
             {catLabel}
           </p>

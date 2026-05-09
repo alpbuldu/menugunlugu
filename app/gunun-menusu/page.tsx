@@ -105,8 +105,9 @@ export default async function MenuPage() {
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
       <PageHeader
         title="Günün Menüsü"
-        description="Bugün ne pişirsem? Sorusuna her gün yeni ve özel bir cevap."
-        emoji="🍽️"
+        description="Her gün yayınlanan çorba, ana yemek, yardımcı lezzet ve tatlıdan oluşan günlük menü önerilerini keşfet."
+        emoji="🍲"
+        className="bg-amber-50 border-amber-100"
       />
       {/* Mobil başlık — tarih+başlık sola, kalori ortalı sağa */}
       <div className="flex items-center justify-between mb-4 sm:hidden">

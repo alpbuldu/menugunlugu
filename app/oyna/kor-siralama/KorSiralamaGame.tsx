@@ -238,7 +238,7 @@ export default function KorSiralamaGame() {
           <span className="text-xs font-semibold text-warm-500 bg-warm-100 px-3 py-1.5 rounded-full">{placed} / 10 yerleştirdin</span>
         </div>
 
-        <div className="relative rounded-2xl overflow-hidden mb-4 h-44">
+        <div className="relative rounded-2xl overflow-hidden mb-4 h-64">
           {current?.image_url
             ? <Image src={current.image_url} alt={current.title} fill className="object-cover" />
             : <div className="w-full h-full bg-warm-100 flex items-center justify-center text-5xl">🍽️</div>

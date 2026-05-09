@@ -131,7 +131,7 @@ export default function OynaClient({ leaderboard }: { leaderboard: LeaderEntry[]
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-[780px] mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
 
         <PageHeader
           title="Oyna"

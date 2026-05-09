@@ -257,7 +257,7 @@ export default function QuizGame() {
   const q = questions[qIdx];
   if (!q) return null;
 
-  const blurPx = Math.max(0, 2 + Math.floor(qIdx / 3) * 2);
+  const blurPx = Math.max(0, 8 - Math.floor(qIdx / 3) * 2);
 
   function answer(optionId: string) {
     if (answered !== "idle") return;
@@ -288,7 +288,7 @@ export default function QuizGame() {
           <span className="text-white/60 text-sm font-semibold">{qIdx + 1}/{questions.length}</span>
         </div>
 
-        <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-4 flex-shrink-0">
+        <div className="relative h-52 rounded-2xl overflow-hidden mb-4 flex-shrink-0">
           <img
             src={q.recipe.image_url}
             alt="?"

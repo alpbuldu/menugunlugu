@@ -102,11 +102,9 @@ function MenuGrid({ post }: {
             ) : (
               <div className="absolute inset-0 flex items-center justify-center text-3xl bg-warm-100">🍽️</div>
             )}
-            <div className="absolute top-2 left-2">
-              <span className="inline-block bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-md leading-none">
-                {cfg.label}
-              </span>
-            </div>
+            <span className="absolute top-1.5 left-1.5 inline-block bg-brand-500/90 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-md leading-none">
+              {cfg.label}
+            </span>
             {title && (
               <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent px-2 pb-2 pt-6">
                 <p className="text-white text-[11px] sm:text-xs font-semibold leading-snug line-clamp-2">{title}</p>

@@ -110,12 +110,13 @@ export default function QuizKaloriGame() {
   async function pickSubcat(catKey: string, subcat: string) {
     setPhase("loading");
     setSelLabel(subcat);
-    const { data } = await supabase.from("recipes").select("id, title, slug, image_url, kcal_per_person")
+    const { data } = await supabase.from("recipes").select("id, title, slug, image_url, kcal_per_person, subcategories")
       .eq("category", catKey).eq("approval_status", "approved")
-      .not("image_url", "is", null).not("kcal_per_person", "is", null).gt("kcal_per_person", 0)
-      .contains("subcategories", [subcat]);
+      .not("image_url", "is", null).not("kcal_per_person", "is", null).gt("kcal_per_person", 0);
     if (!data || data.length < MIN_RECIPES) { setPhase("category"); return; }
-    startGame(data as Food[]);
+    const subcatPool = (data as any[]).filter(r => (r.subcategories ?? []).includes(subcat));
+    if (subcatPool.length < MIN_RECIPES) { setPhase("category"); return; }
+    startGame(subcatPool as Food[]);
   }
 
   function startGame(pool: Food[]) {

@@ -93,12 +93,12 @@ export default function QuizGame() {
   async function pickSubcat(catKey: string, subcat: string) {
     setPhase("loading");
     setSelLabel(subcat);
-    const { data } = await supabase.from("recipes").select("id, title, slug, category, image_url")
+    const { data } = await supabase.from("recipes").select("id, title, slug, category, image_url, subcategories")
       .eq("category", catKey).eq("approval_status", "approved").not("image_url", "is", null);
     if (!data || data.length < MIN_RECIPES) { setPhase("category"); return; }
-    const subcatPool = (data as Food[]).filter((r: any) => (r.subcategories ?? []).includes(subcat));
+    const subcatPool = (data as any[]).filter(r => (r.subcategories ?? []).includes(subcat));
     if (subcatPool.length < MIN_RECIPES) { setPhase("category"); return; }
-    startGame(subcatPool, data as Food[]);
+    startGame(subcatPool as Food[], data as Food[]);
   }
 
   function startGame(pool: Food[], fullPool?: Food[]) {

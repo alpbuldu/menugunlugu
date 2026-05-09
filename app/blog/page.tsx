@@ -234,7 +234,7 @@ export default async function BlogPage({ searchParams }: Props) {
                   <div className="absolute bottom-0 left-0 right-0 bg-black/50 rounded-b-2xl p-3 sm:p-4">
                     <h3 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2">{post.title}</h3>
                     {post.excerpt && <p className="text-[9px] sm:text-[10px] text-white/65 line-clamp-1 mt-0.5 mb-1">{post.excerpt}</p>}
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 min-w-0">
                       {post.authorAvatar ? (
                         <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
                       ) : (
@@ -242,7 +242,7 @@ export default async function BlogPage({ searchParams }: Props) {
                           {post.authorName.charAt(0).toUpperCase()}
                         </span>
                       )}
-                      <span className="text-[11px] sm:text-xs text-white/80 truncate">{post.authorName}</span>
+                      <span className="text-[11px] sm:text-xs text-white/80 truncate min-w-0">{post.authorName}</span>
                     </div>
                   </div>
                 </Link>
@@ -296,12 +296,10 @@ export default async function BlogPage({ searchParams }: Props) {
                   {post.categoryName}
                 </span>
               )}
-              <div className="absolute bottom-0 left-0 right-0 bg-black/50 rounded-b-2xl p-3 sm:p-4 h-[88px] sm:h-[128px] flex flex-col justify-between overflow-hidden">
-                <div>
-                  <h2 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2">{post.title}</h2>
-                  {post.excerpt && <p className="text-[9px] sm:text-[10px] text-white/65 line-clamp-2 mt-0.5">{post.excerpt}</p>}
-                </div>
-                <div className="flex items-center gap-1.5 mt-2">
+              <div className="absolute bottom-0 left-0 right-0 bg-black/50 rounded-b-2xl p-3 sm:p-4 overflow-hidden">
+                <h2 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2 mb-1.5">{post.title}</h2>
+                {post.excerpt && <p className="text-[9px] sm:text-[10px] text-white/65 line-clamp-1 sm:line-clamp-2 mb-1.5">{post.excerpt}</p>}
+                <div className="flex items-center gap-1.5 min-w-0">
                   {post.authorAvatar ? (
                     <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
                   ) : (
@@ -309,7 +307,7 @@ export default async function BlogPage({ searchParams }: Props) {
                       {post.authorName.charAt(0).toUpperCase()}
                     </span>
                   )}
-                  <span className="text-[11px] sm:text-xs text-white/80 truncate">{post.authorName}</span>
+                  <span className="text-[11px] sm:text-xs text-white/80 truncate min-w-0">{post.authorName}</span>
                 </div>
               </div>
             </Link>

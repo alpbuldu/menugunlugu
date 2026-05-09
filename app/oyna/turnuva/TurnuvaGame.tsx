@@ -159,7 +159,7 @@ export default function TurnuvaGame() {
                 <span className="flex-1 text-left">Tüm {LABEL_PLURAL[expandedCat]} ile Oyna</span>
                 <span>→</span>
               </button>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap justify-center gap-2">
                 {(SUBCATEGORIES[expandedCat] ?? []).filter(sub => (subcatCounts[sub] ?? 0) >= MIN_RECIPES).map(sub => (
                   <button key={sub} onClick={() => pickSubcat(expandedCat, sub)}
                     className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-warm-200 text-warm-700 hover:bg-warm-50 transition-colors">

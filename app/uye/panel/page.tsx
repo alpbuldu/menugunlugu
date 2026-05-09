@@ -54,13 +54,14 @@ function paginate<T>(arr: T[], page: number, size: number) {
 }
 
 // searchParams:
-//   page  → tariflerim / tarif-defterim / yazılarım / takip-ettiklerim
-//   page2 → takipçilerim
-//   defter → tarif-defterim sub-filter: "tarifler" | "blog"
-interface Props { searchParams: Promise<{ tab?: string; page?: string; page2?: string; defter?: string; yeni?: string }> }
+//   page     → tariflerim / tarif-defterim / yazılarım / takip-ettiklerim
+//   page2    → takipçilerim
+//   defter   → tarif-defterim sub-filter: "tarifler" | "blog" | "menu"
+//   menuTab  → menülerim alt filtre: "paylas" | "kaydet"
+interface Props { searchParams: Promise<{ tab?: string; page?: string; page2?: string; defter?: string; menuTab?: string; yeni?: string }> }
 
 export default async function UyePanelPage({ searchParams }: Props) {
-  const { tab = "tariflerim", page = "1", page2 = "1", defter, yeni } = await searchParams;
+  const { tab = "tariflerim", page = "1", page2 = "1", defter, menuTab, yeni } = await searchParams;
   const pageNum  = Math.max(1, parseInt(page));
   const page2Num = Math.max(1, parseInt(page2));
 
@@ -290,7 +291,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
         {tabs.map((t) => (
           <Link key={t.key} href={`/uye/panel?tab=${t.key}`}
             className={[
-              "flex-1 min-w-[30%] sm:min-w-0 sm:flex-shrink-0 flex items-center justify-center gap-1 px-2 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all text-center",
+              "flex-1 min-w-[30%] sm:min-w-0 sm:flex-shrink-0 flex flex-col items-center justify-center gap-0.5 px-2 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all",
               tab === t.key
                 ? "bg-white text-warm-900 shadow-sm"
                 : "text-warm-500 hover:text-warm-700",
@@ -298,7 +299,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
             <span className="leading-tight text-center">{t.label}</span>
             {t.count !== null && (
               <span className={[
-                "text-xs px-1.5 py-0.5 rounded-full flex-shrink-0",
+                "text-[10px] px-1.5 py-0.5 rounded-full",
                 tab === t.key ? "bg-brand-100 text-brand-600" : "bg-warm-200 text-warm-500",
               ].join(" ")}>{t.count}</span>
             )}
@@ -480,14 +481,36 @@ export default async function UyePanelPage({ searchParams }: Props) {
           {/* ─ Menülerim filtresi ─ */}
           {defter === "menu" && (
             <>
+              {/* Sub-tabs */}
+              <div className="flex gap-2 mb-5 flex-wrap">
+                {[
+                  { key: undefined,   label: "Tümü",           count: (menuPosts?.length ?? 0) + savedMenus.length },
+                  { key: "paylas",    label: "Paylaştıklarım", count: menuPosts?.length ?? 0 },
+                  { key: "kaydet",    label: "Kaydettiklerim", count: savedMenus.length },
+                ].map((f) => (
+                  <Link
+                    key={f.key ?? "tumu"}
+                    href={`/uye/panel?tab=tarif-defterim&defter=menu${f.key ? `&menuTab=${f.key}` : ""}`}
+                    className={[
+                      "px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
+                      (menuTab ?? undefined) === f.key
+                        ? "bg-brand-600 border-brand-600 text-white"
+                        : "bg-white border-warm-200 text-warm-600 hover:border-brand-300",
+                    ].join(" ")}
+                  >
+                    {f.label} ({f.count})
+                  </Link>
+                ))}
+              </div>
+
               {(menuPosts?.length ?? 0) === 0 && savedMenus.length === 0 && (
                 <Empty icon="🗓️" text="Henüz paylaşılan veya kaydedilen menü yok." />
               )}
 
               {/* Paylaştıklarım */}
-              {(menuPosts?.length ?? 0) > 0 && (
-                <div className="mb-6">
-                  <p className="text-xs font-semibold text-warm-500 mb-3">Paylaştıklarım ({menuPosts!.length})</p>
+              {(!menuTab || menuTab === "paylas") && (menuPosts?.length ?? 0) > 0 && (
+                <div className={menuTab ? "" : "mb-6"}>
+                  {!menuTab && <p className="text-xs font-semibold text-warm-500 mb-3">Paylaştıklarım ({menuPosts!.length})</p>}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {(menuPosts as any[]).map((menu) => (
                       <MenuKarti key={menu.id} menu={menu} />
@@ -497,9 +520,9 @@ export default async function UyePanelPage({ searchParams }: Props) {
               )}
 
               {/* Kaydettiklerim */}
-              {savedMenus.length > 0 && (
+              {(!menuTab || menuTab === "kaydet") && savedMenus.length > 0 && (
                 <div>
-                  <p className="text-xs font-semibold text-warm-500 mb-3">Kaydettiklerim ({savedMenus.length})</p>
+                  {!menuTab && <p className="text-xs font-semibold text-warm-500 mb-3">Kaydettiklerim ({savedMenus.length})</p>}
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                     {savedMenus.map((menu: any) => (
                       <MenuKarti key={menu.id} menu={menu} />

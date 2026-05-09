@@ -511,7 +511,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
 
               {/* Tümü — birleşik grid */}
               {!menuTab && ((menuPosts?.length ?? 0) > 0 || savedMenus.length > 0) && (
-                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                   {(menuPosts as any[]).map((menu) => (
                     <div key={menu.id} className="relative">
                       <DeleteMenuPostButton postId={menu.id} />
@@ -529,7 +529,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
 
               {/* Paylaştıklarım */}
               {menuTab === "paylas" && (menuPosts?.length ?? 0) > 0 && (
-                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                   {(menuPosts as any[]).map((menu) => (
                     <div key={menu.id} className="relative">
                       <DeleteMenuPostButton postId={menu.id} />
@@ -541,7 +541,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
 
               {/* Kaydettiklerim */}
               {menuTab === "kaydet" && savedMenus.length > 0 && (
-                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                   {savedMenus.map((menu: any) => (
                     <div key={menu.id} className="relative">
                       {menu.feed_post_id && <RemoveSavedMenuButton feedPostId={menu.feed_post_id} />}

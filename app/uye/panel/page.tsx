@@ -509,33 +509,45 @@ export default async function UyePanelPage({ searchParams }: Props) {
                 <Empty icon="🗓️" text="Henüz paylaşılan veya kaydedilen menü yok." />
               )}
 
+              {/* Tümü — birleşik grid */}
+              {!menuTab && ((menuPosts?.length ?? 0) > 0 || savedMenus.length > 0) && (
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  {(menuPosts as any[]).map((menu) => (
+                    <div key={menu.id} className="relative">
+                      <DeleteMenuPostButton postId={menu.id} />
+                      <MenuKarti menu={menu} />
+                    </div>
+                  ))}
+                  {savedMenus.map((menu: any) => (
+                    <div key={menu.id} className="relative">
+                      {menu.feed_post_id && <RemoveSavedMenuButton feedPostId={menu.feed_post_id} />}
+                      <MenuKarti menu={menu} />
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* Paylaştıklarım */}
-              {(!menuTab || menuTab === "paylas") && (menuPosts?.length ?? 0) > 0 && (
-                <div className={menuTab ? "" : "mb-6"}>
-                  {!menuTab && <p className="text-xs font-semibold text-warm-500 mb-3">Paylaştıklarım ({menuPosts!.length})</p>}
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                    {(menuPosts as any[]).map((menu) => (
-                      <div key={menu.id} className="relative">
-                        <DeleteMenuPostButton postId={menu.id} />
-                        <MenuKarti menu={menu} />
-                      </div>
-                    ))}
-                  </div>
+              {menuTab === "paylas" && (menuPosts?.length ?? 0) > 0 && (
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  {(menuPosts as any[]).map((menu) => (
+                    <div key={menu.id} className="relative">
+                      <DeleteMenuPostButton postId={menu.id} />
+                      <MenuKarti menu={menu} />
+                    </div>
+                  ))}
                 </div>
               )}
 
               {/* Kaydettiklerim */}
-              {(!menuTab || menuTab === "kaydet") && savedMenus.length > 0 && (
-                <div>
-                  {!menuTab && <p className="text-xs font-semibold text-warm-500 mb-3">Kaydettiklerim ({savedMenus.length})</p>}
-                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                    {savedMenus.map((menu: any) => (
-                      <div key={menu.id} className="relative">
-                        {menu.feed_post_id && <RemoveSavedMenuButton feedPostId={menu.feed_post_id} />}
-                        <MenuKarti menu={menu} />
-                      </div>
-                    ))}
-                  </div>
+              {menuTab === "kaydet" && savedMenus.length > 0 && (
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  {savedMenus.map((menu: any) => (
+                    <div key={menu.id} className="relative">
+                      {menu.feed_post_id && <RemoveSavedMenuButton feedPostId={menu.feed_post_id} />}
+                      <MenuKarti menu={menu} />
+                    </div>
+                  ))}
                 </div>
               )}
             </>

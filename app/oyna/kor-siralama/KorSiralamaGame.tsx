@@ -229,13 +229,13 @@ export default function KorSiralamaGame() {
   const placed  = slots.filter(Boolean).length;
 
   return (
-    <div className="min-h-screen bg-[#FAF7F4] flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-[#4A2260] to-[#2A1040] flex flex-col">
       <div className="max-w-4xl mx-auto w-full px-4 py-4 flex flex-col flex-1">
         <div className="flex items-center justify-between mb-4">
-          <button onClick={restart} className="w-9 h-9 flex items-center justify-center rounded-full bg-warm-100 hover:bg-warm-200 transition-colors">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3D2B1F" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          <button onClick={restart} className="w-9 h-9 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           </button>
-          <span className="text-xs font-semibold text-warm-500 bg-warm-100 px-3 py-1.5 rounded-full">{placed} / 10 yerleştirdin</span>
+          <span className="text-xs font-semibold text-white/80 bg-white/15 px-3 py-1.5 rounded-full">{placed} / 10 yerleştirdin</span>
         </div>
 
         <div className="relative rounded-2xl overflow-hidden mb-4 h-64">
@@ -256,10 +256,10 @@ export default function KorSiralamaGame() {
             <button key={idx} onClick={() => placeAt(idx)} disabled={!!food}
               className={`rounded-2xl p-3 flex items-center gap-2.5 min-h-[60px] transition-all ${
                 food
-                  ? "bg-[rgba(224,122,47,0.1)] border border-[rgba(224,122,47,0.3)]"
-                  : "bg-[rgba(61,43,31,0.04)] border border-dashed border-[rgba(61,43,31,0.2)] hover:border-[rgba(61,43,31,0.4)]"
+                  ? "bg-white/15 border border-white/30"
+                  : "bg-white/5 border border-dashed border-white/20 hover:border-white/40"
               }`}>
-              <span className={`text-xl font-black w-7 text-center flex-shrink-0 ${food ? "text-[#E07A2F] text-base" : "text-[rgba(61,43,31,0.18)]"}`}>{idx + 1}</span>
+              <span className={`text-xl font-black w-7 text-center flex-shrink-0 ${food ? "text-[#E07A2F] text-base" : "text-white/20"}`}>{idx + 1}</span>
               {food ? (
                 <>
                   {food.image_url && (
@@ -267,10 +267,10 @@ export default function KorSiralamaGame() {
                       <Image src={food.image_url} alt={food.title} fill className="object-cover" />
                     </div>
                   )}
-                  <p className="text-xs font-bold text-warm-800 leading-tight line-clamp-2 flex-1 text-left">{food.title}</p>
+                  <p className="text-xs font-bold text-white leading-tight line-clamp-2 flex-1 text-left">{food.title}</p>
                 </>
               ) : (
-                <p className="text-xs text-warm-400">Seç</p>
+                <p className="text-xs text-white/35">Seç</p>
               )}
             </button>
           ))}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
 import MenuBuilder from "./MenuBuilder";
@@ -26,6 +27,7 @@ export interface MenuRecipe {
 }
 
 export default async function MenuOlusturPage() {
+  redirect("/");
   const supabase = createAdminClient();
 
   const [recipesResult, memberProfilesResult, apResult] = await Promise.all([

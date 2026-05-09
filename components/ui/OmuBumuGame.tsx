@@ -261,11 +261,8 @@ export default function OmuBumuGame() {
           <button onClick={restart} className="w-9 h-9 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 transition-colors">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
           </button>
-          <div className="text-center">
-            <p className="text-white font-extrabold text-base">Tarafını seç!</p>
-            <p className="text-white/55 text-xs">Tur {round} / {total}</p>
-          </div>
-          <div className="w-9" />
+          <p className="text-white font-extrabold text-base">Tarafını seç!</p>
+          <span className="text-white/70 text-xs font-semibold">Tur {round}/{total}</span>
         </div>
 
         {/* Progress dots */}

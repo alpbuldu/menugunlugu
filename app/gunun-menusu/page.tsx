@@ -110,9 +110,9 @@ export default async function MenuPage() {
       />
       {/* Mobil başlık — tarih sola, kalori sağa */}
       <div className="flex items-center justify-between mb-4 sm:hidden">
-        <p className="text-base text-warm-700 font-bold capitalize">{today}</p>
+        <p className="text-sm text-warm-700 font-bold capitalize whitespace-nowrap">{today}</p>
         {totalKcal > 0 && (
-          <p className="text-base text-warm-700 font-bold shrink-0">Toplam Kalori: {totalKcal} kcal</p>
+          <p className="text-sm text-warm-700 font-bold shrink-0 whitespace-nowrap">Toplam Kalori: {totalKcal} kcal</p>
         )}
       </div>
       {/* Masaüstü başlık — tek satır, sağda kalori */}

@@ -65,7 +65,7 @@ export default async function MenuGunluguPage() {
 
   return (
     <SidebarLayout placement="sidebar_menu_gunlugu" adSenseSlot="menu_gunlugu_dikey">
-      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
         <PageHeader
           title="Menü Önerileri"
           description="Farklı sofralar için hazırlanan menü fikirlerini incele ve kendi menünü oluşturmaya başla."

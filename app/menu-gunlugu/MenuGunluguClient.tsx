@@ -271,7 +271,7 @@ export default function MenuGunluguClient({
           <div className="flex items-center gap-2 mb-4">
             <div className="flex items-baseline gap-2 flex-wrap">
               <h2 className="text-base font-extrabold text-warm-900">Editörün Menü Önerileri</h2>
-              <span className="text-xs text-warm-400 font-normal">— Her gün yeni menü fikirleri</span>
+              <span className="text-xs text-warm-400 font-normal">— Editörler tarafından hazırlanan menü önerileri için kaydırın.</span>
             </div>
             <div className="flex-1 h-px bg-warm-100" />
           </div>
@@ -325,7 +325,7 @@ export default function MenuGunluguClient({
         <div className="flex items-center gap-2 mb-4">
           <div className="flex items-baseline gap-2 flex-wrap">
             <h2 className="text-base font-extrabold text-warm-900">Menü Günlüğü Akışı</h2>
-            <span className="text-xs text-warm-400 font-normal">— Topluluktan paylaşımlar</span>
+            <span className="text-xs text-warm-400 font-normal">— Kullanıcılar tarafından paylaşılan menü önerilerini görmek için aşağı kaydırın.</span>
           </div>
           <div className="flex-1 h-px bg-warm-100" />
         </div>

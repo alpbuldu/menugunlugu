@@ -5,278 +5,333 @@ import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-const CATEGORIES = [
-  { key: "soup",    label: "Çorba",      emoji: "🥣", bg: "from-amber-50 to-orange-50",   border: "border-orange-200",  text: "text-orange-700" },
-  { key: "main",    label: "Ana Yemek",  emoji: "🍽️", bg: "from-red-50 to-rose-50",       border: "border-rose-200",    text: "text-rose-700"   },
-  { key: "side",    label: "Yardımcı",   emoji: "🥗", bg: "from-green-50 to-emerald-50",  border: "border-green-200",   text: "text-green-700"  },
-  { key: "dessert", label: "Tatlı",      emoji: "🍮", bg: "from-purple-50 to-pink-50",    border: "border-pink-200",    text: "text-pink-700"   },
-];
-
-interface Recipe {
-  id: string;
-  title: string;
-  slug: string;
-  image_url: string | null;
-}
-
+interface Recipe { id: string; title: string; slug: string; image_url: string | null }
 type Phase = "category" | "loading" | "game" | "result";
 type PickSide = "left" | "right";
 
-function shuffle<T>(arr: T[]): T[] {
-  return [...arr].sort(() => Math.random() - 0.5);
+function shuffle<T>(a: T[]): T[] { return [...a].sort(() => Math.random() - 0.5); }
+function seededPercent(a: string, b: string) {
+  const seed = [...(a + b)].reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return 40 + (seed % 35);
 }
+
+const CATS = [
+  { key: "soup",    label: "Çorba",          emoji: "🥣", bg: "from-[#C4872A] to-[#8B5A18]" },
+  { key: "main",    label: "Ana Yemek",       emoji: "🍖", bg: "from-[#B05A38] to-[#7A3A20]" },
+  { key: "side",    label: "Yardımcı Lezzet", emoji: "🥗", bg: "from-[#7A9A4A] to-[#4A6A20]" },
+  { key: "dessert", label: "Tatlı",           emoji: "🍰", bg: "from-[#9A6A7A] to-[#6A3A4A]" },
+];
+
+const SUBCATEGORIES: Record<string, string[]> = {
+  soup:    ["Kremalı Çorbalar","Sebze Çorbaları","Et / Tavuk Sulu Çorbalar","Bakliyat Çorbaları","Yoğurtlu Çorbalar","Soğuk Çorbalar","Yöresel Çorbalar","Şehriyeli / Tahıllı Çorbalar"],
+  main:    ["Et Yemekleri","Tavuk Yemekleri","Balık / Deniz Ürünleri","Sebze Yemekleri","Bakliyat Yemekleri","Makarna / Noodle","Pilav / Tahıl Yemekleri","Fırın Yemekleri","Tencere Yemekleri","Izgara / Mangal","Sulu Yemekler","Fast Food / Street Food","Dünya Mutfağı Yemekleri"],
+  side:    ["Salatalar","Mezeler","Zeytinyağlılar","Garnitürler","Soslar","Turşular","Ekmekler / Hamur İşleri","Kahvaltılık Yan Lezzetler"],
+  dessert: ["Şerbetli Tatlılar","Sütlü Tatlılar","Çikolatalı Tatlılar","Fırın Tatlıları","Soğuk Tatlılar","Meyveli Tatlılar","Hamur Tatlıları","Pratik Tatlılar","Dünya Tatlıları"],
+};
+const LABEL_PLURAL: Record<string, string> = {
+  soup: "Çorbalar", main: "Ana Yemekler", side: "Yardımcı Lezzetler", dessert: "Tatlılar",
+};
+const MIN_RECIPES = 10;
 
 export default function OmuBumuGame() {
   const [phase, setPhase]           = useState<Phase>("category");
-  const [catLabel, setCatLabel]     = useState("");
+  const [expandedCat, setExpandedCat] = useState<string | null>(null);
+  const [subcatCounts, setSubcatCounts] = useState<Record<string, number>>({});
+  const [selLabel, setSelLabel]     = useState("");
   const [foods, setFoods]           = useState<Recipe[]>([]);
   const [left, setLeft]             = useState<Recipe | null>(null);
   const [right, setRight]           = useState<Recipe | null>(null);
   const [nextIdx, setNextIdx]       = useState(2);
   const [round, setRound]           = useState(1);
-  const [totalRounds, setTotalRounds] = useState(9);
+  const [total, setTotal]           = useState(9);
   const [winner, setWinner]         = useState<Recipe | null>(null);
-  const [picked, setPicked]         = useState<PickSide | null>(null); // animasyon için
-
-  // Swipe desteği
+  const [picked, setPicked]         = useState<PickSide | null>(null);
+  const [lastPercent, setLastPercent] = useState<number | null>(null);
+  const [pointsMsg, setPointsMsg]   = useState<string | null>(null);
   const swipeStart = useRef<number | null>(null);
 
-  async function pickCategory(catKey: string, label: string) {
-    setCatLabel(label);
+  const supabase = createClient();
+
+  async function loadSubcatCounts(catKey: string) {
+    const { data } = await supabase.from("recipes").select("subcategories")
+      .eq("category", catKey).eq("approval_status", "approved").not("image_url", "is", null);
+    const counts: Record<string, number> = {};
+    (data ?? []).forEach((r: any) => { (r.subcategories ?? []).forEach((sub: string) => { counts[sub] = (counts[sub] ?? 0) + 1; }); });
+    setSubcatCounts(counts);
+  }
+
+  function toggleCat(key: string) {
+    if (expandedCat !== key) loadSubcatCounts(key);
+    setExpandedCat(prev => prev === key ? null : key);
+  }
+
+  async function loadGame(catKey: string, label: string, subcat?: string) {
     setPhase("loading");
-
-    const supabase = createClient();
-    const { data } = await supabase
-      .from("recipes")
-      .select("id, title, slug, image_url")
-      .eq("category", catKey)
-      .eq("approval_status", "approved");
-
-    if (!data || data.length < 2) {
-      setPhase("category");
-      return;
-    }
-
-    const game = shuffle(data).slice(0, 10);
+    let q = supabase.from("recipes").select("id, title, slug, image_url")
+      .eq("category", catKey).eq("approval_status", "approved").not("image_url", "is", null);
+    if (subcat) q = q.contains("subcategories", [subcat]);
+    const { data } = await q;
+    if (!data || data.length < 2) { setPhase("category"); return; }
+    const game = shuffle(data as Recipe[]).slice(0, 10);
+    setSelLabel(label);
     setFoods(game);
-    setLeft(game[0]);
-    setRight(game[1]);
-    setNextIdx(2);
-    setRound(1);
-    setTotalRounds(game.length - 1);
+    setLeft(game[0]); setRight(game[1]);
+    setNextIdx(2); setRound(1); setTotal(game.length - 1);
+    setLastPercent(null); setPointsMsg(null);
     setPhase("game");
   }
 
-  function choose(side: PickSide) {
+  function choose(side: PickSide, l: Recipe, r: Recipe) {
     if (picked) return;
     setPicked(side);
+    const champ = side === "left" ? l : r;
+    const loser = side === "left" ? r : l;
+    const pct = seededPercent(champ.id, loser.id);
 
     setTimeout(() => {
-      const champ = side === "left" ? left! : right!;
       setPicked(null);
-
+      setLastPercent(pct);
       if (nextIdx >= foods.length) {
         setWinner(champ);
-        setPhase("result");
-        // +1 puan
         fetch("/api/oyun/puan", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ points: 1 }),
-        }).catch(() => {});
+        }).then(() => setPointsMsg("+1 puan kazandın! 🎉")).catch(() => setPointsMsg("+1 puan kazandın! 🎉"));
+        setPhase("result");
         return;
       }
-
-      setLeft(champ);
-      setRight(foods[nextIdx]);
-      setNextIdx((i) => i + 1);
-      setRound((r) => r + 1);
-    }, 380);
+      setLeft(champ); setRight(foods[nextIdx]);
+      setNextIdx(i => i + 1); setRound(r => r + 1);
+    }, 360);
   }
 
   function restart() {
-    setPhase("category");
-    setWinner(null);
-    setFoods([]);
-    setPicked(null);
+    setPhase("category"); setWinner(null); setFoods([]);
+    setPicked(null); setLastPercent(null); setPointsMsg(null); setExpandedCat(null);
   }
 
-  /* ── Swipe handlers ────────────────────────── */
-  function onTouchStart(e: React.TouchEvent) {
-    swipeStart.current = e.touches[0].clientX;
+  function handleShare() {
+    if (!winner) return;
+    const text = `O mu Bu mu? oynadım 🤔\n${selLabel ? `${selLabel} arasından ` : ""}"${winner.title}" kazandı!\nmenugunlugu.com/omubumu`;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator.share({ text }).catch(() => {});
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    }
   }
+
+  function onTouchStart(e: React.TouchEvent) { swipeStart.current = e.touches[0].clientX; }
   function onTouchEnd(e: React.TouchEvent) {
-    if (swipeStart.current === null) return;
+    if (swipeStart.current === null || !left || !right) return;
     const dx = e.changedTouches[0].clientX - swipeStart.current;
     swipeStart.current = null;
     if (Math.abs(dx) < 60) return;
-    choose(dx > 0 ? "left" : "right");
+    choose(dx > 0 ? "left" : "right", left, right);
   }
 
-  /* ── Render ─────────────────────────────────── */
-
+  /* ── KATEGORİ ── */
   if (phase === "category") {
+    const expandedObj = CATS.find(c => c.key === expandedCat);
     return (
-      <div className="text-center">
-        <p className="text-sm text-warm-500 mb-5">Bir kategori seç, en sevdiğini bul! 🏆</p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {CATEGORIES.map((c) => (
-            <button
-              key={c.key}
-              onClick={() => pickCategory(c.key, c.label)}
-              className={`bg-gradient-to-br ${c.bg} border ${c.border} rounded-2xl p-4 sm:p-5 flex flex-col items-center gap-2 hover:shadow-md transition-all hover:-translate-y-0.5 active:scale-95`}
-            >
-              <span className="text-3xl sm:text-4xl">{c.emoji}</span>
-              <span className={`text-sm font-700 font-bold ${c.text}`}>{c.label}</span>
-            </button>
-          ))}
+      <div className="min-h-screen bg-[#FAF7F4] flex flex-col">
+        <div className="max-w-lg mx-auto w-full px-4 py-6">
+          <div className="flex items-center justify-between mb-6">
+            <Link href="/oyna" className="w-9 h-9 flex items-center justify-center rounded-full bg-warm-100 hover:bg-warm-200 transition-colors">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3D2B1F" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </Link>
+            <div className="text-center flex-1 mx-4">
+              <p className="font-bold text-warm-900">O mu Bu mu? 🤔</p>
+              <p className="text-xs text-warm-400">Kategori seç ve oynamaya başla!</p>
+            </div>
+            <div className="w-9" />
+          </div>
+
+          <div className="text-xs font-semibold text-warm-400 text-center tracking-wider uppercase mb-3">Ana Kategoriler</div>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            {CATS.map(c => (
+              <button key={c.key} onClick={() => toggleCat(c.key)}
+                className={`relative rounded-2xl overflow-hidden h-20 text-left ${expandedCat === c.key ? "ring-2 ring-offset-1 ring-[#E07A2F]" : ""}`}>
+                <div className={`absolute inset-0 bg-gradient-to-br ${c.bg}`} />
+                <span className="absolute right-1 bottom-[-6px] text-6xl opacity-25">{c.emoji}</span>
+                <div className="relative p-3 flex flex-col h-full justify-between">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2.5"
+                    className={`ml-auto transition-transform ${expandedCat === c.key ? "rotate-180" : ""}`}><path d="M6 9l6 6 6-6"/></svg>
+                  <p className="font-extrabold text-white text-sm">{c.label}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {expandedCat && expandedObj && (
+            <div className="mb-4">
+              <div className="text-xs font-semibold text-warm-400 text-center tracking-wider uppercase mb-3">Alt Kategoriler</div>
+              <button onClick={() => loadGame(expandedCat, CATS.find(c => c.key === expandedCat)?.label ?? "")}
+                className={`w-full flex items-center gap-2 rounded-xl px-4 py-3 mb-3 text-white font-bold text-sm bg-gradient-to-r ${expandedObj.bg}`}>
+                <span>{expandedObj.emoji}</span>
+                <span className="flex-1 text-left">Tüm {LABEL_PLURAL[expandedCat]} ile Oyna</span>
+                <span>→</span>
+              </button>
+              <div className="flex flex-wrap justify-center gap-2">
+                {(SUBCATEGORIES[expandedCat] ?? []).filter(sub => (subcatCounts[sub] ?? 0) >= MIN_RECIPES).map(sub => (
+                  <button key={sub} onClick={() => loadGame(expandedCat, sub, sub)}
+                    className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-warm-200 text-warm-700 hover:bg-warm-50 transition-colors">
+                    {sub}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
   }
 
-  if (phase === "loading") {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 gap-3">
-        <div className="w-8 h-8 border-4 border-brand-200 border-t-brand-600 rounded-full animate-spin" />
-        <p className="text-warm-500 text-sm">{catLabel} tarifleri yükleniyor…</p>
-      </div>
-    );
-  }
+  if (phase === "loading") return (
+    <div className="min-h-screen bg-[#FAF7F4] flex items-center justify-center flex-col gap-3">
+      <div className="w-8 h-8 border-4 border-warm-200 border-t-[#E07A2F] rounded-full animate-spin" />
+      <p className="text-warm-500 text-sm">Tarifler yükleniyor…</p>
+    </div>
+  );
 
+  /* ── SONUÇ ── */
   if (phase === "result" && winner) {
     return (
-      <div className="flex flex-col items-center gap-5 py-4">
-        <div className="text-center">
-          <p className="text-3xl mb-1">🏆</p>
-          <p className="text-lg font-bold text-warm-900">Kazanan!</p>
-          <p className="text-sm text-warm-500">En çok {winner.title} istiyorsun</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-b from-[#B05018] to-[#4A2000] flex flex-col">
+        <div className="max-w-lg mx-auto w-full px-4 py-8 flex flex-col items-center">
+          <div className="text-center mb-5">
+            <span className="text-5xl block mb-3">🤔</span>
+            <h1 className="text-2xl font-extrabold text-white mb-1">Kazanan!</h1>
+            <p className="text-white/65 text-sm leading-snug">
+              <span className="text-white font-semibold">{winner.title}</span> en sevdiğin yemek!
+            </p>
+          </div>
 
-        <div className="w-full max-w-xs">
-          <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg ring-4 ring-brand-400">
-            {winner.image_url ? (
-              <Image src={winner.image_url} alt={winner.title} fill className="object-cover" />
-            ) : (
-              <div className="w-full h-full bg-warm-100 flex items-center justify-center text-5xl">🍽️</div>
-            )}
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-              <p className="text-white font-bold text-base leading-snug">{winner.title}</p>
+          <div className="w-full max-w-xs mb-4">
+            <div className="aspect-[4/3] rounded-3xl overflow-hidden border-4 border-[#E07A2F]/60 shadow-2xl relative">
+              {winner.image_url
+                ? <Image src={winner.image_url} alt={winner.title} fill className="object-cover" />
+                : <div className="w-full h-full bg-white/10 flex items-center justify-center text-6xl">🍽️</div>}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-3 text-center">
+                <p className="text-white font-extrabold text-sm leading-tight mb-2">{winner.title}</p>
+                <Link href={`/tarifler/${winner.slug}`}
+                  className="inline-block text-[11px] text-white font-semibold border border-[#E07A2F] rounded-full px-3 py-1 hover:bg-[#E07A2F] transition-colors">
+                  Tarife git
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex gap-3">
-          <Link
-            href={`/tarifler/${winner.slug}`}
-            className="px-5 py-2.5 bg-brand-600 text-white rounded-xl font-semibold text-sm hover:bg-brand-700 transition-colors"
-          >
-            Tarife Git →
-          </Link>
-          <button
-            onClick={restart}
-            className="px-5 py-2.5 bg-warm-100 text-warm-700 rounded-xl font-semibold text-sm hover:bg-warm-200 transition-colors"
-          >
-            Tekrar Oyna
-          </button>
+          {pointsMsg && (
+            <div className="w-full max-w-xs mb-4 flex items-center gap-2">
+              <div className="flex-1 bg-white/15 rounded-xl px-4 py-2.5 text-white font-bold text-sm text-center">{pointsMsg}</div>
+              <button onClick={handleShare}
+                className="flex-shrink-0 bg-[#E07A2F] hover:bg-[#B85E1A] rounded-xl px-4 py-2.5 text-white font-bold text-sm transition-colors">
+                Paylaş
+              </button>
+            </div>
+          )}
+
+          <div className="w-full max-w-xs flex gap-3">
+            <button onClick={restart}
+              className="flex-1 py-3.5 bg-white/20 hover:bg-white/30 border border-white/25 rounded-2xl text-white font-bold transition-colors text-sm">
+              Tekrar Oyna
+            </button>
+            <Link href="/oyna"
+              className="flex-1 py-3.5 bg-transparent hover:bg-white/10 border border-white/25 rounded-2xl text-white/80 font-bold transition-colors text-sm text-center flex items-center justify-center">
+              Oyun Sayfasına Dön
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
-  /* ── Game phase ─────────────────────────────── */
-  const progress = ((round - 1) / totalRounds) * 100;
+  /* ── OYUN ── */
+  if (!left || !right) return null;
+  const motivation = "Tarafını seç, en sevdiğini bul!";
 
   return (
-    <div
-      className="select-none"
-      onTouchStart={onTouchStart}
-      onTouchEnd={onTouchEnd}
-    >
-      {/* Üst bilgi */}
-      <div className="flex items-center justify-between mb-3">
-        <button
-          onClick={restart}
-          className="text-xs text-warm-400 hover:text-warm-600 transition-colors flex items-center gap-1"
-        >
-          ← Kategori değiştir
-        </button>
-        <span className="text-xs font-semibold text-warm-500 bg-warm-100 px-3 py-1 rounded-full">
-          Tur {round} / {totalRounds}
-        </span>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-[#E07A2F] to-[#7A3000] flex flex-col"
+      onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <div className="max-w-lg mx-auto w-full px-4 py-5 flex flex-col min-h-screen">
 
-      {/* Progress bar */}
-      <div className="w-full h-1.5 bg-warm-100 rounded-full mb-4 overflow-hidden">
-        <div
-          className="h-full bg-brand-500 rounded-full transition-all duration-500"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={restart} className="w-9 h-9 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
+          <div className="text-center">
+            <p className="text-white font-extrabold text-base">Tarafını seç!</p>
+            <p className="text-white/55 text-xs">Tur {round} / {total}</p>
+          </div>
+          <div className="w-9" />
+        </div>
 
-      {/* Kartlar */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        {([["left", left], ["right", right]] as [PickSide, Recipe | null][]).map(([side, food]) => {
-          if (!food) return null;
-          const isWinner = picked === side;
-          const isLoser  = picked !== null && picked !== side;
+        {/* Progress dots */}
+        <div className="flex gap-1.5 mb-5">
+          {Array.from({ length: total }).map((_, i) => (
+            <div key={i} className={`flex-1 h-1.5 rounded-full transition-colors ${
+              i < round - 1 ? "bg-white" : i === round - 1 ? "bg-white/50" : "bg-white/15"
+            }`} />
+          ))}
+        </div>
 
-          return (
-            <button
-              key={side + food.id}
-              onClick={() => choose(side)}
-              disabled={!!picked}
-              className="relative group rounded-2xl overflow-hidden shadow-sm border border-warm-100 transition-all duration-300 focus:outline-none"
-              style={{
-                transform: isWinner ? "scale(1.03)" : isLoser ? "scale(0.95)" : "scale(1)",
-                opacity: isLoser ? 0.45 : 1,
-              }}
-            >
-              {/* Görsel */}
-              <div className="relative aspect-square sm:aspect-[4/3]">
-                {food.image_url ? (
-                  <Image src={food.image_url} alt={food.title} fill className="object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-warm-100 flex items-center justify-center text-4xl">🍽️</div>
-                )}
-
-                {/* Hover/seçim overlay */}
-                <div
-                  className="absolute inset-0 transition-opacity duration-300"
-                  style={{
-                    background: isWinner
-                      ? "rgba(224,122,47,0.25)"
-                      : "rgba(0,0,0,0)",
-                    opacity: isWinner ? 1 : 0,
-                  }}
-                />
-
-                {/* Kazanan tik */}
-                {isWinner && (
-                  <div className="absolute top-2 right-2 w-7 h-7 bg-brand-500 rounded-full flex items-center justify-center shadow">
-                    <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
+        {/* Cards */}
+        <div className="grid grid-cols-2 gap-3 mb-3 select-none">
+          {([["left", left], ["right", right]] as [PickSide, Recipe][]).map(([side, food]) => {
+            const isWinner = picked === side;
+            const isLoser  = picked !== null && picked !== side;
+            return (
+              <div key={side + food.id}
+                onClick={() => choose(side, left, right)}
+                className={`relative rounded-2xl overflow-hidden border-2 cursor-pointer transition-all ${
+                  isWinner ? "scale-[1.03] border-white opacity-100" :
+                  isLoser  ? "scale-95 border-white/20 opacity-50" :
+                  "border-white/20 hover:border-white/70 hover:scale-[1.02] active:scale-95"
+                }`}>
+                <div className="relative aspect-[3/4]">
+                  {food.image_url
+                    ? <Image src={food.image_url} alt={food.title} fill className="object-cover" />
+                    : <div className="absolute inset-0 bg-white/10 flex items-center justify-center text-4xl">🍴</div>}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                  {isWinner && (
+                    <div className="absolute top-2 right-2 w-7 h-7 bg-[#E07A2F] rounded-full flex items-center justify-center shadow-lg">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                  )}
+                  <div className="absolute bottom-0 left-0 right-0 p-2.5 text-center">
+                    <p className="text-white font-bold text-xs leading-snug mb-1.5 line-clamp-2">{food.title}</p>
+                    <Link href={`/tarifler/${food.slug}`}
+                      onClick={e => e.stopPropagation()}
+                      className="inline-block text-[10px] text-white font-semibold border border-[#E07A2F] rounded-full px-2.5 py-0.5 hover:bg-[#E07A2F] transition-colors">
+                      Tarife git
+                    </Link>
                   </div>
-                )}
+                </div>
               </div>
+            );
+          })}
+        </div>
 
-              {/* İsim */}
-              <div className="bg-white px-3 py-2.5">
-                <p className="text-xs sm:text-sm font-semibold text-warm-800 leading-snug line-clamp-2 text-left">
-                  {food.title}
-                </p>
-              </div>
+        {/* VS badge */}
+        <div className="relative -mt-[calc(50%_+_1.5rem)] mb-3 flex justify-center pointer-events-none" style={{ marginTop: 0 }}>
+        </div>
 
-              {/* Hover efekti (desktop) */}
-              <div className="absolute inset-0 ring-2 ring-brand-400 ring-opacity-0 group-hover:ring-opacity-60 rounded-2xl transition-all pointer-events-none" />
-            </button>
-          );
-        })}
+        {/* Info box */}
+        <div className="bg-white/10 rounded-2xl px-4 py-3 text-center">
+          {lastPercent !== null ? (
+            <>
+              <p className="text-white/85 text-xs font-semibold">
+                Kullanıcıların <span className="text-white font-extrabold">%{lastPercent}</span>&apos;i seninle aynı seçimi yaptı
+              </p>
+              <p className="text-white/45 text-[10px] mt-0.5">{motivation}</p>
+            </>
+          ) : (
+            <p className="text-white/60 text-xs">{motivation}</p>
+          )}
+        </div>
       </div>
-
-      <p className="text-center text-xs text-warm-400 mt-3">
-        Sevdiğini seç • Sola/sağa kaydır veya üstüne tıkla
-      </p>
     </div>
   );
 }

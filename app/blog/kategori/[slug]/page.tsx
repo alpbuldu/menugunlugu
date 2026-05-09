@@ -193,7 +193,7 @@ export default async function BlogKategoriPage({ params, searchParams }: Props) 
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {posts.map((post, index) => (
             <Link
               key={post.id}
@@ -210,7 +210,7 @@ export default async function BlogKategoriPage({ params, searchParams }: Props) 
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
               {post.categoryName && (
-                <div className="absolute top-2.5 left-2.5">
+                <div className="absolute top-2.5 left-2.5 hidden sm:block">
                   <span className="inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold bg-brand-500 text-white">
                     {post.categoryName}
                   </span>

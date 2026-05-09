@@ -140,7 +140,7 @@ export default async function RecipesPage({ searchParams }: Props) {
                   <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-4xl text-warm-300">🍳</div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                <div className="absolute top-2.5 left-2.5">
+                <div className="absolute top-2.5 left-2.5 hidden sm:block">
                   <Badge category={recipe.category as Category} compact className="text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
                 </div>
                 <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">

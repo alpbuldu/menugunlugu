@@ -210,7 +210,7 @@ export default async function BlogPage({ searchParams }: Props) {
             <h2 className="text-lg sm:text-xl font-bold text-brand-600 mb-4 flex items-center gap-2">
               <span className="text-brand-400">⭐</span> Seçtiklerimiz
             </h2>
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {featured.map((post) => (
                 <Link key={`f-${post.id}`} href={post.href}
                   className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 group hover:shadow-lg transition-all">
@@ -227,7 +227,7 @@ export default async function BlogPage({ searchParams }: Props) {
                       ⭐ Seçtiklerimiz
                     </span>
                     {post.categoryName && (
-                      <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-500 text-white">
+                      <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-500 text-white">
                         {post.categoryName}
                       </span>
                     )}
@@ -274,7 +274,7 @@ export default async function BlogPage({ searchParams }: Props) {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           {posts.map((post, index) => (
             <Link
               key={post.id}
@@ -295,7 +295,7 @@ export default async function BlogPage({ searchParams }: Props) {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
               {post.categoryName && (
-                <span className="absolute top-2.5 left-2.5 inline-block px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold bg-brand-500 text-white">
+                <span className="absolute top-2.5 left-2.5 hidden sm:inline-block px-2 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold bg-brand-500 text-white">
                   {post.categoryName}
                 </span>
               )}

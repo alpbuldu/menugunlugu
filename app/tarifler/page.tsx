@@ -92,17 +92,17 @@ export default async function RecipesPage({ searchParams }: Props) {
         description="Binlerce tarif arasından dilediğini keşfet, kaydet ve kendi sofrana uygun içerikleri bul."
         emoji="📖"
       />
-      {/* Category Filter */}
-      <div className="mb-4 sm:mb-8">
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
-          <span className="text-sm font-bold text-warm-800 flex-shrink-0 hidden sm:block">Kategoriler:</span>
+      {/* Category Filter — sadece masaüstü */}
+      <div className="mb-4 sm:mb-8 hidden sm:block">
+        <div className="flex items-center gap-3 flex-nowrap">
+          <span className="text-sm font-bold text-warm-800 flex-shrink-0">Kategoriler:</span>
           {categories.map((cat) => {
             const isActive = cat.key === "all" ? !activeCategory : cat.key === activeCategory;
             return (
               <Link
                 key={cat.key}
                 href={cat.key === "all" ? "/tarifler" : `/tarifler/kategori/${cat.slug}`}
-                className={`flex-1 sm:flex-none flex items-center justify-center min-h-[34px] py-1 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
+                className={`flex-none flex items-center justify-center py-2 px-4 rounded-full text-sm font-medium border leading-tight transition-colors text-center ${
                   isActive
                     ? "bg-brand-600 border-brand-600 text-white"
                     : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"

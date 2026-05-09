@@ -7,6 +7,8 @@ import { createAdminClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import AdBanner from "@/components/ui/AdBanner";
+import PageHeader from "@/components/ui/PageHeader";
+import PagePopup from "@/components/ui/PagePopup";
 
 export const dynamic = "force-dynamic";
 
@@ -143,22 +145,18 @@ export default async function BlogKategoriPage({ params, searchParams }: Props) 
   return (
     <SidebarLayout placement="sidebar_blog">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
-      <Link href="/blog" className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-4">
-        ← Blog
-      </Link>
+      <PageHeader
+        title="Blog"
+        description="Mutfak rehberleri, püf noktaları, sağlıklı beslenme ve gastronomi içeriklerini keşfet."
+      />
 
-      <h1 className="text-3xl font-bold text-warm-900 mb-1">{activeCategory.name}</h1>
-      <p className="text-sm sm:text-base text-warm-500 mb-4">
-        {activeCategory.name} kategorisindeki yazılar
-      </p>
-
-      {/* Kategori filtreleri */}
-      <div className="mb-4 sm:mb-8">
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
-          <span className="text-sm font-bold text-warm-800 flex-shrink-0 hidden sm:block">Kategoriler:</span>
+      {/* Kategori filtreleri — sadece masaüstü */}
+      <div className="mb-4 sm:mb-8 hidden sm:block">
+        <div className="flex items-center gap-3 flex-nowrap">
+          <span className="text-sm font-bold text-warm-800 flex-shrink-0">Kategoriler:</span>
           <Link
             href="/blog"
-            className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+            className="flex-none flex items-center justify-center py-2 px-4 rounded-full text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
           >
             Tümü
           </Link>
@@ -166,7 +164,7 @@ export default async function BlogKategoriPage({ params, searchParams }: Props) 
             <Link
               key={cat.id}
               href={`/blog/kategori/${cat.slug}`}
-              className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
+              className={`flex-none flex items-center justify-center py-2 px-4 rounded-full text-sm font-medium border leading-tight transition-colors text-center ${
                 cat.slug === slug
                   ? "bg-brand-600 border-brand-600 text-white"
                   : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
@@ -201,31 +199,30 @@ export default async function BlogKategoriPage({ params, searchParams }: Props) 
             >
               {post.image_url ? (
                 <Image src={post.image_url} alt={post.title} fill
-                  sizes="(max-width: 640px) 50vw, 33vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                   priority={index < 4} />
               ) : (
                 <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-4xl text-warm-300">✍️</div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
               {post.categoryName && (
-                <div className="absolute top-2.5 left-2.5 hidden sm:block">
-                  <span className="inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-semibold bg-brand-500 text-white">
-                    {post.categoryName}
-                  </span>
-                </div>
+                <span className="absolute top-2.5 left-2.5 hidden sm:inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500 text-white">
+                  {post.categoryName}
+                </span>
               )}
-              <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
-                <h2 className="text-sm sm:text-base font-bold text-white leading-snug mb-2 line-clamp-2">{post.title}</h2>
-                <div className="flex items-center gap-1.5">
+              <div className="absolute bottom-0 left-0 right-0 bg-black/50 rounded-b-2xl p-3 sm:p-4 overflow-hidden">
+                <h2 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2 mb-1.5">{post.title}</h2>
+                {post.excerpt && <p className="text-[9px] sm:text-[10px] text-white/65 line-clamp-1 sm:line-clamp-2 mb-1.5">{post.excerpt}</p>}
+                <div className="flex items-center gap-1.5 min-w-0">
                   {post.authorAvatar ? (
-                    <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
+                    <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
                   ) : (
-                    <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white/25 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">
+                    <span className="w-5 h-5 rounded-full bg-white/25 text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0">
                       {post.authorName.charAt(0).toUpperCase()}
                     </span>
                   )}
-                  <span className="text-[11px] sm:text-xs text-white/80 truncate">{post.authorName}</span>
+                  <span className="text-[11px] sm:text-xs text-white/80 truncate min-w-0">{post.authorName}</span>
                 </div>
               </div>
             </Link>
@@ -254,6 +251,7 @@ export default async function BlogKategoriPage({ params, searchParams }: Props) 
         );
       })()}
     </div>
+      <PagePopup page="blog" />
     </SidebarLayout>
   );
 }

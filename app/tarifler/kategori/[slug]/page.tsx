@@ -5,9 +5,10 @@ import { notFound } from "next/navigation";
 import { getRecipes } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
-import Badge from "@/components/ui/Badge";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import AdBanner from "@/components/ui/AdBanner";
+import PageHeader from "@/components/ui/PageHeader";
+import PagePopup from "@/components/ui/PagePopup";
 
 export const dynamic = "force-dynamic";
 
@@ -94,39 +95,39 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
   return (
     <SidebarLayout placement="sidebar_recipes">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
-      <Link href="/tarifler" className="inline-flex items-center gap-1.5 text-sm text-warm-500 hover:text-warm-800 transition-colors mb-4">
-        ← Tarifler
-      </Link>
+      <PageHeader
+        title="Tarifler"
+        description="Binlerce tarif arasından dilediğini keşfet, kaydet ve kendi sofrana uygun içerikleri bul."
+      />
 
-      {/* Kategori filtreleri */}
+      {/* Kategori filtreleri — sadece masaüstü */}
       <div className="mb-4 sm:mb-8">
-        <p className="text-sm font-bold text-warm-800 mb-2 sm:hidden">Kategoriler:</p>
-        <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
-        <span className="text-sm font-bold text-warm-800 flex-shrink-0 hidden sm:block">Kategoriler:</span>
-        <Link
-          href="/tarifler"
-          className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
-        >
-          Tümü
-        </Link>
-        {ALL_SLUGS.map((s) => {
-          const cat = SLUG_TO_CATEGORY[s];
-          const m   = CATEGORY_META[cat];
-          return (
-            <Link
-              key={s}
-              href={`/tarifler/kategori/${s}`}
-              className={`flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
-                s === slug
-                  ? "bg-brand-600 border-brand-600 text-white"
-                  : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
-              }`}
-            >
-              {m.label}
-            </Link>
-          );
-        })}
-      </div>
+        <div className="hidden sm:flex items-center gap-3 flex-nowrap">
+          <span className="text-sm font-bold text-warm-800 flex-shrink-0">Kategoriler:</span>
+          <Link
+            href="/tarifler"
+            className="flex-none flex items-center justify-center py-2 px-4 rounded-full text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+          >
+            Tümü
+          </Link>
+          {ALL_SLUGS.map((s) => {
+            const cat = SLUG_TO_CATEGORY[s];
+            const m   = CATEGORY_META[cat];
+            return (
+              <Link
+                key={s}
+                href={`/tarifler/kategori/${s}`}
+                className={`flex-none flex items-center justify-center py-2 px-4 rounded-full text-sm font-medium border leading-tight transition-colors text-center ${
+                  s === slug
+                    ? "bg-brand-600 border-brand-600 text-white"
+                    : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+                }`}
+              >
+                {m.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       {/* Reklam */}
@@ -157,9 +158,9 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
                   <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-4xl text-warm-300">🍳</div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                <div className="absolute top-2.5 left-2.5">
-                  <Badge category={recipe.category as Category} compact className="text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
-                </div>
+                <span className="absolute top-2.5 left-2.5 inline-block px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold bg-brand-500 text-white">
+                  {meta.label}
+                </span>
                 <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
                   <h2 className="text-sm sm:text-base font-bold text-white leading-snug mb-2 line-clamp-2">{recipe.title}</h2>
                   <div className="flex items-center gap-1.5">
@@ -200,6 +201,7 @@ export default async function RecipeKategoriPage({ params, searchParams }: Props
         );
       })()}
     </div>
+      <PagePopup page="tarifler" />
     </SidebarLayout>
   );
 }

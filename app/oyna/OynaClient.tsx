@@ -130,7 +130,7 @@ export default function OynaClient({ leaderboard }: { leaderboard: LeaderEntry[]
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-warm-100 to-warm-50">
+    <div className="min-h-screen">
       <div className="max-w-[780px] mx-auto px-4 sm:px-6 py-6 sm:py-10">
 
         <PageHeader

@@ -358,7 +358,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
           <p className="text-xs text-warm-400 mb-3">Beğendiğiniz tarifleri ve blog yazılarını kalp butonuna basarak buraya kaydedebilirsiniz. Kaydettiğiniz içerikler yalnızca size görünür.</p>
 
           {/* Alt filtre butonları */}
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-2 mb-4 flex-wrap justify-center sm:justify-start">
             {[
               { key: undefined,  label: `Tümü (${totalDefterCount})` },
               { key: "tarifler", label: `Tarifler (${favorites?.length ?? 0})` },

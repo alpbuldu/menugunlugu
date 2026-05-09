@@ -278,16 +278,14 @@ export default async function RecipeDetailPage({ params }: Props) {
           ) : (
             <div className="flex items-center justify-center h-full text-7xl text-warm-300">🍽️</div>
           )}
-          <div className="absolute bottom-3 left-3 flex flex-col items-start gap-1.5">
-            {(recipe as any).kcal_per_person && (
-              <span className="bg-brand-500 text-white rounded-full px-2.5 py-1 text-[10px] font-semibold">
-                {(recipe as any).kcal_per_person} kcal
-              </span>
-            )}
-            <span className="bg-brand-500 text-white rounded-full px-2.5 py-1 text-[10px] font-semibold">
-              {({ soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı" } as Record<string, string>)[recipe.category as string] ?? recipe.category}
+          <span className="absolute bottom-3 left-3 bg-brand-500 text-white rounded-full px-2.5 py-1 text-[10px] font-semibold">
+            {({ soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı" } as Record<string, string>)[recipe.category as string] ?? recipe.category}
+          </span>
+          {(recipe as any).kcal_per_person && (
+            <span className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm text-white rounded-full px-2.5 py-1 text-[10px] font-semibold">
+              🔥 {(recipe as any).kcal_per_person} kcal
             </span>
-          </div>
+          )}
           <Link
             href={`/uye/${authorUsername}`}
             className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm hover:bg-black/60 transition-colors rounded-full px-2.5 py-1"

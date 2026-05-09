@@ -4,7 +4,6 @@ import Link from "next/link";
 import { getRecipes } from "@/lib/supabase/queries";
 import { createClient } from "@/lib/supabase/server";
 import type { Category } from "@/lib/types";
-import Badge from "@/components/ui/Badge";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import PagePopup from "@/components/ui/PagePopup";
 import PageHeader from "@/components/ui/PageHeader";
@@ -97,15 +96,22 @@ export default async function RecipesPage({ searchParams }: Props) {
       <div className="mb-4 sm:mb-8">
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
           <span className="text-sm font-bold text-warm-800 flex-shrink-0 hidden sm:block">Kategoriler:</span>
-          {categories.map((cat) => (
-            <Link
-              key={cat.key}
-              href={cat.key === "all" ? "/tarifler" : `/tarifler/kategori/${cat.slug}`}
-              className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
-            >
-              {cat.label}
-            </Link>
-          ))}
+          {categories.map((cat) => {
+            const isActive = cat.key === "all" ? !activeCategory : cat.key === activeCategory;
+            return (
+              <Link
+                key={cat.key}
+                href={cat.key === "all" ? "/tarifler" : `/tarifler/kategori/${cat.slug}`}
+                className={`flex-1 sm:flex-none flex items-center justify-center min-h-[34px] py-1 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center ${
+                  isActive
+                    ? "bg-brand-600 border-brand-600 text-white"
+                    : "bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+                }`}
+              >
+                {cat.label}
+              </Link>
+            );
+          })}
         </div>
       </div>
 
@@ -139,9 +145,9 @@ export default async function RecipesPage({ searchParams }: Props) {
                   <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-4xl text-warm-300">🍳</div>
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                <div className="absolute top-2.5 left-2.5 hidden sm:block">
-                  <Badge category={recipe.category as Category} compact className="text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
-                </div>
+                <span className="absolute top-2.5 left-2.5 inline-block px-2 py-0.5 rounded-full text-[10px] sm:text-[11px] font-semibold bg-brand-500 text-white">
+                  {({ soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı" } as Record<string, string>)[recipe.category as string] ?? recipe.category}
+                </span>
                 <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
                   <h2 className="text-sm sm:text-base font-bold text-white leading-snug mb-2 line-clamp-2">{recipe.title}</h2>
                   <div className="flex items-center gap-1.5">

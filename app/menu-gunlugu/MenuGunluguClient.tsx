@@ -96,7 +96,7 @@ function MenuGrid({ post }: {
         const img   = post[cfg.imgKey];
         const slug  = post[cfg.slugKey];
         const inner = (
-          <div className="relative bg-warm-50" style={{ aspectRatio: "1" }}>
+          <div className="relative bg-warm-50" style={{ aspectRatio: "4/3" }}>
             {img ? (
               <Image src={img} alt={title ?? cfg.label} fill className="object-cover" />
             ) : (
@@ -149,7 +149,7 @@ function AdminMenuCard({ menu, adminProfile }: { menu: AdminMenu; adminProfile: 
     .reduce((sum, r) => sum + (r?.kcal_per_person ?? 0), 0);
 
   return (
-    <div className="flex-shrink-0 w-60 sm:w-72 bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+    <div className="flex-shrink-0 w-52 sm:w-64 bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       <div className="px-3 py-2.5 border-b border-warm-100 flex items-center gap-2">
         <Avatar url={adminProfile.avatar_url} name={adminProfile.username} size={26} />
         <div className="min-w-0 flex-1">

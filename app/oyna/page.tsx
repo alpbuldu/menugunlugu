@@ -47,7 +47,7 @@ export default async function OynaPage() {
 
   return (
     <SidebarLayout placement="sidebar_oyna" adSenseSlot="oyna_dikey">
-      <div className="max-w-[780px] mx-auto px-4 sm:px-6 pt-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
         <AdSlot placement="oyna_banner" adSenseSlot="oyna_yatay_masaustu"
           imageHeight="h-[100px]" adWidth="100%" adHeight="100px" className="hidden sm:block mb-4" />
         <AdSlot placement="oyna_banner_mobile" adSenseSlot="oyna_yatay_mobil"

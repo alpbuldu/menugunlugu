@@ -72,6 +72,12 @@ function getCatLabel(key: string | null): string {
   return key.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") + " Menüsü";
 }
 
+const TR_MONTHS = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
+function formatTRDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return `${d.getDate()} ${TR_MONTHS[d.getMonth()]}`;
+}
+
 const CELL_CONFIGS = [
   { key: "soup"    as const, label: "Çorba",           titleKey: "soup_title"    as const, imgKey: "soup_image_url"    as const, slugKey: "soup_slug"    as const },
   { key: "main"    as const, label: "Ana Yemek",       titleKey: "main_title"    as const, imgKey: "main_image_url"    as const, slugKey: "main_slug"    as const },
@@ -144,14 +150,20 @@ function AdminMenuCard({ menu }: { menu: AdminMenu }) {
   const catLabel = getCatLabel(menu.menu_category);
   const kcalTotal = [menu.soup, menu.main, menu.side, menu.dessert]
     .reduce((sum, r) => sum + (r?.kcal_per_person ?? 0), 0);
+  const dateStr = menu.date ? formatTRDate(menu.date) : null;
 
   return (
-    <div className="flex-shrink-0 w-60 sm:w-72 bg-white rounded-2xl border border-warm-150 shadow-sm overflow-hidden">
-      {/* Başlık — turuncu değil, sade */}
-      <div className="px-3 py-2.5 border-b border-warm-100 flex items-center justify-between gap-2">
-        <span className="text-xs sm:text-sm font-bold text-warm-800 truncate">{catLabel}</span>
+    <div className="flex-shrink-0 w-60 sm:w-72 bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+      <div className="px-3 py-2.5 border-b border-warm-100 flex items-center gap-2">
+        <span className="w-[26px] h-[26px] rounded-full bg-brand-100 text-brand-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">E</span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] text-warm-400 truncate leading-none mb-0.5">Editör Seçimi</p>
+          <p className="text-[10px] sm:text-[11px] font-semibold text-warm-600 truncate leading-tight">
+            {catLabel}{dateStr ? ` — ${dateStr}` : ""}
+          </p>
+        </div>
         {kcalTotal > 0 && (
-          <span className="text-[10px] sm:text-xs font-medium text-warm-400 flex-shrink-0 whitespace-nowrap">{kcalTotal} kcal</span>
+          <span className="text-[9px] sm:text-[10px] text-warm-400 flex-shrink-0 whitespace-nowrap">{kcalTotal} kcal</span>
         )}
       </div>
       <MenuGrid post={{
@@ -176,28 +188,24 @@ function AdminMenuCard({ menu }: { menu: AdminMenu }) {
 
 function FeedCard({ post }: { post: FeedPost }) {
   const catLabel = getCatLabel(post.category);
+  const dateStr = post.created_at ? formatTRDate(post.created_at) : null;
 
   return (
     <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-      {/* Başlık */}
       <div className="px-3 py-2.5 border-b border-warm-100 flex items-center gap-2">
         <Avatar url={post.author.avatar_url} name={post.author.username} size={26} />
         <div className="min-w-0 flex-1">
           <p className="text-[10px] text-warm-400 truncate leading-none mb-0.5">@{post.author.username}</p>
+          <p className="text-[10px] sm:text-[11px] font-semibold text-warm-600 truncate leading-tight">
+            {catLabel}{dateStr ? ` — ${dateStr}` : ""}
+          </p>
           {post.title && (
-            <p className="text-xs sm:text-sm font-bold text-warm-900 truncate leading-tight">{post.title}</p>
+            <p className="text-[9px] sm:text-[10px] font-bold text-warm-900 truncate leading-tight mt-0.5">{post.title}</p>
           )}
         </div>
-        <div className="flex flex-col items-end gap-0.5 flex-shrink-0">
-          {post.category && (
-            <span className="text-[10px] sm:text-xs font-semibold text-warm-500 whitespace-nowrap">
-              {catLabel}
-            </span>
-          )}
-          {post.kcal_total > 0 && (
-            <span className="text-[9px] sm:text-[10px] text-warm-400">{post.kcal_total} kcal</span>
-          )}
-        </div>
+        {post.kcal_total > 0 && (
+          <span className="text-[9px] sm:text-[10px] text-warm-400 flex-shrink-0 whitespace-nowrap">{post.kcal_total} kcal</span>
+        )}
       </div>
       <MenuGrid post={post} />
     </div>
@@ -255,7 +263,10 @@ export default function MenuGunluguClient({
       {adminMenus.length > 0 && (
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <h2 className="text-base font-extrabold text-warm-900">Editörün Menü Önerileri</h2>
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <h2 className="text-base font-extrabold text-warm-900">Editörün Menü Önerileri</h2>
+              <span className="text-xs text-warm-400 font-normal">— Her gün yeni menü fikirleri</span>
+            </div>
             <div className="flex-1 h-px bg-warm-100" />
           </div>
 
@@ -308,7 +319,10 @@ export default function MenuGunluguClient({
       {/* ── Menü Günlüğü Akışı ── */}
       <section>
         <div className="flex items-center gap-2 mb-4">
-          <h2 className="text-base font-extrabold text-warm-900">Menü Günlüğü Akışı</h2>
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <h2 className="text-base font-extrabold text-warm-900">Menü Günlüğü Akışı</h2>
+            <span className="text-xs text-warm-400 font-normal">— Topluluktan paylaşımlar</span>
+          </div>
           <div className="flex-1 h-px bg-warm-100" />
         </div>
 

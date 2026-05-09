@@ -95,13 +95,13 @@ export default async function RecipesPage({ searchParams }: Props) {
       />
       {/* Category Filter */}
       <div className="mb-4 sm:mb-8">
-        <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto [&::-webkit-scrollbar]:hidden sm:flex-wrap pb-1 sm:pb-0">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
           <span className="text-sm font-bold text-warm-800 flex-shrink-0 hidden sm:block">Kategoriler:</span>
           {categories.map((cat) => (
             <Link
               key={cat.key}
               href={cat.key === "all" ? "/tarifler" : `/tarifler/kategori/${cat.slug}`}
-              className="flex-shrink-0 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+              className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
             >
               {cat.label}
             </Link>

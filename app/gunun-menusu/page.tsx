@@ -108,14 +108,11 @@ export default async function MenuPage() {
         description="Her gün yayınlanan çorba, ana yemek, yardımcı lezzet ve tatlıdan oluşan günlük menü önerilerini keşfet."
         emoji="🍲"
       />
-      {/* Mobil başlık — tarih+başlık sola, kalori ortalı sağa */}
+      {/* Mobil başlık — tarih sola, kalori sağa */}
       <div className="flex items-center justify-between mb-4 sm:hidden">
-        <div className="flex flex-col">
-          <p className="text-xs text-warm-500 font-medium capitalize">{today}</p>
-          <p className="text-base text-warm-700 font-bold">Günün Menüsü</p>
-        </div>
+        <p className="text-base text-warm-700 font-bold capitalize">{today}</p>
         {totalKcal > 0 && (
-          <p className="text-xs text-warm-500 font-semibold shrink-0">Toplam Kalori: {totalKcal} kcal</p>
+          <p className="text-base text-warm-700 font-bold shrink-0">Toplam Kalori: {totalKcal} kcal</p>
         )}
       </div>
       {/* Masaüstü başlık — tek satır, sağda kalori */}

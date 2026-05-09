@@ -3,9 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getBlogCategories } from "@/lib/supabase/queries";
-import Badge from "@/components/ui/Badge";
 import FollowButton from "@/components/ui/FollowButton";
-import type { Category } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -24,23 +22,9 @@ const CATEGORIES: { key: string; label: string }[] = [
   { key: "dessert", label: "Tatlılar" },
 ];
 
-// Blog kategori badge rengi — blog listesiyle aynı mantık
-const BADGE_COLORS = [
-  "bg-brand-100 text-brand-700",
-  "bg-amber-100 text-amber-700",
-  "bg-emerald-100 text-emerald-700",
-  "bg-sky-100 text-sky-700",
-  "bg-violet-100 text-violet-700",
-  "bg-rose-100 text-rose-700",
-  "bg-teal-100 text-teal-700",
-  "bg-orange-100 text-orange-700",
-];
-function blogCategoryColor(name: string | null): string {
-  if (!name) return BADGE_COLORS[0];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  return BADGE_COLORS[Math.abs(hash) % BADGE_COLORS.length];
-}
+const RECIPE_CAT_LABELS: Record<string, string> = {
+  soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı",
+};
 
 const SocialIcon = ({ type }: { type: string }) => {
   if (type === "instagram") return <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none" /></svg>;
@@ -347,51 +331,23 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
               <>
                 <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                   {allRecipes.map((recipe) => (
-                    <div key={recipe.id} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
-                      <Link href={`/tarifler/${recipe.slug}`} className="flex flex-col flex-1">
-                        <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
-                          {recipe.image_url ? (
-                            <Image src={recipe.image_url} alt={recipe.title} fill
-                              sizes="(max-width: 640px) 50vw, 33vw"
-                              className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                          ) : (
-                            <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍳</div>
-                          )}
-                        </div>
-                        <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
-                          <Badge category={recipe.category as Category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
-                          <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
-                            {recipe.title}
-                          </h2>
-                        </div>
-                      </Link>
-                      {/* Yazar satırı — /tarifler ile aynı */}
-                      <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
-                        <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
-                          {avatarUrl ? (
-                            <img src={avatarUrl} alt={handle} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
-                          ) : (
-                            <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
-                              {handle.charAt(0).toUpperCase()}
-                            </span>
-                          )}
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
-                            <span className="text-[10px] sm:text-xs font-medium text-warm-500 truncate">{handle}</span>
-                          </div>
-                        </div>
-                        {showFollowButton && (
-                          <>
-                            <span className="sm:hidden flex-shrink-0">
-                              <FollowButton targetUserId={isAdmin ? undefined : profileId!} isAdminProfile={isAdmin} initialFollowing={isFollowing} isLoggedIn={!!currentUser} size="icon" />
-                            </span>
-                            <span className="hidden sm:block flex-shrink-0">
-                              <FollowButton targetUserId={isAdmin ? undefined : profileId!} isAdminProfile={isAdmin} initialFollowing={isFollowing} isLoggedIn={!!currentUser} size="xs" />
-                            </span>
-                          </>
-                        )}
+                    <Link key={recipe.id} href={`/tarifler/${recipe.slug}`}
+                      className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 group hover:shadow-lg transition-all">
+                      {recipe.image_url ? (
+                        <Image src={recipe.image_url} alt={recipe.title} fill
+                          sizes="(max-width: 640px) 50vw, 33vw"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-5xl text-warm-300">🍳</div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                      <span className="absolute top-2.5 left-2.5 inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500 text-white">
+                        {RECIPE_CAT_LABELS[recipe.category] ?? recipe.category}
+                      </span>
+                      <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                        <h2 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2">{recipe.title}</h2>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
                 <Pagination current={currentPage} total={recipesTotalPages} hrefFn={(p) => pageHref({ tab: "tarifler", page: p })} />
@@ -437,56 +393,24 @@ export default async function UserProfilePage({ params, searchParams }: Props) {
                   {allPosts.map((post) => {
                     const catName = (post.blog_categories as any)?.name as string | undefined;
                     return (
-                      <div key={post.id} className="flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
-                      <Link href={`${postLinkBase}/${post.slug}`} className="flex flex-col flex-1">
-                        <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
-                          {post.image_url ? (
-                            <Image src={post.image_url} alt={post.title} fill
-                              sizes="(max-width: 640px) 50vw, 33vw"
-                              className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                          ) : (
-                            <div className="flex items-center justify-center h-full text-5xl text-warm-300">✍️</div>
-                          )}
-                        </div>
-                        <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
-                          {catName && (
-                            <span className={`inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold mb-1.5 sm:mb-2 ${blogCategoryColor(catName)}`}>
-                              {catName}
-                            </span>
-                          )}
-                          <h2 className="text-sm sm:text-base font-semibold text-warm-800 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">
-                            {post.title}
-                          </h2>
+                      <Link key={post.id} href={`${postLinkBase}/${post.slug}`}
+                        className="relative block rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 group hover:shadow-lg transition-all">
+                        {post.image_url ? (
+                          <Image src={post.image_url} alt={post.title} fill
+                            sizes="(max-width: 640px) 50vw, 33vw"
+                            className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-5xl text-warm-300">✍️</div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                        <span className="absolute top-2.5 left-2.5 inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500 text-white">
+                          {catName ?? "Blog Yazısı"}
+                        </span>
+                        <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                          <h2 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2">{post.title}</h2>
                         </div>
                       </Link>
-                      {/* Yazar satırı — /tarifler ile aynı */}
-                      <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
-                        <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
-                          {avatarUrl ? (
-                            <img src={avatarUrl} alt={handle} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
-                          ) : (
-                            <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">
-                              {handle.charAt(0).toUpperCase()}
-                            </span>
-                          )}
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
-                            <span className="text-[10px] sm:text-xs font-medium text-warm-500 truncate">{handle}</span>
-                          </div>
-                        </div>
-                        {showFollowButton && (
-                          <>
-                            <span className="sm:hidden flex-shrink-0">
-                              <FollowButton targetUserId={isAdmin ? undefined : profileId!} isAdminProfile={isAdmin} initialFollowing={isFollowing} isLoggedIn={!!currentUser} size="icon" />
-                            </span>
-                            <span className="hidden sm:block flex-shrink-0">
-                              <FollowButton targetUserId={isAdmin ? undefined : profileId!} isAdminProfile={isAdmin} initialFollowing={isFollowing} isLoggedIn={!!currentUser} size="xs" />
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  );
+                    );
                   })}
                 </div>
                 <Pagination current={currentPage} total={postsTotalPages} hrefFn={(p) => pageHref({ tab: "yazilar", page: p })} />

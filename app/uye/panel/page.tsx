@@ -3,8 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import type { Metadata } from "next";
-import type { Recipe, Category } from "@/lib/types";
-import Badge from "@/components/ui/Badge";
+import type { Recipe } from "@/lib/types";
 import UsernameForm from "./UsernameForm";
 import DeleteAccountButton from "./DeleteAccountButton";
 import ProfileForm from "./ProfileForm";
@@ -15,7 +14,6 @@ import LogoutButton from "./LogoutButton";
 import RemoveFavoriteButton from "./RemoveFavoriteButton";
 import RemoveBlogFavoriteButton from "./RemoveBlogFavoriteButton";
 import ProfileWatcher from "./ProfileWatcher";
-import FollowButton from "@/components/ui/FollowButton";
 import AvatarUpload from "./AvatarUpload";
 import NewUserSetup from "./NewUserSetup";
 
@@ -24,6 +22,14 @@ export const dynamic = "force-dynamic";
 
 const CATEGORY_LABELS: Record<string, string> = {
   soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı",
+};
+
+const MENU_CAT_LABELS: Record<string, string> = {
+  gunluk: "Günlük Ev Menüsü", "gunluk-ev": "Günlük Ev Menüsü", ev: "Ev Yemekleri",
+  misafir: "Misafir Menüsü", kahvalti: "Kahvaltı Menüsü", akdeniz: "Akdeniz Menüsü",
+  et: "Et Yemekleri", vejetaryen: "Vejetaryen Menüsü", deniz: "Deniz Ürünleri",
+  klasik: "Klasik Türk Menüsü", hafif: "Hafif Menü", pratik: "Pratik Menü",
+  saglikli: "Sağlıklı Menü", ekonomik: "Ekonomik Menü", ozel: "Özel Menü",
 };
 
 const statusLabel: Record<string, { label: string; cls: string }> = {
@@ -73,6 +79,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
     { data: adminFollowRow },
     { data: adminProfile },
     { data: followers },
+    { data: menuPosts },
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -118,6 +125,11 @@ export default async function UyePanelPage({ searchParams }: Props) {
       .from("follows")
       .select("follower_id, created_at, profiles!follows_follower_id_fkey(id, username, full_name, avatar_url)")
       .eq("following_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("menu_feed")
+      .select("id, created_at, category, kcal_total, soup_title, main_title, side_title, dessert_title, soup_slug, main_slug, side_slug, dessert_slug, soup_image_url, main_image_url, side_image_url, dessert_image_url")
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
   ]);
 
@@ -326,6 +338,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
               { key: undefined,  label: `Tümü (${totalDefterCount})` },
               { key: "tarifler", label: `Tarifler (${favorites?.length ?? 0})` },
               { key: "blog",     label: `Blog Yazıları (${blogFavorites?.length ?? 0})` },
+              { key: "menu",     label: `Menülerim (${menuPosts?.length ?? 0})` },
             ].map((f) => (
               <Link key={f.key ?? "tumü"} href={`/uye/panel?tab=tarif-defterim${f.key ? `&defter=${f.key}` : ""}`}
                 className={["px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
@@ -356,74 +369,39 @@ export default async function UyePanelPage({ searchParams }: Props) {
                     const authorIsAdmin = !r.submitted_by;
                     const favInitFollowing = authorIsAdmin ? followsAdmin : (favFollowMap[r.submitted_by!] ?? false);
                     return (
-                      <div key={`r-${item.fav.recipe_id}`} className="relative flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                      <div key={`r-${item.fav.recipe_id}`} className="relative rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 hover:shadow-lg transition-all group">
                         <RemoveFavoriteButton recipeId={item.fav.recipe_id} />
-                        <Link href={`/tarifler/${r.slug}`} className="flex flex-col flex-1">
-                          <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
-                            {r.image_url ? (
-                              <Image src={r.image_url} alt={r.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                            ) : (
-                              <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍽️</div>
-                            )}
-                          </div>
-                          <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
-                            <Badge category={r.category as Category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
-                            <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{r.title}</h2>
+                        <Link href={`/tarifler/${r.slug}`} className="absolute inset-0">
+                          {r.image_url ? (
+                            <Image src={r.image_url} alt={r.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                          ) : (
+                            <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-5xl text-warm-300">🍽️</div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                          <span className="absolute top-2.5 left-2.5 inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500 text-white">{CATEGORY_LABELS[r.category] ?? r.category}</span>
+                          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                            <h2 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2">{r.title}</h2>
                           </div>
                         </Link>
-                        {favAuthor && (
-                          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
-                            <Link href={authorIsAdmin ? "/uye/__admin__" : `/uye/${favAuthor.username}`} className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
-                              {favAuthor.avatar_url ? (
-                                <img src={favAuthor.avatar_url} alt={favAuthor.username} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
-                              ) : (
-                                <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">{favAuthor.username.charAt(0).toUpperCase()}</span>
-                              )}
-                              <div className="flex flex-col min-w-0">
-                                <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
-                                <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{favAuthor.username}</span>
-                              </div>
-                            </Link>
-                            <span className="sm:hidden flex-shrink-0"><FollowButton targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined} isAdminProfile={authorIsAdmin} initialFollowing={favInitFollowing} isLoggedIn={true} size="icon" /></span>
-                            <span className="hidden sm:block flex-shrink-0"><FollowButton targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined} isAdminProfile={authorIsAdmin} initialFollowing={favInitFollowing} isLoggedIn={true} size="xs" /></span>
-                          </div>
-                        )}
                       </div>
                     );
                   } else {
                     const p = item.post;
                     return (
-                      <div key={`b-${item.fav.post_id}`} className="relative flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                      <div key={`b-${item.fav.post_id}`} className="relative rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 hover:shadow-lg transition-all group">
                         <RemoveBlogFavoriteButton postId={item.fav.post_id} />
-                        <Link href={`/blog/${p.slug}`} className="flex flex-col flex-1">
-                          <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
-                            {p.image_url ? (
-                              <Image src={p.image_url} alt={p.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                            ) : (
-                              <div className="flex items-center justify-center h-full text-5xl text-warm-300">✍️</div>
-                            )}
-                          </div>
-                          <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
-                            <span className="inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-brand-100 text-brand-700">Blog Yazısı</span>
-                            <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{p.title}</h2>
+                        <Link href={`/blog/${p.slug}`} className="absolute inset-0">
+                          {p.image_url ? (
+                            <Image src={p.image_url} alt={p.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                          ) : (
+                            <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-5xl text-warm-300">✍️</div>
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                          <span className="absolute top-2.5 left-2.5 inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500 text-white">Blog Yazısı</span>
+                          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                            <h2 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2">{p.title}</h2>
                           </div>
                         </Link>
-                        {/* Yazar satırı — blog yazıları her zaman admin */}
-                        <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
-                          <Link href="/uye/__admin__" className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
-                            {adminAvatarUrl ? (
-                              <img src={adminAvatarUrl} alt={adminUsername} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
-                            ) : (
-                              <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">{adminUsername.charAt(0).toUpperCase()}</span>
-                            )}
-                            <div className="flex flex-col min-w-0">
-                              <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
-                              <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{adminUsername}</span>
-                            </div>
-                          </Link>
-                          <span className="sm:hidden flex-shrink-0"><FollowButton targetUserId={undefined} isAdminProfile={true} initialFollowing={followsAdmin} isLoggedIn={true} size="icon" /></span>
-                          <span className="hidden sm:block flex-shrink-0"><FollowButton targetUserId={undefined} isAdminProfile={true} initialFollowing={followsAdmin} isLoggedIn={true} size="xs" /></span>
-                        </div>
                       </div>
                     );
                   }
@@ -450,38 +428,20 @@ export default async function UyePanelPage({ searchParams }: Props) {
                       const authorIsAdmin = !r.submitted_by;
                       const favInitFollowing = authorIsAdmin ? followsAdmin : (favFollowMap[r.submitted_by!] ?? false);
                       return (
-                        <div key={fav.recipe_id} className="relative flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                        <div key={fav.recipe_id} className="relative rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 hover:shadow-lg transition-all group">
                           <RemoveFavoriteButton recipeId={fav.recipe_id} />
-                          <Link href={`/tarifler/${r.slug}`} className="flex flex-col flex-1">
-                            <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
-                              {r.image_url ? (
-                                <Image src={r.image_url} alt={r.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                              ) : (
-                                <div className="flex items-center justify-center h-full text-5xl text-warm-300">🍽️</div>
-                              )}
-                            </div>
-                            <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
-                              <Badge category={r.category as Category} className="text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5" />
-                              <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{r.title}</h2>
+                          <Link href={`/tarifler/${r.slug}`} className="absolute inset-0">
+                            {r.image_url ? (
+                              <Image src={r.image_url} alt={r.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                            ) : (
+                              <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-5xl text-warm-300">🍽️</div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                            <span className="absolute top-2.5 left-2.5 inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500 text-white">{CATEGORY_LABELS[r.category] ?? r.category}</span>
+                            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                              <h2 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2">{r.title}</h2>
                             </div>
                           </Link>
-                          {favAuthor && (
-                            <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
-                              <Link href={authorIsAdmin ? "/uye/__admin__" : `/uye/${favAuthor.username}`} className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
-                                {favAuthor.avatar_url ? (
-                                  <img src={favAuthor.avatar_url} alt={favAuthor.username} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
-                                ) : (
-                                  <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">{favAuthor.username.charAt(0).toUpperCase()}</span>
-                                )}
-                                <div className="flex flex-col min-w-0">
-                                  <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
-                                  <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{favAuthor.username}</span>
-                                </div>
-                              </Link>
-                              <span className="sm:hidden flex-shrink-0"><FollowButton targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined} isAdminProfile={authorIsAdmin} initialFollowing={favInitFollowing} isLoggedIn={true} size="icon" /></span>
-                              <span className="hidden sm:block flex-shrink-0"><FollowButton targetUserId={authorIsAdmin ? undefined : r.submitted_by ?? undefined} isAdminProfile={authorIsAdmin} initialFollowing={favInitFollowing} isLoggedIn={true} size="xs" /></span>
-                            </div>
-                          )}
                         </div>
                       );
                     })}
@@ -493,6 +453,61 @@ export default async function UyePanelPage({ searchParams }: Props) {
           )}
 
           {/* ─ Blog filtresi ─ */}
+          {/* ─ Menülerim filtresi ─ */}
+          {defter === "menu" && (
+            <>
+              {!menuPosts || menuPosts.length === 0 ? (
+                <Empty icon="🗓️" text="Henüz paylaşılan menü yok. Menü Günlüğü'nden menü oluşturabilirsiniz." />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  {(menuPosts as any[]).map((menu) => (
+                    <div key={menu.id} className="bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                      <div className="px-3 py-2 border-b border-warm-100 flex items-center justify-between">
+                        <span className="text-[10px] font-semibold text-warm-600">
+                          {MENU_CAT_LABELS[menu.category] ?? (menu.category ? menu.category.charAt(0).toUpperCase() + menu.category.slice(1) + " Menüsü" : "Menü")}
+                        </span>
+                        {menu.kcal_total > 0 && <span className="text-[10px] text-warm-400">{menu.kcal_total} kcal</span>}
+                      </div>
+                      <div className="grid grid-cols-2 gap-px bg-warm-100">
+                        {[
+                          { img: menu.soup_image_url,    title: menu.soup_title,    slug: menu.soup_slug,    label: "Çorba" },
+                          { img: menu.main_image_url,    title: menu.main_title,    slug: menu.main_slug,    label: "Ana Yemek" },
+                          { img: menu.side_image_url,    title: menu.side_title,    slug: menu.side_slug,    label: "Yardımcı" },
+                          { img: menu.dessert_image_url, title: menu.dessert_title, slug: menu.dessert_slug, label: "Tatlı" },
+                        ].map((cell, idx) => {
+                          const cellInner = (
+                            <div className="relative bg-warm-50" style={{ aspectRatio: "1" }}>
+                              {cell.img ? (
+                                <Image src={cell.img} alt={cell.title ?? cell.label} fill className="object-cover" />
+                              ) : (
+                                <div className="absolute inset-0 flex items-center justify-center text-2xl bg-warm-100">🍽️</div>
+                              )}
+                              <div className="absolute top-1.5 left-1.5">
+                                <span className="inline-block bg-black/50 text-white text-[8px] font-semibold px-1 py-0.5 rounded leading-none">{cell.label}</span>
+                              </div>
+                              {cell.title && (
+                                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/75 to-transparent px-1.5 pb-1.5 pt-4">
+                                  <p className="text-white text-[9px] font-semibold leading-snug line-clamp-2">{cell.title}</p>
+                                </div>
+                              )}
+                            </div>
+                          );
+                          return cell.slug ? (
+                            <Link key={idx} href={`/tarifler/${cell.slug}`} className="block hover:opacity-90 transition-opacity">
+                              {cellInner}
+                            </Link>
+                          ) : (
+                            <div key={idx}>{cellInner}</div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
           {defter === "blog" && (
             <>
               {blogFavsPag.total === 0 ? (
@@ -504,37 +519,20 @@ export default async function UyePanelPage({ searchParams }: Props) {
                       const p = fav.blog_posts as { id: string; title: string; slug: string; image_url: string | null } | null;
                       if (!p) return null;
                       return (
-                        <div key={fav.post_id} className="relative flex flex-col bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md hover:border-brand-200 transition-all group">
+                        <div key={fav.post_id} className="relative rounded-xl sm:rounded-2xl overflow-hidden h-44 sm:h-64 hover:shadow-lg transition-all group">
                           <RemoveBlogFavoriteButton postId={fav.post_id} />
-                          <Link href={`/blog/${p.slug}`} className="flex flex-col flex-1">
-                            <div className="relative h-28 sm:h-40 bg-warm-100 shrink-0">
-                              {p.image_url ? (
-                                <Image src={p.image_url} alt={p.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                              ) : (
-                                <div className="flex items-center justify-center h-full text-5xl text-warm-300">✍️</div>
-                              )}
-                            </div>
-                            <div className="px-3 pt-3 pb-2 sm:px-5 sm:pt-5 sm:pb-3">
-                              <span className="inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-brand-100 text-brand-700">Blog Yazısı</span>
-                              <h2 className="text-sm sm:text-base font-semibold text-warm-800 mt-1.5 sm:mt-2 group-hover:text-brand-700 transition-colors line-clamp-2 leading-snug">{p.title}</h2>
+                          <Link href={`/blog/${p.slug}`} className="absolute inset-0">
+                            {p.image_url ? (
+                              <Image src={p.image_url} alt={p.title} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                            ) : (
+                              <div className="absolute inset-0 bg-warm-100 flex items-center justify-center text-5xl text-warm-300">✍️</div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                            <span className="absolute top-2.5 left-2.5 inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-500 text-white">Blog Yazısı</span>
+                            <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
+                              <h2 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2">{p.title}</h2>
                             </div>
                           </Link>
-                          {/* Yazar satırı — blog yazıları her zaman admin */}
-                          <div className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 pb-2.5 sm:pb-3 pt-1.5 sm:pt-2 border-t border-warm-100">
-                            <Link href="/uye/__admin__" className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity group/author">
-                              {adminAvatarUrl ? (
-                                <img src={adminAvatarUrl} alt={adminUsername} className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover flex-shrink-0" />
-                              ) : (
-                                <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-brand-100 text-brand-600 text-[9px] font-bold flex items-center justify-center flex-shrink-0">{adminUsername.charAt(0).toUpperCase()}</span>
-                              )}
-                              <div className="flex flex-col min-w-0">
-                                <span className="text-[9px] sm:text-[10px] text-warm-300 leading-none sm:mb-0.5">Yazar</span>
-                                <span className="text-[10px] sm:text-xs font-medium text-warm-500 group-hover/author:text-brand-600 transition-colors truncate">{adminUsername}</span>
-                              </div>
-                            </Link>
-                            <span className="sm:hidden flex-shrink-0"><FollowButton targetUserId={undefined} isAdminProfile={true} initialFollowing={followsAdmin} isLoggedIn={true} size="icon" /></span>
-                            <span className="hidden sm:block flex-shrink-0"><FollowButton targetUserId={undefined} isAdminProfile={true} initialFollowing={followsAdmin} isLoggedIn={true} size="xs" /></span>
-                          </div>
                         </div>
                       );
                     })}

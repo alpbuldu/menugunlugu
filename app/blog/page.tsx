@@ -302,7 +302,7 @@ export default async function BlogPage({ searchParams }: Props) {
                   <h2 className="text-sm sm:text-base font-bold text-white leading-snug line-clamp-2">{post.title}</h2>
                   {post.excerpt && <p className="text-[9px] sm:text-[10px] text-white/65 line-clamp-2 mt-0.5">{post.excerpt}</p>}
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 mt-2">
                   {post.authorAvatar ? (
                     <img src={post.authorAvatar} alt={post.authorName} className="w-5 h-5 rounded-full object-cover flex-shrink-0" />
                   ) : (

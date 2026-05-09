@@ -268,7 +268,7 @@ export default function MenuGunluguClient({
       {/* ── Editörün Menü Önerileri ── */}
       {adminMenus.length > 0 && (
         <section>
-          <div className="mb-4">
+          <div className="mb-2">
             <h2 className="text-base font-extrabold text-warm-900 inline">Editörün Menü Önerileri</h2>
             <span className="text-xs text-warm-400 font-normal"> — Editörler tarafından hazırlanan menü önerileri için kaydırın.</span>
           </div>
@@ -319,10 +319,11 @@ export default function MenuGunluguClient({
 
       {/* ── Menü Günlüğü Akışı ── */}
       <section>
-        <div className="mb-4">
+        <div className="mb-2">
           <h2 className="text-base font-extrabold text-warm-900 inline">Menü Günlüğü Akışı</h2>
           <span className="text-xs text-warm-400 font-normal"> — Kullanıcılar tarafından paylaşılan menü önerilerini görmek için aşağı kaydırın.</span>
         </div>
+        <p className="text-xs text-warm-400 mb-3">Menü paylaşmak için mobil uygulamayı indirin.</p>
 
         {feedCatFilters.length > 2 && (
           <div className="flex gap-2 overflow-x-auto pb-2 mb-4 [&::-webkit-scrollbar]:hidden">

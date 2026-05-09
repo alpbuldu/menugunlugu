@@ -364,7 +364,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
             {[
               { key: undefined,  label: `Tümü (${totalDefterCount})` },
               { key: "tarifler", label: `Tarifler (${favorites?.length ?? 0})` },
-              { key: "blog",     label: `Blog Yazıları (${blogFavorites?.length ?? 0})` },
+              { key: "blog",     label: `Blog (${blogFavorites?.length ?? 0})` },
               { key: "menu",     label: `Menü (${(menuPosts?.length ?? 0) + (savedMenus?.length ?? 0)})` },
             ].map((f) => (
               <Link key={f.key ?? "tumü"} href={`/uye/panel?tab=tarif-defterim${f.key ? `&defter=${f.key}` : ""}`}

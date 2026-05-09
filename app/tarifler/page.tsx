@@ -7,6 +7,7 @@ import type { Category } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import PagePopup from "@/components/ui/PagePopup";
+import PageHeader from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = {
   title: "Tarifler",
@@ -87,18 +88,26 @@ export default async function RecipesPage({ searchParams }: Props) {
   return (
     <SidebarLayout placement="sidebar_recipes" adSenseSlot="tarifler_dikey_masaustu">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+      <PageHeader
+        title="Tarifler"
+        description="Çorba, ana yemek, yardımcı lezzet ve tatlı kategorilerinde yüzlerce tarif."
+        emoji="📖"
+      />
       {/* Category Filter */}
-      <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8 flex-wrap sm:flex-nowrap">
-        <span className="text-sm font-bold text-warm-800 flex-shrink-0">Kategoriler:</span>
-        {categories.map((cat) => (
-          <Link
-            key={cat.key}
-            href={cat.key === "all" ? "/tarifler" : `/tarifler/kategori/${cat.slug}`}
-            className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
-          >
-            {cat.label}
-          </Link>
-        ))}
+      <div className="mb-4 sm:mb-8">
+        <p className="text-sm font-bold text-warm-800 mb-2 sm:hidden">Kategoriler:</p>
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+          <span className="text-sm font-bold text-warm-800 flex-shrink-0 hidden sm:block">Kategoriler:</span>
+          {categories.map((cat) => (
+            <Link
+              key={cat.key}
+              href={cat.key === "all" ? "/tarifler" : `/tarifler/kategori/${cat.slug}`}
+              className="flex-1 sm:flex-none flex items-center justify-center py-1.5 sm:py-2 px-1 sm:px-4 rounded-lg sm:rounded-full text-[10px] sm:text-sm font-medium border leading-tight transition-colors text-center bg-white border-warm-200 text-warm-700 hover:border-brand-300 hover:text-brand-700"
+            >
+              {cat.label}
+            </Link>
+          ))}
+        </div>
       </div>
 
 

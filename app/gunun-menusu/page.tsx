@@ -8,6 +8,7 @@ import Badge from "@/components/ui/Badge";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import AdSlot from "@/components/ui/AdSlot";
 import PagePopup from "@/components/ui/PagePopup";
+import PageHeader from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = {
   title: "Günün Menüsü",
@@ -102,6 +103,11 @@ export default async function MenuPage() {
   return (
     <SidebarLayout placement="sidebar_menu" adSenseSlot="gunun_menusu_dikey">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+      <PageHeader
+        title="Günün Menüsü"
+        description="Bugün ne pişirsem? Sorusuna her gün yeni ve özel bir cevap."
+        emoji="🍽️"
+      />
       {/* Mobil başlık — tarih+başlık sola, kalori ortalı sağa */}
       <div className="flex items-center justify-between mb-4 sm:hidden">
         <div className="flex flex-col">

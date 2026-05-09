@@ -46,6 +46,11 @@ interface AdminMenu {
   dessert: SlimRecipe | null;
 }
 
+interface AdminProfile {
+  username: string;
+  avatar_url: string | null;
+}
+
 // ─── Labels ───────────────────────────────────────────────────────────────────
 
 const CATEGORY_MAP: Record<string, { label: string; emoji: string }> = {
@@ -70,12 +75,6 @@ function getCatLabel(key: string | null): string {
   if (!key) return "Menü";
   if (CATEGORY_MAP[key]) return CATEGORY_MAP[key].label;
   return key.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") + " Menüsü";
-}
-
-const TR_MONTHS = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
-function formatTRDate(dateStr: string): string {
-  const d = new Date(dateStr);
-  return `${d.getDate()} ${TR_MONTHS[d.getMonth()]}`;
 }
 
 const CELL_CONFIGS = [
@@ -103,13 +102,11 @@ function MenuGrid({ post }: {
             ) : (
               <div className="absolute inset-0 flex items-center justify-center text-3xl bg-warm-100">🍽️</div>
             )}
-            {/* Meal label — boşluklu, yuvarlak */}
             <div className="absolute top-2 left-2">
               <span className="inline-block bg-black/50 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-semibold px-1.5 py-0.5 rounded-md leading-none">
                 {cfg.label}
               </span>
             </div>
-            {/* Recipe title — büyük, altta boşluklu */}
             {title && (
               <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent px-2 pb-2 pt-6">
                 <p className="text-white text-[11px] sm:text-xs font-semibold leading-snug line-clamp-2">{title}</p>
@@ -146,20 +143,19 @@ function Avatar({ url, name, size = 28 }: { url: string | null; name: string; si
 
 // ─── Admin Menu Card ──────────────────────────────────────────────────────────
 
-function AdminMenuCard({ menu }: { menu: AdminMenu }) {
+function AdminMenuCard({ menu, adminProfile }: { menu: AdminMenu; adminProfile: AdminProfile }) {
   const catLabel = getCatLabel(menu.menu_category);
   const kcalTotal = [menu.soup, menu.main, menu.side, menu.dessert]
     .reduce((sum, r) => sum + (r?.kcal_per_person ?? 0), 0);
-  const dateStr = menu.date ? formatTRDate(menu.date) : null;
 
   return (
     <div className="flex-shrink-0 w-60 sm:w-72 bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
       <div className="px-3 py-2.5 border-b border-warm-100 flex items-center gap-2">
-        <span className="w-[26px] h-[26px] rounded-full bg-brand-100 text-brand-700 text-[10px] font-bold flex items-center justify-center flex-shrink-0">E</span>
+        <Avatar url={adminProfile.avatar_url} name={adminProfile.username} size={26} />
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] text-warm-400 truncate leading-none mb-0.5">Editör Seçimi</p>
+          <p className="text-[10px] text-warm-400 truncate leading-none mb-0.5">Admin · {adminProfile.username}</p>
           <p className="text-[10px] sm:text-[11px] font-semibold text-warm-600 truncate leading-tight">
-            {catLabel}{dateStr ? ` — ${dateStr}` : ""}
+            {catLabel}
           </p>
         </div>
         {kcalTotal > 0 && (
@@ -188,7 +184,6 @@ function AdminMenuCard({ menu }: { menu: AdminMenu }) {
 
 function FeedCard({ post }: { post: FeedPost }) {
   const catLabel = getCatLabel(post.category);
-  const dateStr = post.created_at ? formatTRDate(post.created_at) : null;
 
   return (
     <div className="bg-white rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
@@ -197,11 +192,8 @@ function FeedCard({ post }: { post: FeedPost }) {
         <div className="min-w-0 flex-1">
           <p className="text-[10px] text-warm-400 truncate leading-none mb-0.5">@{post.author.username}</p>
           <p className="text-[10px] sm:text-[11px] font-semibold text-warm-600 truncate leading-tight">
-            {catLabel}{dateStr ? ` — ${dateStr}` : ""}
+            {catLabel}
           </p>
-          {post.title && (
-            <p className="text-[9px] sm:text-[10px] font-bold text-warm-900 truncate leading-tight mt-0.5">{post.title}</p>
-          )}
         </div>
         {post.kcal_total > 0 && (
           <span className="text-[9px] sm:text-[10px] text-warm-400 flex-shrink-0 whitespace-nowrap">{post.kcal_total} kcal</span>
@@ -217,17 +209,21 @@ function FeedCard({ post }: { post: FeedPost }) {
 export default function MenuGunluguClient({
   initialFeed,
   adminMenus,
+  adminProfile,
 }: {
   initialFeed: FeedPost[];
   adminMenus: AdminMenu[];
-  adminProfile?: { username: string; avatar_url: string | null } | null;
+  adminProfile?: AdminProfile | null;
 }) {
-  const [feed, setFeed]           = useState<FeedPost[]>(initialFeed);
-  const [page, setPage]           = useState(0);
-  const [loading, setLoading]     = useState(false);
-  const [hasMore, setHasMore]     = useState(initialFeed.length === 20);
-  const [catFilter, setCatFilter] = useState("all");
-  const scrollRef                 = useRef<HTMLDivElement>(null);
+  const [feed, setFeed]               = useState<FeedPost[]>(initialFeed);
+  const [page, setPage]               = useState(0);
+  const [loading, setLoading]         = useState(false);
+  const [hasMore, setHasMore]         = useState(initialFeed.length === 20);
+  const [catFilter, setCatFilter]     = useState("all");
+  const [feedCatFilter, setFeedCatFilter] = useState("all");
+  const scrollRef                     = useRef<HTMLDivElement>(null);
+
+  const ap: AdminProfile = adminProfile ?? { username: "Admin", avatar_url: null };
 
   function scrollBy(dir: 1 | -1) {
     scrollRef.current?.scrollBy({ left: dir * 288, behavior: "smooth" });
@@ -246,15 +242,25 @@ export default function MenuGunluguClient({
     } finally { setLoading(false); }
   }
 
+  // Editor category filter
   const presentKeys = [...new Set(adminMenus.map(m => m.menu_category))];
   const catFilters = [
     { key: "all", label: "Tümü" },
     ...presentKeys.map(k => ({ key: k, label: getCatLabel(k) })),
   ];
-
   const filteredMenus = catFilter === "all"
     ? adminMenus
     : adminMenus.filter(m => m.menu_category === catFilter);
+
+  // Feed category filter
+  const feedPresentKeys = [...new Set(feed.map(p => p.category).filter(Boolean) as string[])];
+  const feedCatFilters = [
+    { key: "all", label: "Tümü" },
+    ...feedPresentKeys.map(k => ({ key: k, label: getCatLabel(k) })),
+  ];
+  const filteredFeed = feedCatFilter === "all"
+    ? feed
+    : feed.filter(p => p.category === feedCatFilter);
 
   return (
     <div className="space-y-8">
@@ -285,9 +291,8 @@ export default function MenuGunluguClient({
             </div>
           )}
 
-          {/* Slider — ok butonları */}
+          {/* Slider */}
           <div className="relative group/slider">
-            {/* Sol ok */}
             <button
               onClick={() => scrollBy(-1)}
               className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 z-10 w-8 h-8 bg-white border border-warm-200 rounded-full shadow-md items-center justify-center text-warm-600 hover:bg-warm-50 hover:text-warm-900 transition-all opacity-0 group-hover/slider:opacity-100"
@@ -298,13 +303,12 @@ export default function MenuGunluguClient({
 
             <div ref={scrollRef}
               className="flex gap-3 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden -mx-4 px-4 sm:mx-0 sm:px-0 scroll-smooth">
-              {filteredMenus.map(m => <AdminMenuCard key={m.id} menu={m} />)}
+              {filteredMenus.map(m => <AdminMenuCard key={m.id} menu={m} adminProfile={ap} />)}
               {filteredMenus.length === 0 && (
                 <p className="text-sm text-warm-400 py-6">Bu kategoride menü yok</p>
               )}
             </div>
 
-            {/* Sağ ok */}
             <button
               onClick={() => scrollBy(1)}
               className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 z-10 w-8 h-8 bg-white border border-warm-200 rounded-full shadow-md items-center justify-center text-warm-600 hover:bg-warm-50 hover:text-warm-900 transition-all opacity-0 group-hover/slider:opacity-100"
@@ -326,18 +330,35 @@ export default function MenuGunluguClient({
           <div className="flex-1 h-px bg-warm-100" />
         </div>
 
-        {feed.length === 0 && !loading && (
+        {feedCatFilters.length > 2 && (
+          <div className="flex gap-2 overflow-x-auto pb-2 mb-4 [&::-webkit-scrollbar]:hidden">
+            {feedCatFilters.map(f => (
+              <button key={f.key} onClick={() => setFeedCatFilter(f.key)}
+                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors whitespace-nowrap ${
+                  feedCatFilter === f.key
+                    ? "bg-brand-600 text-white shadow-sm"
+                    : "bg-warm-100 text-warm-600 hover:bg-warm-200"
+                }`}>
+                {f.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {filteredFeed.length === 0 && !loading && (
           <div className="text-center py-16 bg-warm-50 rounded-2xl">
             <p className="text-4xl mb-3">📔</p>
-            <p className="text-sm font-semibold text-warm-600 mb-1">Henüz paylaşım yok</p>
+            <p className="text-sm font-semibold text-warm-600 mb-1">
+              {feedCatFilter === "all" ? "Henüz paylaşım yok" : "Bu kategoride paylaşım yok"}
+            </p>
           </div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {feed.map(p => <FeedCard key={p.id} post={p} />)}
+          {filteredFeed.map(p => <FeedCard key={p.id} post={p} />)}
         </div>
 
-        {hasMore && (
+        {hasMore && feedCatFilter === "all" && (
           <button onClick={loadMore} disabled={loading}
             className="mt-6 w-full py-3 text-sm font-semibold text-brand-600 hover:bg-brand-50 rounded-2xl border border-warm-200 transition-colors disabled:opacity-50">
             {loading ? "Yükleniyor…" : "Daha fazla göster"}

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/server";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import PagePopup from "@/components/ui/PagePopup";
+import PageHeader from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = {
   title: "Blog",
@@ -165,6 +166,11 @@ export default async function BlogPage({ searchParams }: Props) {
   return (
     <SidebarLayout placement="sidebar_blog" adSenseSlot="blog_dikey_masaustu">
     <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+      <PageHeader
+        title="Blog"
+        description="Yemek kültürü, mutfak rehberleri ve tarifin arkasındaki hikayeler."
+        emoji="✍️"
+      />
       {/* Kategori filtreleri */}
       {categories.length > 0 && (
         <div className="mb-4 sm:mb-8">

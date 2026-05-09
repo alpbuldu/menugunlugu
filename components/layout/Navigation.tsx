@@ -310,7 +310,7 @@ function DesktopUserMenu() {
           </Link>
           <Link href="/uye/panel?tab=tarif-defterim" onClick={() => setOpen(false)}
             className="flex items-center gap-2 px-4 py-3 text-sm text-warm-700 hover:bg-warm-50 border-b border-warm-100 transition-colors">
-            <span>📚</span> Tarif Defterim
+            <span>📚</span> Defterim
           </Link>
           <Link href="/uye/panel?tab=yazilarim" onClick={() => setOpen(false)}
             className="flex items-center gap-2 px-4 py-3 text-sm text-warm-700 hover:bg-warm-50 border-b border-warm-100 transition-colors">

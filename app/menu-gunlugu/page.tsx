@@ -4,6 +4,7 @@ import MenuGunluguClient from "./MenuGunluguClient";
 import SidebarLayout from "@/components/ui/SidebarLayout";
 import AdSlot from "@/components/ui/AdSlot";
 import PagePopup from "@/components/ui/PagePopup";
+import PageHeader from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = {
   title: "Menü Önerileri",
@@ -65,11 +66,17 @@ export default async function MenuGunluguPage() {
   return (
     <SidebarLayout placement="sidebar_menu_olustur" adSenseSlot="menu_olustur_dikey">
       <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <PageHeader
+          title="Menü Günlüğü"
+          description="Editörün günlük menü önerileri ve topluluktan paylaşımlar."
+          emoji="📅"
+        />
         <AdSlot placement="menu_olustur_banner_mobile" adSenseSlot="menu_olustur_yatay"
           imageHeight="h-[70px]" adWidth="100%" adHeight="70px" className="sm:hidden mb-4" />
         <MenuGunluguClient
           initialFeed={enrichedFeed}
           adminMenus={adminMenus as any}
+          adminProfile={ap ? { username: ap.username, avatar_url: ap.avatar_url ?? null } : null}
         />
       </div>
       <PagePopup page="menu_olustur" />

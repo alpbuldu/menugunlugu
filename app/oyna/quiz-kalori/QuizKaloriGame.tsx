@@ -304,7 +304,7 @@ export default function QuizKaloriGame() {
           <span className="text-white/60 text-sm font-semibold">{qIdx + 1}/{questions.length}</span>
         </div>
 
-        <div className="relative h-64 rounded-2xl overflow-hidden mb-4 flex-shrink-0">
+        <div className="relative h-80 rounded-2xl overflow-hidden mb-4 flex-shrink-0">
           <img src={q.image_url} alt={q.title} className="w-full h-full object-cover" />
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
             <p className="text-white font-extrabold text-lg leading-tight">{q.title}</p>

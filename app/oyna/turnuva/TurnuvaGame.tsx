@@ -146,7 +146,7 @@ export default function TurnuvaGame() {
     const expandedObj = CATS.find(c => c.key === expandedCat);
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#C8922A] to-[#5A3800] flex flex-col">
-        <div className="max-w-2xl mx-auto w-full px-4 py-6">
+        <div className="max-w-4xl mx-auto w-full px-4 py-6">
           <div className="flex items-center justify-between mb-6">
             <Link href="/oyna" className="w-9 h-9 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 transition-colors">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -208,7 +208,7 @@ export default function TurnuvaGame() {
   if (phase === "champion" && champion) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#8B6010] to-[#3D2800] flex flex-col">
-        <div className="max-w-2xl mx-auto w-full px-4 py-8 flex flex-col items-center">
+        <div className="max-w-4xl mx-auto w-full px-4 py-8 flex flex-col items-center">
           <div className="text-center mb-5">
             <span className="text-5xl block mb-3">🏆</span>
             <h1 className="text-2xl font-extrabold text-white mb-1">Şampiyon!</h1>
@@ -272,7 +272,7 @@ export default function TurnuvaGame() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#C8922A] to-[#5A3800] flex flex-col">
-      <div className="max-w-2xl mx-auto w-full px-4 py-5 flex flex-col">
+      <div className="max-w-4xl mx-auto w-full px-4 py-5 flex flex-col">
 
         {/* Header */}
         <div className="flex items-center justify-between mb-4">

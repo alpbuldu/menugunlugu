@@ -321,7 +321,7 @@ export default function TurnuvaGame() {
                   ? "scale-95 border-white opacity-80"
                   : "border-white/20 hover:border-white/70 hover:scale-[1.02] active:scale-95"
               }`}>
-              <div className="relative aspect-[1/1]">
+              <div className="relative aspect-[1/2] sm:aspect-[1/1]">
                 {r.image_url
                   ? <Image src={r.image_url} alt={r.title} fill className="object-cover" />
                   : <div className="absolute inset-0 bg-white/10 flex items-center justify-center text-4xl">🍴</div>}

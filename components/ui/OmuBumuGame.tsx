@@ -287,7 +287,7 @@ export default function OmuBumuGame() {
                   isLoser  ? "scale-95 border-white/20 opacity-50" :
                   "border-white/20 hover:border-white/70 hover:scale-[1.02] active:scale-95"
                 }`}>
-                <div className="relative aspect-[1/1]">
+                <div className="relative aspect-[1/2] sm:aspect-[1/1]">
                   {food.image_url
                     ? <Image src={food.image_url} alt={food.title} fill className="object-cover" />
                     : <div className="absolute inset-0 bg-white/10 flex items-center justify-center text-4xl">🍴</div>}

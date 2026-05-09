@@ -107,7 +107,6 @@ export default async function MenuPage() {
         title="Günün Menüsü"
         description="Her gün yayınlanan çorba, ana yemek, yardımcı lezzet ve tatlıdan oluşan günlük menü önerilerini keşfet."
         emoji="🍲"
-        className="bg-amber-50 border-amber-100"
       />
       {/* Mobil başlık — tarih+başlık sola, kalori ortalı sağa */}
       <div className="flex items-center justify-between mb-4 sm:hidden">

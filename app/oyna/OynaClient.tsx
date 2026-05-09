@@ -137,7 +137,6 @@ export default function OynaClient({ leaderboard }: { leaderboard: LeaderEntry[]
           title="Oyna"
           description="Yemek dünyasına özel eğlenceli mini oyunlar, testler ve etkileşimli içeriklerle vakit geçir."
           emoji="🎮"
-          className="bg-yellow-50 border-yellow-100"
         />
 
         {/* Points / login */}

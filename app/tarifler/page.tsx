@@ -92,7 +92,6 @@ export default async function RecipesPage({ searchParams }: Props) {
         title="Tarifler"
         description="Binlerce tarif arasından dilediğini keşfet, kaydet ve kendi sofrana uygun içerikleri bul."
         emoji="📖"
-        className="bg-orange-50 border-orange-100"
       />
       {/* Category Filter */}
       <div className="mb-4 sm:mb-8">

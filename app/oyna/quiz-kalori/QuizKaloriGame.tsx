@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
@@ -55,6 +55,7 @@ export default function QuizKaloriGame() {
   const [phase, setPhase]             = useState<Phase>("category");
   const [expandedCat, setExpandedCat] = useState<string | null>(null);
   const [subcatCounts, setSubcatCounts] = useState<Record<string, number>>({});
+  const [selLabel, setSelLabel]       = useState("");
 
   // game state
   const [questions, setQuestions]   = useState<Question[]>([]);
@@ -65,6 +66,22 @@ export default function QuizKaloriGame() {
   const [totalAdded, setTotalAdded] = useState<number | null>(null);
 
   const supabase = createClient();
+
+  // Auto-advance 2s after answering
+  useEffect(() => {
+    if (answered === "idle") return;
+    const timer = setTimeout(() => {
+      const nextIdx = qIdx + 1;
+      if (nextIdx >= questions.length) {
+        setPhase("result");
+      } else {
+        setQIdx(nextIdx);
+        setAnswered("idle");
+        setSelected(null);
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, [answered, qIdx, questions.length]);
 
   async function loadSubcatCounts(catKey: string) {
     const { data } = await supabase.from("recipes").select("subcategories")
@@ -82,6 +99,7 @@ export default function QuizKaloriGame() {
 
   async function pickCat(key: string) {
     setPhase("loading");
+    setSelLabel(CATS.find(c => c.key === key)?.label ?? "");
     const { data } = await supabase.from("recipes").select("id, title, slug, image_url, kcal_per_person")
       .eq("category", key).eq("approval_status", "approved")
       .not("image_url", "is", null).not("kcal_per_person", "is", null).gt("kcal_per_person", 0);
@@ -91,6 +109,7 @@ export default function QuizKaloriGame() {
 
   async function pickSubcat(catKey: string, subcat: string) {
     setPhase("loading");
+    setSelLabel(subcat);
     const { data } = await supabase.from("recipes").select("id, title, slug, image_url, kcal_per_person")
       .eq("category", catKey).eq("approval_status", "approved")
       .not("image_url", "is", null).not("kcal_per_person", "is", null).gt("kcal_per_person", 0)
@@ -120,27 +139,36 @@ export default function QuizKaloriGame() {
     setPhase("category");
     setQuestions([]); setQIdx(0);
     setAnswered("idle"); setSelected(null);
-    setScores([]); setTotalAdded(null); setExpandedCat(null);
+    setScores([]); setTotalAdded(null); setExpandedCat(null); setSelLabel("");
+  }
+
+  function handleShare() {
+    const correctCount = scores.filter(s => s > 0).length;
+    const pct = Math.round((correctCount / questions.length) * 100);
+    const catLine = selLabel ? `${selLabel} kategorisinde ` : "";
+    const text = `🔥 Menü Günlüğü Kalori Quiz'de ${catLine}${correctCount}/${questions.length} doğru bildim! (%${pct})\nSen kaç yaparsın?\nmenugunlugu.com`;
+    if (typeof navigator !== "undefined" && navigator.share) navigator.share({ text }).catch(() => {});
+    else if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(text);
   }
 
   /* ── CATEGORY ── */
   if (phase === "category") {
     const expandedObj = CATS.find(c => c.key === expandedCat);
     return (
-      <div className="min-h-screen bg-[#FAF7F4] flex flex-col">
+      <div className="min-h-screen bg-gradient-to-b from-[#9A3A5A] to-[#3A0A1A] flex flex-col">
         <div className="max-w-lg mx-auto w-full px-4 py-6">
           <div className="flex items-center justify-between mb-6">
-            <Link href="/oyna" className="w-9 h-9 flex items-center justify-center rounded-full bg-warm-100 hover:bg-warm-200 transition-colors">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3D2B1F" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            <Link href="/oyna" className="w-9 h-9 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 transition-colors">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             </Link>
             <div className="text-center flex-1 mx-4">
-              <p className="font-bold text-warm-900">Kalori Quiz 🔥</p>
-              <p className="text-xs text-warm-400">Kategori seç ve oynamaya başla!</p>
+              <p className="font-bold text-white">Kalori Quiz 🔥</p>
+              <p className="text-xs text-white/60">Kategori seç ve oynamaya başla!</p>
             </div>
             <div className="w-9" />
           </div>
 
-          <div className="text-xs font-semibold text-warm-400 text-center tracking-wider uppercase mb-3">Ana Kategoriler</div>
+          <div className="text-xs font-semibold text-white/50 text-center tracking-wider uppercase mb-3">Ana Kategoriler</div>
           <div className="grid grid-cols-2 gap-3 mb-4">
             {CATS.map(c => (
               <button key={c.key} onClick={() => toggleCat(c.key)}
@@ -157,17 +185,17 @@ export default function QuizKaloriGame() {
 
           {expandedCat && expandedObj && (
             <div className="mb-4">
-              <div className="text-xs font-semibold text-warm-400 text-center tracking-wider uppercase mb-3">Alt Kategoriler</div>
+              <div className="text-xs font-semibold text-white/50 text-center tracking-wider uppercase mb-3">Alt Kategoriler</div>
               <button onClick={() => pickCat(expandedCat)}
                 className={`w-full flex items-center gap-2 rounded-xl px-4 py-3 mb-3 text-white font-bold text-sm bg-gradient-to-r ${expandedObj.bg}`}>
                 <span>{expandedObj.emoji}</span>
                 <span className="flex-1 text-left">Tüm {LABEL_PLURAL[expandedCat]} ile Oyna</span>
                 <span>→</span>
               </button>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap justify-center gap-2">
                 {(SUBCATEGORIES[expandedCat] ?? []).filter(sub => (subcatCounts[sub] ?? 0) >= MIN_RECIPES).map(sub => (
                   <button key={sub} onClick={() => pickSubcat(expandedCat, sub)}
-                    className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white border border-warm-200 text-warm-700 hover:bg-warm-50 transition-colors">
+                    className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/15 border border-white/30 text-white hover:bg-white/25 transition-colors">
                     {sub}
                   </button>
                 ))}
@@ -180,50 +208,63 @@ export default function QuizKaloriGame() {
   }
 
   if (phase === "loading") return (
-    <div className="min-h-screen bg-[#FAF7F4] flex items-center justify-center flex-col gap-3">
-      <div className="w-8 h-8 border-4 border-warm-200 border-t-[#9A3A5A] rounded-full animate-spin" />
-      <p className="text-warm-500 text-sm">Sorular hazırlanıyor…</p>
+    <div className="min-h-screen bg-gradient-to-b from-[#9A3A5A] to-[#3A0A1A] flex items-center justify-center flex-col gap-3">
+      <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+      <p className="text-white/60 text-sm">Sorular hazırlanıyor…</p>
     </div>
   );
 
   /* ── RESULT ── */
   if (phase === "result") {
     const total = scores.reduce((a, b) => a + b, 0);
-    const correct = scores.filter(s => s > 0).length;
+    const correctCount = scores.filter(s => s > 0).length;
+    const pct = Math.round((correctCount / questions.length) * 100);
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#9A3A5A] to-[#3A0A1A] flex flex-col">
         <div className="max-w-lg mx-auto w-full px-4 py-8">
-          <button onClick={restart} className="text-white/60 text-sm mb-6 block hover:text-white/90">← Geri</button>
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <span className="text-5xl block mb-3">
-              {correct >= 8 ? "🔥" : correct >= 5 ? "💪" : "🎯"}
+              {correctCount >= 8 ? "🔥" : correctCount >= 5 ? "💪" : "🎯"}
             </span>
-            <h1 className="text-2xl font-extrabold text-white mb-1">Quiz Bitti!</h1>
-            <p className="text-white/60 text-sm">10 sorudan {correct} doğru</p>
+            <div className="flex items-baseline justify-center gap-2 mb-1">
+              <span className="text-5xl font-extrabold text-white">{correctCount}</span>
+              <span className="text-2xl font-bold text-white/50">/{questions.length}</span>
+            </div>
+            <p className="text-white/60 text-sm">%{pct} doğru</p>
           </div>
-          <div className="bg-white/10 rounded-2xl p-6 text-center mb-6">
-            <p className="text-5xl font-extrabold text-white mb-1">{total}</p>
-            <p className="text-white/60 text-sm">/ 10 puan</p>
-            {totalAdded !== null && totalAdded > 0 && (
-              <p className="mt-3 text-pink-300 font-bold text-sm">+{totalAdded} puan hesabına eklendi 🎉</p>
-            )}
+          <div className="flex items-center gap-2 mb-6">
+            <div className="flex-1 bg-white/10 rounded-2xl p-4 text-center">
+              {totalAdded !== null && totalAdded > 0
+                ? <p className="text-pink-300 font-bold text-sm">+{totalAdded} puan hesabınıza eklendi 🎉</p>
+                : <p className="text-white/50 text-sm">Oynayarak puan kazan!</p>
+              }
+            </div>
+            <button onClick={handleShare}
+              className="flex-shrink-0 bg-[#9A3A5A] hover:bg-[#7A2A45] border border-white/25 rounded-2xl px-4 py-4 text-white font-bold text-sm transition-colors">
+              Paylaş
+            </button>
           </div>
-          <div className="space-y-2 mb-8">
+          <div className="grid grid-cols-2 gap-2 mb-6">
             {questions.map((q, i) => (
-              <div key={q.id} className="flex items-center gap-3 bg-white/8 rounded-xl p-3">
-                <span className="text-base flex-shrink-0">{scores[i] > 0 ? "✅" : "❌"}</span>
+              <div key={q.id} className="flex items-center gap-2 bg-white/8 rounded-xl p-2.5">
+                <span className="text-sm flex-shrink-0">{scores[i] > 0 ? "✅" : "❌"}</span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-white text-sm font-semibold truncate">{q.title}</p>
-                  <p className="text-white/50 text-xs">{q.kcal} kcal</p>
+                  <p className="text-white text-xs font-semibold truncate">{q.title}</p>
+                  <p className="text-white/50 text-[10px]">{q.kcal} kcal</p>
                 </div>
-                <span className="text-white/60 text-sm font-bold flex-shrink-0">{scores[i] ?? 0} pt</span>
               </div>
             ))}
           </div>
-          <button onClick={restart}
-            className="block w-full py-3.5 bg-white/20 hover:bg-white/30 border border-white/25 rounded-2xl text-white font-bold text-center transition-colors">
-            Yeni Quiz
-          </button>
+          <div className="flex gap-3">
+            <button onClick={restart}
+              className="flex-1 py-3.5 bg-white/20 hover:bg-white/30 border border-white/25 rounded-2xl text-white font-bold transition-colors text-sm">
+              Tekrar Oyna
+            </button>
+            <Link href="/oyna"
+              className="flex-1 py-3.5 bg-transparent hover:bg-white/10 border border-white/25 rounded-2xl text-white/80 font-bold transition-colors text-sm text-center flex items-center justify-center">
+              Oyun Sayfasına Dön
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -247,17 +288,6 @@ export default function QuizKaloriGame() {
     }
   }
 
-  function next() {
-    const nextIdx = qIdx + 1;
-    if (nextIdx >= questions.length) {
-      setPhase("result");
-    } else {
-      setQIdx(nextIdx);
-      setAnswered("idle");
-      setSelected(null);
-    }
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#9A3A5A] to-[#3A0A1A] flex flex-col">
       <div className="max-w-lg mx-auto w-full px-4 py-6 flex flex-col flex-1">
@@ -273,12 +303,6 @@ export default function QuizKaloriGame() {
           <span className="text-white/60 text-sm font-semibold">{qIdx + 1}/{questions.length}</span>
         </div>
 
-        <div className="text-center mb-4">
-          <span className="inline-block bg-white/15 border border-white/25 rounded-full px-3 py-1 text-white text-xs font-bold">
-            Doğru = 1 puan 🔥
-          </span>
-        </div>
-
         <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-4 flex-shrink-0">
           <img src={q.image_url} alt={q.title} className="w-full h-full object-cover" />
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
@@ -288,6 +312,11 @@ export default function QuizKaloriGame() {
           {answered !== "idle" && (
             <div className={`absolute inset-0 flex items-center justify-center ${answered === "correct" ? "bg-emerald-500/20" : "bg-red-500/20"}`}>
               <span className="text-5xl">{answered === "correct" ? "✅" : "❌"}</span>
+            </div>
+          )}
+          {answered !== "idle" && (
+            <div className="absolute top-2 right-2 bg-black/50 rounded-full px-2 py-0.5">
+              <span className="text-white/70 text-xs">Sonraki soru…</span>
             </div>
           )}
         </div>
@@ -315,13 +344,6 @@ export default function QuizKaloriGame() {
             );
           })}
         </div>
-
-        {answered !== "idle" && (
-          <button onClick={next}
-            className="w-full py-3.5 bg-white/20 hover:bg-white/30 border border-white/30 rounded-2xl text-white font-bold transition-colors">
-            {qIdx + 1 < questions.length ? "Sonraki Soru →" : "Sonuçları Gör"}
-          </button>
-        )}
       </div>
     </div>
   );

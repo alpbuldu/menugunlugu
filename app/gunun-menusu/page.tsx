@@ -120,7 +120,7 @@ export default async function MenuPage() {
       </div>
       {/* Masaüstü başlık — tek satır, sağda kalori */}
       <div className="hidden sm:flex items-start justify-between mb-4 gap-2">
-        <p className="text-base text-warm-700 font-semibold capitalize">{today} Günün Menüsü</p>
+        <p className="text-base text-warm-700 font-semibold capitalize">{today}</p>
         {totalKcal > 0 && (
           <span className="shrink-0 text-sm text-warm-500 font-semibold">
             Toplam Kalori: {totalKcal} kcal

@@ -13,6 +13,8 @@ import UnfollowButton from "./UnfollowButton";
 import LogoutButton from "./LogoutButton";
 import RemoveFavoriteButton from "./RemoveFavoriteButton";
 import RemoveBlogFavoriteButton from "./RemoveBlogFavoriteButton";
+import DeleteMenuPostButton from "./DeleteMenuPostButton";
+import RemoveSavedMenuButton from "./RemoveSavedMenuButton";
 import ProfileWatcher from "./ProfileWatcher";
 import AvatarUpload from "./AvatarUpload";
 import NewUserSetup from "./NewUserSetup";
@@ -135,7 +137,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
       .order("created_at", { ascending: false }),
     supabase
       .from("saved_menus")
-      .select("id, created_at, name, soup_id, soup_title, soup_image_url, main_id, main_title, main_image_url, side_id, side_title, side_image_url, dessert_id, dessert_title, dessert_image_url")
+      .select("id, feed_post_id, created_at, name, soup_id, soup_title, soup_image_url, main_id, main_title, main_image_url, side_id, side_title, side_image_url, dessert_id, dessert_title, dessert_image_url")
       .eq("user_id", user.id)
       .eq("is_feed_save", true)
       .order("created_at", { ascending: false }),
@@ -511,9 +513,12 @@ export default async function UyePanelPage({ searchParams }: Props) {
               {(!menuTab || menuTab === "paylas") && (menuPosts?.length ?? 0) > 0 && (
                 <div className={menuTab ? "" : "mb-6"}>
                   {!menuTab && <p className="text-xs font-semibold text-warm-500 mb-3">Paylaştıklarım ({menuPosts!.length})</p>}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     {(menuPosts as any[]).map((menu) => (
-                      <MenuKarti key={menu.id} menu={menu} />
+                      <div key={menu.id} className="relative">
+                        <DeleteMenuPostButton postId={menu.id} />
+                        <MenuKarti menu={menu} />
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -523,9 +528,12 @@ export default async function UyePanelPage({ searchParams }: Props) {
               {(!menuTab || menuTab === "kaydet") && savedMenus.length > 0 && (
                 <div>
                   {!menuTab && <p className="text-xs font-semibold text-warm-500 mb-3">Kaydettiklerim ({savedMenus.length})</p>}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     {savedMenus.map((menu: any) => (
-                      <MenuKarti key={menu.id} menu={menu} />
+                      <div key={menu.id} className="relative">
+                        {menu.feed_post_id && <RemoveSavedMenuButton feedPostId={menu.feed_post_id} />}
+                        <MenuKarti menu={menu} />
+                      </div>
                     ))}
                   </div>
                 </div>

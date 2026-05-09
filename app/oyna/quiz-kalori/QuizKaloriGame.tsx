@@ -157,7 +157,7 @@ export default function QuizKaloriGame() {
     const expandedObj = CATS.find(c => c.key === expandedCat);
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#9A3A5A] to-[#3A0A1A] flex flex-col">
-        <div className="max-w-lg mx-auto w-full px-4 py-6">
+        <div className="max-w-2xl mx-auto w-full px-4 py-6">
           <div className="flex items-center justify-between mb-6">
             <Link href="/oyna" className="w-9 h-9 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 transition-colors">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -222,7 +222,7 @@ export default function QuizKaloriGame() {
     const pct = Math.round((correctCount / questions.length) * 100);
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#9A3A5A] to-[#3A0A1A] flex flex-col">
-        <div className="max-w-lg mx-auto w-full px-4 py-8">
+        <div className="max-w-2xl mx-auto w-full px-4 py-8">
           <div className="text-center mb-6">
             <span className="text-5xl block mb-3">
               {correctCount >= 8 ? "🔥" : correctCount >= 5 ? "💪" : "🎯"}
@@ -291,7 +291,7 @@ export default function QuizKaloriGame() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#9A3A5A] to-[#3A0A1A] flex flex-col">
-      <div className="max-w-lg mx-auto w-full px-4 py-6 flex flex-col flex-1">
+      <div className="max-w-2xl mx-auto w-full px-4 py-6 flex flex-col flex-1">
         <div className="flex items-center justify-between mb-4">
           <button onClick={restart} className="text-white/60 text-sm hover:text-white/90">← Geri</button>
           <div className="flex gap-1.5">

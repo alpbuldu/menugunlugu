@@ -122,7 +122,7 @@ export default function KorSiralamaGame() {
     const expandedObj = CATS.find(c => c.key === expandedCat);
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#4A2260] to-[#2A1040] flex flex-col">
-        <div className="max-w-lg mx-auto w-full px-4 py-6">
+        <div className="max-w-2xl mx-auto w-full px-4 py-6">
           <div className="flex items-center justify-between mb-6">
             <Link href="/oyna" className="w-9 h-9 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 transition-colors">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -184,7 +184,7 @@ export default function KorSiralamaGame() {
   if (phase === "result") {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#4A2260] to-[#2A1040] flex flex-col">
-        <div className="max-w-lg mx-auto w-full px-4 py-8">
+        <div className="max-w-2xl mx-auto w-full px-4 py-8">
           <h1 className="text-2xl font-extrabold text-white mb-1">Sıralamana Bak! 🏅</h1>
           <p className="text-white/60 text-sm mb-4">İşte senin nihai sıralaman</p>
           {pointsMsg && (
@@ -230,7 +230,7 @@ export default function KorSiralamaGame() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F4] flex flex-col">
-      <div className="max-w-lg mx-auto w-full px-4 py-4 flex flex-col flex-1">
+      <div className="max-w-2xl mx-auto w-full px-4 py-4 flex flex-col flex-1">
         <div className="flex items-center justify-between mb-4">
           <button onClick={restart} className="w-9 h-9 flex items-center justify-center rounded-full bg-warm-100 hover:bg-warm-200 transition-colors">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3D2B1F" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>

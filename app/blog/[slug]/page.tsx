@@ -168,7 +168,7 @@ export default async function BlogPostPage({ params }: Props) {
           )}
           {/* Kategori etiketi — sol alt */}
           {post.category && (
-            <span className="absolute bottom-3 left-3 bg-black/40 backdrop-blur-sm rounded-full px-2.5 py-1 text-[10px] font-semibold text-white">
+            <span className="absolute bottom-3 left-3 bg-brand-500 rounded-full px-2.5 py-1 text-[10px] font-semibold text-white">
               {post.category.name}
             </span>
           )}

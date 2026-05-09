@@ -80,6 +80,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
     { data: adminProfile },
     { data: followers },
     { data: menuPosts },
+    { data: savedMenusRaw },
   ] = await Promise.all([
     supabase
       .from("profiles")
@@ -127,9 +128,15 @@ export default async function UyePanelPage({ searchParams }: Props) {
       .eq("following_id", user.id)
       .order("created_at", { ascending: false }),
     supabase
-      .from("menu_feed")
-      .select("id, created_at, category, kcal_total, soup_title, main_title, side_title, dessert_title, soup_slug, main_slug, side_slug, dessert_slug, soup_image_url, main_image_url, side_image_url, dessert_image_url")
+      .from("menu_feed_posts")
+      .select("id, created_at, category, title, soup_title, main_title, side_title, dessert_title, soup_slug, main_slug, side_slug, dessert_slug, soup_image_url, main_image_url, side_image_url, dessert_image_url")
       .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("saved_menus")
+      .select("id, created_at, name, soup_id, soup_title, soup_image_url, main_id, main_title, main_image_url, side_id, side_title, side_image_url, dessert_id, dessert_title, dessert_image_url")
+      .eq("user_id", user.id)
+      .eq("is_feed_save", true)
       .order("created_at", { ascending: false }),
   ]);
 
@@ -154,6 +161,23 @@ export default async function UyePanelPage({ searchParams }: Props) {
   }
   const adminUsername  = adminProfile?.username ?? "Menü Günlüğü";
   const adminAvatarUrl = adminProfile?.avatar_url ?? null;
+
+  // Kaydedilen menüler için slug haritası
+  const savedMenuRecipeIds = [...new Set(
+    (savedMenusRaw ?? []).flatMap((m: any) => [m.soup_id, m.main_id, m.side_id, m.dessert_id].filter(Boolean))
+  )];
+  const savedMenuSlugMap: Record<string, string> = {};
+  if (savedMenuRecipeIds.length) {
+    const { data: slugRows } = await supabase.from("recipes").select("id, slug").in("id", savedMenuRecipeIds);
+    (slugRows ?? []).forEach((r: any) => { savedMenuSlugMap[r.id] = r.slug; });
+  }
+  const savedMenus = (savedMenusRaw ?? []).map((m: any) => ({
+    ...m,
+    soup_slug:    m.soup_id    ? savedMenuSlugMap[m.soup_id]    ?? null : null,
+    main_slug:    m.main_id    ? savedMenuSlugMap[m.main_id]    ?? null : null,
+    side_slug:    m.side_id    ? savedMenuSlugMap[m.side_id]    ?? null : null,
+    dessert_slug: m.dessert_id ? savedMenuSlugMap[m.dessert_id] ?? null : null,
+  }));
 
   // Takip ettiklerim: admin önce, sonra üyeler
   type FollowEntry = { type: "admin" } | { type: "member"; id: string; username: string; full_name: string | null; avatar_url: string | null; followingId: string };
@@ -338,7 +362,7 @@ export default async function UyePanelPage({ searchParams }: Props) {
               { key: undefined,  label: `Tümü (${totalDefterCount})` },
               { key: "tarifler", label: `Tarifler (${favorites?.length ?? 0})` },
               { key: "blog",     label: `Blog Yazıları (${blogFavorites?.length ?? 0})` },
-              { key: "menu",     label: `Menülerim (${menuPosts?.length ?? 0})` },
+              { key: "menu",     label: `Menülerim (${(menuPosts?.length ?? 0) + (savedMenus?.length ?? 0)})` },
             ].map((f) => (
               <Link key={f.key ?? "tumü"} href={`/uye/panel?tab=tarif-defterim${f.key ? `&defter=${f.key}` : ""}`}
                 className={["px-3 py-1.5 rounded-full text-xs font-medium border transition-colors",
@@ -456,53 +480,31 @@ export default async function UyePanelPage({ searchParams }: Props) {
           {/* ─ Menülerim filtresi ─ */}
           {defter === "menu" && (
             <>
-              {!menuPosts || menuPosts.length === 0 ? (
-                <Empty icon="🗓️" text="Henüz paylaşılan menü yok. Menü Günlüğü'nden menü oluşturabilirsiniz." />
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                  {(menuPosts as any[]).map((menu) => (
-                    <div key={menu.id} className="bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                      <div className="px-3 py-2 border-b border-warm-100 flex items-center justify-between">
-                        <span className="text-[10px] font-semibold text-warm-600">
-                          {MENU_CAT_LABELS[menu.category] ?? (menu.category ? menu.category.charAt(0).toUpperCase() + menu.category.slice(1) + " Menüsü" : "Menü")}
-                        </span>
-                        {menu.kcal_total > 0 && <span className="text-[10px] text-warm-400">{menu.kcal_total} kcal</span>}
-                      </div>
-                      <div className="grid grid-cols-2 gap-px bg-warm-100">
-                        {[
-                          { img: menu.soup_image_url,    title: menu.soup_title,    slug: menu.soup_slug,    label: "Çorba" },
-                          { img: menu.main_image_url,    title: menu.main_title,    slug: menu.main_slug,    label: "Ana Yemek" },
-                          { img: menu.side_image_url,    title: menu.side_title,    slug: menu.side_slug,    label: "Yardımcı" },
-                          { img: menu.dessert_image_url, title: menu.dessert_title, slug: menu.dessert_slug, label: "Tatlı" },
-                        ].map((cell, idx) => {
-                          const cellInner = (
-                            <div className="relative bg-warm-50" style={{ aspectRatio: "1" }}>
-                              {cell.img ? (
-                                <Image src={cell.img} alt={cell.title ?? cell.label} fill className="object-cover" />
-                              ) : (
-                                <div className="absolute inset-0 flex items-center justify-center text-2xl bg-warm-100">🍽️</div>
-                              )}
-                              <div className="absolute top-1.5 left-1.5">
-                                <span className="inline-block bg-black/50 text-white text-[8px] font-semibold px-1 py-0.5 rounded leading-none">{cell.label}</span>
-                              </div>
-                              {cell.title && (
-                                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/75 to-transparent px-1.5 pb-1.5 pt-4">
-                                  <p className="text-white text-[9px] font-semibold leading-snug line-clamp-2">{cell.title}</p>
-                                </div>
-                              )}
-                            </div>
-                          );
-                          return cell.slug ? (
-                            <Link key={idx} href={`/tarifler/${cell.slug}`} className="block hover:opacity-90 transition-opacity">
-                              {cellInner}
-                            </Link>
-                          ) : (
-                            <div key={idx}>{cellInner}</div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
+              {(menuPosts?.length ?? 0) === 0 && savedMenus.length === 0 && (
+                <Empty icon="🗓️" text="Henüz paylaşılan veya kaydedilen menü yok." />
+              )}
+
+              {/* Paylaştıklarım */}
+              {(menuPosts?.length ?? 0) > 0 && (
+                <div className="mb-6">
+                  <p className="text-xs font-semibold text-warm-500 mb-3">Paylaştıklarım ({menuPosts!.length})</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                    {(menuPosts as any[]).map((menu) => (
+                      <MenuKarti key={menu.id} menu={menu} />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Kaydettiklerim */}
+              {savedMenus.length > 0 && (
+                <div>
+                  <p className="text-xs font-semibold text-warm-500 mb-3">Kaydettiklerim ({savedMenus.length})</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                    {savedMenus.map((menu: any) => (
+                      <MenuKarti key={menu.id} menu={menu} />
+                    ))}
+                  </div>
                 </div>
               )}
             </>
@@ -722,6 +724,49 @@ export default async function UyePanelPage({ searchParams }: Props) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function MenuKarti({ menu }: { menu: any }) {
+  const cells = [
+    { img: menu.soup_image_url,    title: menu.soup_title,    slug: menu.soup_slug,    label: "Çorba" },
+    { img: menu.main_image_url,    title: menu.main_title,    slug: menu.main_slug,    label: "Ana Yemek" },
+    { img: menu.side_image_url,    title: menu.side_title,    slug: menu.side_slug,    label: "Yardımcı" },
+    { img: menu.dessert_image_url, title: menu.dessert_title, slug: menu.dessert_slug, label: "Tatlı" },
+  ];
+  const catLabel = MENU_CAT_LABELS[menu.category] ?? (menu.category ? menu.category.charAt(0).toUpperCase() + menu.category.slice(1) + " Menüsü" : "Menü");
+  return (
+    <div className="bg-white rounded-xl sm:rounded-2xl border border-warm-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+      <div className="px-3 py-2 border-b border-warm-100 flex items-center justify-between">
+        <span className="text-[10px] font-semibold text-warm-600">{menu.title || catLabel}</span>
+      </div>
+      <div className="grid grid-cols-2 gap-px bg-warm-100">
+        {cells.map((cell, idx) => {
+          const inner = (
+            <div className="relative bg-warm-50" style={{ aspectRatio: "1" }}>
+              {cell.img ? (
+                <Image src={cell.img} alt={cell.title ?? cell.label} fill className="object-cover" />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center text-2xl bg-warm-100">🍽️</div>
+              )}
+              <div className="absolute top-1.5 left-1.5">
+                <span className="inline-block bg-black/50 text-white text-[8px] font-semibold px-1 py-0.5 rounded leading-none">{cell.label}</span>
+              </div>
+              {cell.title && (
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/75 to-transparent px-1.5 pb-1.5 pt-4">
+                  <p className="text-white text-[9px] font-semibold leading-snug line-clamp-2">{cell.title}</p>
+                </div>
+              )}
+            </div>
+          );
+          return cell.slug ? (
+            <Link key={idx} href={`/tarifler/${cell.slug}`} className="block hover:opacity-90 transition-opacity">{inner}</Link>
+          ) : (
+            <div key={idx}>{inner}</div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -21,7 +21,13 @@ export type AdPlacement =
   | "sidebar_blog"
   | "sidebar_blog_post"
   | "sidebar_menu_olustur"
-  | "menu_olustur_banner_mobile";
+  | "menu_olustur_banner_mobile"
+  | "sidebar_menu_gunlugu"
+  | "menu_gunlugu_banner"
+  | "menu_gunlugu_banner_mobile"
+  | "sidebar_oyna"
+  | "oyna_banner"
+  | "oyna_banner_mobile";
 
 interface Props {
   placement: AdPlacement;

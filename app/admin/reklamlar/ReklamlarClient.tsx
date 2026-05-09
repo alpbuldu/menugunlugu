@@ -37,6 +37,14 @@ const PLACEMENT_LABELS: Record<string, string> = {
   // ── Menü Oluştur ───────────────────────────────────────
   sidebar_menu_olustur:          "Menü Oluştur — Dikey Kenar (Masaüstü)",
   menu_olustur_banner_mobile:    "Menü Oluştur — Yatay Banner (Mobil)",
+  // ── Menü Önerileri ─────────────────────────────────────
+  sidebar_menu_gunlugu:          "Menü Önerileri — Dikey Kenar (Masaüstü)",
+  menu_gunlugu_banner:           "Menü Önerileri — Yatay Banner (Masaüstü)",
+  menu_gunlugu_banner_mobile:    "Menü Önerileri — Yatay Banner (Mobil)",
+  // ── Oyna ───────────────────────────────────────────────
+  sidebar_oyna:                  "Oyna — Dikey Kenar (Masaüstü)",
+  oyna_banner:                   "Oyna — Yatay Banner (Masaüstü)",
+  oyna_banner_mobile:            "Oyna — Yatay Banner (Mobil)",
 };
 
 const PLACEMENT_SIZES: Record<string, string> = {
@@ -56,6 +64,12 @@ const PLACEMENT_SIZES: Record<string, string> = {
   sidebar_blog_post:             "200 × 600 px dikey",
   sidebar_menu_olustur:          "200 × 600 px dikey",
   menu_olustur_banner_mobile:    "390 × 70 px dar yatay (mobil genişlik)",
+  sidebar_menu_gunlugu:          "200 × 600 px dikey",
+  menu_gunlugu_banner:           "1100 × 100 px geniş yatay",
+  menu_gunlugu_banner_mobile:    "390 × 70 px dar yatay (mobil genişlik)",
+  sidebar_oyna:                  "200 × 600 px dikey",
+  oyna_banner:                   "1100 × 100 px geniş yatay",
+  oyna_banner_mobile:            "390 × 70 px dar yatay (mobil genişlik)",
 };
 
 const PLACEMENTS = Object.keys(PLACEMENT_LABELS);

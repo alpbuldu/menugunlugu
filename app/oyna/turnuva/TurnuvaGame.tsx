@@ -28,6 +28,11 @@ const LABEL_PLURAL: Record<string, string> = {
 };
 const MIN_RECIPES = 8;
 const ROUND_NAMES = ["Çeyrek Final", "Yarı Final", "Final"];
+const ROUND_MOTIVATIONS = [
+  "Favorilerini belirle, tur atlasın!",
+  "Yarı finaldeyiz — zirveye yaklaşıyorsun!",
+  "Final! Şampiyon kim olacak?",
+];
 
 async function addPoints(pts: number) {
   try {
@@ -35,18 +40,23 @@ async function addPoints(pts: number) {
   } catch { /* ignore */ }
 }
 
+function seededPercent(a: string, b: string) {
+  const seed = [...(a + b)].reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  return 40 + (seed % 35);
+}
+
 export default function TurnuvaGame() {
   const [phase, setPhase]             = useState<Phase>("category");
   const [expandedCat, setExpandedCat] = useState<string | null>(null);
   const [subcatCounts, setSubcatCounts] = useState<Record<string, number>>({});
 
-  // game state
-  const [rounds, setRounds]       = useState<Food[][]>([]);
-  const [matchIdx, setMatchIdx]   = useState(0);
-  const [winners, setWinners]     = useState<Food[]>([]);
-  const [champion, setChampion]   = useState<Food | null>(null);
-  const [pointsMsg, setPointsMsg] = useState<string | null>(null);
-  const [animating, setAnimating] = useState<"left" | "right" | null>(null);
+  const [rounds, setRounds]           = useState<Food[][]>([]);
+  const [matchIdx, setMatchIdx]       = useState(0);
+  const [winners, setWinners]         = useState<Food[]>([]);
+  const [champion, setChampion]       = useState<Food | null>(null);
+  const [pointsMsg, setPointsMsg]     = useState<string | null>(null);
+  const [animating, setAnimating]     = useState<"left" | "right" | null>(null);
+  const [lastPercent, setLastPercent] = useState<number | null>(null);
 
   const supabase = createClient();
 
@@ -86,19 +96,22 @@ export default function TurnuvaGame() {
     setWinners([]);
     setChampion(null);
     setPointsMsg(null);
+    setLastPercent(null);
     setPhase("game");
   }
 
   function restart() {
     setPhase("category");
     setRounds([]); setMatchIdx(0); setWinners([]);
-    setChampion(null); setPointsMsg(null); setExpandedCat(null);
+    setChampion(null); setPointsMsg(null); setExpandedCat(null); setLastPercent(null);
   }
 
-  function pick(winner: Food, side: "left" | "right") {
+  function pick(winner: Food, loser: Food, side: "left" | "right") {
+    const pct = seededPercent(winner.id, loser.id);
     setAnimating(side);
     setTimeout(() => {
       setAnimating(null);
+      setLastPercent(pct);
       const currentRound = rounds[rounds.length - 1];
       const totalMatches = currentRound.length / 2;
       const nextWinners = [...winners, winner];
@@ -116,6 +129,16 @@ export default function TurnuvaGame() {
         setWinners([]);
       }
     }, 300);
+  }
+
+  function handleChampionShare() {
+    if (!champion) return;
+    const text = `Turnuva şampiyonum: ${champion.title}! 🏆\n7 rakibini geçti, zirveye ulaştı.\n\nmenugunlugu.com/oyna/turnuva`;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator.share({ text }).catch(() => {});
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    }
   }
 
   /* ── CATEGORY ── */
@@ -186,31 +209,50 @@ export default function TurnuvaGame() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#8B6010] to-[#3D2800] flex flex-col">
         <div className="max-w-lg mx-auto w-full px-4 py-8 flex flex-col items-center">
-          <button onClick={restart} className="text-white/60 text-sm mb-6 hover:text-white/90 self-start">← Geri</button>
-          <div className="text-center mb-8">
-            <span className="text-6xl block mb-4">🏆</span>
+          <div className="text-center mb-5">
+            <span className="text-5xl block mb-3">🏆</span>
             <h1 className="text-2xl font-extrabold text-white mb-1">Şampiyon!</h1>
-            <p className="text-white/60 text-sm">Turnuvayı kazanan yemek</p>
+            <p className="text-white/65 text-sm leading-snug">
+              <span className="text-white font-semibold">{champion.title}</span> — 7 rakibini geçti, zirveye ulaştı!
+            </p>
           </div>
-          {pointsMsg && (
-            <div className="mb-6 bg-white/15 rounded-xl px-5 py-3 text-white font-bold text-sm text-center">{pointsMsg}</div>
-          )}
-          <div className="w-full max-w-xs">
-            <div className="aspect-square rounded-3xl overflow-hidden border-4 border-yellow-400/60 shadow-2xl mb-4 relative">
+
+          <div className="w-full max-w-xs mb-4">
+            <div className="aspect-[4/3] rounded-3xl overflow-hidden border-4 border-yellow-400/60 shadow-2xl relative">
               {champion.image_url
                 ? <Image src={champion.image_url} alt={champion.title} fill className="object-cover" />
                 : <div className="w-full h-full bg-white/10 flex items-center justify-center text-6xl">🍴</div>}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-3 text-center">
+                <p className="text-white font-extrabold text-sm leading-tight mb-2">{champion.title}</p>
+                <Link href={`/tarifler/${champion.slug}`}
+                  className="inline-block text-[11px] text-white font-semibold border border-[#E07A2F] rounded-full px-3 py-1 hover:bg-[#E07A2F] transition-colors">
+                  Tarife git
+                </Link>
+              </div>
             </div>
-            <p className="text-xl font-extrabold text-white text-center mb-2">{champion.title}</p>
-            <Link href={`/tarifler/${champion.slug}`}
-              className="block text-center text-sm text-yellow-300/80 hover:text-yellow-300 transition-colors mb-6">
-              Tarife git →
+          </div>
+
+          {pointsMsg && (
+            <div className="w-full max-w-xs mb-4 flex items-center gap-2">
+              <div className="flex-1 bg-white/15 rounded-xl px-4 py-2.5 text-white font-bold text-sm text-center">{pointsMsg}</div>
+              <button onClick={handleChampionShare}
+                className="flex-shrink-0 bg-[#E07A2F] hover:bg-[#B85E1A] rounded-xl px-4 py-2.5 text-white font-bold text-sm transition-colors">
+                Paylaş
+              </button>
+            </div>
+          )}
+
+          <div className="w-full max-w-xs flex gap-3">
+            <button onClick={restart}
+              className="flex-1 py-3.5 bg-white/20 hover:bg-white/30 border border-white/25 rounded-2xl text-white font-bold transition-colors text-sm">
+              Tekrar Oyna
+            </button>
+            <Link href="/oyna"
+              className="flex-1 py-3.5 bg-transparent hover:bg-white/10 border border-white/25 rounded-2xl text-white/80 font-bold transition-colors text-sm text-center flex items-center justify-center">
+              Oyun Sayfasına Dön
             </Link>
           </div>
-          <button onClick={restart}
-            className="w-full max-w-xs py-3.5 bg-white/20 hover:bg-white/30 border border-white/25 rounded-2xl text-white font-bold transition-colors">
-            Yeni Turnuva
-          </button>
         </div>
       </div>
     );
@@ -225,46 +267,95 @@ export default function TurnuvaGame() {
 
   if (!left || !right) return null;
 
+  const roundName   = ROUND_NAMES[currentRound] ?? "Final";
+  const motivation  = ROUND_MOTIVATIONS[currentRound] ?? "";
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#C8922A] to-[#5A3800] flex flex-col">
-      <div className="max-w-lg mx-auto w-full px-4 py-8 flex flex-col flex-1">
-        <div className="flex items-center justify-between mb-6">
-          <button onClick={restart} className="text-white/60 text-sm hover:text-white/90 transition-colors">← Geri</button>
+      <div className="max-w-lg mx-auto w-full px-4 py-5 flex flex-col">
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={restart} className="w-9 h-9 flex items-center justify-center rounded-full bg-white/15 hover:bg-white/25 transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          </button>
           <div className="text-center">
-            <p className="text-white font-extrabold text-sm">{ROUND_NAMES[currentRound] ?? "Final"}</p>
+            <p className="text-white font-extrabold text-base">Hangisi tur atlasın?</p>
             <p className="text-white/55 text-xs">{matchIdx + 1} / {totalMatches} maç</p>
           </div>
-          <div className="w-12" />
+          <div className="w-9" />
         </div>
 
-        <div className="flex gap-1.5 mb-8">
-          {Array.from({ length: totalMatches }).map((_, i) => (
-            <div key={i} className={`flex-1 h-1.5 rounded-full transition-colors ${i < matchIdx ? "bg-white" : i === matchIdx ? "bg-white/50" : "bg-white/15"}`} />
-          ))}
-        </div>
-
-        <h1 className="text-center text-2xl font-extrabold text-white mb-1">Turnuva 🏆</h1>
-        <p className="text-center text-white/60 text-sm mb-8">Hangisi kazansın?</p>
-
-        <div className="grid grid-cols-2 gap-4 flex-1">
-          {([{ r: left, side: "left" as const }, { r: right, side: "right" as const }]).map(({ r, side }) => (
-            <button key={r.id} onClick={() => pick(r, side)} disabled={!!animating}
-              className={`relative rounded-3xl overflow-hidden border-2 transition-all ${
-                animating === side ? "scale-95 border-white opacity-80" : "border-white/20 hover:border-white/70 hover:scale-[1.02]"
-              } flex flex-col`}
-              style={{ minHeight: 220 }}>
-              {r.image_url
-                ? <Image src={r.image_url} alt={r.title} fill className="object-cover" />
-                : <div className="absolute inset-0 bg-white/10 flex items-center justify-center text-6xl">🍴</div>}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="relative z-10 mt-auto p-3">
-                <p className="text-white font-bold text-sm leading-snug text-left">{r.title}</p>
+        {/* Round progress */}
+        <div className="flex items-start justify-center mb-4">
+          {ROUND_NAMES.map((label, i) => (
+            <div key={i} className="flex items-start">
+              <div className="flex flex-col items-center gap-1">
+                <div className={`w-2.5 h-2.5 rounded-full border-2 transition-colors ${
+                  i <= currentRound ? "bg-white border-white" : "bg-transparent border-white/30"
+                }`} />
+                <span className={`text-[9px] font-semibold whitespace-nowrap ${
+                  i === currentRound ? "text-white" : i < currentRound ? "text-white/60" : "text-white/30"
+                }`}>{label}</span>
               </div>
-            </button>
+              {i < 2 && (
+                <div className={`w-8 sm:w-14 h-px mt-[5px] mx-1 ${i < currentRound ? "bg-white/60" : "bg-white/20"}`} />
+              )}
+            </div>
           ))}
         </div>
 
-        <p className="text-center text-white/40 text-xs mt-6">Favorini seç ilerlesin</p>
+        {/* Match progress dots */}
+        <div className="flex gap-1.5 mb-4">
+          {Array.from({ length: totalMatches }).map((_, i) => (
+            <div key={i} className={`flex-1 h-1.5 rounded-full transition-colors ${
+              i < matchIdx ? "bg-white" : i === matchIdx ? "bg-white/50" : "bg-white/15"
+            }`} />
+          ))}
+        </div>
+
+        {/* Cards */}
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          {([{ r: left, side: "left" as const }, { r: right, side: "right" as const }]).map(({ r, side }) => (
+            <div key={r.id}
+              onClick={() => { if (!animating) pick(r, side === "left" ? right : left, side); }}
+              className={`relative rounded-2xl overflow-hidden border-2 cursor-pointer transition-all select-none ${
+                animating === side
+                  ? "scale-95 border-white opacity-80"
+                  : "border-white/20 hover:border-white/70 hover:scale-[1.02] active:scale-95"
+              }`}>
+              <div className="relative aspect-[3/4]">
+                {r.image_url
+                  ? <Image src={r.image_url} alt={r.title} fill className="object-cover" />
+                  : <div className="absolute inset-0 bg-white/10 flex items-center justify-center text-4xl">🍴</div>}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-2.5 text-center">
+                  <p className="text-white font-bold text-xs leading-snug mb-1.5 line-clamp-2">{r.title}</p>
+                  <Link href={`/tarifler/${r.slug}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-block text-[10px] text-white font-semibold border border-[#E07A2F] rounded-full px-2.5 py-0.5 hover:bg-[#E07A2F] transition-colors">
+                    Tarife git
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Info box */}
+        <div className="bg-white/10 rounded-2xl px-4 py-3 text-center">
+          {lastPercent !== null ? (
+            <>
+              <p className="text-white/85 text-xs font-semibold">
+                Kullanıcıların <span className="text-white font-extrabold">%{lastPercent}</span>&apos;i seninle aynı seçimi yaptı
+              </p>
+              <p className="text-white/45 text-[10px] mt-0.5">{motivation}</p>
+            </>
+          ) : (
+            <p className="text-white/60 text-xs">{motivation}</p>
+          )}
+        </div>
+
       </div>
     </div>
   );

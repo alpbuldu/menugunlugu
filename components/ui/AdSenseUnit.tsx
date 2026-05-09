@@ -40,6 +40,16 @@ export const AD_SLOTS = {
   // Menü Oluştur
   menu_olustur_dikey:       "4867997102",
   menu_olustur_yatay:       "4289412602",
+
+  // Menü Önerileri (Menü Günlüğü)
+  menu_gunlugu_dikey:            "4867997102",
+  menu_gunlugu_yatay_masaustu:   "4289412602",
+  menu_gunlugu_yatay_mobil:      "4289412602",
+
+  // Oyna
+  oyna_dikey:                    "4867997102",
+  oyna_yatay_masaustu:           "4289412602",
+  oyna_yatay_mobil:              "4289412602",
 } as const;
 
 export type AdSlotKey = keyof typeof AD_SLOTS;

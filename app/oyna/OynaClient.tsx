@@ -92,7 +92,7 @@ function LeaderRow({ entry, rank, currentUserId }: { entry: LeaderEntry; rank: n
   const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : null;
   const isMe = entry.user_id === currentUserId;
   return (
-    <div className={`flex items-center gap-3 px-4 py-3 border-b border-warm-50 last:border-0 ${rank === 1 ? "bg-brand-50/40" : ""}`}>
+    <div className={`flex items-center gap-3 px-4 py-3 h-full ${rank === 1 ? "bg-brand-50/40" : ""}`}>
       <div className="w-7 text-center flex-shrink-0">
         {medal
           ? <span className="text-xl">{medal}</span>
@@ -172,9 +172,21 @@ export default function OynaClient({ leaderboard }: { leaderboard: LeaderEntry[]
                 )}
               </div>
             </div>
-            {leaderboard.map((entry, i) => (
-              <LeaderRow key={entry.user_id} entry={entry} rank={i + 1} currentUserId={userId} />
-            ))}
+            <div className="sm:grid sm:grid-cols-2">
+              {leaderboard.map((entry, i) => {
+                const isLastRow = i >= leaderboard.length - (leaderboard.length % 2 === 0 ? 2 : 1);
+                return (
+                  <div key={entry.user_id} className={[
+                    "border-b border-warm-50",
+                    i === leaderboard.length - 1 ? "border-b-0" : "",
+                    isLastRow ? "sm:border-b-0" : "",
+                    i % 2 === 0 ? "sm:border-r sm:border-warm-50" : "",
+                  ].join(" ")}>
+                    <LeaderRow entry={entry} rank={i + 1} currentUserId={userId} />
+                  </div>
+                );
+              })}
+            </div>
             {!userId && (
               <div className="flex items-center gap-2 px-4 py-3 bg-brand-50/50 border-t border-warm-100">
                 <span className="text-sm">🔒</span>

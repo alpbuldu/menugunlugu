@@ -105,6 +105,16 @@ export default function KorSiralamaGame() {
     setCurrentIdx(0); setPointsMsg(null); setExpandedCat(null);
   }
 
+  function handleShare() {
+    const top3 = slots.filter(Boolean).slice(0, 3).map((f, i) => `${i + 1}. ${f!.title}`).join('\n');
+    const text = `Kör Sıralama sonucum 🙈\n${selLabel} kategorisi:\n\n${top3}\n\nmenugunlugu.com/oyna/kor-siralama`;
+    if (typeof navigator !== "undefined" && navigator.share) {
+      navigator.share({ text }).catch(() => {});
+    } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+    }
+  }
+
   /* ── CATEGORY ── */
   if (phase === "category") {
     const expandedObj = CATS.find(c => c.key === expandedCat);
@@ -126,8 +136,7 @@ export default function KorSiralamaGame() {
           <div className="grid grid-cols-2 gap-3 mb-4">
             {CATS.map(c => (
               <button key={c.key} onClick={() => toggleCat(c.key)}
-                className={`relative rounded-2xl overflow-hidden h-20 text-left ${expandedCat === c.key ? "ring-2 ring-offset-1" : ""}`}
-                style={expandedCat === c.key ? { ringColor: c.bg.includes("C4872A") ? "#C4872A" : "#B05A38" } : {}}>
+                className={`relative rounded-2xl overflow-hidden h-20 text-left ${expandedCat === c.key ? "ring-2 ring-offset-1" : ""}`}>
                 <div className={`absolute inset-0 bg-gradient-to-br ${c.bg}`} />
                 <span className="absolute right-1 bottom-[-6px] text-6xl opacity-25">{c.emoji}</span>
                 <div className="relative p-3 flex flex-col h-full justify-between">
@@ -174,11 +183,16 @@ export default function KorSiralamaGame() {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#4A2260] to-[#2A1040] flex flex-col">
         <div className="max-w-lg mx-auto w-full px-4 py-8">
-          <button onClick={restart} className="text-white/60 text-sm mb-4 hover:text-white/90 flex items-center gap-1">← Geri</button>
           <h1 className="text-2xl font-extrabold text-white mb-1">Sıralamana Bak! 🏅</h1>
           <p className="text-white/60 text-sm mb-4">İşte senin nihai sıralaman</p>
           {pointsMsg && (
-            <div className="mb-4 bg-white/15 rounded-xl px-4 py-2.5 text-white font-bold text-sm text-center">{pointsMsg}</div>
+            <div className="mb-4 flex items-center gap-2">
+              <div className="flex-1 bg-white/15 rounded-xl px-4 py-2.5 text-white font-bold text-sm text-center">{pointsMsg}</div>
+              <button onClick={handleShare}
+                className="flex-shrink-0 bg-[#E07A2F] hover:bg-[#B85E1A] rounded-xl px-4 py-2.5 text-white font-bold text-sm transition-colors">
+                Paylaş
+              </button>
+            </div>
           )}
           <div className="space-y-2.5 mb-6">
             {slots.map((food, idx) => food && (
@@ -196,9 +210,16 @@ export default function KorSiralamaGame() {
               </div>
             ))}
           </div>
-          <button onClick={restart} className="w-full py-3.5 bg-white/20 hover:bg-white/30 border border-white/25 rounded-2xl text-white font-bold transition-colors">
-            Tekrar Oyna
-          </button>
+          <div className="flex gap-3">
+            <button onClick={restart}
+              className="flex-1 py-3.5 bg-white/20 hover:bg-white/30 border border-white/25 rounded-2xl text-white font-bold transition-colors text-sm">
+              Tekrar Oyna
+            </button>
+            <Link href="/oyna"
+              className="flex-1 py-3.5 bg-transparent hover:bg-white/10 border border-white/25 rounded-2xl text-white/80 font-bold transition-colors text-sm text-center flex items-center justify-center">
+              Oyun Sayfasına Dön
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -211,7 +232,6 @@ export default function KorSiralamaGame() {
   return (
     <div className="min-h-screen bg-[#FAF7F4] flex flex-col">
       <div className="max-w-lg mx-auto w-full px-4 py-4 flex flex-col flex-1">
-        {/* HUD */}
         <div className="flex items-center justify-between mb-4">
           <button onClick={restart} className="w-9 h-9 flex items-center justify-center rounded-full bg-warm-100 hover:bg-warm-200 transition-colors">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3D2B1F" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
@@ -219,7 +239,6 @@ export default function KorSiralamaGame() {
           <span className="text-xs font-semibold text-warm-500 bg-warm-100 px-3 py-1.5 rounded-full">{placed} / 10 yerleştirdin</span>
         </div>
 
-        {/* Current food card */}
         <div className="relative rounded-2xl overflow-hidden mb-4 h-44">
           {current?.image_url
             ? <Image src={current.image_url} alt={current.title} fill className="object-cover" />
@@ -233,7 +252,6 @@ export default function KorSiralamaGame() {
           </div>
         </div>
 
-        {/* Slot grid — 2 cols, 5 rows */}
         <div className="grid grid-cols-2 gap-2">
           {slots.map((food, idx) => (
             <button key={idx} onClick={() => placeAt(idx)} disabled={!!food}

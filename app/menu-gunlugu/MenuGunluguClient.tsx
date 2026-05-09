@@ -191,8 +191,10 @@ function FeedCard({ post }: { post: FeedPost }) {
         <Avatar url={post.author.avatar_url} name={post.author.username} size={26} />
         <div className="min-w-0 flex-1">
           <p className="text-[10px] text-warm-400 truncate leading-none mb-0.5">@{post.author.username}</p>
-          <p className="text-[10px] sm:text-[11px] font-semibold text-warm-600 truncate leading-tight">
-            {catLabel}
+          <p className="text-[10px] sm:text-[11px] font-semibold text-warm-700 truncate leading-tight">
+            {post.title
+              ? post.category ? `${post.title} · ${catLabel}` : post.title
+              : post.category ? catLabel : null}
           </p>
         </div>
         {post.kcal_total > 0 && (

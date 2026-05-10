@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const catLabel    = CATEGORY_LABELS[recipe.category] ?? recipe.category;
   const metaTitle   = recipe.seo_title ?? `${recipe.title} Tarifi`;
   const description = recipe.description ??
-    `${recipe.title} tarifi nasıl yapılır? Malzemeler ve adım adım yapılışı için tıklayın. Evde kolayca hazırlayabileceğiniz lezzetli bir ${catLabel} tarifi.`;
+    `${recipe.title} nasıl yapılır? Evde kolayca hazırlayabileceğiniz, adım adım anlatımlı ve tam kıvamında ${recipe.title} tarifi.`;
   const keywords    = recipe.seo_keywords ??
     `${recipe.title}, ${recipe.title} tarifi, ${recipe.title} nasıl yapılır, ${catLabel} tarifi, evde ${catLabel}, kolay ${catLabel} tarifi, ${catLabel} nasıl yapılır, Türk mutfağı tarifleri, Menü Günlüğü`;
   return {
@@ -240,7 +240,7 @@ export default async function RecipeDetailPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "Recipe",
     name: recipe.title,
-    description: recipe.description ?? `${recipe.title} tarifi nasıl yapılır? Malzemeler ve adım adım yapılışı için tıklayın. Evde kolayca hazırlayabileceğiniz lezzetli bir tarif.`,
+    description: recipe.description ?? `${recipe.title} nasıl yapılır? Evde kolayca hazırlayabileceğiniz, adım adım anlatımlı ve tam kıvamında ${recipe.title} tarifi.`,
     image: recipe.image_url ? [recipe.image_url] : undefined,
     author: { "@type": "Person", name: authorName },
     datePublished: recipe.created_at,
@@ -327,6 +327,15 @@ export default async function RecipeDetailPage({ params }: Props) {
         <div className="p-8">
           <div className="mb-8">
             <h1 className="text-xl sm:text-3xl font-bold text-warm-900 leading-snug">{recipe.title}</h1>
+            {(recipe as any).subcategories?.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {((recipe as any).subcategories as string[]).map((sub: string) => (
+                  <span key={sub} className="inline-flex items-center bg-warm-100 text-warm-700 text-xs font-medium px-3 py-1 rounded-full border border-warm-200">
+                    {sub}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <section className="mb-8">

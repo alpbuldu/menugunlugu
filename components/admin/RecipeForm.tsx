@@ -508,7 +508,7 @@ export default function RecipeForm({ recipe }: Props) {
                   </p>
                   <p className="text-xs text-green-700">menugunlugu.com/tarifler/{recipe?.slug ?? "tarif-slug"}</p>
                   <p className="text-sm text-warm-600 leading-snug line-clamp-2">
-                    {description || `${title} tarifi nasıl yapılır? Malzemeler ve adım adım yapılışı için tıklayın. Evde kolayca hazırlayabileceğiniz lezzetli bir tarif.`}
+                    {description || `${title} nasıl yapılır? Evde kolayca hazırlayabileceğiniz, adım adım anlatımlı ve tam kıvamında ${title} tarifi.`}
                   </p>
                 </div>
               </div>

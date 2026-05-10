@@ -48,7 +48,7 @@ function seededPercent(a: string, b: string) {
 export default function TurnuvaGame() {
   const [phase, setPhase]             = useState<Phase>("category");
   const [expandedCat, setExpandedCat] = useState<string | null>(null);
-  const [subcatCounts, setSubcatCounts] = useState<Record<string, number>>({});
+  const [subcatCounts, setSubcatCounts] = useState<Record<string, Record<string, number>>>({});
 
   const [rounds, setRounds]           = useState<Food[][]>([]);
   const [matchIdx, setMatchIdx]       = useState(0);
@@ -61,10 +61,14 @@ export default function TurnuvaGame() {
   const supabase = createClient();
 
   async function loadSubcatCounts(catKey: string) {
-    const { data } = await supabase.from("recipes").select("subcategories")
+    const { data } = await supabase.from("recipes").select("subcategories, category")
       .eq("category", catKey).eq("approval_status", "approved").not("image_url", "is", null);
-    const counts: Record<string, number> = {};
-    (data ?? []).forEach((r: any) => { (r.subcategories ?? []).forEach((sub: string) => { counts[sub] = (counts[sub] ?? 0) + 1; }); });
+    const counts: Record<string, Record<string, number>> = {};
+    (data ?? []).forEach((r: any) => {
+      const cat = r.category as string;
+      if (!counts[cat]) counts[cat] = {};
+      (r.subcategories ?? []).forEach((sub: string) => { counts[cat][sub] = (counts[cat][sub] ?? 0) + 1; });
+    });
     setSubcatCounts(counts);
   }
 
@@ -183,7 +187,7 @@ export default function TurnuvaGame() {
                 <span>→</span>
               </button>
               <div className="flex flex-wrap justify-center gap-2">
-                {(SUBCATEGORIES[expandedCat] ?? []).filter(sub => (subcatCounts[sub] ?? 0) >= MIN_RECIPES).map(sub => (
+                {Object.entries(subcatCounts[expandedCat] ?? {}).filter(([, c]) => c >= MIN_RECIPES).map(([sub]) => (
                   <button key={sub} onClick={() => pickSubcat(expandedCat, sub)}
                     className="px-3 py-1.5 rounded-full text-xs font-semibold bg-white/15 border border-white/30 text-white hover:bg-white/25 transition-colors">
                     {sub}

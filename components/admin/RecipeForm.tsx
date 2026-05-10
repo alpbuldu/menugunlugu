@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import type { Recipe, Category } from "@/lib/types";
+import { createClient } from "@/lib/supabase/client";
 
 const RecipeEditor = dynamic(() => import("./RecipeEditor"), { ssr: false });
 
@@ -83,6 +84,19 @@ export default function RecipeForm({ recipe }: Props) {
     (recipe as any)?.subcategories ?? []
   );
   const [customSubInput, setCustomSubInput] = useState("");
+  const [dbSubcats,      setDbSubcats]      = useState<string[]>([]);
+
+  // Seçili kategorideki tüm mevcut subcategory'leri DB'den çek
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.from("recipes").select("subcategories").eq("category", category).then(({ data }) => {
+      if (!data) return;
+      const all = new Set<string>();
+      data.forEach((r: any) => (r.subcategories ?? []).forEach((s: string) => all.add(s)));
+      setDbSubcats(Array.from(all));
+    });
+  }, [category]);
+
   const [kcal,     setKcal]     = useState<string>(recipe?.kcal_per_person?.toString()   ?? "");
   const [prepTime, setPrepTime] = useState<string>(recipe?.prep_time_minutes?.toString() ?? "");
   const [cookTime, setCookTime] = useState<string>(recipe?.cook_time_minutes?.toString() ?? "");
@@ -209,9 +223,9 @@ export default function RecipeForm({ recipe }: Props) {
         </div>
 
         <div className="px-5 py-4 bg-white space-y-4">
-          {/* Predefined checkboxes */}
+          {/* Predefined checkboxes — hardcoded + DB'den gelen custom'lar birleşik */}
           <div className="flex flex-wrap gap-2">
-            {SUBCATEGORIES[category].map((name) => {
+            {[...new Set([...SUBCATEGORIES[category], ...dbSubcats])].map((name) => {
               const checked = subcategories.includes(name);
               return (
                 <button

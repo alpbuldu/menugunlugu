@@ -193,119 +193,42 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            {/* Desktop: featured (2/3) + side stack (1/3) */}
-            <div className="hidden sm:grid sm:grid-cols-3 gap-4">
-              {/* Featured */}
-              {featuredPost && (
-                <Link href={`/blog/${featuredPost.slug}`}
-                  className="sm:col-span-2 group relative rounded-3xl overflow-hidden block">
-                  <div className="relative aspect-[16/9]">
-                    {featuredPost.image_url ? (
-                      <Image src={featuredPost.image_url} alt={featuredPost.title} fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="66vw" />
-                    ) : (
-                      <div className="w-full h-full bg-warm-200" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-5">
-                      {featuredPost.category && (
-                        <span className="inline-block bg-brand-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide mb-2">
-                          {(featuredPost.category as { name: string }).name}
-                        </span>
-                      )}
-                      <h3 className="text-white font-bold text-lg sm:text-xl leading-snug line-clamp-2 group-hover:text-brand-200 transition-colors">
-                        {featuredPost.title}
-                      </h3>
-                      {featuredPost.excerpt && (
-                        <p className="text-white/70 text-sm mt-1.5 line-clamp-2">{featuredPost.excerpt}</p>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              )}
-
-              {/* Side stack */}
-              <div className="flex flex-col gap-3">
-                {sidePosts.map(post => (
-                  <Link key={post.id} href={`/blog/${post.slug}`}
-                    className="group flex gap-3 bg-white rounded-2xl p-3 border border-warm-100 hover:border-brand-200 hover:shadow-sm transition-all">
-                    {post.image_url && (
-                      <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
-                        <Image src={post.image_url} alt={post.title} fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          sizes="80px" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0 flex flex-col justify-center">
-                      {post.category && (
-                        <span className="text-[10px] font-semibold text-brand-500 uppercase tracking-wide mb-0.5">
-                          {(post.category as { name: string }).name}
-                        </span>
-                      )}
-                      <h3 className="font-semibold text-warm-900 text-sm leading-snug line-clamp-3 group-hover:text-brand-600 transition-colors">
-                        {post.title}
-                      </h3>
-                    </div>
-                  </Link>
-                ))}
-                {/* Blog'a git butonu */}
-                <Link href="/blog"
-                  className="flex items-center justify-center gap-1.5 text-brand-600 hover:text-brand-700 text-sm font-medium py-2 rounded-2xl border border-brand-100 hover:bg-brand-50 transition-colors mt-auto">
-                  Tüm yazılar →
-                </Link>
-              </div>
-            </div>
-
-            {/* Mobil: featured kart + compact liste */}
-            <div className="sm:hidden space-y-3">
-              {/* Featured - görsel + overlay text */}
-              {featuredPost && (
-                <Link href={`/blog/${featuredPost.slug}`}
-                  className="group relative rounded-2xl overflow-hidden block">
-                  <div className="relative aspect-[16/9]">
-                    {featuredPost.image_url ? (
-                      <Image src={featuredPost.image_url} alt={featuredPost.title} fill
-                        className="object-cover" sizes="100vw" />
-                    ) : (
-                      <div className="w-full h-full bg-warm-200" />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3.5">
-                      {featuredPost.category && (
-                        <span className="inline-block bg-brand-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide mb-1.5">
-                          {(featuredPost.category as { name: string }).name}
-                        </span>
-                      )}
-                      <h3 className="text-white font-bold text-base leading-snug line-clamp-2">
-                        {featuredPost.title}
-                      </h3>
-                    </div>
-                  </div>
-                </Link>
-              )}
-
-              {/* Side posts - compact horizontal */}
-              {sidePosts.map(post => (
-                <Link key={post.id} href={`/blog/${post.slug}`}
-                  className="flex items-center gap-3 bg-white rounded-2xl p-3 border border-warm-100">
-                  {post.image_url && (
-                    <div className="relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
-                      <Image src={post.image_url} alt={post.title} fill className="object-cover" sizes="64px" />
-                    </div>
+            {/* Featured — tam genişlik, açıklamasıyla tek başına */}
+            {featuredPost && (
+              <Link href={`/blog/${featuredPost.slug}`}
+                className="group block rounded-3xl overflow-hidden">
+                {/* Görsel */}
+                <div className="relative aspect-[16/9] sm:aspect-[21/9]">
+                  {featuredPost.image_url ? (
+                    <Image src={featuredPost.image_url} alt={featuredPost.title} fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="100vw" priority />
+                  ) : (
+                    <div className="w-full h-full bg-warm-200" />
                   )}
-                  <div className="flex-1 min-w-0">
-                    {post.category && (
-                      <span className="text-[9px] font-semibold text-brand-500 uppercase tracking-wide">
-                        {(post.category as { name: string }).name}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                  {/* İçerik overlay */}
+                  <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8">
+                    {featuredPost.category && (
+                      <span className="inline-block bg-brand-500 text-white text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide mb-2 sm:mb-3">
+                        {(featuredPost.category as { name: string }).name}
                       </span>
                     )}
-                    <p className="font-semibold text-warm-900 text-sm leading-snug line-clamp-2 mt-0.5">{post.title}</p>
+                    <h3 className="text-white font-bold text-lg sm:text-2xl leading-snug mb-2 group-hover:text-brand-200 transition-colors max-w-2xl">
+                      {featuredPost.title}
+                    </h3>
+                    {featuredPost.excerpt && (
+                      <p className="text-white/75 text-sm sm:text-base leading-relaxed line-clamp-2 max-w-xl">
+                        {featuredPost.excerpt}
+                      </p>
+                    )}
+                    <span className="inline-flex items-center gap-1.5 mt-3 sm:mt-4 text-white/90 font-semibold text-sm group-hover:gap-2.5 transition-all">
+                      Yazıyı oku →
+                    </span>
                   </div>
-                  <span className="text-warm-400 flex-shrink-0 text-sm">→</span>
-                </Link>
-              ))}
-            </div>
+                </div>
+              </Link>
+            )}
           </div>
         </section>
       )}

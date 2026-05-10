@@ -165,15 +165,12 @@ export default async function HomePage() {
                     )}
                     {/* Gradient + isim görselin içinde */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
-                    {/* Kategori etiketi — sol üst */}
-                    {recipe.category && (
-                      <div className="absolute top-2 left-2">
-                        <span className="inline-block bg-brand-500/90 text-white text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                    <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-2.5">
+                      {recipe.category && (
+                        <span className="inline-block bg-brand-500/90 text-white text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full tracking-wide mb-1">
                           {categoryLabel(recipe.category)}
                         </span>
-                      </div>
-                    )}
-                    <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-2.5">
+                      )}
                       <h3 className="text-white font-semibold text-[13px] sm:text-[15px] leading-snug line-clamp-2 drop-shadow">
                         {recipe.title}
                       </h3>

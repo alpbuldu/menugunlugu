@@ -151,8 +151,7 @@ export default async function HomePage() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {newest.slice(0, 8).map(recipe => (
                 <Link key={recipe.id} href={`/tarifler/${recipe.slug}`} className="group">
-                  {/* Image */}
-                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-2.5">
+                  <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
                     {recipe.image_url ? (
                       <Image
                         src={recipe.image_url}
@@ -164,17 +163,19 @@ export default async function HomePage() {
                     ) : (
                       <div className="w-full h-full bg-warm-200 flex items-center justify-center text-3xl">🍽️</div>
                     )}
-                    {/* Category badge */}
-                    {recipe.category && (
-                      <span className="absolute bottom-2 left-2 bg-brand-500/90 backdrop-blur-sm text-white text-[9px] sm:text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide">
-                        {categoryLabel(recipe.category)}
-                      </span>
-                    )}
+                    {/* Gradient + kategori + isim görselin içinde */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-2.5">
+                      {recipe.category && (
+                        <span className="inline-block bg-brand-500/90 text-white text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide mb-1">
+                          {categoryLabel(recipe.category)}
+                        </span>
+                      )}
+                      <h3 className="text-white font-semibold text-[11px] sm:text-xs leading-snug line-clamp-2 drop-shadow">
+                        {recipe.title}
+                      </h3>
+                    </div>
                   </div>
-                  {/* Title */}
-                  <h3 className="font-semibold text-warm-900 text-xs sm:text-sm leading-snug line-clamp-2 group-hover:text-brand-600 transition-colors px-0.5">
-                    {recipe.title}
-                  </h3>
                 </Link>
               ))}
             </div>
@@ -193,42 +194,112 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            {/* Featured — tam genişlik, açıklamasıyla tek başına */}
-            {featuredPost && (
-              <Link href={`/blog/${featuredPost.slug}`}
-                className="group block rounded-3xl overflow-hidden">
-                {/* Görsel */}
-                <div className="relative aspect-[16/9] sm:aspect-[21/9]">
-                  {featuredPost.image_url ? (
-                    <Image src={featuredPost.image_url} alt={featuredPost.title} fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="100vw" priority />
-                  ) : (
-                    <div className="w-full h-full bg-warm-200" />
+            {/* Desktop: featured (2/3) + side stack (1/3) */}
+            <div className="hidden sm:grid sm:grid-cols-3 gap-4">
+              {featuredPost && (
+                <Link href={`/blog/${featuredPost.slug}`}
+                  className="sm:col-span-2 group relative rounded-3xl overflow-hidden block">
+                  <div className="relative aspect-[16/9]">
+                    {featuredPost.image_url ? (
+                      <Image src={featuredPost.image_url} alt={featuredPost.title} fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        sizes="66vw" priority />
+                    ) : (
+                      <div className="w-full h-full bg-warm-200" />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-5">
+                      {featuredPost.category && (
+                        <span className="inline-block bg-brand-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide mb-2">
+                          {(featuredPost.category as { name: string }).name}
+                        </span>
+                      )}
+                      <h3 className="text-white font-bold text-xl leading-snug line-clamp-2 group-hover:text-brand-200 transition-colors mb-1.5">
+                        {featuredPost.title}
+                      </h3>
+                      {featuredPost.excerpt && (
+                        <p className="text-white/70 text-sm line-clamp-2">{featuredPost.excerpt}</p>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              )}
+              <div className="flex flex-col gap-3">
+                {sidePosts.map(post => (
+                  <Link key={post.id} href={`/blog/${post.slug}`}
+                    className="group flex gap-3 bg-white rounded-2xl p-3 border border-warm-100 hover:border-brand-200 hover:shadow-sm transition-all">
+                    {post.image_url && (
+                      <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                        <Image src={post.image_url} alt={post.title} fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="80px" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      {post.category && (
+                        <span className="text-[10px] font-semibold text-brand-500 uppercase tracking-wide mb-0.5">
+                          {(post.category as { name: string }).name}
+                        </span>
+                      )}
+                      <h3 className="font-semibold text-warm-900 text-sm leading-snug line-clamp-3 group-hover:text-brand-600 transition-colors">
+                        {post.title}
+                      </h3>
+                    </div>
+                  </Link>
+                ))}
+                <Link href="/blog"
+                  className="flex items-center justify-center gap-1.5 text-brand-600 hover:text-brand-700 text-sm font-medium py-2 rounded-2xl border border-brand-100 hover:bg-brand-50 transition-colors mt-auto">
+                  Tüm yazılar →
+                </Link>
+              </div>
+            </div>
+
+            {/* Mobil: featured tam genişlik + compact liste */}
+            <div className="sm:hidden space-y-3">
+              {featuredPost && (
+                <Link href={`/blog/${featuredPost.slug}`}
+                  className="group relative rounded-2xl overflow-hidden block">
+                  <div className="relative aspect-[16/9]">
+                    {featuredPost.image_url ? (
+                      <Image src={featuredPost.image_url} alt={featuredPost.title} fill
+                        className="object-cover" sizes="100vw" priority />
+                    ) : (
+                      <div className="w-full h-full bg-warm-200" />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-3.5">
+                      {featuredPost.category && (
+                        <span className="inline-block bg-brand-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide mb-1.5">
+                          {(featuredPost.category as { name: string }).name}
+                        </span>
+                      )}
+                      <h3 className="text-white font-bold text-base leading-snug line-clamp-2 mb-1">{featuredPost.title}</h3>
+                      {featuredPost.excerpt && (
+                        <p className="text-white/70 text-xs line-clamp-2">{featuredPost.excerpt}</p>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              )}
+              {sidePosts.map(post => (
+                <Link key={post.id} href={`/blog/${post.slug}`}
+                  className="flex items-center gap-3 bg-white rounded-2xl p-3 border border-warm-100">
+                  {post.image_url && (
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0">
+                      <Image src={post.image_url} alt={post.title} fill className="object-cover" sizes="64px" />
+                    </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                  {/* İçerik overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8">
-                    {featuredPost.category && (
-                      <span className="inline-block bg-brand-500 text-white text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wide mb-2 sm:mb-3">
-                        {(featuredPost.category as { name: string }).name}
+                  <div className="flex-1 min-w-0">
+                    {post.category && (
+                      <span className="text-[9px] font-semibold text-brand-500 uppercase tracking-wide">
+                        {(post.category as { name: string }).name}
                       </span>
                     )}
-                    <h3 className="text-white font-bold text-lg sm:text-2xl leading-snug mb-2 group-hover:text-brand-200 transition-colors max-w-2xl">
-                      {featuredPost.title}
-                    </h3>
-                    {featuredPost.excerpt && (
-                      <p className="text-white/75 text-sm sm:text-base leading-relaxed line-clamp-2 max-w-xl">
-                        {featuredPost.excerpt}
-                      </p>
-                    )}
-                    <span className="inline-flex items-center gap-1.5 mt-3 sm:mt-4 text-white/90 font-semibold text-sm group-hover:gap-2.5 transition-all">
-                      Yazıyı oku →
-                    </span>
+                    <p className="font-semibold text-warm-900 text-sm leading-snug line-clamp-2 mt-0.5">{post.title}</p>
                   </div>
-                </div>
-              </Link>
-            )}
+                  <span className="text-warm-400 flex-shrink-0 text-sm">→</span>
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
       )}
@@ -236,10 +307,32 @@ export default async function HomePage() {
       {/* ── Menü Önerileri CTA ── */}
       <section className="bg-warm-100 py-6 sm:py-10">
         <div className={CONTAINER}>
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#8C4A1E] to-[#D4843F]">
 
-            {/* Desktop: dekoratif görseller sağda */}
-            <div className="absolute right-0 top-0 bottom-0 hidden sm:flex items-center gap-2 pr-5 pointer-events-none select-none">
+          {/* Mobil: kompakt yatay şerit */}
+          <Link href="/menu-gunlugu"
+            className="sm:hidden flex items-center justify-between gap-3 bg-gradient-to-r from-[#8C4A1E] to-[#D4843F] rounded-2xl px-5 py-4">
+            <div className="flex items-center gap-3 min-w-0">
+              {/* 3 küçük görsel */}
+              <div className="flex -space-x-2 flex-shrink-0">
+                {newest.filter(r => r.image_url).slice(6, 9).map(r => (
+                  <div key={r.id} className="relative w-9 h-9 rounded-full overflow-hidden border-2 border-white/30 flex-shrink-0">
+                    <Image src={r.image_url!} alt="" fill className="object-cover" sizes="36px" />
+                  </div>
+                ))}
+              </div>
+              <div className="min-w-0">
+                <p className="text-white/70 text-[10px] font-bold uppercase tracking-wide leading-none mb-0.5">Topluluk</p>
+                <p className="text-white font-bold text-sm leading-snug">Menü Önerileri</p>
+              </div>
+            </div>
+            <span className="flex-shrink-0 bg-white/20 text-white font-bold text-xs px-3 py-1.5 rounded-full">
+              Keşfet →
+            </span>
+          </Link>
+
+          {/* Desktop: tam banner */}
+          <div className="hidden sm:block relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#8C4A1E] to-[#D4843F]">
+            <div className="absolute right-0 top-0 bottom-0 flex items-center gap-2 pr-5 pointer-events-none select-none">
               {newest.filter(r => r.image_url).slice(5, 9).map((r, i) => (
                 <div key={r.id}
                   className="relative rounded-2xl overflow-hidden flex-shrink-0 opacity-50"
@@ -248,37 +341,23 @@ export default async function HomePage() {
                 </div>
               ))}
             </div>
-
-            {/* İçerik */}
-            <div className="relative z-10 px-6 pt-8 pb-5 sm:px-10 sm:py-10">
-              <div className="max-w-md">
-                <span className="inline-block bg-white/25 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3">
-                  Topluluk
-                </span>
-                <h2 className="text-white font-extrabold text-xl sm:text-3xl leading-tight mb-2">
-                  Menü Önerileri
-                </h2>
-                <p className="text-white/80 text-sm sm:text-base mb-5 leading-relaxed">
-                  Editör seçkisi ve kullanıcı paylaşımlarından ilham al. Yeni tarifler ve menü fikirleri seni bekliyor.
-                </p>
-                <Link href="/menu-gunlugu"
-                  className="inline-flex items-center gap-2 bg-white text-[#7C4A1E] font-bold px-5 sm:px-6 py-2.5 rounded-full text-sm hover:bg-warm-50 transition-colors shadow-sm">
-                  Keşfet →
-                </Link>
-              </div>
-
-              {/* Mobil: görseller butonun altında yatay şerit */}
-              <div className="sm:hidden flex gap-2.5 mt-5 overflow-hidden">
-                {newest.filter(r => r.image_url).slice(5, 9).map((r, i) => (
-                  <div key={r.id}
-                    className="relative rounded-xl overflow-hidden flex-shrink-0 opacity-70"
-                    style={{ width: 72, height: 72 + (i % 2) * 12 }}>
-                    <Image src={r.image_url!} alt="" fill className="object-cover" sizes="72px" />
-                  </div>
-                ))}
-              </div>
+            <div className="relative z-10 px-10 py-10 max-w-md">
+              <span className="inline-block bg-white/25 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3">
+                Topluluk
+              </span>
+              <h2 className="text-white font-extrabold text-3xl leading-tight mb-2">
+                Menü Önerileri
+              </h2>
+              <p className="text-white/80 text-base mb-5 leading-relaxed">
+                Editör seçkisi ve kullanıcı paylaşımlarından ilham al. Yeni tarifler ve menü fikirleri seni bekliyor.
+              </p>
+              <Link href="/menu-gunlugu"
+                className="inline-flex items-center gap-2 bg-white text-[#7C4A1E] font-bold px-6 py-2.5 rounded-full text-sm hover:bg-warm-50 transition-colors shadow-sm">
+                Keşfet →
+              </Link>
             </div>
           </div>
+
         </div>
       </section>
 

@@ -236,33 +236,47 @@ export default async function HomePage() {
       {/* ── Menü Önerileri CTA ── */}
       <section className="bg-warm-100 py-6 sm:py-10">
         <div className={CONTAINER}>
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#5C3317] to-[#C87941] px-6 py-8 sm:px-10 sm:py-10">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#8C4A1E] to-[#D4843F]">
 
-            {/* Dekoratif tarif görselleri — sadece desktop */}
-            <div className="absolute right-0 top-0 bottom-0 hidden sm:flex items-center gap-2 pr-4 pointer-events-none select-none">
+            {/* Desktop: dekoratif görseller sağda */}
+            <div className="absolute right-0 top-0 bottom-0 hidden sm:flex items-center gap-2 pr-5 pointer-events-none select-none">
               {newest.filter(r => r.image_url).slice(5, 9).map((r, i) => (
                 <div key={r.id}
-                  className="relative rounded-2xl overflow-hidden flex-shrink-0 opacity-40"
-                  style={{ width: 90, height: 120 + i * 16, marginTop: i % 2 === 0 ? 0 : 24 }}>
+                  className="relative rounded-2xl overflow-hidden flex-shrink-0 opacity-50"
+                  style={{ width: 90, height: 120 + i * 18, marginTop: i % 2 === 0 ? 0 : 28 }}>
                   <Image src={r.image_url!} alt="" fill className="object-cover" sizes="90px" />
                 </div>
               ))}
             </div>
 
-            <div className="relative z-10 max-w-md">
-              <span className="inline-block bg-white/20 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3">
-                Topluluk
-              </span>
-              <h2 className="text-white font-extrabold text-xl sm:text-3xl leading-tight mb-2">
-                Menü Önerileri
-              </h2>
-              <p className="text-white/75 text-sm sm:text-base mb-5 leading-relaxed">
-                Editör seçkisi ve kullanıcı paylaşımlarından ilham al. Yeni tarifler ve menü fikirleri seni bekliyor.
-              </p>
-              <Link href="/menu-gunlugu"
-                className="inline-flex items-center gap-2 bg-white text-[#7C4A1E] font-bold px-5 sm:px-6 py-2.5 rounded-full text-sm hover:bg-warm-50 transition-colors shadow-sm">
-                Keşfet →
-              </Link>
+            {/* İçerik */}
+            <div className="relative z-10 px-6 pt-8 pb-5 sm:px-10 sm:py-10">
+              <div className="max-w-md">
+                <span className="inline-block bg-white/25 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3">
+                  Topluluk
+                </span>
+                <h2 className="text-white font-extrabold text-xl sm:text-3xl leading-tight mb-2">
+                  Menü Önerileri
+                </h2>
+                <p className="text-white/80 text-sm sm:text-base mb-5 leading-relaxed">
+                  Editör seçkisi ve kullanıcı paylaşımlarından ilham al. Yeni tarifler ve menü fikirleri seni bekliyor.
+                </p>
+                <Link href="/menu-gunlugu"
+                  className="inline-flex items-center gap-2 bg-white text-[#7C4A1E] font-bold px-5 sm:px-6 py-2.5 rounded-full text-sm hover:bg-warm-50 transition-colors shadow-sm">
+                  Keşfet →
+                </Link>
+              </div>
+
+              {/* Mobil: görseller butonun altında yatay şerit */}
+              <div className="sm:hidden flex gap-2.5 mt-5 overflow-hidden">
+                {newest.filter(r => r.image_url).slice(5, 9).map((r, i) => (
+                  <div key={r.id}
+                    className="relative rounded-xl overflow-hidden flex-shrink-0 opacity-70"
+                    style={{ width: 72, height: 72 + (i % 2) * 12 }}>
+                    <Image src={r.image_url!} alt="" fill className="object-cover" sizes="72px" />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

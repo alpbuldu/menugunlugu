@@ -11,11 +11,7 @@ import type { MenuWithRecipes, Recipe } from "@/lib/types";
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = createAdminClient();
-  const { data } = await supabase
-    .from("site_settings")
-    .select("logo_url")
-    .eq("id", 1)
-    .single();
+  const { data } = await supabase.from("site_settings").select("logo_url").eq("id", 1).single();
   const logoUrl = data?.logo_url ?? null;
   return {
     alternates: { canonical: "/" },
@@ -35,10 +31,14 @@ export const dynamic = "force-dynamic";
 
 const CONTAINER = "max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8";
 
+const MEAL_EMOJI: Record<string, string> = {
+  soup: "🥣", main: "🍖", side: "🥗", dessert: "🍮",
+};
 const CATEGORY_LABEL: Record<string, string> = {
   soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı",
 };
 
+/* ── Günün Menüsü: tek büyük teaser kartı ── */
 function TodayMenuCard({ menu }: { menu: MenuWithRecipes }) {
   const slots = [
     { key: "soup",    recipe: menu.soup    as Recipe | null },
@@ -47,54 +47,59 @@ function TodayMenuCard({ menu }: { menu: MenuWithRecipes }) {
     { key: "dessert", recipe: menu.dessert as Recipe | null },
   ];
 
+  // Ana yemek görseli arka plan için, yoksa ilk görselli tarif
+  const bgRecipe = slots.find(s => s.recipe?.image_url)?.recipe ?? null;
+
   const dateStr = new Date(menu.date + "T12:00:00").toLocaleDateString("tr-TR", {
     day: "numeric", month: "long", weekday: "long",
   });
 
   return (
-    <section className="bg-warm-50 py-6 sm:py-10">
+    <section className="bg-warm-100 py-5 sm:py-8">
       <div className={CONTAINER}>
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <div>
-            <h2 className="text-xl sm:text-2xl font-bold text-warm-900">Günün Menüsü</h2>
-            <p className="text-sm text-warm-500 capitalize">{dateStr}</p>
-          </div>
-          <Link href="/gunun-menusu"
-            className="text-brand-600 hover:text-brand-700 font-medium text-sm whitespace-nowrap">
-            Tüm menüyü gör →
-          </Link>
-        </div>
+        <Link href="/gunun-menusu" className="group block relative rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72">
+          {/* Arka plan fotoğrafı */}
+          {bgRecipe?.image_url ? (
+            <Image
+              src={bgRecipe.image_url}
+              alt="Günün Menüsü"
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              sizes="(max-width:640px) 100vw, 1100px"
+              priority
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-brand-500 to-brand-700" />
+          )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {slots.map(({ key, recipe }) => (
-            <Link
-              key={key}
-              href={recipe ? `/tarifler/${recipe.slug}` : "/gunun-menusu"}
-              className="group relative rounded-2xl overflow-hidden bg-warm-200 aspect-[3/4] block"
-            >
-              {recipe?.image_url ? (
-                <Image
-                  src={recipe.image_url}
-                  alt={recipe.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  sizes="(max-width:640px) 50vw, 25vw"
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center text-3xl text-warm-400">🍽️</div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-2.5">
-                <span className="block text-[10px] font-semibold text-brand-300 uppercase tracking-wide mb-0.5">
-                  {CATEGORY_LABEL[key]}
+          {/* Gradient overlay — alttan koyulaşan */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10" />
+
+          {/* Sol üst: etiket + tarih */}
+          <div className="absolute top-4 left-4 sm:top-5 sm:left-6">
+            <span className="inline-block bg-brand-500 text-white text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider mb-1.5">
+              Günün Menüsü
+            </span>
+            <p className="text-white/75 text-xs sm:text-sm capitalize">{dateStr}</p>
+          </div>
+
+          {/* Sağ üst: git okı */}
+          <div className="absolute top-4 right-4 sm:top-5 sm:right-6 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/35 transition-colors">
+            <span className="text-white text-sm">→</span>
+          </div>
+
+          {/* Alt: 4 yemek listesi */}
+          <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 sm:px-6 sm:pb-5">
+            <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+              {slots.map(({ key, recipe }) => (
+                <span key={key} className="flex items-center gap-1.5 text-white text-xs sm:text-sm">
+                  <span className="text-base leading-none">{MEAL_EMOJI[key]}</span>
+                  <span className="font-medium leading-snug">{recipe?.title ?? "—"}</span>
                 </span>
-                <span className="block text-xs sm:text-sm font-bold text-white leading-tight line-clamp-2">
-                  {recipe?.title ?? "—"}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
+              ))}
+            </div>
+          </div>
+        </Link>
       </div>
     </section>
   );
@@ -102,22 +107,16 @@ function TodayMenuCard({ menu }: { menu: MenuWithRecipes }) {
 
 function NoMenuCard() {
   return (
-    <section className="bg-warm-50 py-6 sm:py-10">
+    <section className="bg-warm-100 py-5 sm:py-8">
       <div className={CONTAINER}>
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
-          <h2 className="text-xl sm:text-2xl font-bold text-warm-900">Günün Menüsü</h2>
-          <Link href="/gunun-menusu" className="text-brand-600 hover:text-brand-700 font-medium text-sm">
-            Arşive git →
-          </Link>
-        </div>
         <Link href="/gunun-menusu"
-          className="flex items-center gap-4 bg-white border border-warm-200 rounded-2xl px-6 py-5 hover:border-brand-300 transition-colors">
-          <span className="text-4xl">🍽️</span>
-          <div>
-            <p className="font-semibold text-warm-900">Bugünün menüsü henüz yayınlanmadı</p>
-            <p className="text-sm text-warm-500">Geçmiş günlerin menülerini görüntülemek için tıklayın</p>
+          className="flex items-center gap-4 bg-white border border-warm-200 rounded-2xl px-5 py-4 hover:border-brand-300 transition-colors">
+          <span className="text-3xl">🍽️</span>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-warm-900 text-sm">Bugünün menüsü henüz yayınlanmadı</p>
+            <p className="text-xs text-warm-500">Geçmiş günlerin menülerini keşfet</p>
           </div>
-          <span className="ml-auto text-warm-400 text-lg">→</span>
+          <span className="text-warm-400 flex-shrink-0">→</span>
         </Link>
       </div>
     </section>
@@ -141,35 +140,32 @@ export default async function HomePage() {
   const adsEnabled = siteSettingsRes.data?.adsense_enabled !== false;
 
   const { data: homeAd } = adsEnabled ? await adminSb
-    .from("ads")
-    .select("image_url, link_url, title")
-    .eq("placement", "home")
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle() : { data: null };
+    .from("ads").select("image_url, link_url, title")
+    .eq("placement", "home").eq("is_active", true)
+    .order("created_at", { ascending: false }).limit(1).maybeSingle()
+    : { data: null };
 
   const { data: ap } = await supabase.from("admin_profile").select("username, avatar_url").eq("id", 1).single();
   const adminAuthor = { name: ap?.username ?? "Menü Günlüğü", avatar: ap?.avatar_url ?? "", username: "__admin__" };
 
-  const memberIds = [...new Set(newest.filter((r) => r.submitted_by).map((r) => r.submitted_by as string))];
+  const memberIds = [...new Set(newest.filter(r => r.submitted_by).map(r => r.submitted_by as string))];
   const profileMap: Record<string, { name: string; avatar: string; username: string }> = {};
   if (memberIds.length) {
     const { data: profiles } = await supabase.from("profiles").select("id, username, avatar_url").in("id", memberIds);
-    profiles?.forEach((p) => { profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "", username: p.username }; });
+    profiles?.forEach(p => { profileMap[p.id] = { name: p.username, avatar: p.avatar_url ?? "", username: p.username }; });
   }
 
   let followsAdmin = false;
   const followMap: Record<string, boolean> = {};
   if (currentUserId && newest.length > 0) {
-    const [adminFollowRes, memberFollowRes] = await Promise.all([
+    const [adminRes, memberRes] = await Promise.all([
       supabase.from("admin_follows").select("follower_id").eq("follower_id", currentUserId).maybeSingle(),
       memberIds.length
         ? supabase.from("follows").select("following_id").eq("follower_id", currentUserId).in("following_id", memberIds)
         : Promise.resolve({ data: [] }),
     ]);
-    followsAdmin = !!adminFollowRes.data;
-    (memberFollowRes.data ?? []).forEach((r: { following_id: string }) => { followMap[r.following_id] = true; });
+    followsAdmin = !!adminRes.data;
+    (memberRes.data ?? []).forEach((r: { following_id: string }) => { followMap[r.following_id] = true; });
   }
 
   const recentPosts = blogPosts.slice(0, 3);
@@ -178,49 +174,49 @@ export default async function HomePage() {
     <div>
       {/* ── Hero ── */}
       <section className="bg-gradient-to-b from-brand-600 to-warm-700 text-white">
-        <div className={`${CONTAINER} py-6 sm:py-10 text-center`}>
-          <h1 className="text-xl sm:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4 leading-tight">
+        <div className={`${CONTAINER} py-5 sm:py-10 text-center`}>
+          <h1 className="text-lg sm:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4 leading-tight">
             Her Gün Yeni Bir Menü,
             <br />
             <span className="text-brand-200">Her Gün Yeni Lezzetler</span>
           </h1>
-          <p className="text-xs sm:text-lg text-brand-100 mb-4 sm:mb-7 max-w-xl mx-auto leading-relaxed">
+          <p className="hidden sm:block text-lg text-brand-100 mb-7 max-w-xl mx-auto leading-relaxed">
             Günlük menüler, lezzetli tarifler ve sonsuz ilham.
           </p>
 
-          {/* Mobile: 2×2 grid */}
-          <div className="grid sm:hidden grid-cols-2 gap-2.5 max-w-xs mx-auto">
-            <Link href="/gunun-menusu" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+          {/* Mobile: yatay scroll pill butonlar */}
+          <div className="flex sm:hidden gap-2 overflow-x-auto pb-1 justify-center">
+            <Link href="/gunun-menusu" className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-white text-brand-700 rounded-full font-medium text-sm">
               🍽️ Bugünün Menüsü
             </Link>
-            <Link href="/dunun-menusu" className="inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
+            <Link href="/dunun-menusu" className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-white/20 text-white border border-white/30 rounded-full font-medium text-sm">
               📅 Dünün Menüsü
             </Link>
-            <Link href="/tarifler" className="col-span-2 inline-flex items-center justify-center gap-1.5 py-2.5 bg-white text-brand-700 rounded-lg font-medium text-sm hover:bg-brand-50 transition-colors">
-              🥘 Tariflere Göz At
+            <Link href="/tarifler" className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-white/20 text-white border border-white/30 rounded-full font-medium text-sm">
+              🥘 Tarifler
             </Link>
           </div>
 
-          {/* Desktop */}
-          <div className="hidden sm:flex flex-row gap-3 justify-center">
-            <Link href="/gunun-menusu" className="inline-flex items-center justify-center gap-2 w-[180px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+          {/* Desktop: 3 buton */}
+          <div className="hidden sm:flex gap-3 justify-center">
+            <Link href="/gunun-menusu" className="inline-flex items-center justify-center gap-2 w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               🍽️ Bugünün Menüsü
             </Link>
-            <Link href="/dunun-menusu" className="inline-flex items-center justify-center gap-2 w-[180px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+            <Link href="/dunun-menusu" className="inline-flex items-center justify-center gap-2 w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               📅 Dünün Menüsü
             </Link>
-            <Link href="/tarifler" className="inline-flex items-center justify-center gap-2 w-[180px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
+            <Link href="/tarifler" className="inline-flex items-center justify-center gap-2 w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
               🥘 Tariflere Göz At
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── Günün Menüsü Kartı ── */}
+      {/* ── Günün Menüsü teaser kartı ── */}
       {todayMenu ? <TodayMenuCard menu={todayMenu} /> : <NoMenuCard />}
 
       {/* ── Banner reklam ── */}
-      <section className="bg-warm-100 pt-5 sm:pt-8 pb-0">
+      <section className="bg-warm-100 pt-0 pb-0">
         <div className={CONTAINER}>
           <AdSlot placement="home_banner" adSenseSlot="anasayfa_banner"
             imageHeight="h-[80px]" adWidth="320px" adHeight="80px" className="block sm:hidden mx-auto" />
@@ -233,17 +229,12 @@ export default async function HomePage() {
       <section className="bg-warm-100 py-5 sm:py-8">
         <div className={CONTAINER}>
           <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <h2 className="text-xl sm:text-2xl font-bold text-warm-900">Yeni Eklenen Tarifler</h2>
+            <h2 className="text-lg sm:text-2xl font-bold text-warm-900">Yeni Eklenen Tarifler</h2>
             <Link href="/tarifler" className="text-brand-600 hover:text-brand-700 font-medium text-sm">
               Tümünü gör →
             </Link>
           </div>
-          {newest.length === 0 ? (
-            <div className="text-center py-10 text-warm-400">
-              <p className="text-4xl mb-3">🍳</p>
-              <p>Henüz tarif eklenmemiş.</p>
-            </div>
-          ) : (
+          {newest.length > 0 ? (
             <RecipeSlider
               recipes={newest}
               adminAuthor={adminAuthor}
@@ -253,33 +244,56 @@ export default async function HomePage() {
               followsAdmin={followsAdmin}
               sponsoredAd={homeAd ?? undefined}
             />
+          ) : (
+            <p className="text-center py-10 text-warm-400">Henüz tarif eklenmemiş.</p>
           )}
         </div>
       </section>
 
       {/* ── Blog Yazıları ── */}
       {recentPosts.length > 0 && (
-        <section className="bg-warm-50 py-6 sm:py-10">
+        <section className="bg-warm-50 py-5 sm:py-8">
           <div className={CONTAINER}>
-            <div className="flex items-center justify-between mb-4 sm:mb-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-warm-900">Blog Yazıları</h2>
+            <div className="flex items-center justify-between mb-3 sm:mb-6">
+              <h2 className="text-lg sm:text-2xl font-bold text-warm-900">Blog Yazıları</h2>
               <Link href="/blog" className="text-brand-600 hover:text-brand-700 font-medium text-sm">
                 Tümünü gör →
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {recentPosts.map((post) => (
+
+            {/* Mobil: kompakt liste */}
+            <div className="flex flex-col divide-y divide-warm-200 sm:hidden">
+              {recentPosts.map(post => (
+                <Link key={post.id} href={`/blog/${post.slug}`}
+                  className="flex items-center gap-3 py-3 hover:text-brand-600 transition-colors">
+                  {post.image_url && (
+                    <div className="relative w-14 h-14 rounded-xl overflow-hidden flex-shrink-0">
+                      <Image src={post.image_url} alt={post.title} fill className="object-cover" sizes="56px" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    {post.category && (
+                      <span className="text-[10px] font-semibold text-brand-500 uppercase tracking-wide">
+                        {(post.category as { name: string }).name}
+                      </span>
+                    )}
+                    <p className="font-semibold text-warm-900 text-sm leading-snug line-clamp-2">{post.title}</p>
+                  </div>
+                  <span className="text-warm-400 flex-shrink-0 text-sm">→</span>
+                </Link>
+              ))}
+            </div>
+
+            {/* Desktop: 3 kart */}
+            <div className="hidden sm:grid grid-cols-3 gap-4">
+              {recentPosts.map(post => (
                 <Link key={post.id} href={`/blog/${post.slug}`}
                   className="group bg-white rounded-2xl overflow-hidden border border-warm-200 hover:border-brand-300 hover:shadow-md transition-all">
                   {post.image_url && (
                     <div className="relative aspect-[16/9] overflow-hidden">
-                      <Image
-                        src={post.image_url}
-                        alt={post.title}
-                        fill
+                      <Image src={post.image_url} alt={post.title} fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width:640px) 100vw, 33vw"
-                      />
+                        sizes="33vw" />
                     </div>
                   )}
                   <div className="p-4">

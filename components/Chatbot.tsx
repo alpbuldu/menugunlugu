@@ -37,7 +37,28 @@ const botCard  = (card: MsgCard): Msg => ({ id: ++_id, role: "bot", text: "", ca
 
 /* ── Component ───────────────────────────────────────────── */
 export default function Chatbot() {
-  const [open, setOpen] = useState(false);
+  const [open,      setOpen]      = useState(false);
+  const [collapsed, setCollapsed] = useState(false); // mobil: emoji-only balon
+  const [isMobile,  setIsMobile]  = useState(false);
+
+  // Mobilde default açık
+  useEffect(() => {
+    const mobile = window.innerWidth < 640;
+    setIsMobile(mobile);
+    if (mobile) setOpen(true);
+  }, []);
+
+  function handleBubbleClick() {
+    if (collapsed) {
+      setCollapsed(false);
+      setOpen(true);
+    } else if (open && isMobile) {
+      setOpen(false);
+      setCollapsed(true);
+    } else {
+      setOpen(o => !o);
+    }
+  }
 
   const [step,          setStep]          = useState<Step>("category-select");
   const [activeCategory, setActiveCat]   = useState<Category | null>(null);
@@ -196,18 +217,19 @@ export default function Chatbot() {
     <>
       {/* Bubble */}
       <button
-        onClick={() => setOpen(o => !o)}
+        onClick={handleBubbleClick}
         aria-label="Ne Pişirsem?"
-        className="fixed bottom-5 left-5 z-50 rounded-full shadow-xl flex items-center gap-2.5 transition-all hover:scale-105 active:scale-95"
+        className="fixed bottom-5 left-5 z-50 rounded-full shadow-xl flex items-center justify-center gap-2.5 transition-all hover:scale-105 active:scale-95"
         style={{
           backgroundColor: "#D2740B",
-          padding: open ? "0 14px 0 10px" : "0 14px 0 10px",
+          padding: collapsed ? "0 12px" : "0 14px 0 10px",
           height: 48,
+          minWidth: 48,
         }}
       >
         <span className="text-xl">🍳</span>
-        {!open && <span className="text-white font-semibold text-sm whitespace-nowrap">Ne Pişirsem?</span>}
-        {open && (
+        {!collapsed && !open && <span className="text-white font-semibold text-sm whitespace-nowrap">Ne Pişirsem?</span>}
+        {!collapsed && open && (
           <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>

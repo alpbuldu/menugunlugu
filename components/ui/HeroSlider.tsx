@@ -83,9 +83,9 @@ export default function HeroSlider({ slides }: Props) {
           {/* Colour tint for slides that reuse a food image (Oyna, Menü Önerileri) */}
           {s.tint && <div className={`absolute inset-0 ${s.tint}`} />}
           {/* Left-to-right dark gradient for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/5" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/30 to-black/5" />
           {/* Bottom dark gradient for dot area */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
         </div>
       ))}
 

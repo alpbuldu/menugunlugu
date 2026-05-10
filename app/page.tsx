@@ -94,7 +94,7 @@ export default async function HomePage() {
     {
       id: "gunun-menusu",
       imageUrl: menuBgRecipe?.image_url ?? null,
-      badge: "Her Gün Yenileniyor",
+      badge: "Her Gün Yeni Bir Menü",
       title: "Her Gün Yeni Bir Menü,\nHer Gün Yeni Lezzetler",
       subtitle: "Bugünün menüsünü keşfet, ilham al.",
       ctaLabel: "Günün Menüsünü Gör",
@@ -105,7 +105,7 @@ export default async function HomePage() {
     ...(newestRecipe ? [{
       id: "son-tarif",
       imageUrl: newestRecipe.image_url ?? null,
-      badge: "Yeni Eklendi",
+      badge: "Yeni Tarif",
       title: newestRecipe.title,
       subtitle: "Taze bir tarif seni bekliyor.",
       ctaLabel: "Tarife Git",
@@ -128,7 +128,7 @@ export default async function HomePage() {
     ...(latestPost ? [{
       id: "blog",
       imageUrl: latestPost.image_url ?? null,
-      badge: "Blog",
+      badge: "Yeni Blog",
       title: latestPost.title,
       subtitle: latestPost.excerpt ?? "Mutfak rehberleri ve lezzet yazıları.",
       ctaLabel: "Yazıyı Oku",
@@ -167,9 +167,9 @@ export default async function HomePage() {
       {/* ── Yeni Eklenen Tarifler ── */}
       <section className="bg-warm-100 py-5 sm:py-8">
         <div className={CONTAINER}>
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <h2 className="text-lg sm:text-2xl font-bold text-warm-900">Yeni Eklenen Tarifler</h2>
-            <Link href="/tarifler" className="text-brand-600 hover:text-brand-700 font-medium text-sm">
+          <div className="flex items-center justify-between gap-2 mb-4 sm:mb-6">
+            <h2 className="text-base sm:text-2xl font-bold text-warm-900 truncate">Son Tarifler</h2>
+            <Link href="/tarifler" className="text-brand-600 hover:text-brand-700 font-medium text-xs sm:text-sm flex-shrink-0">
               Tümünü gör →
             </Link>
           </div>
@@ -193,9 +193,9 @@ export default async function HomePage() {
       {recentPosts.length > 0 && (
         <section className="bg-warm-50 py-5 sm:py-8">
           <div className={CONTAINER}>
-            <div className="flex items-center justify-between mb-3 sm:mb-6">
-              <h2 className="text-lg sm:text-2xl font-bold text-warm-900">Blog Yazıları</h2>
-              <Link href="/blog" className="text-brand-600 hover:text-brand-700 font-medium text-sm">
+            <div className="flex items-center justify-between gap-2 mb-3 sm:mb-6">
+              <h2 className="text-base sm:text-2xl font-bold text-warm-900 truncate">Blog Yazıları</h2>
+              <Link href="/blog" className="text-brand-600 hover:text-brand-700 font-medium text-xs sm:text-sm flex-shrink-0">
                 Tümünü gör →
               </Link>
             </div>

@@ -95,7 +95,7 @@ export default function HeroSlider({ slides }: Props) {
           <span className="inline-block bg-brand-500 text-white text-[8px] sm:text-xs font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-wider mb-1 sm:mb-2">
             {slide.badge}
           </span>
-          <h2 className="text-white font-extrabold text-sm sm:text-3xl lg:text-4xl leading-tight mb-3 sm:mb-2 max-w-lg whitespace-pre-line drop-shadow-lg">
+          <h2 className="text-white font-extrabold text-xl sm:text-3xl lg:text-4xl leading-tight mb-3 sm:mb-2 max-w-lg whitespace-pre-line drop-shadow-lg">
             {slide.title}
           </h2>
           {slide.subtitle && (

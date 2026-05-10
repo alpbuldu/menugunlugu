@@ -35,7 +35,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   // İngilizce DB değerleri
   soup:        "Çorba",
   main:        "Ana Yemek",
-  side:        "Yardımcı",
+  side:        "Yardımcı Lezzet",
   dessert:     "Tatlı",
   salad:       "Salata",
   breakfast:   "Kahvaltı",

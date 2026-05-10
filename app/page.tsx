@@ -163,17 +163,17 @@ export default async function HomePage() {
                     ) : (
                       <div className="w-full h-full bg-warm-200 flex items-center justify-center text-3xl">🍽️</div>
                     )}
-                    {/* Gradient + kategori + isim görselin içinde */}
+                    {/* Gradient + isim + kategori görselin içinde */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-2.5">
+                      <h3 className="text-white font-semibold text-[12px] sm:text-sm leading-snug line-clamp-2 drop-shadow mb-1">
+                        {recipe.title}
+                      </h3>
                       {recipe.category && (
-                        <span className="inline-block bg-brand-500/90 text-white text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide mb-1">
+                        <span className="inline-block bg-brand-500/90 text-white text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide">
                           {categoryLabel(recipe.category)}
                         </span>
                       )}
-                      <h3 className="text-white font-semibold text-[11px] sm:text-xs leading-snug line-clamp-2 drop-shadow">
-                        {recipe.title}
-                      </h3>
                     </div>
                   </div>
                 </Link>
@@ -330,31 +330,46 @@ export default async function HomePage() {
             </span>
           </Link>
 
-          {/* Desktop: tam banner */}
-          <div className="hidden sm:block relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#8C4A1E] to-[#D4843F]">
-            <div className="absolute right-0 top-0 bottom-0 flex items-center gap-2 pr-5 pointer-events-none select-none">
-              {newest.filter(r => r.image_url).slice(5, 9).map((r, i) => (
-                <div key={r.id}
-                  className="relative rounded-2xl overflow-hidden flex-shrink-0 opacity-50"
-                  style={{ width: 90, height: 120 + i * 18, marginTop: i % 2 === 0 ? 0 : 28 }}>
-                  <Image src={r.image_url!} alt="" fill className="object-cover" sizes="90px" />
-                </div>
-              ))}
-            </div>
-            <div className="relative z-10 px-10 py-10 max-w-md">
-              <span className="inline-block bg-white/25 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3">
+          {/* Desktop: polaroid mosaic banner */}
+          <div className="hidden sm:flex relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#2C1810] via-[#5C2E14] to-[#8C4A1E] min-h-[230px] items-stretch">
+            {/* Sol: metin */}
+            <div className="flex-1 relative z-10 px-10 py-9 flex flex-col justify-center">
+              <span className="inline-flex items-center gap-2 bg-white/15 text-white/90 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4 w-fit">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#E07A2F]" />
                 Topluluk
               </span>
-              <h2 className="text-white font-extrabold text-3xl leading-tight mb-2">
+              <h2 className="text-white font-extrabold text-[2rem] leading-tight mb-2">
                 Menü Önerileri
               </h2>
-              <p className="text-white/80 text-base mb-5 leading-relaxed">
-                Editör seçkisi ve kullanıcı paylaşımlarından ilham al. Yeni tarifler ve menü fikirleri seni bekliyor.
+              <p className="text-white/65 text-sm mb-6 max-w-xs leading-relaxed">
+                Editör seçkisi ve kullanıcı paylaşımlarından ilham al. Yeni tarif ve menü fikirleri seni bekliyor.
               </p>
               <Link href="/menu-gunlugu"
-                className="inline-flex items-center gap-2 bg-white text-[#7C4A1E] font-bold px-6 py-2.5 rounded-full text-sm hover:bg-warm-50 transition-colors shadow-sm">
+                className="inline-flex items-center gap-2 bg-[#E07A2F] hover:bg-[#C5691E] text-white font-bold px-6 py-2.5 rounded-full text-sm transition-colors w-fit shadow-lg">
                 Keşfet →
               </Link>
+            </div>
+
+            {/* Sağ: polaroid görseller */}
+            <div className="relative w-[400px] flex-shrink-0 pointer-events-none select-none">
+              {(() => {
+                const photos = newest.filter(r => r.image_url).slice(4, 8);
+                const configs = [
+                  { top: "18%", left: "8%",  w: 110, h: 130, rot: -6,  z: 1 },
+                  { top: "8%",  left: "30%", w: 120, h: 140, rot:  3,  z: 2 },
+                  { top: "22%", left: "53%", w: 105, h: 125, rot: -4,  z: 3 },
+                  { top: "6%",  left: "72%", w: 115, h: 135, rot:  5,  z: 4 },
+                ];
+                return photos.map((r, i) => {
+                  const c = configs[i];
+                  return (
+                    <div key={r.id} className="absolute rounded-xl overflow-hidden border-4 border-white shadow-2xl"
+                      style={{ top: c.top, left: c.left, width: c.w, height: c.h, transform: `rotate(${c.rot}deg)`, zIndex: c.z }}>
+                      <Image src={r.image_url!} alt="" fill className="object-cover" sizes="120px" />
+                    </div>
+                  );
+                });
+              })()}
             </div>
           </div>
 

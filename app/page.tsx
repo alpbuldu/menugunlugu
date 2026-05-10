@@ -160,7 +160,7 @@ export default async function HomePage() {
         {
           id: "menu-onerileri",
           imageUrl: newest[2]?.image_url ?? newest[1]?.image_url ?? null,
-          tint: "bg-[#7C4A1E]/60",
+          tint: "bg-[#7C4A1E]/35",
           badge: "Topluluk",
           title: "Menü Önerileri",
           subtitle: "Editör seçkisi ve kullanıcı paylaşımlarından ilham al.",

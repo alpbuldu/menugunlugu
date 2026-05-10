@@ -115,7 +115,8 @@ export default async function HomePage() {
     // 3 — Menü Önerileri
     {
       id: "menu-onerileri",
-      imageUrl: null,
+      imageUrl: newest[2]?.image_url ?? newest[1]?.image_url ?? null,
+      tint: "bg-[#7C4A1E]/60",
       badge: "Topluluk",
       title: "Menü Önerileri",
       subtitle: "Editör seçkisi ve kullanıcı paylaşımlarından ilham al.",
@@ -137,7 +138,8 @@ export default async function HomePage() {
     // 5 — Oyna
     {
       id: "oyna",
-      imageUrl: null,
+      imageUrl: newest[4]?.image_url ?? newest[3]?.image_url ?? null,
+      tint: "bg-[#3D1F5C]/65",
       badge: "Eğlence",
       title: "Oyna & Keşfet",
       subtitle: "Yemek dünyasına özel mini oyunlar ve quizler.",

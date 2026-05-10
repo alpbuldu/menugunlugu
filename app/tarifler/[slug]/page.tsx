@@ -36,9 +36,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     soup: "çorba", main: "ana yemek", side: "yardımcı lezzet", dessert: "tatlı",
   };
   const catLabel    = CATEGORY_LABELS[recipe.category] ?? recipe.category;
-  const metaTitle   = recipe.seo_title ?? recipe.title;
-  const description = recipe.description ?? `${recipe.title} tarifi — malzemeler ve yapılışı.`;
-  const keywords    = recipe.seo_keywords ?? `${recipe.title}, ${recipe.title} tarifi, ${catLabel} tarifi, evde ${catLabel}, kolay ${catLabel}, Menü Günlüğü`;
+  const metaTitle   = recipe.seo_title ?? `${recipe.title} Tarifi`;
+  const description = recipe.description ??
+    `${recipe.title} tarifi nasıl yapılır? Malzemeler ve adım adım yapılışı için tıklayın. Evde kolayca hazırlayabileceğiniz lezzetli bir ${catLabel} tarifi.`;
+  const keywords    = recipe.seo_keywords ??
+    `${recipe.title}, ${recipe.title} tarifi, ${recipe.title} nasıl yapılır, ${catLabel} tarifi, evde ${catLabel}, kolay ${catLabel} tarifi, ${catLabel} nasıl yapılır, Türk mutfağı tarifleri, Menü Günlüğü`;
   return {
     title:    metaTitle,
     description,
@@ -238,7 +240,7 @@ export default async function RecipeDetailPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "Recipe",
     name: recipe.title,
-    description: recipe.description ?? `${recipe.title} tarifi — malzemeler ve yapılışı.`,
+    description: recipe.description ?? `${recipe.title} tarifi nasıl yapılır? Malzemeler ve adım adım yapılışı için tıklayın. Evde kolayca hazırlayabileceğiniz lezzetli bir tarif.`,
     image: recipe.image_url ? [recipe.image_url] : undefined,
     author: { "@type": "Person", name: authorName },
     datePublished: recipe.created_at,

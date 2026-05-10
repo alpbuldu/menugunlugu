@@ -486,14 +486,14 @@ export default function RecipeForm({ recipe }: Props) {
                 onChange={(e) => setSeoKeywords(e.target.value)}
                 placeholder={
                   title
-                    ? `${title}, ${title} tarifi, ${(CATEGORIES.find(c => c.value === category)?.label ?? "").toLowerCase()} tarifi, Menü Günlüğü`
-                    : "mercimek çorbası, çorba tarifi, kolay tarif…"
+                    ? `${title}, ${title} tarifi, ${title} nasıl yapılır, ${(CATEGORIES.find(c => c.value === category)?.label ?? "").toLowerCase()} tarifi, Menü Günlüğü`
+                    : "mercimek çorbası, çorba tarifi, evde çorba, kolay çorba tarifi…"
                 }
                 className={inputCls}
               />
               {title && !seoKeywords && (
                 <p className="text-xs text-warm-400 mt-1">
-                  Boş bırakılırsa otomatik: <span className="text-warm-500 italic">{title}, {title} tarifi, {(CATEGORIES.find(c => c.value === category)?.label ?? "").toLowerCase()} tarifi…</span>
+                  Boş bırakılırsa otomatik: <span className="text-warm-500 italic">{title}, {title} tarifi, {title} nasıl yapılır, {(CATEGORIES.find(c => c.value === category)?.label ?? "").toLowerCase()} tarifi…</span>
                 </p>
               )}
             </div>
@@ -504,11 +504,11 @@ export default function RecipeForm({ recipe }: Props) {
                 <p className="text-xs font-medium text-warm-600 mb-2">Google Önizlemesi</p>
                 <div className="bg-white border border-warm-100 rounded-xl p-4 space-y-0.5">
                   <p className="text-[#1a0dab] text-base font-medium leading-snug hover:underline cursor-pointer truncate">
-                    {seoTitle || title} | Menü Günlüğü
+                    {seoTitle || `${title} Tarifi`} | Menü Günlüğü
                   </p>
-                  <p className="text-xs text-green-700">menugunlugu.com/recipes/{recipe?.slug ?? "tarif-slug"}</p>
+                  <p className="text-xs text-green-700">menugunlugu.com/tarifler/{recipe?.slug ?? "tarif-slug"}</p>
                   <p className="text-sm text-warm-600 leading-snug line-clamp-2">
-                    {description || `${title} tarifi — malzemeler ve yapılışı.`}
+                    {description || `${title} tarifi nasıl yapılır? Malzemeler ve adım adım yapılışı için tıklayın. Evde kolayca hazırlayabileceğiniz lezzetli bir tarif.`}
                   </p>
                 </div>
               </div>

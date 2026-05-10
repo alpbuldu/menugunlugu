@@ -96,7 +96,7 @@ export default async function HomePage() {
   const slides: HeroSlide[] = dbSlides.length > 0
     ? dbSlides.flatMap(s => {
         let imageUrl: string | null = s.image_url ?? null;
-        let title: string = s.title ?? "";
+        let title: string = (s.title ?? "").replace(/\\n/g, "\n");
         let ctaHref: string = s.cta_href ?? "";
 
         if (s.slide_key === "gunun-menusu" && !s.image_url)

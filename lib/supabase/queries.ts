@@ -199,6 +199,22 @@ export async function getMenuDatesForMonth(
   }
 }
 
+/** Returns the `limit` most recently added approved recipes */
+export async function getNewestRecipes(limit = 12): Promise<Recipe[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("recipes")
+      .select(RECIPE_FIELDS)
+      .or("approval_status.eq.approved,approval_status.is.null")
+      .order("created_at", { ascending: false })
+      .limit(limit);
+    if (error || !data) return [];
+    return data as Recipe[];
+  } catch { return []; }
+}
+
 /**
  * Returns `limit` recipes in a random order.
  * Fetches all recipes then shuffles in JS (PostgREST doesn't expose RANDOM() ordering).

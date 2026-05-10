@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/server";
 import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdSlot from "@/components/ui/AdSlot";
 import PagePopup from "@/components/ui/PagePopup";
+import HeroSlider, { type HeroSlide } from "@/components/ui/HeroSlider";
 import type { MenuWithRecipes, Recipe } from "@/lib/types";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -170,47 +171,77 @@ export default async function HomePage() {
 
   const recentPosts = blogPosts.slice(0, 3);
 
+  // ── Hero slides ──────────────────────────────────────────────
+  const menuBgRecipe = todayMenu
+    ? ([todayMenu.soup, todayMenu.main, todayMenu.side, todayMenu.dessert] as (Recipe | null)[])
+        .find(r => r?.image_url) ?? null
+    : null;
+
+  const newestRecipe = newest[0] ?? null;
+  const latestPost   = blogPosts[0] ?? null;
+
+  const slides: HeroSlide[] = [
+    // 1 — Günün Menüsü
+    {
+      id: "gunun-menusu",
+      imageUrl: menuBgRecipe?.image_url ?? null,
+      badge: "Her Gün Yenileniyor",
+      title: "Her Gün Yeni Bir Menü,\nHer Gün Yeni Lezzetler",
+      subtitle: "Bugünün menüsünü keşfet, ilham al.",
+      ctaLabel: "Günün Menüsünü Gör",
+      ctaHref: "/gunun-menusu",
+      gradient: "from-brand-700 to-warm-800",
+    },
+    // 2 — Son tarif
+    ...(newestRecipe ? [{
+      id: "son-tarif",
+      imageUrl: newestRecipe.image_url ?? null,
+      badge: "Yeni Eklendi",
+      title: newestRecipe.title,
+      subtitle: "Taze bir tarif seni bekliyor.",
+      ctaLabel: "Tarife Git",
+      ctaHref: `/tarifler/${newestRecipe.slug}`,
+      gradient: "from-warm-800 to-warm-600",
+    }] : []),
+    // 3 — Menü Önerileri
+    {
+      id: "menu-onerileri",
+      imageUrl: null,
+      badge: "Topluluk",
+      title: "Menü Önerileri",
+      subtitle: "Editör seçkisi ve kullanıcı paylaşımlarından ilham al.",
+      ctaLabel: "Keşfet",
+      ctaHref: "/menu-gunlugu",
+      gradient: "from-[#7C4A1E] to-[#C87941]",
+    },
+    // 4 — Blog
+    ...(latestPost ? [{
+      id: "blog",
+      imageUrl: latestPost.image_url ?? null,
+      badge: "Blog",
+      title: latestPost.title,
+      subtitle: latestPost.excerpt ?? "Mutfak rehberleri ve lezzet yazıları.",
+      ctaLabel: "Yazıyı Oku",
+      ctaHref: `/blog/${latestPost.slug}`,
+      gradient: "from-[#2C4A3E] to-[#4A7C6A]",
+    }] : []),
+    // 5 — Oyna
+    {
+      id: "oyna",
+      imageUrl: null,
+      badge: "Eğlence",
+      title: "Oyna & Keşfet",
+      subtitle: "Yemek dünyasına özel mini oyunlar ve quizler.",
+      ctaLabel: "Oyunlara Git",
+      ctaHref: "/oyna",
+      gradient: "from-[#3D1F5C] to-[#7B3FA0]",
+    },
+  ];
+
   return (
     <div>
-      {/* ── Hero ── */}
-      <section className="bg-gradient-to-b from-brand-600 to-warm-700 text-white">
-        <div className={`${CONTAINER} py-5 sm:py-10 text-center`}>
-          <h1 className="text-lg sm:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4 leading-tight">
-            Her Gün Yeni Bir Menü,
-            <br />
-            <span className="text-brand-200">Her Gün Yeni Lezzetler</span>
-          </h1>
-          <p className="hidden sm:block text-lg text-brand-100 mb-7 max-w-xl mx-auto leading-relaxed">
-            Günlük menüler, lezzetli tarifler ve sonsuz ilham.
-          </p>
-
-          {/* Mobile: yatay scroll pill butonlar */}
-          <div className="flex sm:hidden gap-2 overflow-x-auto pb-1 justify-center">
-            <Link href="/gunun-menusu" className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-white text-brand-700 rounded-full font-medium text-sm">
-              🍽️ Bugünün Menüsü
-            </Link>
-            <Link href="/dunun-menusu" className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-white/20 text-white border border-white/30 rounded-full font-medium text-sm">
-              📅 Dünün Menüsü
-            </Link>
-            <Link href="/tarifler" className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 bg-white/20 text-white border border-white/30 rounded-full font-medium text-sm">
-              🥘 Tarifler
-            </Link>
-          </div>
-
-          {/* Desktop: 3 buton */}
-          <div className="hidden sm:flex gap-3 justify-center">
-            <Link href="/gunun-menusu" className="inline-flex items-center justify-center gap-2 w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
-              🍽️ Bugünün Menüsü
-            </Link>
-            <Link href="/dunun-menusu" className="inline-flex items-center justify-center gap-2 w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
-              📅 Dünün Menüsü
-            </Link>
-            <Link href="/tarifler" className="inline-flex items-center justify-center gap-2 w-[190px] py-3 bg-white text-brand-700 rounded-xl font-medium text-base hover:bg-brand-50 transition-colors">
-              🥘 Tariflere Göz At
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* ── Hero Slider ── */}
+      <HeroSlider slides={slides} />
 
       {/* ── Günün Menüsü teaser kartı ── */}
       {todayMenu ? <TodayMenuCard menu={todayMenu} /> : <NoMenuCard />}

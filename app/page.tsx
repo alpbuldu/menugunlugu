@@ -72,7 +72,7 @@ export default async function HomePage() {
 
   const adsEnabled = siteSettingsRes.data?.adsense_enabled !== false;
 
-  const recentPosts  = blogPosts.slice(0, 3);
+  const recentPosts  = blogPosts.slice(0, 4);
   const featuredPost = recentPosts[0] ?? null;
   const sidePosts    = recentPosts.slice(1);
 
@@ -139,7 +139,7 @@ export default async function HomePage() {
       <section className="bg-warm-100 py-6 sm:py-10">
         <div className={CONTAINER}>
           <div className="flex items-center justify-between gap-2 mb-4 sm:mb-6">
-            <h2 className="text-base sm:text-2xl font-bold text-warm-900">Son Tarifler</h2>
+            <h2 className="text-base sm:text-2xl font-bold text-warm-900">Öne Çıkan Tarifler</h2>
             <Link href="/tarifler" className="text-brand-600 hover:text-brand-700 font-medium text-xs sm:text-sm flex-shrink-0">
               Tümünü gör →
             </Link>
@@ -187,7 +187,7 @@ export default async function HomePage() {
         <section className="bg-warm-50 py-6 sm:py-10">
           <div className={CONTAINER}>
             <div className="flex items-center justify-between gap-2 mb-4 sm:mb-6">
-              <h2 className="text-base sm:text-2xl font-bold text-warm-900">Blog Yazıları</h2>
+              <h2 className="text-base sm:text-2xl font-bold text-warm-900">Öne Çıkan Blog Yazıları</h2>
               <Link href="/blog" className="text-brand-600 hover:text-brand-700 font-medium text-xs sm:text-sm flex-shrink-0">
                 Tümünü gör →
               </Link>

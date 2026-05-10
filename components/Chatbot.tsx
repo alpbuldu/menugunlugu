@@ -37,7 +37,20 @@ const botCard  = (card: MsgCard): Msg => ({ id: ++_id, role: "bot", text: "", ca
 
 /* ── Component ───────────────────────────────────────────── */
 export default function Chatbot() {
-  const [open, setOpen] = useState(false);
+  const [open,      setOpen]      = useState(false);
+  const [collapsed, setCollapsed] = useState(false); // X'e basılınca emoji-only
+
+  function handleBubbleClick() {
+    if (open) {
+      // X'e basıldı: kapat + yazıyı gizle
+      setOpen(false);
+      setCollapsed(true);
+    } else {
+      // Kapalıyken (emoji-only veya normal) aç, yazıyı geri getir
+      setOpen(true);
+      setCollapsed(false);
+    }
+  }
 
   const [step,          setStep]          = useState<Step>("category-select");
   const [activeCategory, setActiveCat]   = useState<Category | null>(null);
@@ -196,14 +209,17 @@ export default function Chatbot() {
     <>
       {/* Bubble */}
       <button
-        onClick={() => setOpen(o => !o)}
+        onClick={handleBubbleClick}
         aria-label="Ne Pişirsem?"
-        className="fixed bottom-5 left-5 z-50 rounded-full shadow-xl flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95"
-        style={{ backgroundColor: "#D2740B", padding: "0 12px", height: 48, minWidth: 48 }}
+        className="fixed bottom-5 left-5 z-50 rounded-full shadow-xl flex items-center gap-2.5 transition-all hover:scale-105 active:scale-95"
+        style={{ backgroundColor: "#D2740B", padding: "0 14px 0 10px", height: 48 }}
       >
         <span className="text-xl">🍳</span>
+        {!open && !collapsed && (
+          <span className="text-white font-semibold text-sm whitespace-nowrap">Ne Pişirsem?</span>
+        )}
         {open && (
-          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         )}

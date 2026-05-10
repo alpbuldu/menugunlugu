@@ -197,10 +197,16 @@ function SlideForm({
   const isPresetGradient = GRADIENT_PRESETS.some(p => p.value === gradient);
   const isPresetTint     = TINT_PRESETS.some(p => p.value === tint);
 
-  function handlePickerSelect(result: PickerResult) {
+  function handlePickerSelect(result: PickerResult, mode: "recipe" | "blog") {
     setImageUrl(result.imageUrl);
-    if (result.title) setTitle(result.title);
-    if (result.href)  setCtaHref(result.href);
+    // Başlık + link sadece ilgili sistem slide'larında otomatik dolar
+    const fillMeta =
+      (mode === "recipe" && initial?.slide_key === "son-tarif") ||
+      (mode === "blog"   && initial?.slide_key === "blog");
+    if (fillMeta) {
+      if (result.title) setTitle(result.title);
+      if (result.href)  setCtaHref(result.href);
+    }
   }
 
   async function handleImageUpload(file: File) {
@@ -379,7 +385,7 @@ function SlideForm({
       {picker && (
         <ContentPicker
           mode={picker}
-          onSelect={handlePickerSelect}
+          onSelect={result => handlePickerSelect(result, picker)}
           onClose={() => setPicker(null)}
         />
       )}

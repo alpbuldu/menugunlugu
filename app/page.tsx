@@ -8,7 +8,7 @@ import RecipeSlider from "@/components/ui/RecipeSlider";
 import AdSlot from "@/components/ui/AdSlot";
 import PagePopup from "@/components/ui/PagePopup";
 import HeroSlider, { type HeroSlide } from "@/components/ui/HeroSlider";
-import type { MenuWithRecipes, Recipe } from "@/lib/types";
+import type { Recipe } from "@/lib/types";
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = createAdminClient();
@@ -32,97 +32,6 @@ export const dynamic = "force-dynamic";
 
 const CONTAINER = "max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8";
 
-const MEAL_EMOJI: Record<string, string> = {
-  soup: "🥣", main: "🍖", side: "🥗", dessert: "🍮",
-};
-const CATEGORY_LABEL: Record<string, string> = {
-  soup: "Çorba", main: "Ana Yemek", side: "Yardımcı Lezzet", dessert: "Tatlı",
-};
-
-/* ── Günün Menüsü: tek büyük teaser kartı ── */
-function TodayMenuCard({ menu }: { menu: MenuWithRecipes }) {
-  const slots = [
-    { key: "soup",    recipe: menu.soup    as Recipe | null },
-    { key: "main",    recipe: menu.main    as Recipe | null },
-    { key: "side",    recipe: menu.side    as Recipe | null },
-    { key: "dessert", recipe: menu.dessert as Recipe | null },
-  ];
-
-  // Ana yemek görseli arka plan için, yoksa ilk görselli tarif
-  const bgRecipe = slots.find(s => s.recipe?.image_url)?.recipe ?? null;
-
-  const dateStr = new Date(menu.date + "T12:00:00").toLocaleDateString("tr-TR", {
-    day: "numeric", month: "long", weekday: "long",
-  });
-
-  return (
-    <section className="bg-warm-100 py-5 sm:py-8">
-      <div className={CONTAINER}>
-        <Link href="/gunun-menusu" className="group block relative rounded-2xl sm:rounded-3xl overflow-hidden h-48 sm:h-72">
-          {/* Arka plan fotoğrafı */}
-          {bgRecipe?.image_url ? (
-            <Image
-              src={bgRecipe.image_url}
-              alt="Günün Menüsü"
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="(max-width:640px) 100vw, 1100px"
-              priority
-            />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-brand-500 to-brand-700" />
-          )}
-
-          {/* Gradient overlay — alttan koyulaşan */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10" />
-
-          {/* Sol üst: etiket + tarih */}
-          <div className="absolute top-4 left-4 sm:top-5 sm:left-6">
-            <span className="inline-block bg-brand-500 text-white text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider mb-1.5">
-              Günün Menüsü
-            </span>
-            <p className="text-white/75 text-xs sm:text-sm capitalize">{dateStr}</p>
-          </div>
-
-          {/* Sağ üst: git okı */}
-          <div className="absolute top-4 right-4 sm:top-5 sm:right-6 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/35 transition-colors">
-            <span className="text-white text-sm">→</span>
-          </div>
-
-          {/* Alt: 4 yemek listesi */}
-          <div className="absolute bottom-0 left-0 right-0 px-4 pb-4 sm:px-6 sm:pb-5">
-            <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-              {slots.map(({ key, recipe }) => (
-                <span key={key} className="flex items-center gap-1.5 text-white text-xs sm:text-sm">
-                  <span className="text-base leading-none">{MEAL_EMOJI[key]}</span>
-                  <span className="font-medium leading-snug">{recipe?.title ?? "—"}</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        </Link>
-      </div>
-    </section>
-  );
-}
-
-function NoMenuCard() {
-  return (
-    <section className="bg-warm-100 py-5 sm:py-8">
-      <div className={CONTAINER}>
-        <Link href="/gunun-menusu"
-          className="flex items-center gap-4 bg-white border border-warm-200 rounded-2xl px-5 py-4 hover:border-brand-300 transition-colors">
-          <span className="text-3xl">🍽️</span>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-warm-900 text-sm">Bugünün menüsü henüz yayınlanmadı</p>
-            <p className="text-xs text-warm-500">Geçmiş günlerin menülerini keşfet</p>
-          </div>
-          <span className="text-warm-400 flex-shrink-0">→</span>
-        </Link>
-      </div>
-    </section>
-  );
-}
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -242,9 +151,6 @@ export default async function HomePage() {
     <div>
       {/* ── Hero Slider ── */}
       <HeroSlider slides={slides} />
-
-      {/* ── Günün Menüsü teaser kartı ── */}
-      {todayMenu ? <TodayMenuCard menu={todayMenu} /> : <NoMenuCard />}
 
       {/* ── Banner reklam ── */}
       <section className="bg-warm-100 pt-0 pb-0">

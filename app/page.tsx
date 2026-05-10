@@ -163,17 +163,12 @@ export default async function HomePage() {
                     ) : (
                       <div className="w-full h-full bg-warm-200 flex items-center justify-center text-3xl">🍽️</div>
                     )}
-                    {/* Gradient + isim + kategori görselin içinde */}
+                    {/* Gradient + isim görselin içinde */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
                     <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-2.5">
-                      <h3 className="text-white font-semibold text-[12px] sm:text-sm leading-snug line-clamp-2 drop-shadow mb-1">
+                      <h3 className="text-white font-semibold text-[12px] sm:text-sm leading-snug line-clamp-2 drop-shadow">
                         {recipe.title}
                       </h3>
-                      {recipe.category && (
-                        <span className="inline-block bg-brand-500/90 text-white text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wide">
-                          {categoryLabel(recipe.category)}
-                        </span>
-                      )}
                     </div>
                   </div>
                 </Link>
@@ -296,7 +291,6 @@ export default async function HomePage() {
                     )}
                     <p className="font-semibold text-warm-900 text-sm leading-snug line-clamp-2 mt-0.5">{post.title}</p>
                   </div>
-                  <span className="text-warm-400 flex-shrink-0 text-sm">→</span>
                 </Link>
               ))}
             </div>
@@ -331,7 +325,7 @@ export default async function HomePage() {
           </Link>
 
           {/* Desktop: polaroid mosaic banner */}
-          <div className="hidden sm:flex relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#2C1810] via-[#5C2E14] to-[#8C4A1E] min-h-[230px] items-stretch">
+          <div className="hidden sm:flex relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#2C1810] via-[#5C2E14] to-[#8C4A1E] min-h-[260px] items-stretch">
             {/* Sol: metin */}
             <div className="flex-1 relative z-10 px-10 py-9 flex flex-col justify-center">
               <span className="inline-flex items-center gap-2 bg-white/15 text-white/90 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4 w-fit">
@@ -351,21 +345,21 @@ export default async function HomePage() {
             </div>
 
             {/* Sağ: polaroid görseller */}
-            <div className="relative w-[400px] flex-shrink-0 pointer-events-none select-none">
+            <div className="relative w-[500px] flex-shrink-0 pointer-events-none select-none">
               {(() => {
                 const photos = newest.filter(r => r.image_url).slice(4, 8);
                 const configs = [
-                  { top: "18%", left: "8%",  w: 110, h: 130, rot: -6,  z: 1 },
-                  { top: "8%",  left: "30%", w: 120, h: 140, rot:  3,  z: 2 },
-                  { top: "22%", left: "53%", w: 105, h: 125, rot: -4,  z: 3 },
-                  { top: "6%",  left: "72%", w: 115, h: 135, rot:  5,  z: 4 },
+                  { top: "10%", left: "2%",  w: 145, h: 170, rot: -6,  z: 1 },
+                  { top: "5%",  left: "28%", w: 158, h: 185, rot:  3,  z: 2 },
+                  { top: "18%", left: "52%", w: 140, h: 165, rot: -4,  z: 3 },
+                  { top: "3%",  left: "70%", w: 150, h: 175, rot:  5,  z: 4 },
                 ];
                 return photos.map((r, i) => {
                   const c = configs[i];
                   return (
                     <div key={r.id} className="absolute rounded-xl overflow-hidden border-4 border-white shadow-2xl"
                       style={{ top: c.top, left: c.left, width: c.w, height: c.h, transform: `rotate(${c.rot}deg)`, zIndex: c.z }}>
-                      <Image src={r.image_url!} alt="" fill className="object-cover" sizes="120px" />
+                      <Image src={r.image_url!} alt="" fill className="object-cover" sizes="160px" />
                     </div>
                   );
                 });

@@ -40,11 +40,12 @@ export default async function HomePage() {
 
   const adminSb = createAdminClient();
 
-  const [newest, todayMenu, blogPosts, siteSettingsRes] = await Promise.all([
+  const [newest, todayMenu, blogPosts, siteSettingsRes, heroSlidesRes] = await Promise.all([
     getNewestRecipes(12),
     getTodayMenu(),
     getBlogPosts(),
     adminSb.from("site_settings").select("adsense_enabled").eq("id", 1).single(),
+    adminSb.from("hero_slides").select("*").eq("is_active", true).order("sort_order"),
   ]);
 
   const adsEnabled = siteSettingsRes.data?.adsense_enabled !== false;
@@ -89,65 +90,106 @@ export default async function HomePage() {
   const newestRecipe = newest[0] ?? null;
   const latestPost   = blogPosts[0] ?? null;
 
-  const slides: HeroSlide[] = [
-    // 1 — Günün Menüsü
-    {
-      id: "gunun-menusu",
-      imageUrl: menuBgRecipe?.image_url ?? null,
-      badge: "Her Gün Yeni Bir Menü",
-      title: "Her Gün Yeni Bir Menü,\nHer Gün Yeni Lezzetler",
-      subtitle: "Bugünün menüsünü keşfet, ilham al.",
-      ctaLabel: "Günün Menüsünü Gör",
-      ctaHref: "/gunun-menusu",
-      gradient: "from-brand-700 to-warm-800",
-    },
-    // 2 — Son tarif
-    ...(newestRecipe ? [{
-      id: "son-tarif",
-      imageUrl: newestRecipe.image_url ?? null,
-      badge: "Yeni Tarif",
-      title: newestRecipe.title,
-      subtitle: "Taze bir tarif seni bekliyor.",
-      ctaLabel: "Tarife Git",
-      ctaHref: `/tarifler/${newestRecipe.slug}`,
-      gradient: "from-warm-800 to-warm-600",
-    }] : []),
-    // 3 — Menü Önerileri
-    {
-      id: "menu-onerileri",
-      imageUrl: newest[2]?.image_url ?? newest[1]?.image_url ?? null,
-      tint: "bg-[#7C4A1E]/60",
-      badge: "Topluluk",
-      title: "Menü Önerileri",
-      subtitle: "Editör seçkisi ve kullanıcı paylaşımlarından ilham al.",
-      ctaLabel: "Keşfet",
-      ctaHref: "/menu-gunlugu",
-      gradient: "from-[#7C4A1E] to-[#C87941]",
-    },
-    // 4 — Blog
-    ...(latestPost ? [{
-      id: "blog",
-      imageUrl: latestPost.image_url ?? null,
-      badge: "Yeni Blog",
-      title: latestPost.title,
-      subtitle: latestPost.excerpt ?? "Mutfak rehberleri ve lezzet yazıları.",
-      ctaLabel: "Yazıyı Oku",
-      ctaHref: `/blog/${latestPost.slug}`,
-      gradient: "from-[#2C4A3E] to-[#4A7C6A]",
-    }] : []),
-    // 5 — Oyna
-    {
-      id: "oyna",
-      imageUrl: newest[4]?.image_url ?? newest[3]?.image_url ?? null,
-      tint: "bg-[#3D1F5C]/65",
-      badge: "Eğlence",
-      title: "Oyna & Keşfet",
-      subtitle: "Yemek dünyasına özel mini oyunlar ve quizler.",
-      ctaLabel: "Oyunlara Git",
-      ctaHref: "/oyna",
-      gradient: "from-[#3D1F5C] to-[#7B3FA0]",
-    },
-  ];
+  const dbSlides = heroSlidesRes.data ?? [];
+
+  // Build slides from DB; fall back to hardcoded if table is empty
+  const slides: HeroSlide[] = dbSlides.length > 0
+    ? dbSlides.flatMap(s => {
+        let imageUrl: string | null = s.image_url ?? null;
+        let title: string = s.title ?? "";
+        let ctaHref: string = s.cta_href ?? "";
+
+        if (s.slide_key === "gunun-menusu" && !s.image_url)
+          imageUrl = menuBgRecipe?.image_url ?? null;
+
+        if (s.slide_key === "son-tarif" && newestRecipe) {
+          if (!s.image_url) imageUrl = newestRecipe.image_url ?? null;
+          if (!s.title)    title    = newestRecipe.title;
+          if (!s.cta_href) ctaHref  = `/tarifler/${newestRecipe.slug}`;
+        }
+
+        if (s.slide_key === "menu-onerileri" && !s.image_url)
+          imageUrl = newest[2]?.image_url ?? newest[1]?.image_url ?? null;
+
+        if (s.slide_key === "blog" && latestPost) {
+          if (!s.image_url) imageUrl = latestPost.image_url ?? null;
+          if (!s.title)    title    = latestPost.title;
+          if (!s.cta_href) ctaHref  = `/blog/${latestPost.slug}`;
+        }
+
+        if (s.slide_key === "oyna" && !s.image_url)
+          imageUrl = newest[4]?.image_url ?? newest[3]?.image_url ?? null;
+
+        // Skip if required fields are still missing after dynamic injection
+        if (!title || !ctaHref) return [];
+
+        return [{
+          id: s.slide_key ?? `slide-${s.id}`,
+          imageUrl,
+          tint:     s.tint ?? undefined,
+          badge:    s.badge,
+          title,
+          subtitle: s.subtitle ?? undefined,
+          ctaLabel: s.cta_label,
+          ctaHref,
+          gradient: s.gradient,
+        } satisfies HeroSlide];
+      })
+    : [
+        // Hardcoded fallback (used until hero_slides table is seeded)
+        {
+          id: "gunun-menusu",
+          imageUrl: menuBgRecipe?.image_url ?? null,
+          badge: "Her Gün Yeni Bir Menü",
+          title: "Her Gün Yeni Bir Menü,\nHer Gün Yeni Lezzetler",
+          subtitle: "Bugünün menüsünü keşfet, ilham al.",
+          ctaLabel: "Günün Menüsünü Gör",
+          ctaHref: "/gunun-menusu",
+          gradient: "from-brand-700 to-warm-800",
+        },
+        ...(newestRecipe ? [{
+          id: "son-tarif",
+          imageUrl: newestRecipe.image_url ?? null,
+          badge: "Yeni Tarif",
+          title: newestRecipe.title,
+          subtitle: "Taze bir tarif seni bekliyor.",
+          ctaLabel: "Tarife Git",
+          ctaHref: `/tarifler/${newestRecipe.slug}`,
+          gradient: "from-warm-800 to-warm-600",
+        }] : []),
+        {
+          id: "menu-onerileri",
+          imageUrl: newest[2]?.image_url ?? newest[1]?.image_url ?? null,
+          tint: "bg-[#7C4A1E]/60",
+          badge: "Topluluk",
+          title: "Menü Önerileri",
+          subtitle: "Editör seçkisi ve kullanıcı paylaşımlarından ilham al.",
+          ctaLabel: "Keşfet",
+          ctaHref: "/menu-gunlugu",
+          gradient: "from-[#7C4A1E] to-[#C87941]",
+        },
+        ...(latestPost ? [{
+          id: "blog",
+          imageUrl: latestPost.image_url ?? null,
+          badge: "Yeni Blog",
+          title: latestPost.title,
+          subtitle: latestPost.excerpt ?? "Mutfak rehberleri ve lezzet yazıları.",
+          ctaLabel: "Yazıyı Oku",
+          ctaHref: `/blog/${latestPost.slug}`,
+          gradient: "from-[#2C4A3E] to-[#4A7C6A]",
+        }] : []),
+        {
+          id: "oyna",
+          imageUrl: newest[4]?.image_url ?? newest[3]?.image_url ?? null,
+          tint: "bg-[#3D1F5C]/40",
+          badge: "Eğlence",
+          title: "Oyna & Keşfet",
+          subtitle: "Yemek dünyasına özel mini oyunlar ve quizler.",
+          ctaLabel: "Oyunlara Git",
+          ctaHref: "/oyna",
+          gradient: "from-[#3D1F5C] to-[#7B3FA0]",
+        },
+      ];
 
   return (
     <div>

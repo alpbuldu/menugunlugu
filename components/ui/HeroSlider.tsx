@@ -92,10 +92,10 @@ export default function HeroSlider({ slides }: Props) {
       {/* Content */}
       <div className="relative z-20 h-full flex flex-col justify-end pb-8 sm:pb-10 px-5 sm:px-10 lg:px-16 max-w-[1100px]">
         <div key={current} className="animate-fade-in-up">
-          <span className="inline-block bg-brand-500 text-white text-[10px] sm:text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider mb-1.5 sm:mb-2">
+          <span className="inline-block bg-brand-500 text-white text-[8px] sm:text-xs font-bold px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-wider mb-1 sm:mb-2">
             {slide.badge}
           </span>
-          <h2 className="text-white font-extrabold text-base sm:text-3xl lg:text-4xl leading-tight mb-1 sm:mb-2 max-w-lg whitespace-pre-line drop-shadow-lg">
+          <h2 className="text-white font-extrabold text-sm sm:text-3xl lg:text-4xl leading-tight mb-3 sm:mb-2 max-w-lg whitespace-pre-line drop-shadow-lg">
             {slide.title}
           </h2>
           {slide.subtitle && (

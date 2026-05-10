@@ -1,6 +1,89 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { createClient } from "@/lib/supabase/client";
+
+interface RecipeImage {
+  id: number;
+  title: string;
+  slug: string;
+  image_url: string;
+}
+
+function RecipePicker({ onSelect, onClose }: { onSelect: (url: string) => void; onClose: () => void }) {
+  const [recipes, setRecipes] = useState<RecipeImage[]>([]);
+  const [filtered, setFiltered] = useState<RecipeImage[]>([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("recipes")
+      .select("id, title, slug, image_url")
+      .not("image_url", "is", null)
+      .or("approval_status.eq.approved,approval_status.is.null")
+      .order("created_at", { ascending: false })
+      .limit(200)
+      .then(({ data }) => {
+        const list = (data ?? []).filter(r => r.image_url) as RecipeImage[];
+        setRecipes(list);
+        setFiltered(list);
+        setLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    const q = search.toLowerCase().trim();
+    setFiltered(q ? recipes.filter(r => r.title.toLowerCase().includes(q)) : recipes);
+  }, [search, recipes]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-4 border-b border-warm-100">
+          <h3 className="font-semibold text-warm-800">Tariflerden Görsel Seç</h3>
+          <button onClick={onClose} className="text-warm-400 hover:text-warm-700 text-xl leading-none">✕</button>
+        </div>
+        <div className="p-3 border-b border-warm-100">
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Tarif ara…"
+            autoFocus
+            className="w-full border border-warm-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+          />
+        </div>
+        <div className="overflow-y-auto p-3">
+          {loading ? (
+            <p className="text-center text-warm-400 text-sm py-8">Yükleniyor…</p>
+          ) : filtered.length === 0 ? (
+            <p className="text-center text-warm-400 text-sm py-8">Sonuç bulunamadı.</p>
+          ) : (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              {filtered.map(r => (
+                <button
+                  key={r.id}
+                  type="button"
+                  onClick={() => { onSelect(r.image_url); onClose(); }}
+                  className="group relative aspect-square rounded-xl overflow-hidden border-2 border-transparent hover:border-brand-400 transition-all"
+                >
+                  <img src={r.image_url} alt={r.title} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end">
+                    <p className="text-white text-[10px] font-medium px-1.5 py-1 leading-tight opacity-0 group-hover:opacity-100 transition-opacity line-clamp-2">
+                      {r.title}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface HeroSlide {
   id: number;
@@ -72,6 +155,7 @@ function SlideForm({
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [showPicker, setShowPicker] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const isEdit = !!initial;
   const dynamicInfo = initial?.slide_key ? DYNAMIC_INFO[initial.slide_key] : null;
@@ -186,15 +270,22 @@ function SlideForm({
               </button>
             </div>
           )}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
-              className="px-4 py-2 border border-warm-200 rounded-xl text-sm text-warm-700 hover:bg-warm-50 transition-colors disabled:opacity-50">
-              {uploading ? "Yükleniyor…" : imageUrl ? "Görseli Değiştir" : "Görsel Seç"}
+              className="px-3 py-2 border border-warm-200 rounded-xl text-sm text-warm-700 hover:bg-warm-50 transition-colors disabled:opacity-50">
+              {uploading ? "Yükleniyor…" : "Bilgisayardan Yükle"}
             </button>
-            {imageUrl && <span className="text-xs text-green-600 font-medium">✓ Yüklendi</span>}
+            <button type="button" onClick={() => setShowPicker(true)}
+              className="px-3 py-2 border border-brand-200 rounded-xl text-sm text-brand-600 hover:bg-brand-50 transition-colors">
+              Tariflerden Seç
+            </button>
+            {imageUrl && <span className="text-xs text-green-600 font-medium">✓ Seçildi</span>}
           </div>
           <input ref={fileRef} type="file" accept="image/*" className="hidden"
             onChange={e => { const f = e.target.files?.[0]; if (f) handleImageUpload(f); }} />
+          {showPicker && (
+            <RecipePicker onSelect={url => setImageUrl(url)} onClose={() => setShowPicker(false)} />
+          )}
         </div>
 
         {/* Gradient */}

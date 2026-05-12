@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { preload } from "react-dom";
 import Link from "next/link";
 import Image from "next/image";
 import { getNewestRecipes, getTodayMenu, getBlogPosts } from "@/lib/supabase/queries";
@@ -120,20 +121,29 @@ export default async function HomePage() {
         { id: "oyna", imageUrl: newest[4]?.image_url ?? newest[3]?.image_url ?? null, tint: "bg-[#3D1F5C]/40", badge: "Eğlence", title: "Oyna & Keşfet", subtitle: "Yemek dünyasına özel mini oyunlar ve quizler.", ctaLabel: "Oyunlara Git", ctaHref: "/oyna", gradient: "from-[#3D1F5C] to-[#7B3FA0]" },
       ];
 
+  // İlk hero görselini erkenden preload et → LCP iyileşir
+  const firstHeroImage = slides[0]?.imageUrl;
+  if (firstHeroImage) {
+    preload(firstHeroImage, { as: "image", fetchPriority: "high" });
+  }
+
   return (
     <div>
       {/* ── Hero Slider ── */}
       <HeroSlider slides={slides} />
 
       {/* ── Banner reklam ── */}
-      <section className="bg-warm-100 pt-0 pb-0">
-        <div className={CONTAINER}>
-          <AdSlot placement="home_banner" adSenseSlot="anasayfa_banner"
-            imageHeight="h-[80px]" adWidth="320px" adHeight="80px" className="block sm:hidden mx-auto" />
-          <AdSlot placement="home_banner" adSenseSlot="anasayfa_banner"
-            imageHeight="h-[160px]" adWidth="728px" adHeight="160px" className="hidden sm:block mx-auto" />
-        </div>
-      </section>
+      {/* min-h: reklam yüklenene kadar alanı rezerve eder → CLS önler */}
+      {adsEnabled && (
+        <section className="bg-warm-100 pt-0 pb-0">
+          <div className={CONTAINER} style={{ minHeight: "102px" }}>
+            <AdSlot placement="home_banner" adSenseSlot="anasayfa_banner"
+              imageHeight="h-[80px]" adWidth="320px" adHeight="80px" className="block sm:hidden mx-auto" />
+            <AdSlot placement="home_banner" adSenseSlot="anasayfa_banner"
+              imageHeight="h-[160px]" adWidth="728px" adHeight="160px" className="hidden sm:block mx-auto" />
+          </div>
+        </section>
+      )}
 
       {/* ── Son Tarifler ── */}
       <section className="bg-warm-100 py-6 sm:py-10">

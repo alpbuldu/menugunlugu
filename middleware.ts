@@ -95,7 +95,7 @@ export async function middleware(request: NextRequest) {
   const portalValid  = !portalKey || portalCookie?.value === portalKey;
 
   // Portal URL
-  if (pathname === "/api/admin/portal") {
+  if (pathname === "/mutfak-giris") {
     const k = request.nextUrl.searchParams.get("k");
     if (!portalKey || k !== portalKey) {
       return new NextResponse(null, { status: 404 });

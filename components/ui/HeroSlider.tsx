@@ -56,7 +56,7 @@ export default function HeroSlider({ slides }: Props) {
 
   return (
     <div
-      className="relative w-full h-[56vw] min-h-[200px] max-h-[380px] overflow-hidden"
+      className="relative w-full h-[56vw] min-h-[200px] max-h-[380px] overflow-hidden bg-warm-900"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={onTouchStart}
@@ -76,6 +76,7 @@ export default function HeroSlider({ slides }: Props) {
               className="object-cover object-center"
               sizes="100vw"
               priority={i === 0}
+              fetchPriority={i === 0 ? "high" : "low"}
             />
           ) : (
             <div className={`absolute inset-0 bg-gradient-to-br ${s.gradient}`} />

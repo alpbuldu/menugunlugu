@@ -4,6 +4,14 @@ import { NextRequest, NextResponse } from "next/server";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ── www → non-www canonical redirect ────────────────────────────
+  const host = request.headers.get("host") ?? "";
+  if (host.startsWith("www.")) {
+    const url = request.nextUrl.clone();
+    url.host = host.replace(/^www\./, "");
+    return NextResponse.redirect(url, { status: 301 });
+  }
+
   // ── Anasayfaya düşen auth code'unu ERKEN yakala ──────────────────
   // getUser() çağrısından ÖNCE yapılır; böylece PKCE verifier cookie'sine
   // dokunulmadan /auth/callback'e yönlendirilir (server-side exchange).

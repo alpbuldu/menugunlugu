@@ -5,6 +5,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import CookieBanner from "@/components/ui/CookieBanner";
+import ConsentScripts from "@/components/ui/ConsentScripts";
 import ChatbotConditional from "@/components/ui/ChatbotConditional";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
@@ -56,23 +57,11 @@ export default function RootLayout({
     <html lang="tr">
       <head>
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-69LK11MP4Q"
-          strategy="lazyOnload"
-        />
-        <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8588576330436541"
           crossOrigin="anonymous"
           strategy="lazyOnload"
         />
-        <Script id="ga4-init" strategy="lazyOnload">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-69LK11MP4Q');
-          `}
-        </Script>
       </head>
       <body className="min-h-screen flex flex-col">
         <Header />
@@ -80,6 +69,7 @@ export default function RootLayout({
         <Footer />
         <ScrollToTop />
         <CookieBanner />
+        <ConsentScripts />
         <ChatbotConditional />
         <SpeedInsights />
         <Analytics />

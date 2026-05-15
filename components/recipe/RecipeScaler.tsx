@@ -43,6 +43,24 @@ const HALF_OK_WORDS = new Set([
   "kayısı", "erik", "nar", "üzüm", "incir", "kivi", "avokado",
 ]);
 
+// ─── Ölçü birimi tespiti (¼ adımına yuvarlama) ───────────────────────────────
+// "1,5 su bardağı" × ¼ = 0,375 → Yarım  (0,38 değil!)
+const VOLUME_SNAP_WORDS = new Set([
+  "bardağı", "bardak", "kaşığı", "kaşık", "kase", "demet", "tutam", "avuç",
+  "fincan", "fincanlık",
+]);
+
+function isVolumeSnap(restText: string): boolean {
+  const words = restText.trim().toLowerCase().split(/[\s,.()]+/);
+  return words.some((w) => VOLUME_SNAP_WORDS.has(w));
+}
+
+/** Ölçü birimleri için değeri en yakın ¼ adımına yuvarlar (min ¼). */
+function snapToQuarter(v: number): number {
+  const snapped = Math.round(v * 4) / 4;
+  return Math.max(0.25, snapped);
+}
+
 function getCountableType(restText: string): "whole" | "half" | null {
   const words = restText.trim().toLowerCase().split(/[\s,.(]+/);
   if (words.some(w => WHOLE_ONLY_WORDS.has(w))) return "whole";
@@ -80,11 +98,20 @@ function fmt(v: number): string {
     if (Math.abs(frac - 0.5)  < 0.01) return "Yarım";
   }
 
-  // Ondalık gösterim (1,5 / 2,25 …)
-  return r.toFixed(2).replace(/0+$/, "").replace(/\.$/, "").replace(".", ",");
+  // Ondalık gösterim (1,5 / 1,25 …)
+  // 1,5 → "1,5"  |  1,25 → "1,25"  |  2,75 → "2,75"
+  const formatted = r.toFixed(2).replace(/0+$/, "").replace(/\.$/, "").replace(".", ",");
+  return formatted;
 }
 
 // ─── Ingredient scaler ────────────────────────────────────────────────────────
+
+/** applyCountable sonrası ölçü birimi varsa ¼ adımına yuvarla. */
+function scaleVal(raw: number, scale: number, restText: string): number {
+  let v = applyCountable(raw * scale, restText);
+  if (isVolumeSnap(restText)) v = snapToQuarter(v);
+  return v;
+}
 
 function scaleIngredientRaw(text: string, scale: number): string {
   if (scale === 1) return text;
@@ -93,29 +120,29 @@ function scaleIngredientRaw(text: string, scale: number): string {
   // Aralık: "2-3 diş sarımsak"
   let m = s.match(/^(\d+(?:[,.]\d+)?)\s*-\s*(\d+(?:[,.]\d+)?)([\s\S]*)/);
   if (m) {
-    const a = applyCountable(parseFloat(m[1].replace(",", ".")) * scale, m[3]);
-    const b = applyCountable(parseFloat(m[2].replace(",", ".")) * scale, m[3]);
+    const a = scaleVal(parseFloat(m[1].replace(",", ".")), scale, m[3]);
+    const b = scaleVal(parseFloat(m[2].replace(",", ".")), scale, m[3]);
     return `${fmt(a)}-${fmt(b)}${m[3]}`;
   }
 
   // "yarım çay bardağı"
   m = s.match(/^yarım\s+([\s\S]+)/i);
   if (m) {
-    const val = applyCountable(0.5 * scale, m[1]);
+    const val = scaleVal(0.5, scale, m[1]);
     return `${fmt(val)} ${m[1]}`;
   }
 
   // "çeyrek su bardağı"
   m = s.match(/^çeyrek\s+([\s\S]+)/i);
   if (m) {
-    const val = applyCountable(0.25 * scale, m[1]);
+    const val = scaleVal(0.25, scale, m[1]);
     return `${fmt(val)} ${m[1]}`;
   }
 
   // "1 buçuk su bardağı" = 1.5
   m = s.match(/^(\d+)\s+buçuk\s+([\s\S]+)/i);
   if (m) {
-    const val = applyCountable((parseInt(m[1]) + 0.5) * scale, m[2]);
+    const val = scaleVal(parseInt(m[1]) + 0.5, scale, m[2]);
     return `${fmt(val)} ${m[2]}`;
   }
 
@@ -123,7 +150,7 @@ function scaleIngredientRaw(text: string, scale: number): string {
   m = s.match(/^(\d+)\s+(\d+)\/(\d+)\s+([\s\S]+)/);
   if (m) {
     const raw = parseInt(m[1]) + parseInt(m[2]) / parseInt(m[3]);
-    const val = applyCountable(raw * scale, m[4]);
+    const val = scaleVal(raw, scale, m[4]);
     return `${fmt(val)} ${m[4]}`;
   }
 
@@ -131,22 +158,22 @@ function scaleIngredientRaw(text: string, scale: number): string {
   m = s.match(/^(\d+)\/(\d+)\s+([\s\S]+)/);
   if (m) {
     const raw = parseInt(m[1]) / parseInt(m[2]);
-    const val = applyCountable(raw * scale, m[3]);
+    const val = scaleVal(raw, scale, m[3]);
     return `${fmt(val)} ${m[3]}`;
   }
 
-  // Ondalık: "1,5 kg et"
+  // Ondalık: "1,5 su bardağı un"
   m = s.match(/^(\d+[,.]\d+)\s+([\s\S]+)/);
   if (m) {
     const raw = parseFloat(m[1].replace(",", "."));
-    const val = applyCountable(raw * scale, m[2]);
+    const val = scaleVal(raw, scale, m[2]);
     return `${fmt(val)} ${m[2]}`;
   }
 
   // Tam sayı + birim: "2 su bardağı un"
   m = s.match(/^(\d+)\s+([\s\S]+)/);
   if (m) {
-    const val = applyCountable(parseInt(m[1]) * scale, m[2]);
+    const val = scaleVal(parseInt(m[1]), scale, m[2]);
     return `${fmt(val)} ${m[2]}`;
   }
 

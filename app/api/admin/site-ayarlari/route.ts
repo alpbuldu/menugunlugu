@@ -16,22 +16,30 @@ export async function PUT(req: Request) {
   const supabase = createAdminClient();
   const body = await req.json();
 
+  // Sadece gönderilen alanları güncelle — gönderilmeyen alanlar null'a çekilmez.
+  const ALLOWED_KEYS = [
+    "logo_url", "favicon_url", "contact_email",
+    "instagram_url", "youtube_url", "tiktok_url", "twitter_url",
+    "adsense_enabled", "daily_push_time", "push_title", "push_body",
+  ] as const;
+
+  type AllowedKey = (typeof ALLOWED_KEYS)[number];
+
+  const patch: Partial<Record<AllowedKey, unknown>> = {};
+  for (const key of ALLOWED_KEYS) {
+    if (Object.prototype.hasOwnProperty.call(body, key)) {
+      patch[key] = body[key];
+    }
+  }
+
+  if (Object.keys(patch).length === 0) {
+    return NextResponse.json({ ok: true }); // hiçbir şey değişmedi
+  }
+
   const { error } = await supabase
     .from("site_settings")
-    .upsert({
-      id: 1,
-      logo_url:         body.logo_url         ?? null,
-      favicon_url:      body.favicon_url       ?? null,
-      contact_email:    body.contact_email     ?? null,
-      instagram_url:    body.instagram_url     ?? null,
-      youtube_url:      body.youtube_url       ?? null,
-      tiktok_url:       body.tiktok_url        ?? null,
-      twitter_url:      body.twitter_url       ?? null,
-      adsense_enabled:  body.adsense_enabled   ?? false,
-      daily_push_time:  body.daily_push_time   ?? "09:00:00",
-      push_title:       body.push_title        ?? null,
-      push_body:        body.push_body         ?? null,
-    }, { onConflict: "id" });
+    .update(patch)
+    .eq("id", 1);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });

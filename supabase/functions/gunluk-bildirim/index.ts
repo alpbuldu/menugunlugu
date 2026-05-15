@@ -40,8 +40,8 @@ Deno.serve(async (req) => {
   }
 
   const pushTime        = (settings.daily_push_time as string | null)?.slice(0, 5) ?? "09:00"; // HH:MM
-  const pushTitle       = (settings.push_title as string | null) ?? "Günün Menüsü 🍽️";
-  const pushBody        = (settings.push_body  as string | null) ?? "Bugünün özel menüsü hazır!";
+  const pushTitle       = (settings.push_title as string | null) ?? "Günün Menüsü Hazır! 🍽️";
+  const pushBody        = (settings.push_body  as string | null) ?? "Günün menüsünü incele, tariflerin detaylı yapılışına göz at.";
   const lastSentDate    = settings.last_push_sent_date as string | null;
   const today           = todayIstanbul();
   const nowTime         = nowTimeIstanbul(); // HH:MM

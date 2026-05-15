@@ -261,7 +261,7 @@ export default function QuizGame() {
   const q = questions[qIdx];
   if (!q) return null;
 
-  const blurPx = Math.max(2, 6 - Math.floor(qIdx / 3) * 2);
+  const blurPx = 5;
 
   function answer(optionId: string) {
     if (answered !== "idle") return;

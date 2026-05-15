@@ -21,8 +21,20 @@ function htmlToLines(html: string): string {
     .join("\n");
 }
 
-function toPlainIfHtml(text: string): string {
-  return text.trim().startsWith("<") ? htmlToLines(text) : text;
+// Düz metin / app formatı → RecipeEditor için HTML
+// "* adım" veya "1. adım" → <p>adım</p>
+// Zaten HTML ise olduğu gibi döndür
+function toEditorHtml(text: string): string {
+  if (!text) return "";
+  const trimmed = text.trim();
+  // Zaten HTML
+  if (trimmed.startsWith("<")) return trimmed;
+  // Plain text: her satırı <p> yap, * ve numara prefixlerini temizle
+  const lines = trimmed
+    .split("\n")
+    .map(l => l.trim().replace(/^\*+\s*/, "").replace(/^\d+\.\s*/, "").trim())
+    .filter(Boolean);
+  return lines.map(l => `<p>${l}</p>`).join("");
 }
 
 const CATEGORIES: { value: Category; label: string }[] = [
@@ -73,7 +85,7 @@ export default function RecipeForm({ recipe }: Props) {
   const [seoKeywords,  setSeoKeywords]  = useState(recipe?.seo_keywords  ?? "");
   const [seoOpen,      setSeoOpen]      = useState(false);
   const [ingredients,  setIngredients]  = useState(recipe?.ingredients ?? "");
-  const [instructions, setInstructions] = useState(toPlainIfHtml(recipe?.instructions ?? ""));
+  const [instructions, setInstructions] = useState(toEditorHtml(recipe?.instructions ?? ""));
   const [imageUrl,      setImageUrl]      = useState(recipe?.image_url     ?? "");
   const [imagePosition, setImagePosition] = useState<"top"|"center"|"bottom">(recipe?.image_position ?? "center");
   const [preview,       setPreview]       = useState(
@@ -425,15 +437,14 @@ export default function RecipeForm({ recipe }: Props) {
           Yapılışı <span className="text-red-400">*</span>
         </label>
         <p className="text-xs text-warm-400 mb-1.5">
-          Her adımı ayrı satıra yazın. Sayfa üzerinde otomatik olarak 1, 2, 3… şeklinde numaralanır.
+          Her adımı ayrı satıra yazın. Bölümler için <strong>Başlık</strong> kullanabilirsiniz.
         </p>
-        <textarea
+        <RecipeEditor
           value={instructions}
-          onChange={(e) => setInstructions(e.target.value)}
-          required
-          rows={8}
+          onChange={setInstructions}
           placeholder={"Unu eleyin ve yumurtayla karıştırın.\nSuyu ekleyip yoğurun.\nYağı gezdirin ve pişirin."}
-          className={`${inputCls} resize-y`}
+          minHeight="200px"
+          mode="instructions"
         />
       </div>
 

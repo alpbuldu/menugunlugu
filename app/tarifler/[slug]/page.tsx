@@ -304,20 +304,19 @@ export default async function RecipeDetailPage({ params }: Props) {
               🔥 {(recipe as any).kcal_per_person} kcal
             </span>
           )}
-          {/* Hazırlık + Pişirme — sol üst */}
-          {((recipe as any).prep_time_minutes || (recipe as any).cook_time_minutes) && (
-            <div className="absolute top-3 left-3 flex flex-col items-start gap-1">
+          {/* Hazırlık + Pişirme — sol üst, tek badge */}
+          {((recipe as any).prep_time_minutes > 0 || (recipe as any).cook_time_minutes > 0) && (
+            <span className="absolute top-3 left-3 bg-black/50 backdrop-blur-sm text-white rounded-full px-2.5 py-1 text-[10px] font-semibold flex items-center gap-1.5">
               {(recipe as any).prep_time_minutes > 0 && (
-                <span className="bg-black/50 backdrop-blur-sm text-white rounded-full px-2.5 py-1 text-[10px] font-semibold">
-                  🥄 {(recipe as any).prep_time_minutes} dk hazırlık
-                </span>
+                <span>🥄 {(recipe as any).prep_time_minutes} dk</span>
+              )}
+              {(recipe as any).prep_time_minutes > 0 && (recipe as any).cook_time_minutes > 0 && (
+                <span className="opacity-40">|</span>
               )}
               {(recipe as any).cook_time_minutes > 0 && (
-                <span className="bg-black/50 backdrop-blur-sm text-white rounded-full px-2.5 py-1 text-[10px] font-semibold">
-                  🍳 {(recipe as any).cook_time_minutes} dk pişirme
-                </span>
+                <span>🍳 {(recipe as any).cook_time_minutes} dk</span>
               )}
-            </div>
+            </span>
           )}
           <Link
             href={`/uye/${authorUsername}`}

@@ -245,7 +245,6 @@ export default async function RecipeDetailPage({ params }: Props) {
     author: { "@type": "Person", name: authorName },
     datePublished: recipe.created_at,
     recipeCategory: recipe.category,
-    recipeCuisine: "Türk Mutfağı",
     recipeYield: recipe.servings ? `${recipe.servings} kişilik` : undefined,
     prepTime: (recipe as any).prep_time_minutes ? `PT${(recipe as any).prep_time_minutes}M` : undefined,
     cookTime: (recipe as any).cook_time_minutes ? `PT${(recipe as any).cook_time_minutes}M` : undefined,
